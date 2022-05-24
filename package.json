@@ -1,0 +1,30 @@
+{
+  "name": "saleor-app-sdk",
+  "version": "0.1.0",
+  "description": "",
+  "types": "index.d.ts",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "prepublishOnly": "pnpm build",
+    "watch": "tsc -w",
+    "build": "tsup-node src/* --format esm,cjs --dts && clear-package-json package.json -o dist/package.json --fields publishConfig",
+    "test": "uvu -r tsm spec",
+    "test-watch": "watchlist src spec -- pnpm test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "fast-glob": "^3.2.11",
+    "graphql": "^16.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.35",
+    "tsm": "^2.2.1",
+    "tsup": "^5.12.8",
+    "typescript": "^4.7.2",
+    "uvu": "^0.5.3",
+    "watchlist": "^0.3.1"
+  }
+}
