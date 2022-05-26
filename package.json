@@ -17,14 +17,28 @@
   "license": "ISC",
   "dependencies": {
     "fast-glob": "^3.2.11",
-    "graphql": "^16.5.0"
+    "graphql": "^16.5.0",
+    "retes": "^0.26.0"
   },
   "devDependencies": {
     "@types/node": "^17.0.35",
     "tsm": "^2.2.1",
-    "tsup": "^5.12.8",
+    "tsup": "^6.0.1",
     "typescript": "^4.7.2",
     "uvu": "^0.5.3",
     "watchlist": "^0.3.1"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    "./middleware": {
+      "types": "./middleware.d.ts",
+      "import": "./middleware.mjs",
+      "require": "./middleware.js"
+    },
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.mjs",
+      "require": "./index.js"
+    }
   }
 }
