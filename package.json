@@ -1,10 +1,9 @@
 {
-  "name": "saleor-app-sdk",
+  "name": "@saleor/app-sdk",
   "version": "0.1.0",
-  "description": "",
+  "description": "SDK for building great Saleor Apps",
   "types": "index.d.ts",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "prepublishOnly": "pnpm build",
     "watch": "tsc -w",
