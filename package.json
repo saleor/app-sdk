@@ -39,5 +39,16 @@
       "import": "./index.mjs",
       "require": "./index.js"
     }
-  }
+  },
+  "publishConfig": {
+    "directory": "dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/saleor/saleor-app-sdk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/saleor/saleor-app-sdk/issues"
+  },
+  "homepage": "https://github.com/saleor/saleor-app-sdk#readme"
 }
