@@ -1,6 +1,7 @@
 import path from 'path';
 import fg from 'fast-glob';
-import { print } from "graphql/language/printer";
+
+import { print } from "graphql/language/printer.js";
 
 export const capitalize = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
 export const dropFileExtension = (filename: string) => path.parse(filename).name;
