@@ -1,22 +1,37 @@
-import path from 'path';
-import fg from 'fast-glob';
+import path from "path";
+import fg from "fast-glob";
 
 import { print } from "graphql/language/printer.js";
 
-export const capitalize = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
-export const dropFileExtension = (filename: string) => path.parse(filename).name;
+const capitalize = (value: string) =>
+  value.charAt(0).toUpperCase() + value.slice(1);
+
+const dropFileExtension = (filename: string) => path.parse(filename).name;
 
 export const inferWebhooks = async (baseURL: string, generatedGraphQL: any) => {
-  const entries = await fg(["*.ts"], { cwd: "pages/api/webhooks" });
+  let entries;
+  if (process.env.NODE_ENV === "production") {
+    entries = await fg(["*.js"], { cwd: `${__dirname}/webhooks` });
+  } else {
+    entries = await fg(["*.ts"], { cwd: `pages/api/webhooks` });
+  }
 
   return entries.map(dropFileExtension).map((name: string) => {
     const camelcaseName = name.split("-").map(capitalize).join("");
 
     const eventName = name.toUpperCase().replace(new RegExp("-", "g"), "_");
     let eventType: string;
-    if (Object.values(generatedGraphQL.WebhookEventTypeAsyncEnum).includes(eventName)) {
+    if (
+      Object.values(generatedGraphQL.WebhookEventTypeAsyncEnum).includes(
+        eventName
+      )
+    ) {
       eventType = "asyncEvents";
-    } else if (Object.values(generatedGraphQL.WebhookEventTypeSyncEnum).includes(eventName)) {
+    } else if (
+      Object.values(generatedGraphQL.WebhookEventTypeSyncEnum).includes(
+        eventName
+      )
+    ) {
       eventType = "syncEvents";
     } else {
       throw Error("Event type not found.");
