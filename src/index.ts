@@ -8,12 +8,16 @@ const capitalize = (value: string) =>
 
 const dropFileExtension = (filename: string) => path.parse(filename).name;
 
-export const inferWebhooks = async (baseURL: string, webhooksPath: string, generatedGraphQL: any) => {
+export const inferWebhooks = async (
+  baseURL: string,
+  webhooksPath: string,
+  generatedGraphQL: any
+) => {
   let entries;
   if (process.env.NODE_ENV === "production") {
-    entries = await fg(["*.js"], { cwd: webhooksPath });
+    entries = await fg(["*.js"], { cwd: `${__dirname}/${webhooksPath}` });
   } else {
-    entries = await fg(["*.ts"], { cwd: `pages/api/webhooks` });
+    entries = await fg(["*.ts"], { cwd: webhooksPath });
   }
 
   return entries.map(dropFileExtension).map((name: string) => {
