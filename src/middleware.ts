@@ -1,8 +1,11 @@
+import crypto from "crypto";
+
+import * as jose from "jose";
 import type { Middleware } from "retes";
+import { Response } from "retes/response";
 
-import { Response } from 'retes/response';
-
-import * as Const from './const';
+import { SALEOR_DOMAIN_HEADER, SALEOR_EVENT_HEADER } from "./const";
+import { jwksUrl } from "./urls";
 
 export const withBaseURL: Middleware = (handler) => async (request) => {
   const { host, "x-forwarded-proto": protocol = "http" } = request.headers;
@@ -11,33 +14,101 @@ export const withBaseURL: Middleware = (handler) => async (request) => {
 
   const response = await handler(request);
   return response;
-}
-
-export const withSaleorDomainPresent: Middleware = (handler) => async (request) => {
-  const saleor_domain = request.headers[Const.SALEOR_DOMAIN_HEADER];
-
-  if (!saleor_domain) {
-    return Response.BadRequest({ success: false, message: "Missing Saleor domain header." });
-  }
-
-  return handler(request);
 };
 
-export const withSaleorEventMatch = (expectedEvent: string): Middleware => (handler) => async (request) => {
-  const receivedEvent = request.headers[Const.SALEOR_EVENT_HEADER];
+export const withSaleorDomainPresent: Middleware =
+  (handler) => async (request) => {
+    const saleor_domain = request.headers[SALEOR_DOMAIN_HEADER];
 
-  if (receivedEvent !== expectedEvent) {
-    return Response.BadRequest({ success: false, message: "Invalid Saleor Event" });
-  }
+    if (!saleor_domain) {
+      return Response.BadRequest({
+        success: false,
+        message: "Missing Saleor domain header.",
+      });
+    }
 
-  return handler(request);
-};
+    return handler(request);
+  };
 
-export const withAuthTokenRequired: Middleware = (handler) => async (request) => {
-  const auth_token = request.params.auth_token;
-  if (!auth_token) {
-    return Response.BadRequest({ success: false, message: "Missing auth token." });
-  }
+export const withSaleorEventMatch =
+  (expectedEvent: string): Middleware =>
+  (handler) =>
+  async (request) => {
+    const receivedEvent = request.headers[SALEOR_EVENT_HEADER];
 
-  return handler(request);
+    if (receivedEvent !== expectedEvent) {
+      return Response.BadRequest({
+        success: false,
+        message: "Invalid Saleor Event",
+      });
+    }
+
+    return handler(request);
+  };
+
+export const withAuthTokenRequired: Middleware =
+  (handler) => async (request) => {
+    const auth_token = request.params.auth_token;
+    if (!auth_token) {
+      return Response.BadRequest({
+        success: false,
+        message: "Missing auth token.",
+      });
+    }
+
+    return handler(request);
+  };
+
+export const withWebhookSignatureVerified = (
+  secretKey: string | undefined = undefined
+): Middleware => {
+  return (handler) => async (request) => {
+    if (request.rawBody === undefined) {
+      return Response.InternalServerError({
+        success: false,
+        message: "Request payload already parsed.",
+      });
+    }
+
+    const {
+      [SALEOR_DOMAIN_HEADER]: saleorDomain,
+      "saleor-signature": payloadSignature,
+    } = request.headers;
+
+    if (secretKey !== undefined) {
+      const calculatedSignature = crypto
+        .createHmac("sha256", secretKey)
+        .update(request.rawBody)
+        .digest("hex");
+
+      if (calculatedSignature !== payloadSignature) {
+        return Response.BadRequest({
+          success: false,
+          message: "Invalid signature.",
+        });
+      }
+    } else {
+      const [header, _, signature] = payloadSignature.split(".");
+      const jws = {
+        protected: header,
+        payload: request.rawBody,
+        signature,
+      };
+
+      const jwksKey = await jose.createRemoteJWKSet(
+        new URL(jwksUrl(saleorDomain))
+      )(header, payloadSignature);
+
+      try {
+        await jose.flattenedVerify(jws, jwksKey);
+      } catch {
+        return Response.BadRequest({
+          success: false,
+          message: "Invalid signature.",
+        });
+      }
+    }
+
+    return handler(request);
+  };
 };
