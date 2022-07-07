@@ -41,6 +41,11 @@
       "import": "./middleware.mjs",
       "require": "./middleware.js"
     },
+    "./urls": {
+      "types": "./urls.d.ts",
+      "import": "./urls.mjs",
+      "require": "./urls.js"
+    },
     ".": {
       "types": "./index.d.ts",
       "import": "./index.mjs",
