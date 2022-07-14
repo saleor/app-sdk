@@ -95,12 +95,12 @@ export const withWebhookSignatureVerified = (
         signature,
       };
 
-      const jwksKey = await jose.createRemoteJWKSet(
+      const jwks = jose.createRemoteJWKSet(
         new URL(jwksUrl(saleorDomain))
-      )(jose.decodeProtectedHeader(payloadSignature), jws);
+      ) as jose.FlattenedVerifyGetKey;
 
       try {
-        await jose.flattenedVerify(jws, jwksKey);
+        await jose.flattenedVerify(jws, jwks);
       } catch {
         return Response.BadRequest({
           success: false,
