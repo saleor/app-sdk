@@ -31,7 +31,7 @@ export const withSaleorDomainPresent: Middleware =
   };
 
 export const withSaleorEventMatch =
-  (expectedEvent: string): Middleware =>
+  <E extends string>(expectedEvent: `${Lowercase<E>}`): Middleware =>
   (handler) =>
   async (request) => {
     const receivedEvent = request.headers[SALEOR_EVENT_HEADER];
