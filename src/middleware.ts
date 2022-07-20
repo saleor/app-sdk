@@ -1,5 +1,4 @@
 import crypto from "crypto";
-
 import * as jose from "jose";
 import type { Middleware } from "retes";
 import { Response } from "retes/response";
@@ -16,19 +15,18 @@ export const withBaseURL: Middleware = (handler) => async (request) => {
   return response;
 };
 
-export const withSaleorDomainPresent: Middleware =
-  (handler) => async (request) => {
-    const saleor_domain = request.headers[SALEOR_DOMAIN_HEADER];
+export const withSaleorDomainPresent: Middleware = (handler) => async (request) => {
+  const saleorDomain = request.headers[SALEOR_DOMAIN_HEADER];
 
-    if (!saleor_domain) {
-      return Response.BadRequest({
-        success: false,
-        message: "Missing Saleor domain header.",
-      });
-    }
+  if (!saleorDomain) {
+    return Response.BadRequest({
+      success: false,
+      message: "Missing Saleor domain header.",
+    });
+  }
 
-    return handler(request);
-  };
+  return handler(request);
+};
 
 export const withSaleorEventMatch =
   (expectedEvent: string): Middleware =>
@@ -46,23 +44,22 @@ export const withSaleorEventMatch =
     return handler(request);
   };
 
-export const withAuthTokenRequired: Middleware =
-  (handler) => async (request) => {
-    const auth_token = request.params.auth_token;
-    if (!auth_token) {
-      return Response.BadRequest({
-        success: false,
-        message: "Missing auth token.",
-      });
-    }
+export const withAuthTokenRequired: Middleware = (handler) => async (request) => {
+  const authToken = request.params.auth_token;
+  if (!authToken) {
+    return Response.BadRequest({
+      success: false,
+      message: "Missing auth token.",
+    });
+  }
 
-    return handler(request);
-  };
+  return handler(request);
+};
 
-export const withWebhookSignatureVerified = (
-  secretKey: string | undefined = undefined
-): Middleware => {
-  return (handler) => async (request) => {
+export const withWebhookSignatureVerified =
+  (secretKey: string | undefined = undefined): Middleware =>
+  (handler) =>
+  async (request) => {
     if (request.rawBody === undefined) {
       return Response.InternalServerError({
         success: false,
@@ -70,10 +67,8 @@ export const withWebhookSignatureVerified = (
       });
     }
 
-    const {
-      [SALEOR_DOMAIN_HEADER]: saleorDomain,
-      "saleor-signature": payloadSignature,
-    } = request.headers;
+    const { [SALEOR_DOMAIN_HEADER]: saleorDomain, "saleor-signature": payloadSignature } =
+      request.headers;
 
     if (secretKey !== undefined) {
       const calculatedSignature = crypto
@@ -111,4 +106,3 @@ export const withWebhookSignatureVerified = (
 
     return handler(request);
   };
-};
