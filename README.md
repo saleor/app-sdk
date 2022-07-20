@@ -14,3 +14,15 @@ SDK for building great Saleor Apps.
 ```bash
 npm i @saleor/app-sdk
 ```
+
+## Development
+
+### Code style
+
+Before committing the code, Git pre-hooks will check staged changes for
+following the code styles. If you would like to format the code by yourself, run
+the command:
+
+```bash
+pnpm lint
+```
