@@ -83,7 +83,7 @@ export const withWebhookSignatureVerified =
         });
       }
     } else {
-      const [header, _, signature] = payloadSignature.split(".");
+      const [header, , signature] = payloadSignature.split(".");
       const jws = {
         protected: header,
         payload: request.rawBody,
