@@ -12,7 +12,14 @@
     "react/react-in-jsx-scope": "off", // next does not require react imports
     "import/extensions": "off", // file extension not required when importing
     "react/jsx-filename-extension": "off",
-    "no-restricted-syntax": "off",
+    "no-restricted-syntax": [
+      "error",
+      {
+        selector: "ForInStatement",
+        message: "for ... in disallowed, use for ... of instead",
+      },
+    ],
+
     "no-underscore-dangle": "off",
     "no-await-in-loop": "off",
     "react/jsx-props-no-spreading": "off",
