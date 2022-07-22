@@ -3,7 +3,7 @@ lockfileVersion: 5.4
 specifiers:
   '@types/node': ^18.0.4
   '@typescript-eslint/eslint-plugin': ^5.17.0
-  '@typescript-eslint/parser': ^5.17.0
+  '@typescript-eslint/parser': ^5.30.7
   clean-publish: ^4.0.1
   eslint: 8.15.0
   eslint-config-airbnb: ^19.0.4

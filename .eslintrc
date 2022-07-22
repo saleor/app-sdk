@@ -1,5 +1,9 @@
 {
   "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "tsconfigRootDir": "./",
+    "project": ["./tsconfig.json"]
+  },
   "extends": [
     "airbnb",
     "plugin:@typescript-eslint/recommended",
@@ -15,9 +19,9 @@
     "no-restricted-syntax": [
       "error",
       {
-        selector: "ForInStatement",
-        message: "for ... in disallowed, use for ... of instead",
-      },
+        "selector": "ForInStatement",
+        "message": "for ... in disallowed, use for ... of instead"
+      }
     ],
 
     "no-underscore-dangle": "off",
@@ -53,7 +57,6 @@
     "import/prefer-default-export": "off",
     "@typescript-eslint/no-misused-promises": ["error"],
     "@typescript-eslint/no-floating-promises": ["error"]
-
   },
   "settings": {
     "import/parsers": {
