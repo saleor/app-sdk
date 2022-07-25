@@ -16,10 +16,7 @@ jobs:
         run: pnpm install
       - name: Check linters
         run: pnpm lint
-      - name: Validate paths
-        run: |
-          pnpm paths
-          git diff --exit-code ./lib/\$path.ts
+
   build:
     runs-on: ubuntu-latest
     steps:
