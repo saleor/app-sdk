@@ -72,6 +72,13 @@ export const withWebhookSignatureVerified =
 
     const { domain: saleorDomain, signature: payloadSignature } = getSaleorHeaders(request.headers);
 
+    if (!payloadSignature) {
+      return Response.BadRequest({
+        success: false,
+        message: "Missing payload signature.",
+      });
+    }
+
     if (secretKey !== undefined) {
       const calculatedSignature = crypto
         .createHmac("sha256", secretKey)
