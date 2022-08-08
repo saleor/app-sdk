@@ -12,8 +12,7 @@ export const withBaseURL: Middleware = (handler) => async (request) => {
 
   request.context.baseURL = `${protocol}://${host}`;
 
-  const response = await handler(request);
-  return response;
+  return handler(request);
 };
 
 export const withSaleorDomainPresent: Middleware = (handler) => async (request) => {
