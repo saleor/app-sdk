@@ -3,7 +3,7 @@ import * as jose from "jose";
 import type { Middleware, Request } from "retes";
 import { Response } from "retes/response";
 
-import { SALEOR_AUTHORIZATION_BEARER_HEADER } from "./const";
+import { SALEOR_AUTHORIZATION_BEARER_HEADER, SALEOR_SIGNATURE_HEADER } from "./const";
 import { getSaleorHeaders } from "./headers";
 import { jwksUrl } from "./urls";
 
@@ -75,7 +75,7 @@ export const withWebhookSignatureVerified =
     if (!payloadSignature) {
       return Response.BadRequest({
         success: false,
-        message: "Missing payload signature.",
+        message: `${ERROR_MESSAGE} Missing ${SALEOR_SIGNATURE_HEADER} header.`,
       });
     }
 
