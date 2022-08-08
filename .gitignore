@@ -115,5 +115,4 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-test.ts
-bare.ts
+.idea/

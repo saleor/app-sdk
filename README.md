@@ -9,6 +9,12 @@ SDK for building great [Saleor Apps](https://github.com/saleor/saleor-app-templa
 
 </div>
 
+## 🚨 Alpha phase
+
+App SDK is on early, alpha stage at the moment. Every API below 1.x.x release is likely to change.
+
+Feel free to play with SDK and to move its code to your app directly
+
 ## Installing
 
 ```bash
