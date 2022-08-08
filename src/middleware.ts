@@ -1,9 +1,10 @@
 import crypto from "crypto";
 import * as jose from "jose";
-import type { Middleware } from "retes";
+import type { Middleware, Request } from "retes";
 import { Response } from "retes/response";
 
-import { SALEOR_DOMAIN_HEADER, SALEOR_EVENT_HEADER } from "./const";
+import { SALEOR_AUTHORIZATION_BEARER_HEADER } from "./const";
+import { getSaleorHeaders } from "./headers";
 import { jwksUrl } from "./urls";
 
 export const withBaseURL: Middleware = (handler) => async (request) => {
@@ -16,9 +17,9 @@ export const withBaseURL: Middleware = (handler) => async (request) => {
 };
 
 export const withSaleorDomainPresent: Middleware = (handler) => async (request) => {
-  const saleorDomain = request.headers[SALEOR_DOMAIN_HEADER];
+  const { domain } = getSaleorHeaders(request.headers);
 
-  if (!saleorDomain) {
+  if (!domain) {
     return Response.BadRequest({
       success: false,
       message: "Missing Saleor domain header.",
@@ -32,12 +33,12 @@ export const withSaleorEventMatch =
   <E extends string>(expectedEvent: `${Lowercase<E>}`): Middleware =>
   (handler) =>
   async (request) => {
-    const receivedEvent = request.headers[SALEOR_EVENT_HEADER];
+    const { event } = getSaleorHeaders(request.headers);
 
-    if (receivedEvent !== expectedEvent) {
+    if (event !== expectedEvent) {
       return Response.BadRequest({
         success: false,
-        message: "Invalid Saleor Event",
+        message: `Invalid Saleor event. Expecting ${expectedEvent}.`,
       });
     }
 
@@ -60,15 +61,16 @@ export const withWebhookSignatureVerified =
   (secretKey: string | undefined = undefined): Middleware =>
   (handler) =>
   async (request) => {
+    const ERROR_MESSAGE = "Webhook signature verification failed:";
+
     if (request.rawBody === undefined) {
       return Response.InternalServerError({
         success: false,
-        message: "Request payload already parsed.",
+        message: `${ERROR_MESSAGE} Request payload already parsed.`,
       });
     }
 
-    const { [SALEOR_DOMAIN_HEADER]: saleorDomain, "saleor-signature": payloadSignature } =
-      request.headers;
+    const { domain: saleorDomain, signature: payloadSignature } = getSaleorHeaders(request.headers);
 
     if (secretKey !== undefined) {
       const calculatedSignature = crypto
@@ -79,7 +81,7 @@ export const withWebhookSignatureVerified =
       if (calculatedSignature !== payloadSignature) {
         return Response.BadRequest({
           success: false,
-          message: "Invalid signature.",
+          message: `${ERROR_MESSAGE} Verification using secret key has failed.`,
         });
       }
     } else {
@@ -90,18 +92,91 @@ export const withWebhookSignatureVerified =
         signature,
       };
 
-      const jwks = jose.createRemoteJWKSet(
+      const remoteJwks = jose.createRemoteJWKSet(
         new URL(jwksUrl(saleorDomain))
       ) as jose.FlattenedVerifyGetKey;
 
       try {
-        await jose.flattenedVerify(jws, jwks);
+        await jose.flattenedVerify(jws, remoteJwks);
       } catch {
         return Response.BadRequest({
           success: false,
-          message: "Invalid signature.",
+          message: `${ERROR_MESSAGE} Verification using public key has failed.`,
         });
       }
+    }
+
+    return handler(request);
+  };
+
+export interface DashboardTokenPayload extends jose.JWTPayload {
+  app: string;
+}
+
+export const withJWTVerified =
+  (getAppId: (request: Request) => Promise<string | undefined>): Middleware =>
+  (handler) =>
+  async (request) => {
+    const { domain, authorizationBearer: token } = getSaleorHeaders(request.headers);
+    const ERROR_MESSAGE = "JWT verification failed:";
+
+    if (token === undefined) {
+      return Response.BadRequest({
+        success: false,
+        message: `${ERROR_MESSAGE} Missing ${SALEOR_AUTHORIZATION_BEARER_HEADER} header.`,
+      });
+    }
+
+    let tokenClaims: DashboardTokenPayload;
+    try {
+      tokenClaims = jose.decodeJwt(token as string) as DashboardTokenPayload;
+    } catch (e) {
+      return Response.BadRequest({
+        success: false,
+        message: `${ERROR_MESSAGE} Could not decode authorization token.`,
+      });
+    }
+
+    if (tokenClaims.iss !== domain) {
+      return Response.BadRequest({
+        success: false,
+        message: `${ERROR_MESSAGE} Token iss property is different than domain header.`,
+      });
+    }
+
+    let appId: string | undefined;
+    try {
+      appId = await getAppId(request);
+    } catch (error) {
+      return Response.InternalServerError({
+        success: false,
+        message: `${ERROR_MESSAGE} Could not obtain the app ID.`,
+      });
+    }
+
+    if (!appId) {
+      return Response.InternalServerError({
+        success: false,
+        message: `${ERROR_MESSAGE} No value for app ID.`,
+      });
+    }
+
+    if (tokenClaims.app !== appId) {
+      return Response.BadRequest({
+        success: false,
+        message: `${ERROR_MESSAGE} Token's app property is different than app ID.`,
+      });
+    }
+
+    try {
+      const JWKS = jose.createRemoteJWKSet(new URL(jwksUrl(domain)));
+      await jose.jwtVerify(token, JWKS);
+    } catch (e) {
+      console.error(e);
+      return Response.BadRequest({
+        success: false,
+        message: `${ERROR_MESSAGE} JWT signature verification failed.`,
+      });
     }
 
     return handler(request);
