@@ -5,15 +5,14 @@ import { Response } from "retes/response";
 
 import { SALEOR_AUTHORIZATION_BEARER_HEADER, SALEOR_SIGNATURE_HEADER } from "./const";
 import { getSaleorHeaders } from "./headers";
-import { jwksUrl } from "./urls";
+import { getJwksUrl } from "./urls";
 
 export const withBaseURL: Middleware = (handler) => async (request) => {
   const { host, "x-forwarded-proto": protocol = "http" } = request.headers;
 
   request.context.baseURL = `${protocol}://${host}`;
 
-  const response = await handler(request);
-  return response;
+  return handler(request);
 };
 
 export const withSaleorDomainPresent: Middleware = (handler) => async (request) => {
@@ -100,7 +99,7 @@ export const withWebhookSignatureVerified =
       };
 
       const remoteJwks = jose.createRemoteJWKSet(
-        new URL(jwksUrl(saleorDomain))
+        new URL(getJwksUrl(saleorDomain))
       ) as jose.FlattenedVerifyGetKey;
 
       try {
@@ -176,7 +175,7 @@ export const withJWTVerified =
     }
 
     try {
-      const JWKS = jose.createRemoteJWKSet(new URL(jwksUrl(domain)));
+      const JWKS = jose.createRemoteJWKSet(new URL(getJwksUrl(domain)));
       await jose.jwtVerify(token, JWKS);
     } catch (e) {
       console.error(e);

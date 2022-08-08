@@ -1,8 +1,21 @@
-const urlProtocol = (saleorDomain: string): string =>
+/**
+ * TODO: Validate proper URL
+ */
+const resolveUrlProtocol = (saleorDomain: string): string =>
   saleorDomain === "localhost:8000" ? "http" : "https";
 
-export const jwksUrl = (saleorDomain: string): string =>
-  `${urlProtocol(saleorDomain)}://${saleorDomain}/.well-known/jwks.json`;
+export const getJwksUrl = (saleorDomain: string): string =>
+  `${resolveUrlProtocol(saleorDomain)}://${saleorDomain}/.well-known/jwks.json`;
 
-export const graphQLUrl = (saleorDomain: string): string =>
-  `${urlProtocol(saleorDomain)}://${saleorDomain}/graphql/`;
+export const getGraphQLUrl = (saleorDomain: string): string =>
+  `${resolveUrlProtocol(saleorDomain)}://${saleorDomain}/graphql/`;
+
+/**
+ * @deprecated Remove in v1, left for compatibility
+ */
+export const jwksUrl = getJwksUrl;
+
+/**
+ * @deprecated Remove in v1, left for compatibility
+ */
+export const graphQLUrl = getGraphQLUrl;

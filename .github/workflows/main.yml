@@ -17,6 +17,22 @@ jobs:
       - name: Check linters
         run: pnpm lint
 
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: pnpm/action-setup@v2.2.1
+        with:
+          version: 6.19.1
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+          cache: "pnpm"
+      - name: Install dependencies
+        run: pnpm install
+      - name: Test
+        run: pnpm test
+
   build:
     runs-on: ubuntu-latest
     steps:

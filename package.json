@@ -8,8 +8,7 @@
     "prepublishOnly": "pnpm build",
     "watch": "tsup-node src/* --format esm,cjs --dts --watch",
     "build": "tsup-node src/* --format esm,cjs --dts && clear-package-json package.json -o dist/package.json --fields publishConfig",
-    "test": "uvu -r tsm spec",
-    "test-watch": "watchlist src spec -- pnpm test",
+    "test": "vitest",
     "prepare": "husky install",
     "lint": "prettier --loglevel warn --write . && eslint --fix ."
   },
@@ -41,7 +40,7 @@
     "tsm": "^2.2.1",
     "tsup": "^6.2.0",
     "typescript": "^4.7.4",
-    "uvu": "^0.5.6",
+    "vitest": "^0.21.0",
     "watchlist": "^0.3.1"
   },
   "lint-staged": {
