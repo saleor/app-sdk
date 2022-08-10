@@ -4,14 +4,14 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: pnpm/action-setup@v2.2.1
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2.2.2
         with:
-          version: 6.19.1
+          version: 7.9.0
       - uses: actions/setup-node@v3
         with:
-          node-version: "16"
-          cache: "pnpm"
+          node-version: 16.x
+          cache: pnpm
       - name: Install dependencies
         run: pnpm install
       - name: Check linters
@@ -20,13 +20,13 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: pnpm/action-setup@v2.2.1
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2.2.2
         with:
-          version: 6.19.1
+          version: 7.9.0
       - uses: actions/setup-node@v3
         with:
-          node-version: "16"
+          node-version: 16.x
           cache: "pnpm"
       - name: Install dependencies
         run: pnpm install
@@ -36,15 +36,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: pnpm/action-setup@v2.2.1
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2.2.2
         with:
-          version: 6.19.1
+          version: 7.9.0
       - uses: actions/setup-node@v3
         with:
-          node-version: "16"
-          cache: "pnpm"
-      - uses: actions/cache@v2
+          node-version: 16.x
+          cache: pnpm
+      - uses: actions/cache@v3
         with:
           path: |
             ${{ github.workspace }}/.next/cache
