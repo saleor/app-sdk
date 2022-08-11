@@ -1,5 +1,5 @@
 import { fireEvent } from "@testing-library/dom";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // mock document.referrer
 const origin = "http://example.com";
@@ -16,11 +16,23 @@ Object.defineProperty(window, "location", {
 });
 
 // eslint-disable-next-line
-import { actions, DispatchResponseEvent, createApp } from ".";
+import { actions, DispatchResponseEvent, createApp, HandshakeEvent } from ".";
+
+const handshakeEvent: HandshakeEvent = {
+  payload: {
+    token: "mock-token",
+    version: 1,
+  },
+  type: "handshake",
+};
 
 describe("createApp", () => {
   const domain = "saleor.domain.host";
-  const app = createApp(domain);
+  let app = createApp(domain);
+
+  beforeEach(() => {
+    app = createApp(domain);
+  });
 
   it("correctly sets the domain", () => {
     expect(app.getState().domain).toEqual(domain);
@@ -42,23 +54,19 @@ describe("createApp", () => {
     expect(app.getState().token).toEqual(token);
   });
 
-  it("subscribes to an event and returns unsubcribe function", () => {
-    // subscribe
+  it("subscribes to an event and returns unsubscribe function", () => {
     const callback = vi.fn();
     const unsubscribe = app.subscribe("handshake", callback);
 
     expect(callback).not.toHaveBeenCalled();
 
     const token = "fresh-token";
-    // correct event
-    const payload = {
-      token,
-      version: 1,
-    };
+
+    // First call proper event
     fireEvent(
       window,
       new MessageEvent("message", {
-        data: { type: "handshake", payload },
+        data: handshakeEvent,
         origin,
       })
     );
@@ -82,11 +90,10 @@ describe("createApp", () => {
     );
 
     expect(callback).toHaveBeenCalledTimes(1);
-    expect(callback).toHaveBeenCalledWith(payload);
-    expect(app.getState().token).toEqual(token);
+    expect(callback).toHaveBeenCalledWith(handshakeEvent.payload);
+    expect(app.getState().token).toEqual(handshakeEvent.payload.token);
     expect(app.getState().id).toEqual("appid");
 
-    // unsubscribe
     unsubscribe();
 
     fireEvent(
@@ -129,4 +136,36 @@ describe("createApp", () => {
 
   it("times out after action response has not been registered", () =>
     expect(app.dispatch(actions.Redirect({ to: "/test" }))).rejects.toBeInstanceOf(Error));
+
+  it("unsubscribes from all listeners", () => {
+    const cb1 = vi.fn();
+    const cb2 = vi.fn();
+
+    app.subscribe("handshake", cb1);
+    app.subscribe("handshake", cb2);
+
+    fireEvent(
+      window,
+      new MessageEvent("message", {
+        data: handshakeEvent,
+        origin,
+      })
+    );
+
+    expect(cb1).toHaveBeenCalledTimes(1);
+    expect(cb2).toHaveBeenCalledTimes(1);
+
+    app.unsubscribeAll();
+
+    fireEvent(
+      window,
+      new MessageEvent("message", {
+        data: handshakeEvent,
+        origin,
+      })
+    );
+
+    expect(cb1).toHaveBeenCalledTimes(1);
+    expect(cb2).toHaveBeenCalledTimes(1);
+  });
 });

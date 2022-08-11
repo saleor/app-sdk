@@ -8,6 +8,7 @@ export const EventType = {
   redirect: "redirect",
   theme: "theme",
 } as const;
+
 export type EventType = Values<typeof EventType>;
 
 type Event<Name extends EventType, Payload extends {}> = {

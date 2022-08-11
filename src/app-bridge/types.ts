@@ -1,5 +1,5 @@
-import { createApp } from ".";
+import { AppBridge } from "./app-bridge";
 import { AppBridgeState } from "./app-bridge-state";
 
-export type App = ReturnType<typeof createApp>;
+export type App = typeof AppBridge;
 export { AppBridgeState };
