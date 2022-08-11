@@ -7,7 +7,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: pnpm/action-setup@v2.2.2
         with:
-          version: 7.9.0
+          version: 7.5.0 # Use 7.5.0 like other Saleor packages, to avoid pnpm version conflicts.
       - uses: actions/setup-node@v3
         with:
           node-version: 16.x
@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: pnpm/action-setup@v2.2.2
         with:
-          version: 7.9.0
+          version: 7.5.0
       - uses: actions/setup-node@v3
         with:
           node-version: 16.x
@@ -39,7 +39,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: pnpm/action-setup@v2.2.2
         with:
-          version: 7.9.0
+          version: 7.5.0
       - uses: actions/setup-node@v3
         with:
           node-version: 16.x
