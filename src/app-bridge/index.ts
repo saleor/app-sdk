@@ -1,8 +1,17 @@
 import { Actions } from "./actions";
-import { app } from "./app";
+import { AppBridgeStateContainer } from "./app-bridge-state";
+import { SSR } from "./constants";
 import { EventType, ThemeType } from "./events";
 
 export function createApp(targetDomain?: string) {
+  const appBridgeState = new AppBridgeStateContainer();
+
+  if (SSR) {
+    throw new Error(
+      "AppBridge detected you're running this app in SSR mode. Make sure to call `createApp` when window object exists."
+    );
+  }
+
   let domain: string;
   const url = new URL(window.location.href);
   const id = url.searchParams.get("id") || "";
@@ -15,7 +24,7 @@ export function createApp(targetDomain?: string) {
     domain = url.searchParams.get("domain") || "";
   }
 
-  app.setState({ domain, id, path, theme });
+  appBridgeState.setState({ domain, id, path, theme });
 
   /**
    * Dispatches Action to Saleor Dashboard.
@@ -36,7 +45,7 @@ export function createApp(targetDomain?: string) {
 
         let intervalId: NodeJS.Timer;
 
-        const unsubscribe = app.subscribe(EventType.response, ({ actionId, ok }) => {
+        const unsubscribe = appBridgeState.subscribe(EventType.response, ({ actionId, ok }) => {
           if (action.payload.actionId === actionId) {
             unsubscribe();
             clearInterval(intervalId);
@@ -66,13 +75,17 @@ export function createApp(targetDomain?: string) {
 
   return {
     dispatch,
-    subscribe: app.subscribe,
-    unsubscribeAll: app.unsubscribeAll,
-    getState: app.getState,
+    subscribe: appBridgeState.subscribe.bind(appBridgeState),
+    unsubscribeAll: appBridgeState.unsubscribeAll.bind(appBridgeState),
+    getState: appBridgeState.getState.bind(appBridgeState),
   };
 }
 
 export * from "./actions";
 export * from "./events";
 export * from "./types";
+
+/**
+ * @deprecated avoid default functions in SDKs
+ */
 export default createApp;

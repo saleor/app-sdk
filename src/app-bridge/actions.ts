@@ -7,6 +7,7 @@ export const ActionType = {
   redirect: "redirect",
   notification: "notification",
 } as const;
+
 export type ActionType = Values<typeof ActionType>;
 
 type Action<Name extends ActionType, Payload extends {}> = {
@@ -44,7 +45,8 @@ export type RedirectPayload = {
  * Redirects Dashboard user.
  */
 export type RedirectAction = ActionWithId<"redirect", RedirectPayload>;
-function Redirect(payload: RedirectPayload): RedirectAction {
+
+function createRedirectAction(payload: RedirectPayload): RedirectAction {
   return withActionId({
     payload,
     type: "redirect",
@@ -65,7 +67,7 @@ export type NotificationAction = ActionWithId<"notification", NotificationPayloa
 /**
  * Shows a notification using Dashboard's notification system.
  */
-function Notification(payload: NotificationPayload): NotificationAction {
+function createNotificationAction(payload: NotificationPayload): NotificationAction {
   return withActionId({
     type: "notification",
     payload,
@@ -75,6 +77,6 @@ function Notification(payload: NotificationPayload): NotificationAction {
 export type Actions = RedirectAction | NotificationAction;
 
 export const actions = {
-  Redirect,
-  Notification,
+  Redirect: createRedirectAction,
+  Notification: createNotificationAction,
 };
