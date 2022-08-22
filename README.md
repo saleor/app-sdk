@@ -21,6 +21,10 @@ Feel free to play with SDK and to move its code to your app directly
 npm i @saleor/app-sdk
 ```
 
+## Docs
+
+- [AppBridge](./docs/app-bridge.md) - communication layer between Saleor App and Dashboard
+
 ## Development
 
 ### How to link development version to your project

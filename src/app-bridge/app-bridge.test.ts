@@ -16,7 +16,7 @@ Object.defineProperty(window, "location", {
 });
 
 // eslint-disable-next-line
-import { actions, DispatchResponseEvent, createApp, HandshakeEvent } from ".";
+import { actions, DispatchResponseEvent, HandshakeEvent, AppBridge } from ".";
 
 const handshakeEvent: HandshakeEvent = {
   payload: {
@@ -26,20 +26,20 @@ const handshakeEvent: HandshakeEvent = {
   type: "handshake",
 };
 
-describe("createApp", () => {
+describe("AppBridge", () => {
   const domain = "saleor.domain.host";
-  let app = createApp(domain);
+  let appBridge = new AppBridge();
 
   beforeEach(() => {
-    app = createApp(domain);
+    appBridge = new AppBridge();
   });
 
-  it("correctly sets the domain", () => {
-    expect(app.getState().domain).toEqual(domain);
+  it("correctly sets the default domain, if not set in constructor", () => {
+    expect(appBridge.getState().domain).toEqual(domain);
   });
 
   it("authenticates", () => {
-    expect(app.getState().ready).toBe(false);
+    expect(appBridge.getState().ready).toBe(false);
 
     const token = "test-token";
     fireEvent(
@@ -50,13 +50,13 @@ describe("createApp", () => {
       })
     );
 
-    expect(app.getState().ready).toBe(true);
-    expect(app.getState().token).toEqual(token);
+    expect(appBridge.getState().ready).toBe(true);
+    expect(appBridge.getState().token).toEqual(token);
   });
 
   it("subscribes to an event and returns unsubscribe function", () => {
     const callback = vi.fn();
-    const unsubscribe = app.subscribe("handshake", callback);
+    const unsubscribe = appBridge.subscribe("handshake", callback);
 
     expect(callback).not.toHaveBeenCalled();
 
@@ -91,8 +91,8 @@ describe("createApp", () => {
 
     expect(callback).toHaveBeenCalledTimes(1);
     expect(callback).toHaveBeenCalledWith(handshakeEvent.payload);
-    expect(app.getState().token).toEqual(handshakeEvent.payload.token);
-    expect(app.getState().id).toEqual("appid");
+    expect(appBridge.getState().token).toEqual(handshakeEvent.payload.token);
+    expect(appBridge.getState().id).toEqual("appid");
 
     unsubscribe();
 
@@ -105,11 +105,11 @@ describe("createApp", () => {
     );
 
     expect(callback).toHaveBeenCalledTimes(1);
-    expect(app.getState().token).toEqual("123");
+    expect(appBridge.getState().token).toEqual("123");
   });
 
   it("persists domain", () => {
-    expect(app.getState().domain).toEqual(domain);
+    expect(appBridge.getState().domain).toEqual(domain);
   });
 
   it("dispatches valid action", () => {
@@ -131,18 +131,18 @@ describe("createApp", () => {
       }
     });
 
-    return expect(app.dispatch(action)).resolves.toBeUndefined();
+    return expect(appBridge.dispatch(action)).resolves.toBeUndefined();
   });
 
   it("times out after action response has not been registered", () =>
-    expect(app.dispatch(actions.Redirect({ to: "/test" }))).rejects.toBeInstanceOf(Error));
+    expect(appBridge.dispatch(actions.Redirect({ to: "/test" }))).rejects.toBeInstanceOf(Error));
 
   it("unsubscribes from all listeners", () => {
     const cb1 = vi.fn();
     const cb2 = vi.fn();
 
-    app.subscribe("handshake", cb1);
-    app.subscribe("handshake", cb2);
+    appBridge.subscribe("handshake", cb1);
+    appBridge.subscribe("handshake", cb2);
 
     fireEvent(
       window,
@@ -155,7 +155,7 @@ describe("createApp", () => {
     expect(cb1).toHaveBeenCalledTimes(1);
     expect(cb2).toHaveBeenCalledTimes(1);
 
-    app.unsubscribeAll();
+    appBridge.unsubscribeAll();
 
     fireEvent(
       window,
@@ -167,5 +167,13 @@ describe("createApp", () => {
 
     expect(cb1).toHaveBeenCalledTimes(1);
     expect(cb2).toHaveBeenCalledTimes(1);
+  });
+
+  it("attaches domain from options in constructor", () => {
+    appBridge = new AppBridge({
+      targetDomain: "https://foo.bar",
+    });
+
+    expect(appBridge.getState().domain).toEqual("https://foo.bar");
   });
 });

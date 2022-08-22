@@ -51,6 +51,14 @@ const createEmptySubscribeMap = (): SubscribeMap => ({
   theme: {},
 });
 
+export type AppBridgeOptions = {
+  targetDomain?: string;
+};
+
+const getDefaultOptions = (): AppBridgeOptions => ({
+  targetDomain: new URL(window.location.href).searchParams.get("domain") || "",
+});
+
 export class AppBridge {
   private state = new AppBridgeStateContainer();
 
@@ -58,16 +66,19 @@ export class AppBridge {
 
   private subscribeMap = createEmptySubscribeMap();
 
-  constructor(private targetDomain?: string) {
+  private combinedOptions = getDefaultOptions();
+
+  constructor(options: AppBridgeOptions = {}) {
     if (SSR) {
       throw new Error(
         "AppBridge detected you're running this app in SSR mode. Make sure to call `new AppBridge()` when window object exists."
       );
     }
 
-    if (!targetDomain) {
-      this.targetDomain = new URL(window.location.href).searchParams.get("domain") || "";
-    }
+    this.combinedOptions = {
+      ...this.combinedOptions,
+      ...options,
+    };
 
     if (!this.refererOrigin) {
       // TODO probably throw
@@ -168,7 +179,7 @@ export class AppBridge {
     const path = window.location.pathname || "";
     const theme: ThemeType = url.searchParams.get("theme") === "light" ? "light" : "dark";
 
-    this.state.setState({ domain: this.targetDomain, id, path, theme });
+    this.state.setState({ domain: this.combinedOptions.targetDomain, id, path, theme });
   }
 
   private listenOnMessages() {
