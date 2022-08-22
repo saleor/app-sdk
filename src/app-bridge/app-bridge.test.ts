@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // mock document.referrer
 const origin = "http://example.com";
+const domain = "saleor.domain.host";
+
 Object.defineProperty(window.document, "referrer", {
   value: origin,
   writable: true,
@@ -10,7 +12,7 @@ Object.defineProperty(window.document, "referrer", {
 
 Object.defineProperty(window, "location", {
   value: {
-    href: `${origin}?domain=saleor.domain&id=appid`,
+    href: `${origin}?domain=${domain}&id=appid`,
   },
   writable: true,
 });
@@ -27,7 +29,6 @@ const handshakeEvent: HandshakeEvent = {
 };
 
 describe("AppBridge", () => {
-  const domain = "saleor.domain.host";
   let appBridge = new AppBridge();
 
   beforeEach(() => {
