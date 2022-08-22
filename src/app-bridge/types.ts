@@ -1,5 +1,8 @@
 import { AppBridge } from "./app-bridge";
 import { AppBridgeState } from "./app-bridge-state";
 
-export type App = typeof AppBridge;
+/**
+ * @deprecated Use AppBridge instead
+ */
+export type App = AppBridge;
 export { AppBridgeState };
