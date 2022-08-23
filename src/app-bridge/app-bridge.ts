@@ -62,7 +62,7 @@ const getDefaultOptions = (): AppBridgeOptions => ({
 export class AppBridge {
   private state = new AppBridgeStateContainer();
 
-  private refererOrigin = new URL(document.referrer).origin;
+  private refererOrigin = document.referrer ? new URL(document.referrer).origin : undefined;
 
   private subscribeMap = createEmptySubscribeMap();
 
