@@ -53,6 +53,11 @@
       "import": "./const.mjs",
       "require": "./const.js"
     },
+    "./apl": {
+      "types": "./apl.d.ts",
+      "import": "./apl.mjs",
+      "require": "./apl.js"
+    },
     "./middleware": {
       "types": "./middleware.d.ts",
       "import": "./middleware.mjs",
