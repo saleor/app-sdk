@@ -8,7 +8,7 @@ import { withRegisteredSaleorDomainHeader } from "./with-registered-saleor-domai
 
 const getMockSuccessResponse = async () => Response.OK({});
 
-describe("middleware.test.ts", () => {
+describe("middleware", () => {
   describe("withRegisteredSaleorDomainHeader", () => {
     let mockHandlerFn: Handler = vi.fn(getMockSuccessResponse);
 
