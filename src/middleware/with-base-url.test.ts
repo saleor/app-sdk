@@ -6,7 +6,7 @@ import { withBaseURL } from "./with-base-url";
 
 const getMockEmptyResponse = async () => ({} as Response);
 
-describe("middleware.test.ts", () => {
+describe("middleware", () => {
   describe("withBaseURL", () => {
     let mockHandlerFn: Handler = vi.fn(getMockEmptyResponse);
 
