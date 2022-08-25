@@ -2,36 +2,13 @@ import { Handler, Request } from "retes";
 import { Response } from "retes/response";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { APL } from "./APL";
-import { SALEOR_DOMAIN_HEADER } from "./const";
-import { withBaseURL, withRegisteredSaleorDomainHeader } from "./middleware";
+import { APL } from "../APL";
+import { SALEOR_DOMAIN_HEADER } from "../const";
+import { withRegisteredSaleorDomainHeader } from "./with-registered-saleor-domain-header";
 
 const getMockSuccessResponse = async () => Response.OK({});
 
 describe("middleware.test.ts", () => {
-  describe("withBaseURL", () => {
-    let mockHandlerFn: Handler = vi.fn(getMockSuccessResponse);
-
-    beforeEach(() => {
-      mockHandlerFn = vi.fn(getMockSuccessResponse);
-    });
-
-    it("Adds base URL from request header to context and calls handler", async () => {
-      const mockRequest = {
-        context: {},
-        headers: {
-          host: "my-saleor-env.saleor.cloud",
-          "x-forwarded-proto": "https",
-        },
-      } as unknown as Request;
-
-      await withBaseURL(mockHandlerFn)(mockRequest);
-
-      expect(mockRequest.context.baseURL).toBe("https://my-saleor-env.saleor.cloud");
-      expect(mockHandlerFn).toHaveBeenCalledOnce();
-    });
-  });
-
   describe("withRegisteredSaleorDomainHeader", () => {
     let mockHandlerFn: Handler = vi.fn(getMockSuccessResponse);
 
