@@ -12,7 +12,7 @@
   "ignorePatterns": ["pnpm-lock.yaml"],
   "plugins": ["simple-import-sort", "@typescript-eslint"],
   "rules": {
-    "import/no-extraneous-dependencies": ["error", {"devDependencies": true}],
+    "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
     "quotes": ["error", "double"],
     "react/react-in-jsx-scope": "off", // next does not require react imports
     "import/extensions": "off", // file extension not required when importing
