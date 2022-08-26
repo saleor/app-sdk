@@ -1,3 +1,5 @@
+import { debug as createDebug } from "debug";
+
 import { Actions } from "./actions";
 import { AppBridgeState, AppBridgeStateContainer } from "./app-bridge-state";
 import { SSR } from "./constants";
@@ -10,7 +12,11 @@ type SubscribeMap = {
   [type in EventType]: Record<symbol, EventCallback<PayloadOfEvent<type>>>;
 };
 
+const debug = createDebug("AppBridge");
+
 function eventStateReducer(state: AppBridgeState, event: Events) {
+  debug("Event reducer received event: %j", event);
+
   switch (event.type) {
     case EventType.handshake: {
       return {
@@ -69,6 +75,8 @@ export class AppBridge {
   private combinedOptions = getDefaultOptions();
 
   constructor(options: AppBridgeOptions = {}) {
+    debug("Constructor called with options: %j", options);
+
     if (SSR) {
       throw new Error(
         "AppBridge detected you're running this app in SSR mode. Make sure to call `new AppBridge()` when window object exists."
@@ -79,6 +87,8 @@ export class AppBridge {
       ...this.combinedOptions,
       ...options,
     };
+
+    debug("Resolved combined AppBridge options: %j", this.combinedOptions);
 
     if (!this.refererOrigin) {
       // TODO probably throw
@@ -100,11 +110,15 @@ export class AppBridge {
     eventType: TEventType,
     cb: EventCallback<TPayload>
   ) {
+    debug("subscribe() called with event %s and callback %s", eventType, cb.name);
+
     const key = Symbol("Callback token");
     // @ts-ignore fixme
     this.subscribeMap[eventType][key] = cb;
 
     return () => {
+      debug("unsubscribe called with event %s and callback %s", eventType, cb.name);
+
       delete this.subscribeMap[eventType][key];
     };
   }
@@ -117,8 +131,12 @@ export class AppBridge {
    */
   unsubscribeAll(eventType?: EventType) {
     if (eventType) {
+      debug("unsubscribeAll called with event: %s", eventType);
+
       this.subscribeMap[eventType] = {};
     } else {
+      debug("unsubscribeAll called without argument");
+
       this.subscribeMap = createEmptySubscribeMap();
     }
   }
@@ -127,10 +145,16 @@ export class AppBridge {
    * Dispatch event to dashboard
    */
   async dispatch<T extends Actions>(action: T) {
+    debug("dispatch called with action argument: %j", action);
+
     return new Promise<void>((resolve, reject) => {
       if (!window.parent) {
+        debug("window.parent doesnt exist, will throw");
+
         reject(new Error("Parent window does not exist."));
       } else {
+        debug("Calling window.parent.postMessage with %j", action);
+
         window.parent.postMessage(
           {
             type: action.type,
@@ -142,7 +166,15 @@ export class AppBridge {
         let intervalId: number;
 
         const unsubscribe = this.subscribe(EventType.response, ({ actionId, ok }) => {
+          debug(
+            "Subscribing to %s with action id: %s and status 'ok' is: %s",
+            EventType.response,
+            actionId,
+            ok
+          );
+
           if (action.payload.actionId === actionId) {
+            debug("Received matching action id: %s. Will unsubscribe", actionId);
             unsubscribe();
             clearInterval(intervalId);
 
@@ -170,28 +202,42 @@ export class AppBridge {
    * Gets current state
    */
   getState() {
+    debug("getState() called and will return %j", this.state.getState());
+
     return this.state.getState();
   }
 
   private setInitialState() {
+    debug("setInitialState() called");
+
     const url = new URL(window.location.href);
     const id = url.searchParams.get("id") || "";
     const path = window.location.pathname || "";
     const theme: ThemeType = url.searchParams.get("theme") === "light" ? "light" : "dark";
 
-    this.state.setState({ domain: this.combinedOptions.targetDomain, id, path, theme });
+    const state = { domain: this.combinedOptions.targetDomain, id, path, theme };
+
+    debug("setInitialState() will setState with %j", state);
+
+    this.state.setState(state);
   }
 
   private listenOnMessages() {
+    debug("listenOnMessages() called");
+
     window.addEventListener(
       "message",
       ({ origin, data }: Omit<MessageEvent, "data"> & { data: Events }) => {
+        debug("Received message from origin: %s and data: %j", origin, data);
+
         if (origin !== this.refererOrigin) {
+          debug("Origin from message doesnt match refererOrigin. Function will return now");
           // TODO what should happen here - be explicit
           return;
         }
 
         const newState = eventStateReducer(this.state.getState(), data);
+        debug("Computed new state: %j. Will be set with setState", newState);
         this.state.setState(newState);
 
         /**
@@ -200,10 +246,11 @@ export class AppBridge {
         const { type, payload } = data;
 
         if (EventType[type]) {
-          Object.getOwnPropertySymbols(this.subscribeMap[type]).forEach((key) =>
+          Object.getOwnPropertySymbols(this.subscribeMap[type]).forEach((key) => {
             // @ts-ignore fixme
-            this.subscribeMap[type][key](payload)
-          );
+            this.subscribeMap[type][key](payload);
+            debug("Setting listener for event: %s and payload %j", type, payload);
+          });
         }
       }
     );
