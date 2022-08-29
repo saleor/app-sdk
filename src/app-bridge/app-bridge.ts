@@ -95,6 +95,12 @@ export class AppBridge {
       console.warn("document.referrer is empty");
     }
 
+    if (!this.combinedOptions.targetDomain) {
+      console.error(
+        "No domain set, ensure ?domain param in iframe exist or provide in AppBridge constructor"
+      );
+    }
+
     this.setInitialState();
     this.listenOnMessages();
   }
