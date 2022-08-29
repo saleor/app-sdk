@@ -1,2 +1,3 @@
 export * from "./apl";
-export * from "./environmentVariablesAPL";
+export * from "./fileAPL";
+export * from "./vercelAPL";
