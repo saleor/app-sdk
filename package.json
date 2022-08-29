@@ -22,11 +22,13 @@
     "fast-glob": "^3.2.11",
     "graphql": "^16.5.0",
     "jose": "^4.8.3",
+    "node-fetch": "^3.2.10",
     "retes": "^0.32.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
     "release-it": "^15.4.1",
+    "@types/node-fetch": "^2.6.2",
     "@testing-library/dom": "^8.17.1",
     "@types/debug": "^4.1.7",
     "@types/node": "^18.6.5",
