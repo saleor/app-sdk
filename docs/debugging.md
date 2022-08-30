@@ -23,7 +23,7 @@ Add `DEBUG={namespaces}` env variable
 DEBUG=* pnpm run dev
 ```
 
-For more details check [debug package](https://github.com/debug-js/debug#usage)
+For more details check [debug package](https://github.com/debug-js/debug#usage).
 
 ### Enabling in Browser context
 
