@@ -57,7 +57,8 @@ export interface AppExtension {
 
 export interface AppWebhook {
   name: string;
-  events?: WebhookEvent[];
+  asyncEvents?: WebhookEvent[];
+  syncEvents?: WebhookEvent[];
   query: string;
   targetUrl: string;
   isActive?: boolean;
