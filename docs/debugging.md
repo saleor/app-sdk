@@ -38,7 +38,7 @@ localStorage.debug = "*";
 
 ## Namespaces
 
-Use namespace name to enable debug logs for each module
+Use the namespace name to enable debug logs for each module.
 
 | Namespace name | Description                                        |
 | -------------- | -------------------------------------------------- |
