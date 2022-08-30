@@ -29,6 +29,11 @@ For more details check [debug package](https://github.com/debug-js/debug#usage).
 
 Set `localStorage.debug = '{namepsaces}'` in your frontend code. For more details see [debug package](https://github.com/debug-js/debug#browser-support).
 
+#### Debug in iframe
+
+Note, that Saleor Apps are usually hosted on a different domain than Saleor Dashboard.
+That means `localStorage` must be called in the context of the App's URL, not Saleor Dashboard.
+
 #### Example
 
 ```javascript
