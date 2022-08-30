@@ -3,19 +3,19 @@
 The ability to debug is important for app developers.
 App SDK provides opt-in verbose logs, that can be enabled for specific modules.
 
-Debug logs are implemented with [debug](https://www.npmjs.com/package/debug) package and work both in Node and Browser
+Debug logs are implemented with [debug](https://www.npmjs.com/package/debug) package and work both in Node and Browser.
 
 ## Enabling verbose logs
 
-Debug logs are aggregated within [namespaces](#namespaces). They can be all enabled, disabled, or confugred.
+Debug logs are aggregated within [namespaces](#namespaces). They can be enabled, disabled, or configured.
 
-By default, all verbose logs are disabled
+By default, all verbose logs are disabled.
 
-To enable logs, use following:
+To enable logs, use the following:
 
 ### Enabling in Node context
 
-Add `DEBUG={namespaces}` env variable
+Add `DEBUG={namespaces}` env variable.
 
 #### Example
 
