@@ -9,6 +9,7 @@
     "watch": "tsup-node src/* --format esm,cjs --dts --watch",
     "build": "tsup-node src/* --format esm,cjs --dts && clear-package-json package.json -o dist/package.json --fields publishConfig",
     "test": "vitest",
+    "test:ci": "CI=true vitest",
     "prepare": "husky install",
     "lint": "prettier --loglevel warn --write . && eslint --fix .",
     "release": "release-it"
@@ -46,7 +47,6 @@
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "husky": "^8.0.1",
     "jsdom": "^20.0.0",
-    "np": "^7.6.1",
     "prettier": "2.7.1",
     "tsm": "^2.2.2",
     "tsup": "^6.2.1",
