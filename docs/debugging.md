@@ -1,6 +1,7 @@
 # Debugging
 
-Ability to debug is important for apps developers. App SDK provides opt-in verbose logs that can be used
+The ability to debug is important for app developers.
+App SDK provides opt-in verbose logs, that can be enabled for specific modules.
 
 Debug logs are implemented with [debug](https://www.npmjs.com/package/debug) package and work both in Node and Browser
 
