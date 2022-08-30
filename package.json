@@ -64,15 +64,15 @@
       "import": "./const.mjs",
       "require": "./const.js"
     },
-    "./apl": {
-      "types": "./apl.d.ts",
-      "import": "./apl.mjs",
-      "require": "./apl.js"
+    "./APL": {
+      "types": "./APL/index.d.ts",
+      "import": "./APL/index.mjs",
+      "require": "./APL/index.js"
     },
     "./middleware": {
-      "types": "./middleware.d.ts",
-      "import": "./middleware.mjs",
-      "require": "./middleware.js"
+      "types": "./middleware/index.d.ts",
+      "import": "./middleware/index.mjs",
+      "require": "./middleware/index.js"
     },
     "./urls": {
       "types": "./urls.d.ts",
