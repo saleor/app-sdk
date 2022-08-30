@@ -1,0 +1,16 @@
+{
+  "github": {
+    "release": true,
+    "draft": true,
+    "releaseName": "${version}"
+  },
+  "npm": {
+    "publish": false
+  },
+  "plugins": {
+    "@release-it/bumper": {
+      "in": "package.json",
+      "out": ["package.json"]
+    }
+  }
+}
