@@ -27,7 +27,7 @@ For more details check [debug package](https://github.com/debug-js/debug#usage)
 
 ### Enabling in Browser context
 
-Set `localStorage.debug = '{namepsaces}'` in your frontend code. For more details see [debug package](https://github.com/debug-js/debug#browser-support)
+Set `localStorage.debug = '{namepsaces}'` in your frontend code. For more details see [debug package](https://github.com/debug-js/debug#browser-support).
 
 #### Example
 
