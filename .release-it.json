@@ -6,11 +6,5 @@
   },
   "npm": {
     "publish": true
-  },
-  "plugins": {
-    "@release-it/bumper": {
-      "in": "package.json",
-      "out": ["package.json"]
-    }
   }
 }
