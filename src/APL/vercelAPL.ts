@@ -11,7 +11,7 @@ export const DOMAIN_VARIABLE_NAME = "SALEOR_DOMAIN";
 export const SALEOR_REGISTER_APP_URL = "SALEOR_REGISTER_APP_URL";
 export const SALEOR_DEPLOYMENT_TOKEN = "SALEOR_DEPLOYMENT_TOKEN";
 
-const envAuthData = (): AuthData | undefined => {
+const getEnvAuth = (): AuthData | undefined => {
   const token = process.env[TOKEN_VARIABLE_NAME];
   const domain = process.env[DOMAIN_VARIABLE_NAME];
   if (!token || !domain) {
@@ -87,7 +87,7 @@ export class VercelAPL implements APL {
   }
 
   async get(domain: string) {
-    const authData = envAuthData();
+    const authData = getEnvAuth();
 
     if (authData && domain === authData?.domain) {
       return authData;
@@ -100,14 +100,14 @@ export class VercelAPL implements APL {
   }
 
   async delete(domain: string) {
-    if (domain === envAuthData()?.domain) {
+    if (domain === getEnvAuth()?.domain) {
       // Override existing data with the empty values
       await saveDataToVercel(this.registerAppURL, this.deploymentToken);
     }
   }
 
   async getAll() {
-    const authData = envAuthData();
+    const authData = getEnvAuth();
     if (!authData) {
       return [];
     }
