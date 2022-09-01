@@ -3,6 +3,11 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { FileAPL, loadDataFromFile, saveDataToFile } from "./fileAPL";
 
+const stubAuthData = {
+  domain: "example.com",
+  token: "example-token",
+};
+
 describe("APL", () => {
   describe("FileAPL", () => {
     describe("get", () => {
@@ -11,11 +16,6 @@ describe("APL", () => {
       });
 
       it("Returns auth data for existing domain", async () => {
-        const stubAuthData = {
-          domain: "example.com",
-          token: "example-token",
-        };
-
         vi.spyOn(fsPromises, "access").mockResolvedValue();
         vi.spyOn(fsPromises, "readFile").mockResolvedValue(JSON.stringify(stubAuthData));
 
@@ -25,11 +25,6 @@ describe("APL", () => {
       });
 
       it("Returns undefined for unknown domain", async () => {
-        const stubAuthData = {
-          domain: "example.com",
-          token: "example-token",
-        };
-
         vi.spyOn(fsPromises, "access").mockResolvedValue();
         vi.spyOn(fsPromises, "readFile").mockResolvedValue(JSON.stringify(stubAuthData));
 
@@ -45,11 +40,6 @@ describe("APL", () => {
       });
 
       it("Should override file when called with known domain", async () => {
-        const stubAuthData = {
-          domain: "example.com",
-          token: "example-token",
-        };
-
         vi.spyOn(fsPromises, "access").mockResolvedValue();
         vi.spyOn(fsPromises, "readFile").mockResolvedValue(JSON.stringify(stubAuthData));
         const spyWriteFile = vi.spyOn(fsPromises, "writeFile").mockResolvedValue();
@@ -62,11 +52,6 @@ describe("APL", () => {
       });
 
       it("Should not delete data when called with unknown domain", async () => {
-        const stubAuthData = {
-          domain: "example.com",
-          token: "example-token",
-        };
-
         vi.spyOn(fsPromises, "access").mockResolvedValue();
         vi.spyOn(fsPromises, "readFile").mockResolvedValue(JSON.stringify(stubAuthData));
 
@@ -86,11 +71,6 @@ describe("APL", () => {
       });
 
       it("Should return list with one item when auth data are existing", async () => {
-        const stubAuthData = {
-          domain: "example.com",
-          token: "example-token",
-        };
-
         vi.spyOn(fsPromises, "access").mockResolvedValue();
         vi.spyOn(fsPromises, "readFile").mockResolvedValue(JSON.stringify(stubAuthData));
 
@@ -118,15 +98,9 @@ describe("APL", () => {
 
       it("Save existing auth data to file", async () => {
         const spyWriteFile = vi.spyOn(fsPromises, "writeFile").mockResolvedValue();
-        await saveDataToFile("test.json", { domain: "example.com", token: "example-token" });
+        await saveDataToFile("test.json", stubAuthData);
 
-        expect(spyWriteFile).toBeCalledWith(
-          "test.json",
-          JSON.stringify({
-            domain: "example.com",
-            token: "example-token",
-          })
-        );
+        expect(spyWriteFile).toBeCalledWith("test.json", JSON.stringify(stubAuthData));
       });
 
       it("Save empty file when no auth data provided", async () => {
@@ -151,10 +125,6 @@ describe("APL", () => {
 
       it("Load existing auth data", async () => {
         vi.spyOn(fsPromises, "access").mockResolvedValue();
-        const stubAuthData = {
-          domain: "example.com",
-          token: "example-token",
-        };
         vi.spyOn(fsPromises, "readFile").mockResolvedValue(JSON.stringify(stubAuthData));
         expect(await loadDataFromFile("test.json")).toStrictEqual(stubAuthData);
       });
@@ -167,19 +137,19 @@ describe("APL", () => {
 
       it("Should return undefined when auth token is missing", async () => {
         vi.spyOn(fsPromises, "access").mockResolvedValue();
-        const stubAuthData = {
+        const stubInvalidAuthData = {
           domain: "example.com",
         };
-        vi.spyOn(fsPromises, "readFile").mockResolvedValue(JSON.stringify(stubAuthData));
+        vi.spyOn(fsPromises, "readFile").mockResolvedValue(JSON.stringify(stubInvalidAuthData));
         expect(await loadDataFromFile("test.json")).toBe(undefined);
       });
 
       it("Should return undefined when domain is missing", async () => {
         vi.spyOn(fsPromises, "access").mockResolvedValue();
-        const stubAuthData = {
+        const stubInvalidAuthData = {
           token: "token",
         };
-        vi.spyOn(fsPromises, "readFile").mockResolvedValue(JSON.stringify(stubAuthData));
+        vi.spyOn(fsPromises, "readFile").mockResolvedValue(JSON.stringify(stubInvalidAuthData));
         expect(await loadDataFromFile("test.json")).toBe(undefined);
       });
     });

@@ -8,6 +8,16 @@ import {
   VercelAPL,
 } from "./vercelAPL";
 
+const aplConfig = {
+  deploymentToken: "token",
+  registerAppURL: "http://example.com",
+};
+
+const stubAuthData = {
+  domain: "example.com",
+  token: "example-token",
+};
+
 describe("APL", () => {
   describe("VercelAPL", () => {
     describe("constructor", () => {
@@ -31,18 +41,12 @@ describe("APL", () => {
     });
 
     it("Constructor with config values", async () => {
-      expect(
-        () =>
-          new VercelAPL({
-            deploymentToken: "token",
-            registerAppURL: "http://example.com",
-          })
-      ).not.toThrow();
+      expect(() => new VercelAPL(aplConfig)).not.toThrow();
     });
 
     it("Constructor with config values from environment variables", async () => {
-      process.env[SALEOR_REGISTER_APP_URL] = "http://example.com";
-      process.env[SALEOR_DEPLOYMENT_TOKEN] = "token";
+      process.env[SALEOR_REGISTER_APP_URL] = aplConfig.registerAppURL;
+      process.env[SALEOR_DEPLOYMENT_TOKEN] = aplConfig.deploymentToken;
 
       expect(() => new VercelAPL()).not.toThrow();
     });
@@ -56,47 +60,28 @@ describe("APL", () => {
         });
 
         it("Read existing auth data", async () => {
-          const stubAuthData = {
-            domain: "example.com",
-            token: "example-token",
-          };
-
           process.env[TOKEN_VARIABLE_NAME] = stubAuthData.token;
           process.env[DOMAIN_VARIABLE_NAME] = stubAuthData.domain;
 
-          const apl = new VercelAPL({
-            deploymentToken: "token",
-            registerAppURL: "http://example.com",
-          });
+          const apl = new VercelAPL();
 
           expect(await apl.get(stubAuthData.domain)).toStrictEqual(stubAuthData);
         });
 
         it("Return undefined when unknown domain requested", async () => {
-          const stubAuthData = {
-            domain: "example.com",
-            token: "example-token",
-          };
-
           process.env[TOKEN_VARIABLE_NAME] = stubAuthData.token;
           process.env[DOMAIN_VARIABLE_NAME] = stubAuthData.domain;
 
-          const apl = new VercelAPL({
-            deploymentToken: "token",
-            registerAppURL: "http://example.com",
-          });
+          const apl = new VercelAPL(aplConfig);
 
           expect(await apl.get("unknown-domain.example.com")).toBe(undefined);
         });
 
         it("Return undefined when no data is defined", async () => {
-          process.env[TOKEN_VARIABLE_NAME] = undefined;
-          process.env[DOMAIN_VARIABLE_NAME] = undefined;
+          delete process.env[TOKEN_VARIABLE_NAME];
+          delete process.env[DOMAIN_VARIABLE_NAME];
 
-          const apl = new VercelAPL({
-            deploymentToken: "token",
-            registerAppURL: "http://example.com",
-          });
+          const apl = new VercelAPL(aplConfig);
 
           expect(await apl.get("example.com")).toBe(undefined);
         });
@@ -112,30 +97,19 @@ describe("APL", () => {
         });
 
         it("Read existing auth data", async () => {
-          const stubAuthData = {
-            domain: "example.com",
-            token: "example-token",
-          };
-
           process.env[TOKEN_VARIABLE_NAME] = stubAuthData.token;
           process.env[DOMAIN_VARIABLE_NAME] = stubAuthData.domain;
 
-          const apl = new VercelAPL({
-            deploymentToken: "token",
-            registerAppURL: "http://example.com",
-          });
+          const apl = new VercelAPL(aplConfig);
 
           expect(await apl.getAll()).toStrictEqual([stubAuthData]);
         });
 
         it("Return empty list when no auth data are existing", async () => {
-          process.env[TOKEN_VARIABLE_NAME] = undefined;
-          process.env[DOMAIN_VARIABLE_NAME] = undefined;
+          delete process.env[TOKEN_VARIABLE_NAME];
+          delete process.env[DOMAIN_VARIABLE_NAME];
 
-          const apl = new VercelAPL({
-            deploymentToken: "token",
-            registerAppURL: "http://example.com",
-          });
+          const apl = new VercelAPL(aplConfig);
 
           expect(await apl.getAll()).toStrictEqual([]);
         });
