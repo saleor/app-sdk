@@ -48,7 +48,7 @@ describe("APL", () => {
 
         await apl.delete(stubAuthData.domain);
 
-        expect(spyWriteFile).toBeCalledWith(".auth-data.json", "{}");
+        expect(spyWriteFile).toBeCalledWith(".saleor-app-auth.json", "{}");
       });
 
       it("Should not delete data when called with unknown domain", async () => {

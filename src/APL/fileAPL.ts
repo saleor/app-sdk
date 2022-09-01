@@ -65,7 +65,7 @@ export class FileAPL implements APL {
   private fileName: string;
 
   constructor(config: FileAPLConfig = {}) {
-    this.fileName = config?.fileName || ".auth-data.json";
+    this.fileName = config?.fileName || ".saleor-app-auth.json";
   }
 
   async get(domain: string) {
