@@ -5,6 +5,12 @@ import { APL, AuthData } from "./apl";
 
 const debug = debugPkg.debug("FileAPL");
 
+/**
+ * Load auth data from a file and return it as AuthData format.
+ * In case of incomplete or invalid data, return `undefined`.
+ *
+ * @param {string} fileName
+ */
 export const loadDataFromFile = async (fileName: string): Promise<AuthData | undefined> => {
   debug(`Load auth data from the ${fileName} file`);
   let parsedData: Record<string, string> = {};
@@ -22,6 +28,13 @@ export const loadDataFromFile = async (fileName: string): Promise<AuthData | und
   return undefined;
 };
 
+/**
+ * Save auth data to file.
+ * When `authData` argument is empty, will overwrite file with empty values.
+ *
+ * @param {string} fileName
+ * @param {AuthData} [authData]
+ */
 export const saveDataToFile = async (fileName: string, authData?: AuthData) => {
   debug(`Save auth data to the ${fileName} file`);
   const newData = authData ? JSON.stringify(authData) : "{}";
