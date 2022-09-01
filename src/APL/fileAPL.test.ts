@@ -52,10 +52,13 @@ describe("APL", () => {
 
         vi.spyOn(fsPromises, "access").mockResolvedValue();
         vi.spyOn(fsPromises, "readFile").mockResolvedValue(JSON.stringify(stubAuthData));
+        const spyWriteFile = vi.spyOn(fsPromises, "writeFile").mockResolvedValue();
 
         const apl = new FileAPL();
 
-        expect(await apl.get(stubAuthData.domain)).toStrictEqual(stubAuthData);
+        await apl.delete(stubAuthData.domain);
+
+        expect(spyWriteFile).toBeCalledWith(".auth-data.json", "{}");
       });
 
       it("Should not delete data when called with unknown domain", async () => {
