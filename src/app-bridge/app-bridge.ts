@@ -12,7 +12,7 @@ type SubscribeMap = {
   [type in EventType]: Record<symbol, EventCallback<PayloadOfEvent<type>>>;
 };
 
-const debug = debugPkg.debug("AppBridge");
+const debug = debugPkg.debug("app-sdk:AppBridge");
 
 function eventStateReducer(state: AppBridgeState, event: Events) {
   debug("Event reducer received event: %j", event);
