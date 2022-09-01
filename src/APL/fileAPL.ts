@@ -3,7 +3,7 @@ import { promises as fsPromises } from "fs";
 
 import { APL, AuthData } from "./apl";
 
-const debug = debugPkg.debug("FileAPL");
+const debug = debugPkg.debug("app-sdk:FileAPL");
 
 /**
  * Load auth data from a file and return it as AuthData format.

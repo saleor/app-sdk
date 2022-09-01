@@ -4,7 +4,7 @@ import fetch from "node-fetch";
 
 import { APL, AuthData } from "./apl";
 
-const debug = debugPkg.debug("VercelAPL");
+const debug = debugPkg.debug("app-sdk:VercelAPL");
 
 export const TOKEN_VARIABLE_NAME = "SALEOR_AUTH_TOKEN";
 export const DOMAIN_VARIABLE_NAME = "SALEOR_DOMAIN";
