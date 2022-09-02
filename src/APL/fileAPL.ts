@@ -5,46 +5,6 @@ import { APL, AuthData } from "./apl";
 
 const debug = debugPkg.debug("app-sdk:FileAPL");
 
-/**
- * Load auth data from a file and return it as AuthData format.
- * In case of incomplete or invalid data, return `undefined`.
- *
- * @param {string} fileName
- */
-export const loadDataFromFile = async (fileName: string): Promise<AuthData | undefined> => {
-  debug(`Load auth data from the ${fileName} file`);
-  let parsedData: Record<string, string> = {};
-  try {
-    await fsPromises.access(fileName);
-    parsedData = JSON.parse(await fsPromises.readFile(fileName, "utf-8"));
-  } catch (err) {
-    debug(`Could not read auth data from the ${fileName} file`, err);
-    return undefined;
-  }
-  const { token, domain } = parsedData;
-  if (token && domain) {
-    return { token, domain };
-  }
-  return undefined;
-};
-
-/**
- * Save auth data to file.
- * When `authData` argument is empty, will overwrite file with empty values.
- *
- * @param {string} fileName
- * @param {AuthData} [authData]
- */
-export const saveDataToFile = async (fileName: string, authData?: AuthData) => {
-  debug(`Save auth data to the ${fileName} file`);
-  const newData = authData ? JSON.stringify(authData) : "{}";
-  try {
-    await fsPromises.writeFile(fileName, newData);
-  } catch (err) {
-    debug(`Could not save auth data to the ${fileName} file`, err);
-  }
-};
-
 export type FileAPLConfig = {
   fileName?: string;
 };
@@ -68,8 +28,49 @@ export class FileAPL implements APL {
     this.fileName = config?.fileName || ".saleor-app-auth.json";
   }
 
+  /**
+   * Load auth data from a file and return it as AuthData format.
+   * In case of incomplete or invalid data, return `undefined`.
+   *
+   * @param {string} fileName
+   */
+  private async loadDataFromFile(): Promise<AuthData | undefined> {
+    debug(`Load auth data from the ${this.fileName} file`);
+    let parsedData: Record<string, string> = {};
+    try {
+      await fsPromises.access(this.fileName);
+      parsedData = JSON.parse(await fsPromises.readFile(this.fileName, "utf-8"));
+    } catch (err) {
+      debug(`Could not read auth data from the ${this.fileName} file`, err);
+      throw new Error(`File APL could not read auth data from the ${this.fileName} file`);
+    }
+    const { token, domain } = parsedData;
+    if (token && domain) {
+      return { token, domain };
+    }
+    return undefined;
+  }
+
+  /**
+   * Save auth data to file.
+   * When `authData` argument is empty, will overwrite file with empty values.
+   *
+   * @param {string} fileName
+   * @param {AuthData} [authData]
+   */
+  private async saveDataToFile(authData?: AuthData) {
+    debug(`Save auth data to the ${this.fileName} file`);
+    const newData = authData ? JSON.stringify(authData) : "{}";
+    try {
+      await fsPromises.writeFile(this.fileName, newData);
+    } catch (err) {
+      debug(`Could not save auth data to the ${this.fileName} file`, err);
+      throw new Error("File APL was unable to save auth data");
+    }
+  }
+
   async get(domain: string) {
-    const authData = await loadDataFromFile(this.fileName);
+    const authData = await this.loadDataFromFile();
     if (domain === authData?.domain) {
       return authData;
     }
@@ -77,19 +78,19 @@ export class FileAPL implements APL {
   }
 
   async set(authData: AuthData) {
-    await saveDataToFile(this.fileName, authData);
+    await this.saveDataToFile(authData);
   }
 
   async delete(domain: string) {
-    const authData = await loadDataFromFile(this.fileName);
+    const authData = await this.loadDataFromFile();
 
     if (domain === authData?.domain) {
-      await saveDataToFile(this.fileName);
+      await this.saveDataToFile();
     }
   }
 
   async getAll() {
-    const authData = await loadDataFromFile(this.fileName);
+    const authData = await this.loadDataFromFile();
 
     if (!authData) {
       return [];

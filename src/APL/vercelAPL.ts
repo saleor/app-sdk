@@ -6,14 +6,16 @@ import { APL, AuthData } from "./apl";
 
 const debug = debugPkg.debug("app-sdk:VercelAPL");
 
-export const TOKEN_VARIABLE_NAME = "SALEOR_AUTH_TOKEN";
-export const DOMAIN_VARIABLE_NAME = "SALEOR_DOMAIN";
-export const SALEOR_REGISTER_APP_URL = "SALEOR_REGISTER_APP_URL";
-export const SALEOR_DEPLOYMENT_TOKEN = "SALEOR_DEPLOYMENT_TOKEN";
+export const VercelAPLVariables = {
+  TOKEN_VARIABLE_NAME: "SALEOR_AUTH_TOKEN",
+  DOMAIN_VARIABLE_NAME: "SALEOR_DOMAIN",
+  SALEOR_REGISTER_APP_URL: "SALEOR_REGISTER_APP_URL",
+  SALEOR_DEPLOYMENT_TOKEN: "SALEOR_DEPLOYMENT_TOKEN",
+};
 
 const getEnvAuth = (): AuthData | undefined => {
-  const token = process.env[TOKEN_VARIABLE_NAME];
-  const domain = process.env[DOMAIN_VARIABLE_NAME];
+  const token = process.env[VercelAPLVariables.TOKEN_VARIABLE_NAME];
+  const domain = process.env[VercelAPLVariables.DOMAIN_VARIABLE_NAME];
   if (!token || !domain) {
     return undefined;
   }
@@ -21,30 +23,6 @@ const getEnvAuth = (): AuthData | undefined => {
     token,
     domain,
   };
-};
-
-const saveDataToVercel = async (
-  registerAppURL: string,
-  deploymentToken: string,
-  authData?: AuthData
-) => {
-  debug("Saving data to Vercel");
-
-  try {
-    await fetch(registerAppURL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        token: deploymentToken,
-        envs: {
-          [TOKEN_VARIABLE_NAME]: authData?.token || "",
-          [DOMAIN_VARIABLE_NAME]: authData?.domain || "",
-        },
-      }),
-    });
-  } catch (error) {
-    debug("Error during saving the data:", error);
-  }
 };
 
 export type VercelAPLConfig = {
@@ -71,19 +49,39 @@ export class VercelAPL implements APL {
   private deploymentToken: string;
 
   constructor(config?: VercelAPLConfig) {
-    const registerAppURL = config?.registerAppURL || process.env.SALEOR_REGISTER_APP_URL;
+    const registerAppURL =
+      config?.registerAppURL || process.env[VercelAPLVariables.SALEOR_REGISTER_APP_URL];
     if (!registerAppURL) {
-      debug("Missing registerAppURL");
       throw new Error("Misconfiguration: please provide registerAppUrl");
     }
-    const deploymentToken = config?.deploymentToken || process.env.SALEOR_DEPLOYMENT_TOKEN;
+    const deploymentToken =
+      config?.deploymentToken || process.env[VercelAPLVariables.SALEOR_DEPLOYMENT_TOKEN];
     if (!deploymentToken) {
-      debug("Missing deploymentToken");
       throw new Error("Misconfiguration: please provide deploymentToken");
     }
 
     this.registerAppURL = registerAppURL;
     this.deploymentToken = deploymentToken;
+  }
+
+  private async saveDataToVercel(authData?: AuthData) {
+    debug(`saveDataToVercel with: ${authData}`);
+    try {
+      await fetch(this.registerAppURL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token: this.deploymentToken,
+          envs: {
+            [VercelAPLVariables.TOKEN_VARIABLE_NAME]: authData?.token || "",
+            [VercelAPLVariables.DOMAIN_VARIABLE_NAME]: authData?.domain || "",
+          },
+        }),
+      });
+    } catch (error) {
+      debug("Error during saving the data:", error);
+      throw new Error(`VercelAPL was not able to save auth data${error}`);
+    }
   }
 
   async get(domain: string) {
@@ -96,13 +94,13 @@ export class VercelAPL implements APL {
   }
 
   async set(authData: AuthData) {
-    await saveDataToVercel(this.registerAppURL, this.deploymentToken, authData);
+    await this.saveDataToVercel(authData);
   }
 
   async delete(domain: string) {
     if (domain === getEnvAuth()?.domain) {
       // Override existing data with the empty values
-      await saveDataToVercel(this.registerAppURL, this.deploymentToken);
+      await this.saveDataToVercel();
     }
   }
 
