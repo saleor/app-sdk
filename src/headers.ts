@@ -5,9 +5,14 @@ import {
   SALEOR_SIGNATURE_HEADER,
 } from "./const";
 
-export const getSaleorHeaders = (headers: { [name: string]: any }) => ({
-  domain: headers[SALEOR_DOMAIN_HEADER],
-  authorizationBearer: headers[SALEOR_AUTHORIZATION_BEARER_HEADER],
-  signature: headers[SALEOR_SIGNATURE_HEADER],
-  event: headers[SALEOR_EVENT_HEADER],
+const toStringOrUndefined = (value: string | string[] | undefined) =>
+  value ? value.toString() : undefined;
+
+export const getSaleorHeaders = (headers: {
+  [name: string]: string | string[] | undefined;
+}): Record<string, string | undefined> => ({
+  domain: toStringOrUndefined(headers[SALEOR_DOMAIN_HEADER]),
+  authorizationBearer: toStringOrUndefined(headers[SALEOR_AUTHORIZATION_BEARER_HEADER]),
+  signature: toStringOrUndefined(headers[SALEOR_SIGNATURE_HEADER]),
+  event: toStringOrUndefined(headers[SALEOR_EVENT_HEADER]),
 });
