@@ -1,7 +1,7 @@
 import { promises as fsPromises } from "fs";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { FileAPL } from "./fileAPL";
+import { FileAPL } from "./file-apl";
 
 const stubAuthData = {
   domain: "example.com",

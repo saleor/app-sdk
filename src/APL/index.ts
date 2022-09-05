@@ -1,3 +1,3 @@
 export * from "./apl";
-export * from "./fileAPL";
-export * from "./vercelAPL";
+export * from "./file-apl";
+export * from "./vercel-apl";

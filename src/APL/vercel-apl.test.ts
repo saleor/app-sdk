@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 
-import { VercelAPL, VercelAPLVariables } from "./vercelAPL";
+import { VercelAPL, VercelAPLVariables } from "./vercel-apl";
 
 const aplConfig = {
   deploymentToken: "token",
