@@ -9,7 +9,7 @@
     "plugin:@typescript-eslint/recommended",
     "prettier" // prettier *has* to be the last one, to avoid conflicting rules
   ],
-  "ignorePatterns": ["pnpm-lock.yaml"],
+  "ignorePatterns": ["pnpm-lock.yaml", "dist"],
   "plugins": ["simple-import-sort", "@typescript-eslint"],
   "rules": {
     "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
