@@ -2,7 +2,7 @@ import * as jose from "jose";
 import type { Middleware, Request } from "retes";
 import { Response } from "retes/response";
 
-import { SALEOR_AUTHORIZATION_BEARER_HEADER } from "../const";
+import { SALEOR_AUTHORIZATION_BEARER_HEADER, SALEOR_DOMAIN_HEADER } from "../const";
 import { getSaleorHeaders } from "../headers";
 import { getJwksUrl } from "../urls";
 
@@ -21,6 +21,13 @@ export const withJWTVerified =
       return Response.BadRequest({
         success: false,
         message: `${ERROR_MESSAGE} Missing ${SALEOR_AUTHORIZATION_BEARER_HEADER} header.`,
+      });
+    }
+
+    if (domain === undefined) {
+      return Response.BadRequest({
+        success: false,
+        message: `${ERROR_MESSAGE} Missing ${SALEOR_DOMAIN_HEADER} header.`,
       });
     }
 

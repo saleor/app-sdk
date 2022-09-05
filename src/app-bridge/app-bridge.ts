@@ -44,6 +44,7 @@ function eventStateReducer(state: AppBridgeState, event: Events) {
       /**
        * Event comes from API, so always assume it can be something not covered by TS
        */
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       console.warn(`Invalid event received: ${(event as any)?.type}`);
       return state;
     }

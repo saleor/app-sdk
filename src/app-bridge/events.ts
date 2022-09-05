@@ -53,4 +53,4 @@ export type PayloadOfEvent<
   TEventType extends EventType,
   TEvent extends Events = Events
   // @ts-ignore TODO - why this is not working with this tsconfig? Fixme
-> = TEvent extends Event<TEventType, any> ? TEvent["payload"] : never;
+> = TEvent extends Event<TEventType, unknown> ? TEvent["payload"] : never;

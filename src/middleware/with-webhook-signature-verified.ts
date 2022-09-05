@@ -3,7 +3,7 @@ import * as jose from "jose";
 import { Middleware } from "retes";
 import { Response } from "retes/response";
 
-import { SALEOR_SIGNATURE_HEADER } from "../const";
+import { SALEOR_DOMAIN_HEADER, SALEOR_SIGNATURE_HEADER } from "../const";
 import { getSaleorHeaders } from "../headers";
 import { getJwksUrl } from "../urls";
 
@@ -26,6 +26,13 @@ export const withWebhookSignatureVerified =
       return Response.BadRequest({
         success: false,
         message: `${ERROR_MESSAGE} Missing ${SALEOR_SIGNATURE_HEADER} header.`,
+      });
+    }
+
+    if (!saleorDomain) {
+      return Response.BadRequest({
+        success: false,
+        message: `${ERROR_MESSAGE} Missing ${SALEOR_DOMAIN_HEADER} header.`,
       });
     }
 

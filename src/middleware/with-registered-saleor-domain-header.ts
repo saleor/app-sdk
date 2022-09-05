@@ -9,6 +9,12 @@ export const withRegisteredSaleorDomainHeader =
   (handler) =>
   async (request) => {
     const { domain: saleorDomain } = getSaleorHeaders(request.headers);
+    if (!saleorDomain) {
+      return Response.BadRequest({
+        success: false,
+        message: "Domain header missing.",
+      });
+    }
     const authData = await apl.get(saleorDomain);
     if (!authData) {
       return Response.Forbidden({
