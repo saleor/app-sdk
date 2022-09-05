@@ -6,6 +6,6 @@
   },
   "npm": {
     "publish": true,
-    "publishPath": "dist"
+    "publishPath": "./dist"
   }
 }
