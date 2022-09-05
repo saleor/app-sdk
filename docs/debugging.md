@@ -15,7 +15,7 @@ To enable logs, use the following:
 
 ### Enabling in Node context
 
-Add `DEBUG={namespaces}` env variable.
+Add `DEBUG=app-sdk:{namespaces}` env variable.
 
 #### Example
 
@@ -27,7 +27,7 @@ For more details check [debug package](https://github.com/debug-js/debug#usage).
 
 ### Enabling in Browser context
 
-Set `localStorage.debug = '{namepsaces}'` in your frontend code. For more details see [debug package](https://github.com/debug-js/debug#browser-support).
+Set `localStorage.debug = 'app-sdk:{namepsaces}'` in your frontend code. For more details see [debug package](https://github.com/debug-js/debug#browser-support).
 
 #### Debug in iframe
 
@@ -45,7 +45,8 @@ localStorage.debug = "*";
 
 Use the namespace name to enable debug logs for each module.
 
-| Namespace name | Description                                        |
-| -------------- | -------------------------------------------------- |
-| \*             | Enable all                                         |
-| AppBridge      | Enable [AppBridge](./app-bridge.md) (browser only) |
+| Namespace name        | Description                                        |
+| --------------------- | -------------------------------------------------- |
+| \app-sdk:\*           | Enable all                                         |
+| app-sdk:AppBridge     | Enable [AppBridge](./app-bridge.md) (browser only) |
+| app-sdk:Middleware:\* | Enable all middlewares (node only)                 |

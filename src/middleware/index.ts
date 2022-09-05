@@ -1,3 +1,4 @@
+export { withReqResDebugging } from "./middleware-debug";
 export * from "./with-auth-token-required";
 export * from "./with-base-url";
 export * from "./with-jwt-verified";
