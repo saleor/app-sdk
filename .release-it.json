@@ -5,6 +5,7 @@
     "releaseName": "${version}"
   },
   "npm": {
-    "publish": true
+    "publish": true,
+    "publishPath": "dist"
   }
 }
