@@ -1,9 +1,9 @@
-import debugPkg from "debug";
 import { promises as fsPromises } from "fs";
 
 import { APL, AuthData } from "./apl";
+import { createAPLDebug } from "./apl-debug";
 
-const debug = debugPkg.debug("app-sdk:FileAPL");
+const debug = createAPLDebug("FileAPL");
 
 export type FileAPLConfig = {
   fileName?: string;

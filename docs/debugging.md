@@ -50,3 +50,4 @@ Use the namespace name to enable debug logs for each module.
 | \app-sdk:\*           | Enable all                                         |
 | app-sdk:AppBridge     | Enable [AppBridge](./app-bridge.md) (browser only) |
 | app-sdk:Middleware:\* | Enable all middlewares (node only)                 |
+| app-sdk:APL:\*        | Enable all APLs (node only)                        |

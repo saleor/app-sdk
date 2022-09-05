@@ -1,10 +1,10 @@
 /* eslint-disable class-methods-use-this */
-import debugPkg from "debug";
 import fetch from "node-fetch";
 
 import { APL, AuthData } from "./apl";
+import { createAPLDebug } from "./apl-debug";
 
-const debug = debugPkg.debug("app-sdk:VercelAPL");
+const debug = createAPLDebug("VercelAPL");
 
 export const VercelAPLVariables = {
   TOKEN_VARIABLE_NAME: "SALEOR_AUTH_TOKEN",
