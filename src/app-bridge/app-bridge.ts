@@ -254,9 +254,9 @@ export class AppBridge {
 
         if (EventType[type]) {
           Object.getOwnPropertySymbols(this.subscribeMap[type]).forEach((key) => {
+            debug("Executing listener for event: %s and payload %j", type, payload);
             // @ts-ignore fixme
             this.subscribeMap[type][key](payload);
-            debug("Setting listener for event: %s and payload %j", type, payload);
           });
         }
       }
