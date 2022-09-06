@@ -18,7 +18,7 @@ Object.defineProperty(window, "location", {
 });
 
 // eslint-disable-next-line
-import { actions, DispatchResponseEvent, HandshakeEvent, AppBridge } from ".";
+import { actions, DispatchResponseEvent, HandshakeEvent, AppBridge, ThemeEvent } from ".";
 
 const handshakeEvent: HandshakeEvent = {
   payload: {
@@ -27,6 +27,18 @@ const handshakeEvent: HandshakeEvent = {
   },
   type: "handshake",
 };
+
+const themeEvent: ThemeEvent = {
+  type: "theme",
+  payload: {
+    theme: "light",
+  },
+};
+
+const delay = (timeout: number) =>
+  new Promise((res) => {
+    setTimeout(res, timeout);
+  });
 
 describe("AppBridge", () => {
   let appBridge = new AppBridge();
@@ -107,6 +119,28 @@ describe("AppBridge", () => {
 
     expect(callback).toHaveBeenCalledTimes(1);
     expect(appBridge.getState().token).toEqual("123");
+  });
+
+  it("Subscribes to theme change event and runs callback with new value after delay", async () => {
+    expect.assertions(2);
+    const callback = vi.fn();
+
+    const unsubscribe = appBridge.subscribe("theme", callback);
+
+    await delay(200);
+
+    fireEvent(
+      window,
+      new MessageEvent("message", {
+        data: themeEvent,
+        origin,
+      })
+    );
+
+    expect(callback).toHaveBeenCalledOnce();
+    expect(callback).toHaveBeenCalledWith({ theme: "light" });
+
+    unsubscribe();
   });
 
   it("persists domain", () => {
