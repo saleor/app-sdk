@@ -28,11 +28,10 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "release-it": "^15.4.1",
-    "@types/node-fetch": "^2.6.2",
     "@testing-library/dom": "^8.17.1",
     "@types/debug": "^4.1.7",
     "@types/node": "^18.6.5",
+    "@types/node-fetch": "^2.6.2",
     "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.33.0",
     "@typescript-eslint/parser": "^5.33.0",
@@ -49,7 +48,9 @@
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "husky": "^8.0.1",
     "jsdom": "^20.0.0",
+    "msw": "^0.47.0",
     "prettier": "2.7.1",
+    "release-it": "^15.4.1",
     "tsm": "^2.2.2",
     "tsup": "^6.2.1",
     "typescript": "^4.7.4",

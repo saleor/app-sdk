@@ -1,6 +1,32 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { rest } from "msw";
+import { setupServer } from "msw/node";
+import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 
 import { VercelAPL, VercelAPLVariables } from "./vercel-apl";
+
+export const handlers = [
+  rest.post("https://registerService.example.com/internalError", async (req, res, ctx) =>
+    res(ctx.status(500))
+  ),
+  rest.post("https://registerService.example.com/", async (req, res, ctx) => {
+    const body = await req.json();
+    // Register service will return error when request does not provide token and envs
+    if (!body?.token || !body?.envs) {
+      return res(ctx.status(400));
+    }
+
+    // Check if envs follow the anticipated format
+    const envs = body.envs as Record<string, string | undefined>[];
+    for (const env of envs) {
+      if (typeof env.key === "undefined" || typeof env?.value === "undefined") {
+        return res(ctx.status(400));
+      }
+    }
+    return res(ctx.status(200));
+  }),
+];
+
+export const server = setupServer(...handlers);
 
 const aplConfig = {
   deploymentToken: "token",
@@ -15,8 +41,11 @@ const stubAuthData = {
 describe("APL", () => {
   const initialEnv = { ...process.env };
 
+  beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
+  afterAll(() => server.close());
   afterEach(() => {
     process.env = { ...initialEnv };
+    server.resetHandlers();
   });
 
   describe("VercelAPL", () => {
@@ -54,6 +83,26 @@ describe("APL", () => {
       expect(apl["deploymentToken"]).toBe("option");
       // eslint-disable-next-line dot-notation
       expect(apl["registerAppURL"]).toBe("option");
+    });
+
+    describe("set", () => {
+      it("Successful save of the auth data", async () => {
+        const apl = new VercelAPL({
+          registerAppURL: "https://registerService.example.com",
+          deploymentToken: "token",
+        });
+        expect(await apl.set({ domain: "example.com", token: "token" })).toBe(undefined);
+      });
+
+      it("Raise error when register service returns non 200 response", async () => {
+        const apl = new VercelAPL({
+          registerAppURL: "https://registerService.example.com/internalError",
+          deploymentToken: "token",
+        });
+        await expect(apl.set({ domain: "example.com", token: "token" })).rejects.toThrow(
+          "Vercel APL was not able to save auth data, register service responded with the code 500"
+        );
+      });
     });
 
     describe("get", () => {
