@@ -48,7 +48,6 @@
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "husky": "^8.0.1",
     "jsdom": "^20.0.0",
-    "msw": "^0.47.0",
     "prettier": "2.7.1",
     "release-it": "^15.4.1",
     "tsm": "^2.2.2",
