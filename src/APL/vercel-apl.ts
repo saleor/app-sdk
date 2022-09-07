@@ -1,5 +1,5 @@
 /* eslint-disable class-methods-use-this */
-import fetch from "node-fetch";
+import fetch, { Response } from "node-fetch";
 
 import { APL, AuthData } from "./apl";
 import { createAPLDebug } from "./apl-debug";
@@ -65,23 +65,34 @@ export class VercelAPL implements APL {
   }
 
   private async saveDataToVercel(authData?: AuthData) {
-    debug(`saveDataToVercel with: ${authData}`);
+    debug("saveDataToVercel() called with: %j", {
+      domain: authData?.domain,
+      token: authData?.token.substring(0, 4),
+    });
+    let response: Response;
     try {
-      await fetch(this.registerAppURL, {
+      response = await fetch(this.registerAppURL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           token: this.deploymentToken,
-          envs: {
-            [VercelAPLVariables.TOKEN_VARIABLE_NAME]: authData?.token || "",
-            [VercelAPLVariables.DOMAIN_VARIABLE_NAME]: authData?.domain || "",
-          },
+          envs: [
+            { key: VercelAPLVariables.TOKEN_VARIABLE_NAME, value: authData?.token || "" },
+            { key: VercelAPLVariables.DOMAIN_VARIABLE_NAME, value: authData?.domain || "" },
+          ],
         }),
       });
     } catch (error) {
       debug("Error during saving the data:", error);
-      throw new Error(`VercelAPL was not able to save auth data${error}`);
+      throw new Error(`VercelAPL was not able to save auth data ${error}`);
     }
+    if (response.status >= 400 || response.status < 200) {
+      debug("Non 200 response code. Register service responded with %j", response);
+      throw new Error(
+        `Vercel APL was not able to save auth data, register service responded with the code ${response.status}`
+      );
+    }
+    debug("Register service responded successfully");
   }
 
   async get(domain: string) {
