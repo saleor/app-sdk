@@ -4,7 +4,7 @@ import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 
 import { VercelAPL, VercelAPLVariables } from "./vercel-apl";
 
-export const handlers = [
+const handlers = [
   rest.post("https://registerService.example.com/internalError", async (req, res, ctx) =>
     res(ctx.status(500))
   ),

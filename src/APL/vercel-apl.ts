@@ -65,7 +65,10 @@ export class VercelAPL implements APL {
   }
 
   private async saveDataToVercel(authData?: AuthData) {
-    debug("saveDataToVercel with: %j", authData);
+    debug("saveDataToVercel() called with: %j", {
+      domain: authData?.domain,
+      token: authData?.token.substring(0, 4),
+    });
     let response: Response;
     try {
       response = await fetch(this.registerAppURL, {
@@ -83,13 +86,13 @@ export class VercelAPL implements APL {
       debug("Error during saving the data:", error);
       throw new Error(`VercelAPL was not able to save auth data ${error}`);
     }
-    if (response.status !== 200) {
+    if (response.status >= 400 || response.status < 200) {
       debug("Non 200 response code. Register service responded with %j", response);
       throw new Error(
         `Vercel APL was not able to save auth data, register service responded with the code ${response.status}`
       );
     }
-    debug("Register service called successfully");
+    debug("Register service responded successfully");
   }
 
   async get(domain: string) {
