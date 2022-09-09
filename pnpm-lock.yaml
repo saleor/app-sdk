@@ -3,7 +3,6 @@ lockfileVersion: 5.4
 specifiers:
   '@testing-library/dom': ^8.17.1
   '@testing-library/react': ^13.4.0
-  '@testing-library/react-hooks': ^8.0.1
   '@types/debug': ^4.1.7
   '@types/node': ^18.7.15
   '@types/node-fetch': ^2.6.2
@@ -55,7 +54,6 @@ dependencies:
 devDependencies:
   '@testing-library/dom': 8.17.1
   '@testing-library/react': 13.4.0_biqbaboplfbrettd7655fr4n2y
-  '@testing-library/react-hooks': 8.0.1_pcwpxa5wiy6qar5hyrmcormpoy
   '@types/debug': 4.1.7
   '@types/node': 18.7.15
   '@types/node-fetch': 2.6.2
@@ -658,29 +656,6 @@ packages:
       dom-accessibility-api: 0.5.14
       lz-string: 1.4.4
       pretty-format: 27.5.1
-    dev: true
-
-  /@testing-library/react-hooks/8.0.1_pcwpxa5wiy6qar5hyrmcormpoy:
-    resolution: {integrity: sha512-Aqhl2IVmLt8IovEVarNDFuJDVWVvhnr9/GCU6UUnrYXwgDFF9h2L2o2P9KBni1AST5sT6riAyoukFLyjQUgD/g==}
-    engines: {node: '>=12'}
-    peerDependencies:
-      '@types/react': ^16.9.0 || ^17.0.0
-      react: ^16.9.0 || ^17.0.0
-      react-dom: ^16.9.0 || ^17.0.0
-      react-test-renderer: ^16.9.0 || ^17.0.0
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
-      react-dom:
-        optional: true
-      react-test-renderer:
-        optional: true
-    dependencies:
-      '@babel/runtime': 7.18.9
-      '@types/react': 17.0.49
-      react: 18.2.0
-      react-dom: 18.2.0_react@18.2.0
-      react-error-boundary: 3.1.4_react@18.2.0
     dev: true
 
   /@testing-library/react/13.4.0_biqbaboplfbrettd7655fr4n2y:
@@ -4302,16 +4277,6 @@ packages:
       loose-envify: 1.4.0
       react: 18.2.0
       scheduler: 0.23.0
-    dev: true
-
-  /react-error-boundary/3.1.4_react@18.2.0:
-    resolution: {integrity: sha512-uM9uPzZJTF6wRQORmSrvOIgt4lJ9MC1sNgEOj2XGsDTRE4kmpWxg7ENK9EWNKJRMAOY9z0MuF4yIfl6gp4sotA==}
-    engines: {node: '>=10', npm: '>=6'}
-    peerDependencies:
-      react: '>=16.13.1'
-    dependencies:
-      '@babel/runtime': 7.18.9
-      react: 18.2.0
     dev: true
 
   /react-is/16.13.1:
