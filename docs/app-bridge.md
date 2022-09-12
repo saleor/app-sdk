@@ -12,6 +12,14 @@ import { AppBridge } from "@saleor/app-sdk/app-bridge";
 const appBridge = new AppBridge(options);
 ```
 
+Options object is following:
+
+```
+type AppBridgeOptions = {
+  targetDomain?: string;
+};
+```
+
 ## Access app state:
 
 ```js

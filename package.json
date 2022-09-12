@@ -1,6 +1,6 @@
 {
   "name": "@saleor/app-sdk",
-  "version": "0.10.0-0",
+  "version": "0.10.0",
   "description": "SDK for building great Saleor Apps",
   "types": "index.d.ts",
   "main": "index.js",
@@ -8,6 +8,7 @@
     "prepublishOnly": "pnpm build",
     "watch": "tsup-node src/* --format esm,cjs --dts --watch",
     "build": "tsup-node src/* --format esm,cjs --dts && clear-package-json package.json -o dist/package.json --fields publishConfig",
+    "clean": "rm -rf ./dist/*",
     "test": "vitest",
     "test:ci": "CI=true vitest",
     "prepare": "husky install",
@@ -94,6 +95,7 @@
     }
   },
   "publishConfig": {
+    "access": "public",
     "directory": "dist"
   },
   "repository": {

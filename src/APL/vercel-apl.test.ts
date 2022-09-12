@@ -1,6 +1,13 @@
-import { afterEach, describe, expect, it } from "vitest";
+import fetch from "node-fetch";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { VercelAPL, VercelAPLVariables } from "./vercel-apl";
+
+vi.mock("node-fetch", () => ({
+  default: vi.fn().mockImplementation(() => ""),
+}));
+
+const mockFetch = vi.mocked(fetch);
 
 const aplConfig = {
   deploymentToken: "token",
@@ -17,6 +24,7 @@ describe("APL", () => {
 
   afterEach(() => {
     process.env = { ...initialEnv };
+    vi.resetModules();
   });
 
   describe("VercelAPL", () => {
@@ -54,6 +62,48 @@ describe("APL", () => {
       expect(apl["deploymentToken"]).toBe("option");
       // eslint-disable-next-line dot-notation
       expect(apl["registerAppURL"]).toBe("option");
+    });
+
+    describe("set", () => {
+      it("Successful save of the auth data", async () => {
+        // @ts-ignore Ignore type of mocked response
+        mockFetch.mockResolvedValue({ status: 200 });
+        const apl = new VercelAPL({
+          registerAppURL: "https://registerService.example.com",
+          deploymentToken: "token",
+        });
+        await apl.set({ domain: "example.com", token: "token" });
+        expect(mockFetch).toBeCalledWith(
+          "https://registerService.example.com",
+
+          {
+            body: JSON.stringify({
+              token: "token",
+              envs: [
+                { key: "SALEOR_AUTH_TOKEN", value: "token" },
+                { key: "SALEOR_DOMAIN", value: "example.com" },
+              ],
+            }),
+            headers: {
+              "Content-Type": "application/json",
+            },
+            method: "POST",
+          }
+        );
+      });
+
+      it("Raise error when register service returns non 200 response", async () => {
+        // @ts-ignore Ignore type of mocked response
+        mockFetch.mockResolvedValue({ status: 500 });
+
+        const apl = new VercelAPL({
+          registerAppURL: "https://registerService.example.com/internalError",
+          deploymentToken: "token",
+        });
+        await expect(apl.set({ domain: "example.com", token: "token" })).rejects.toThrow(
+          "Vercel APL was not able to save auth data, register service responded with the code 500"
+        );
+      });
     });
 
     describe("get", () => {
