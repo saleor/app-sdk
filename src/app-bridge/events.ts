@@ -1,3 +1,4 @@
+import { LocaleCode } from "../locales";
 import { Values } from "./helpers";
 
 export type Version = 1;
@@ -51,7 +52,7 @@ export type ThemeEvent = Event<
 export type LocaleChangedEvent = Event<
   "localeChanged",
   {
-    locale: string;
+    locale: LocaleCode;
   }
 >;
 
