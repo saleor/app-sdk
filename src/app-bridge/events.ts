@@ -7,6 +7,7 @@ export const EventType = {
   response: "response",
   redirect: "redirect",
   theme: "theme",
+  localeChanged: "localeChanged",
 } as const;
 
 export type EventType = Values<typeof EventType>;
@@ -47,7 +48,19 @@ export type ThemeEvent = Event<
   }
 >;
 
-export type Events = HandshakeEvent | DispatchResponseEvent | RedirectEvent | ThemeEvent;
+export type LocaleChangedEvent = Event<
+  "localeChanged",
+  {
+    locale: string;
+  }
+>;
+
+export type Events =
+  | HandshakeEvent
+  | DispatchResponseEvent
+  | RedirectEvent
+  | ThemeEvent
+  | LocaleChangedEvent;
 
 export type PayloadOfEvent<
   TEventType extends EventType,
