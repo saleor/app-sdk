@@ -16,7 +16,9 @@ export const withSaleorDomainPresent: Middleware = (handler) => async (request) 
 
     return Response.BadRequest({
       success: false,
-      message: "Missing Saleor domain header.",
+      error: {
+        message: "Missing Saleor domain header.",
+      },
     });
   }
 

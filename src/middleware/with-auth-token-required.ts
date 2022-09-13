@@ -15,7 +15,9 @@ export const withAuthTokenRequired: Middleware = (handler) => async (request) =>
 
     return Response.BadRequest({
       success: false,
-      message: "Missing auth token.",
+      error: {
+        message: "Missing auth token.",
+      },
     });
   }
 

@@ -23,7 +23,9 @@ export const withSaleorEventMatch =
 
       return Response.BadRequest({
         success: false,
-        message: `Invalid Saleor event. Expecting ${expectedEvent}.`,
+        error: {
+          message: `Invalid Saleor event. Expecting ${expectedEvent}.`,
+        },
       });
     }
 

@@ -28,7 +28,9 @@ export const withJWTVerified =
 
       return Response.BadRequest({
         success: false,
-        message: `${ERROR_MESSAGE} Missing ${SALEOR_AUTHORIZATION_BEARER_HEADER} header.`,
+        error: {
+          message: `${ERROR_MESSAGE} Missing ${SALEOR_AUTHORIZATION_BEARER_HEADER} header.`,
+        },
       });
     }
 
@@ -51,7 +53,9 @@ export const withJWTVerified =
 
       return Response.BadRequest({
         success: false,
-        message: `${ERROR_MESSAGE} Could not decode authorization token.`,
+        error: {
+          message: `${ERROR_MESSAGE} Could not decode authorization token.`,
+        },
       });
     }
 
@@ -60,7 +64,9 @@ export const withJWTVerified =
 
       return Response.BadRequest({
         success: false,
-        message: `${ERROR_MESSAGE} Token iss property is different than domain header.`,
+        error: {
+          message: `${ERROR_MESSAGE} Token iss property is different than domain header.`,
+        },
       });
     }
 
@@ -75,7 +81,9 @@ export const withJWTVerified =
 
       return Response.InternalServerError({
         success: false,
-        message: `${ERROR_MESSAGE} Could not obtain the app ID.`,
+        error: {
+          message: `${ERROR_MESSAGE} Could not obtain the app ID.`,
+        },
       });
     }
 
@@ -84,7 +92,9 @@ export const withJWTVerified =
 
       return Response.InternalServerError({
         success: false,
-        message: `${ERROR_MESSAGE} No value for app ID.`,
+        error: {
+          message: `${ERROR_MESSAGE} No value for app ID.`,
+        },
       });
     }
 
@@ -95,7 +105,9 @@ export const withJWTVerified =
 
       return Response.BadRequest({
         success: false,
-        message: `${ERROR_MESSAGE} Token's app property is different than app ID.`,
+        error: {
+          message: `${ERROR_MESSAGE} Token's app property is different than app ID.`,
+        },
       });
     }
 
@@ -113,7 +125,9 @@ export const withJWTVerified =
 
       return Response.BadRequest({
         success: false,
-        message: `${ERROR_MESSAGE} JWT signature verification failed.`,
+        error: {
+          message: `${ERROR_MESSAGE} JWT signature verification failed.`,
+        },
       });
     }
 

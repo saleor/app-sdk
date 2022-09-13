@@ -16,7 +16,9 @@ export const withRegisteredSaleorDomainHeader =
     if (!saleorDomain) {
       return Response.BadRequest({
         success: false,
-        message: "Domain header missing.",
+        error: {
+          message: "Domain header missing.",
+        },
       });
     }
 
@@ -29,7 +31,9 @@ export const withRegisteredSaleorDomainHeader =
 
       return Response.Forbidden({
         success: false,
-        message: `Domain ${saleorDomain} not registered.`,
+        error: {
+          message: `Domain ${saleorDomain} not registered.`,
+        },
       });
     }
 

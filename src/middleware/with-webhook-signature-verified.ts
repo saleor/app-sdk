@@ -23,7 +23,9 @@ export const withWebhookSignatureVerified =
 
       return Response.InternalServerError({
         success: false,
-        message: `${ERROR_MESSAGE} Request payload already parsed.`,
+        error: {
+          message: `${ERROR_MESSAGE} Request payload already parsed.`,
+        },
       });
     }
 
@@ -34,14 +36,18 @@ export const withWebhookSignatureVerified =
 
       return Response.BadRequest({
         success: false,
-        message: `${ERROR_MESSAGE} Missing ${SALEOR_SIGNATURE_HEADER} header.`,
+        error: {
+          message: `${ERROR_MESSAGE} Missing ${SALEOR_SIGNATURE_HEADER} header.`,
+        },
       });
     }
 
     if (!saleorDomain) {
       return Response.BadRequest({
         success: false,
-        message: `${ERROR_MESSAGE} Missing ${SALEOR_DOMAIN_HEADER} header.`,
+        error: {
+          message: `${ERROR_MESSAGE} Missing ${SALEOR_DOMAIN_HEADER} header.`,
+        },
       });
     }
 
@@ -58,7 +64,9 @@ export const withWebhookSignatureVerified =
 
         return Response.BadRequest({
           success: false,
-          message: `${ERROR_MESSAGE} Verification using secret key has failed.`,
+          error: {
+            message: `${ERROR_MESSAGE} Verification using secret key has failed.`,
+          },
         });
       }
     } else {
@@ -84,7 +92,9 @@ export const withWebhookSignatureVerified =
 
         return Response.BadRequest({
           success: false,
-          message: `${ERROR_MESSAGE} Verification using public key has failed.`,
+          error: {
+            message: `${ERROR_MESSAGE} Verification using public key has failed.`,
+          },
         });
       }
     }
