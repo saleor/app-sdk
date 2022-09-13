@@ -7,6 +7,11 @@ export type AppBridgeState = {
   domain: string;
   path: string;
   theme: ThemeType;
+  locale: string;
+};
+
+type Options = {
+  initialLocale?: string;
 };
 
 export class AppBridgeStateContainer {
@@ -16,7 +21,14 @@ export class AppBridgeStateContainer {
     ready: false,
     path: "/",
     theme: "light",
+    locale: "en",
   };
+
+  constructor(options: Options = {}) {
+    if (options.initialLocale) {
+      this.state.locale = options.initialLocale;
+    }
+  }
 
   getState() {
     return this.state;

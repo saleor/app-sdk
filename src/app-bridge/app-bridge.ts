@@ -37,6 +37,12 @@ function eventStateReducer(state: AppBridgeState, event: Events) {
         theme: event.payload.theme,
       };
     }
+    case EventType.localeChanged: {
+      return {
+        ...state,
+        locale: event.payload.locale,
+      };
+    }
     case EventType.response: {
       return state;
     }
@@ -56,6 +62,7 @@ const createEmptySubscribeMap = (): SubscribeMap => ({
   response: {},
   redirect: {},
   theme: {},
+  localeChanged: {},
 });
 
 export type AppBridgeOptions = {
