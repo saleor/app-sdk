@@ -6,6 +6,9 @@ const capitalize = (value: string) => value.charAt(0).toUpperCase() + value.slic
 
 const dropFileExtension = (filename: string) => path.parse(filename).name;
 
+/**
+ * @deprecated remove magic
+ */
 export const inferWebhooks = async (
   baseURL: string,
   webhooksPath: string,

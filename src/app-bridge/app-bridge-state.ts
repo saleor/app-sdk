@@ -1,3 +1,4 @@
+import { LocaleCode } from "../locales";
 import { ThemeType } from "./events";
 
 export type AppBridgeState = {
@@ -7,11 +8,11 @@ export type AppBridgeState = {
   domain: string;
   path: string;
   theme: ThemeType;
-  locale: string;
+  locale: LocaleCode;
 };
 
 type Options = {
-  initialLocale?: string;
+  initialLocale?: LocaleCode;
 };
 
 export class AppBridgeStateContainer {
