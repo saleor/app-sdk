@@ -1,5 +1,6 @@
 import debugPkg from "debug";
 
+import { LocaleCode } from "../locales";
 import { Actions } from "./actions";
 import { AppBridgeState, AppBridgeStateContainer } from "./app-bridge-state";
 import { SSR } from "./constants";
@@ -67,6 +68,7 @@ const createEmptySubscribeMap = (): SubscribeMap => ({
 
 export type AppBridgeOptions = {
   targetDomain?: string;
+  initialLocale?: LocaleCode;
 };
 
 const getDefaultOptions = (): AppBridgeOptions => ({
@@ -74,7 +76,7 @@ const getDefaultOptions = (): AppBridgeOptions => ({
 });
 
 export class AppBridge {
-  private state = new AppBridgeStateContainer();
+  private state: AppBridgeStateContainer;
 
   private refererOrigin = document.referrer ? new URL(document.referrer).origin : undefined;
 
@@ -90,6 +92,10 @@ export class AppBridge {
         "AppBridge detected you're running this app in SSR mode. Make sure to call `new AppBridge()` when window object exists."
       );
     }
+
+    this.state = new AppBridgeStateContainer({
+      initialLocale: options.initialLocale,
+    });
 
     this.combinedOptions = {
       ...this.combinedOptions,

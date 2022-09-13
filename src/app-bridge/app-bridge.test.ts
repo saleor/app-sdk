@@ -1,6 +1,10 @@
 import { fireEvent } from "@testing-library/dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { LocaleCode } from "../locales";
+// eslint-disable-next-line
+import { actions, AppBridge, DispatchResponseEvent, HandshakeEvent, ThemeEvent } from ".";
+
 // mock document.referrer
 const origin = "http://example.com";
 const domain = "saleor.domain.host";
@@ -16,9 +20,6 @@ Object.defineProperty(window, "location", {
   },
   writable: true,
 });
-
-// eslint-disable-next-line
-import { actions, DispatchResponseEvent, HandshakeEvent, AppBridge, ThemeEvent } from ".";
 
 const handshakeEvent: HandshakeEvent = {
   payload: {
@@ -210,5 +211,13 @@ describe("AppBridge", () => {
     });
 
     expect(appBridge.getState().domain).toEqual("https://foo.bar");
+  });
+
+  it.each<LocaleCode>(["pl", "en", "it"])("sets initial locale \"%s\" from constructor", (locale) => {
+    const instance = new AppBridge({
+      initialLocale: locale,
+    });
+
+    expect(instance.getState().locale).toBe(locale);
   });
 });

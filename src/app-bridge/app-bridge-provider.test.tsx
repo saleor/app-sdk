@@ -133,6 +133,7 @@ describe("useAppBridge hook", () => {
         path: "",
         ready: false,
         theme: "light",
+        locale: "en",
       });
     });
   });
