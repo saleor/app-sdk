@@ -67,3 +67,40 @@ export type PayloadOfEvent<
   TEvent extends Events = Events
   // @ts-ignore TODO - why this is not working with this tsconfig? Fixme
 > = TEvent extends Event<TEventType, unknown> ? TEvent["payload"] : never;
+
+export const DashboardEventFactory = {
+  createThemeChangeEvent(theme: ThemeType): ThemeEvent {
+    return {
+      payload: {
+        theme,
+      },
+      type: "theme",
+    };
+  },
+  createRedirectEvent(path: string): RedirectEvent {
+    return {
+      type: "redirect",
+      payload: {
+        path,
+      },
+    };
+  },
+  createDispatchResponseEvent(actionId: string, ok: boolean): DispatchResponseEvent {
+    return {
+      type: "response",
+      payload: {
+        actionId,
+        ok,
+      },
+    };
+  },
+  createHandshakeEvent(token: string, version: Version = 1): HandshakeEvent {
+    return {
+      type: "handshake",
+      payload: {
+        token,
+        version,
+      },
+    };
+  },
+};
