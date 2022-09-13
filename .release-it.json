@@ -10,5 +10,6 @@
   },
   "hooks": {
     "after:bump": ["pnpm clean", "pnpm build"]
-  }
+  },
+  "preRelease": "rc"
 }
