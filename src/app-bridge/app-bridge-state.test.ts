@@ -12,6 +12,7 @@ describe("app-bridge-state.ts", () => {
       ready: false,
       path: "/",
       theme: "light",
+      locale: "en",
     });
   });
 
@@ -23,10 +24,23 @@ describe("app-bridge-state.ts", () => {
       id: "foo-bar",
       path: "/",
       theme: "light",
+      locale: "pl",
     };
 
     instance.setState(newState);
 
     expect(instance.getState()).toEqual(expect.objectContaining(newState));
+  });
+
+  it("Set \"en\" to be initial locale value", () => {
+    expect(new AppBridgeStateContainer().getState().locale).toEqual("en");
+  });
+
+  it("Can be constructed with initial locale", () => {
+    expect(
+      new AppBridgeStateContainer({
+        initialLocale: "pl",
+      }).getState().locale
+    ).toBe("pl");
   });
 });
