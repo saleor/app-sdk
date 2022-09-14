@@ -71,8 +71,20 @@ export type AppBridgeOptions = {
   initialLocale?: LocaleCode;
 };
 
+/**
+ * TODO: Consider validating locale if wrong code provided
+ */
+const getLocaleFromUrl = () =>
+  (new URL(window.location.href).searchParams.get("locale") as LocaleCode) || undefined;
+
+/**
+ * TODO: Probably remove empty string fallback
+ */
+const getDomainFromUrl = () => new URL(window.location.href).searchParams.get("domain") || "";
+
 const getDefaultOptions = (): AppBridgeOptions => ({
-  targetDomain: new URL(window.location.href).searchParams.get("domain") || "",
+  targetDomain: getDomainFromUrl(),
+  initialLocale: getLocaleFromUrl(),
 });
 
 export class AppBridge {
@@ -93,14 +105,14 @@ export class AppBridge {
       );
     }
 
-    this.state = new AppBridgeStateContainer({
-      initialLocale: options.initialLocale,
-    });
-
     this.combinedOptions = {
       ...this.combinedOptions,
       ...options,
     };
+
+    this.state = new AppBridgeStateContainer({
+      initialLocale: this.combinedOptions.initialLocale,
+    });
 
     debug("Resolved combined AppBridge options: %j", this.combinedOptions);
 
