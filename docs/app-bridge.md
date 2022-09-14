@@ -39,6 +39,42 @@ type AppBridgeState = {
 };
 ```
 
+## AppBridgeProvider
+
+`AppBridgeProvider` and `useAppBridge` hook are exposed from app-sdk
+
+```tsx
+// app.tsx
+import { AppBridgeProvider } from "@saleor/app-sdk/app-bridge";
+
+<AppBridgeProvider>
+  <YourApp />
+</AppBridgeProvider>;
+```
+
+`AppBridgeProvider` can optionally receive AppBridge instance in props, otherwise will create one automatically
+
+### useAppBridge hook
+
+In components wrapped with `AppBridgeProvider`, `useAppBridge` hook is available
+
+```tsx
+import { useAppBridge } from "@saleor/app-sdk/app-bridge";
+import { useEffect } from "react";
+
+const MyComponent = () => {
+  const { appBridge, appBridgeState } = useAppBridge();
+
+  useEffect(() => {
+    appBridge?.dispatch(/* Something */);
+  }, [appBridge]);
+
+  return <div>Current locale is: {appBridgeState?.locale}</div>;
+};
+```
+
+`appBridgeState?` and `appBridge` can be nullish, because in server side context it's not available
+
 ## Events
 
 Events are messages that originate in Saleor Dashboard. AppBridge can subscribe on events and app can react on them
@@ -76,12 +112,15 @@ appBridge.unsubscribeAll();
 
 ### Available event types
 
-| Event type  | Description                                                                  |
-| :---------- | :--------------------------------------------------------------------------- |
-| `handshake` | Fired when iFrame containing the App is initialized or new token is assigned |
-| `response`  | Fired when Dashboard responds to an Action                                   |
-| `redirect`  | Fired when Dashboard changes a subpath within the app path                   |
-| `theme`     | Fired when Dashboard changes the theme                                       |
+| Event type      | Description                                                                  |
+| :-------------- | :--------------------------------------------------------------------------- |
+| `handshake`     | Fired when iFrame containing the App is initialized or new token is assigned |
+| `response`      | Fired when Dashboard responds to an Action                                   |
+| `redirect`      | Fired when Dashboard changes a subpath within the app path                   |
+| `theme`         | Fired when Dashboard changes the theme                                       |
+| `localeChanged` | Fired when Dashboard changes locale (and passes locale code in payload)      |
+
+See [source code for detailed payload](./src/app-bridge/events.ts)
 
 ## Actions
 

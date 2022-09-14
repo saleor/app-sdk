@@ -24,10 +24,6 @@ export const AppContext = React.createContext<AppBridgeContext>({
   mounted: false,
 });
 
-/**
- * Experimental - try to use provider in app-sdk itself
- * Consider monorepo with dedicated react package
- */
 export function AppBridgeProvider({ appBridgeInstance, ...props }: React.PropsWithChildren<Props>) {
   debug("Provider mounted");
   const [appBridge, setAppBridge] = useState<AppBridge | undefined>(appBridgeInstance);
