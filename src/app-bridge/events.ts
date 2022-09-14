@@ -104,4 +104,12 @@ export const DashboardEventFactory = {
       },
     };
   },
+  createLocaleChangedEvent(newLocale: LocaleCode): LocaleChangedEvent {
+    return {
+      type: "localeChanged",
+      payload: {
+        locale: newLocale,
+      },
+    };
+  },
 };

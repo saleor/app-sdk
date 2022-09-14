@@ -220,4 +220,16 @@ describe("AppBridge", () => {
 
     expect(instance.getState().locale).toBe(locale);
   });
+
+  it("Detects locale from URL param and set it to be initial", () => {
+    const localeToOverwrite = "pl";
+
+    const currentLocationHref = window.location.href;
+
+    window.location.href = `${origin}?domain=${domain}&id=appid&locale=${localeToOverwrite}`;
+
+    expect(new AppBridge().getState().locale).toBe(localeToOverwrite);
+
+    window.location.href = currentLocationHref;
+  });
 });

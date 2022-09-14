@@ -12,6 +12,7 @@ describe("DashboardEventFactory", () => {
       type: "handshake",
     });
   });
+
   it("Creates redirect event", () => {
     expect(DashboardEventFactory.createRedirectEvent("/new-path")).toEqual({
       payload: {
@@ -20,6 +21,7 @@ describe("DashboardEventFactory", () => {
       type: "redirect",
     });
   });
+
   it("Creates dispatch response event", () => {
     expect(DashboardEventFactory.createDispatchResponseEvent("123", true)).toEqual({
       payload: {
@@ -29,12 +31,22 @@ describe("DashboardEventFactory", () => {
       type: "response",
     });
   });
+
   it("Creates theme change event", () => {
     expect(DashboardEventFactory.createThemeChangeEvent("light")).toEqual({
       payload: {
         theme: "light",
       },
       type: "theme",
+    });
+  });
+
+  it("Creates locale change event", () => {
+    expect(DashboardEventFactory.createLocaleChangedEvent("it")).toEqual({
+      payload: {
+        locale: "it",
+      },
+      type: "localeChanged",
     });
   });
 });
