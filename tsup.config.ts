@@ -2,6 +2,9 @@ import { defineConfig } from "tsup";
 
 export default defineConfig({
   entry: [
+    /**
+     * TODO Introduce breaking change and remove exporting from paths, merge everything to index
+     */
     "src/*",
     "src/index.ts",
     "src/APL/index.ts",
