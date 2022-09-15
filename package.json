@@ -6,8 +6,8 @@
   "main": "index.js",
   "scripts": {
     "prepublishOnly": "pnpm build",
-    "watch": "tsup-node src/* --format esm,cjs --dts --watch",
-    "build": "tsup-node src/* --format esm,cjs --dts && clear-package-json package.json -o dist/package.json --fields publishConfig",
+    "watch": "tsup --watch",
+    "build": "tsup && clear-package-json package.json -o dist/package.json --fields publishConfig",
     "clean": "rm -rf ./dist/*",
     "test": "vitest",
     "test:ci": "CI=true vitest --coverage",
