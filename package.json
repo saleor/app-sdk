@@ -20,7 +20,8 @@
   "license": "ISC",
   "peerDependencies": {
     "react": ">=17",
-    "react-dom": ">=17"
+    "react-dom": ">=17",
+    "next": "^12"
   },
   "dependencies": {
     "debug": "^4.3.4",
@@ -28,11 +29,13 @@
     "graphql": "^16.6.0",
     "jose": "^4.9.2",
     "node-fetch": "^3.2.10",
-    "retes": "^0.32.0",
+    "retes": "^0.33.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@vitest/coverage-c8": "^0.23.2",
+    "node-mocks-http": "^1.11.0",
+    "next": "^12.3.0",
     "@testing-library/dom": "^8.17.1",
     "@testing-library/react": "^13.4.0",
     "@types/debug": "^4.1.7",
@@ -97,6 +100,11 @@
       "types": "./app-bridge/index.d.ts",
       "import": "./app-bridge/index.mjs",
       "require": "./app-bridge/index.js"
+    },
+    "./handlers/next": {
+      "types": "./handlers/next/index.d.ts",
+      "import": "./handlers/next/index.mjs",
+      "require": "./handlers/next/index.js"
     },
     ".": {
       "types": "./index.d.ts",
