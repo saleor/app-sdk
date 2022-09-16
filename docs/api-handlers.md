@@ -8,8 +8,8 @@ Currently, Saleor heavily relies on Next.js, but in the future, other platforms 
 
 Saleor requires 2 endpoints to be available for a standalone app:
 
-- Manifest endpoint - Saleor asks for App information like name and permissions
-- Register endpoint - Saleor uses it to exchange authorization data
+- Manifest endpoint - Returns JSON object with app properties, like its name or permissions. [Read more](https://docs.saleor.io/docs/3.x/developer/extending/apps/manifest)
+- Register endpoint - During the installation process, Saleor sends `POST` request with auth token to this endpoint. [Read more](https://docs.saleor.io/docs/3.x/developer/extending/apps/installing-apps#installation-using-graphql-api)
 
 TODO - any other endpoints?
 
