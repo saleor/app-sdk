@@ -5,8 +5,7 @@ import { AppManifest } from "../../types";
 import { createManifestHandler } from "./create-manifest-handler";
 
 describe("createManifestHandler", () => {
-  // TODO Fix test, Response.OK returns undefined
-  it.fails("Creates a handler without error", async () => {
+  it("Creates a handler that responds with Manifest", async () => {
     const { res, req } = createMocks({
       headers: {
         host: "some-saleor-host.cloud",
@@ -28,11 +27,15 @@ describe("createManifestHandler", () => {
       },
     });
 
-    const response = await handler(req, res);
+    await handler(req, res);
 
-    /**
-     * TODO Fixme - why handler returns undefined?
-     */
-    expect(response).toEqual({});
+    expect(res._getData()).toEqual({
+      appUrl: "https://some-saleor-host.cloud",
+      id: "app-id",
+      name: "Mock name",
+      permissions: [],
+      tokenTargetUrl: "https://some-saleor-host.cloud/api/register",
+      version: "1",
+    });
   });
 });

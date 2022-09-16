@@ -15,8 +15,6 @@ export type CreateAppRegisterHandlerOptions = {
  * Creates API handler for Next.js. Creates handler called by Saleor that registers app.
  * Hides implementation details if possible
  * In the future this will be extracted to separate sdk/next package
- *
- * TODO Test
  */
 export const createAppRegisterHandler = ({ apl }: CreateAppRegisterHandlerOptions) => {
   const baseHandler: Handler = async (request) => {
