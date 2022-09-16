@@ -10,7 +10,7 @@
     "build": "tsup-node src/* --format esm,cjs --dts && clear-package-json package.json -o dist/package.json --fields publishConfig",
     "clean": "rm -rf ./dist/*",
     "test": "vitest",
-    "test:ci": "CI=true vitest",
+    "test:ci": "CI=true vitest --coverage",
     "prepare": "husky install",
     "lint": "prettier --loglevel warn --write . && eslint --fix .",
     "release": "release-it"
@@ -32,6 +32,7 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "@vitest/coverage-c8": "^0.23.2",
     "@testing-library/dom": "^8.17.1",
     "@testing-library/react": "^13.4.0",
     "@types/debug": "^4.1.7",
