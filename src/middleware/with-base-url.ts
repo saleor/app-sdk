@@ -9,6 +9,7 @@ export const withBaseURL: Middleware = (handler) => async (request) => {
 
   debug("Middleware called with host: %s, protocol %s", host, request.headers["x-forwarded-proto"]);
 
+  request.context ??= {};
   request.context.baseURL = `${protocol}://${host}`;
 
   debug("context.baseURL resolved to be: \"%s\"", request.context.baseURL);
