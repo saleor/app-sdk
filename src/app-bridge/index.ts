@@ -6,6 +6,7 @@ export * from "./actions";
 export * from "./app-bridge-provider";
 export * from "./events";
 export * from "./types";
+export * from "./use-dashboard-token";
 
 /**
  * @deprecated use new AppBridge(), createApp will be removed
