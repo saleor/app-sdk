@@ -20,17 +20,31 @@ type Props = {
   dashboardTokenInvalid?: ReactNode;
 };
 
+const defaultProps: Props = {
+  dashboardTokenInvalid: <SimpleError>Dashboard token is invalid</SimpleError>,
+  noDashboardToken: <SimpleError>Dashboard token doesn&quot;t exist</SimpleError>,
+  notIframe: <SimpleError>The view can only be displayed inside iframe.</SimpleError>,
+  unmounted: <p>Loading</p>,
+};
+
+/**
+ * Most likely, views from your app will be only accessibly inside Dashboard iframe.
+ * This HOC can be used to handle all checks, with default messages included.
+ * Each error screen can be passed into HOC factory
+ *
+ * If screen can be accessible outside Dashboard - omit this HOC on this page
+ * */
 export const withAuthorization =
-  ({
-    dashboardTokenInvalid = <SimpleError>Dashboard token is invalid</SimpleError>,
-    noDashboardToken = <SimpleError>Dashboard token doesn&quot;t exist</SimpleError>,
-    notIframe = <SimpleError>The view can only be displayed inside iframe.</SimpleError>,
-    unmounted = <p>Loading</p>,
-  }: Props) =>
+  (props: Props = defaultProps) =>
   <BaseProps extends React.ComponentProps<NextPage>>(
     BaseComponent: React.FunctionComponent<BaseProps>
   ) => {
-    function AuthorizedPage(props: BaseProps) {
+    const { dashboardTokenInvalid, noDashboardToken, notIframe, unmounted } = {
+      ...defaultProps,
+      ...props,
+    };
+
+    function AuthorizedPage(innerProps: BaseProps) {
       const mounted = useIsMounted();
       const { isTokenValid, hasAppToken } = useDashboardToken();
 
@@ -50,7 +64,7 @@ export const withAuthorization =
         return dashboardTokenInvalid;
       }
 
-      return <BaseComponent {...props} />;
+      return <BaseComponent {...innerProps} />;
     }
 
     return AuthorizedPage;

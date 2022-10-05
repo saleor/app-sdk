@@ -14,7 +14,7 @@ export interface DashboardTokenProps {
   tokenClaims: DashboardTokenPayload | null;
 }
 
-const debug = debugPkg.debug("app-sdk:AppBridge");
+const debug = debugPkg.debug("app-sdk:AppBridge:useDashboardToken");
 
 export const useDashboardToken = (): DashboardTokenProps => {
   const { appBridgeState } = useAppBridge();
@@ -22,7 +22,7 @@ export const useDashboardToken = (): DashboardTokenProps => {
   const tokenClaims = useMemo(() => {
     try {
       if (appBridgeState?.token) {
-        debug("Trying to decode JWT token drom dashboard");
+        debug("Trying to decode JWT token from dashboard");
         return jose.decodeJwt(appBridgeState?.token) as DashboardTokenPayload;
       }
     } catch (e) {
