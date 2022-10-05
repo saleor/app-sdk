@@ -24,6 +24,7 @@ npm i @saleor/app-sdk
 ## Docs
 
 - [AppBridge](./docs/app-bridge.md) - communication layer between Saleor App and Dashboard
+- [Protected Views](./docs/protected-views.md) - protecting access to App outside of Dashboard
 - [APL](./docs/apl.md) - an interface that enabled App communicating between one or more Saleor instances
 - [Debugging](./docs/debugging.md) - how to debug app-sdk behaviour
 
