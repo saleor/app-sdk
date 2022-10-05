@@ -6,7 +6,7 @@ import { withBaseURL } from "../../middleware";
 import { AppManifest } from "../../types";
 
 export type CreateManifestHandlerOptions = {
-  manifestFactory(context: { appBaseUrl: string }): AppManifest;
+  manifestFactory(context: { appBaseUrl: string }): AppManifest | Promise<AppManifest>;
 };
 
 /**
@@ -18,7 +18,7 @@ export const createManifestHandler = (options: CreateManifestHandlerOptions) => 
   const baseHandler: Handler = async (request) => {
     const { baseURL } = request.context;
 
-    const manifest = options.manifestFactory({
+    const manifest = await options.manifestFactory({
       appBaseUrl: baseURL,
     });
 
