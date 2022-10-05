@@ -23,7 +23,7 @@ Example usage of manifest handler in Next.js
 ```typescript
 // pages/api/manifest.ts
 
-import { createManifestHandler } from "@app-sdk/handlers/next";
+import { createManifestHandler } from "@saleor/app-sdk/handlers/next";
 
 export default createManifestHandler({
   manifestFactory(context) {
@@ -56,7 +56,7 @@ Example usage of app register handler in Next.js
 ```typescript
 // pages/api/register.ts
 
-import { createAppRegisterHandler } from "@app-sdk/handlers/next";
+import { createAppRegisterHandler } from "@saleor/app-sdk/handlers/next";
 import { VercelAPL } from "./vercel-apl";
 
 export default createAppRegisterHandler({
