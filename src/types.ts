@@ -110,4 +110,7 @@ export interface AppManifest {
   Be aware that subscription queries are required in manifest sections
   */
   webhooks?: AppWebhook[];
+  assets?: {
+    logoUrl?: string;
+  };
 }
