@@ -3,13 +3,11 @@ import { toNextHandler } from "retes/adapter";
 import { withMethod } from "retes/middleware";
 import { Response } from "retes/response";
 
-import { APL } from "../../APL";
 import { SALEOR_DOMAIN_HEADER } from "../../const";
 import { withAuthTokenRequired, withSaleorDomainPresent } from "../../middleware";
+import { HasAPL } from "../../saleor-app";
 
-export type CreateAppRegisterHandlerOptions = {
-  apl: APL;
-};
+export type CreateAppRegisterHandlerOptions = HasAPL;
 
 /**
  * Creates API handler for Next.js. Creates handler called by Saleor that registers app.
