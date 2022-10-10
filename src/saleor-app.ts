@@ -1,4 +1,4 @@
-import { APL } from "./APL";
+import { APL, AplReadyResult } from "./APL";
 
 export interface HasAPL {
   apl: APL;
@@ -8,15 +8,6 @@ export interface SaleorAppParams {
   apl: APL;
   requiredEnvVars?: string[];
 }
-
-export type EnvValidationResult =
-  | {
-      valid: true;
-    }
-  | {
-      valid: false;
-      invalidEnvName: string;
-    };
 
 export class SaleorApp implements HasAPL {
   readonly apl: APL;
@@ -28,20 +19,7 @@ export class SaleorApp implements HasAPL {
     this.requiredEnvVars = options.requiredEnvVars ?? [];
   }
 
-  validateRequiredEnv(): EnvValidationResult {
-    for (const envName of this.requiredEnvVars) {
-      const relatedEnv = process.env[envName];
-
-      if (!relatedEnv || relatedEnv.length === 0) {
-        return {
-          valid: false,
-          invalidEnvName: envName,
-        };
-      }
-    }
-
-    return {
-      valid: true,
-    };
+  isReady(): Promise<AplReadyResult> {
+    return this.apl.isReady();
   }
 }
