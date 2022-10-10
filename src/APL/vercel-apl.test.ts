@@ -158,5 +158,21 @@ describe("APL", () => {
         });
       });
     });
+
+    describe("isReady", () => {
+      it("Returns error with message mentioning missing env variables", async () => {
+        const apl = new VercelAPL(aplConfig);
+
+        const result = await apl.isReady();
+
+        if (!result.ready) {
+          expect(result.error.message).toEqual(
+            "Env variables: \"SALEOR_AUTH_TOKEN\", \"SALEOR_DOMAIN\", \"SALEOR_REGISTER_APP_URL\", \"SALEOR_DEPLOYMENT_TOKEN\" not found or is empty. Ensure env variables exist"
+          );
+        } else {
+          throw new Error("This should not happen");
+        }
+      });
+    });
   });
 });
