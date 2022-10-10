@@ -1,5 +1,5 @@
 import fg from "fast-glob";
-import { print } from "graphql/language/printer";
+import { print } from "graphql/language/printer.js";
 import path from "path";
 
 const capitalize = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
