@@ -86,6 +86,11 @@
       "import": "./APL/index.mjs",
       "require": "./APL/index.js"
     },
+    "./settings-manager": {
+      "types": "./settings-manager/index.d.ts",
+      "import": "./settings-manager/index.mjs",
+      "require": "./settings-manager/index.js"
+    },
     "./middleware": {
       "types": "./middleware/index.d.ts",
       "import": "./middleware/index.mjs",
