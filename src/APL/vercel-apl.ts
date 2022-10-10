@@ -1,4 +1,5 @@
 /* eslint-disable class-methods-use-this */
+// eslint-disable-next-line max-classes-per-file
 import fetch, { Response } from "node-fetch";
 
 import { APL, AplReadyResult, AuthData } from "./apl";
@@ -12,6 +13,16 @@ export const VercelAPLVariables = {
   SALEOR_REGISTER_APP_URL: "SALEOR_REGISTER_APP_URL",
   SALEOR_DEPLOYMENT_TOKEN: "SALEOR_DEPLOYMENT_TOKEN",
 };
+
+export class VercelAplMisconfiguredError extends Error {
+  constructor(public missingEnvVars: string[]) {
+    super(
+      `Env variables: ${missingEnvVars
+        .map((v) => `"${v}"`)
+        .join(", ")} not found or is empty. Ensure env variables exist`
+    );
+  }
+}
 
 const getEnvAuth = (): AuthData | undefined => {
   const token = process.env[VercelAPLVariables.TOKEN_VARIABLE_NAME];
@@ -125,17 +136,17 @@ export class VercelAPL implements APL {
 
   // eslint-disable-next-line class-methods-use-this
   async isReady(): Promise<AplReadyResult> {
-    for (const requiredEnvKey of Object.values(VercelAPLVariables)) {
-      const envValue = process.env[requiredEnvKey];
+    const invalidEnvKeys = Object.values(VercelAPLVariables).filter((key) => {
+      const envValue = process.env[key];
 
-      if (!envValue || envValue.length === 0) {
-        return {
-          ready: false,
-          error: new Error(
-            `Env variable ${requiredEnvKey} doesnt exist or is empty. Ensure env variables exist`
-          ),
-        };
-      }
+      return !envValue || envValue.length === 0;
+    });
+
+    if (invalidEnvKeys.length > 0) {
+      return {
+        ready: false,
+        error: new VercelAplMisconfiguredError(invalidEnvKeys),
+      };
     }
 
     return {
