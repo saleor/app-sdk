@@ -1,4 +1,4 @@
-# APL - Auth Persistance Layer
+# APL - Auth Persistence Layer
 
 APL is an interface for managing auth data of registered Apps. Implementing it does not restrict you from choosing the right technology for your project (for example Redis, Postgres, S3, etc.), and provides a common set of operations which can be used by your application and functions provided by App SDK.
 
