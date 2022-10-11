@@ -43,7 +43,10 @@ describe("APL", () => {
     describe("set", () => {
       it("Successful save of the auth data", async () => {
         // @ts-ignore Ignore type of mocked response
-        mockFetch.mockResolvedValue({ status: 200, json: () => JSON.stringify({ result: "ok" }) });
+        mockFetch.mockResolvedValue({
+          status: 200,
+          json: async () => ({ result: "ok" }),
+        });
         const apl = new UpstashAPL({
           restURL: "https://example.com",
           restToken: "token",

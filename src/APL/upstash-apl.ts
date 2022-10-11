@@ -7,10 +7,9 @@ import { createAPLDebug } from "./apl-debug";
 
 const debug = createAPLDebug("UpstashAPL");
 
-type UpstashResponse = {
-  result?: string;
-  error?: string;
-};
+type SuccessResponse = { result: string };
+type ErrorResponse = { error: string };
+type UpstashResponse = SuccessResponse | ErrorResponse;
 
 export const UpstashAPLVariables = {
   UPSTASH_TOKEN: "UPSTASH_TOKEN",
@@ -69,7 +68,7 @@ export class UpstashAPL implements APL {
       throw new Error(`Upstash APL responded with the code ${response.status}`);
     }
     const parsedResponse = (await response.json()) as UpstashResponse;
-    if (parsedResponse.error) {
+    if ("error" in parsedResponse) {
       debug("Upstash API responded with error: %s", parsedResponse.error);
       throw new Error("Upstash APL was not able to perform operation");
     }
