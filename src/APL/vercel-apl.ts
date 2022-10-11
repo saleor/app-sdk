@@ -55,27 +55,28 @@ export type VercelAPLConfig = {
  *   - SALEOR_DEPLOYMENT_TOKEN: token for your particular Vercel deployment
  */
 export class VercelAPL implements APL {
-  private registerAppURL: string;
+  private registerAppURL?: string;
 
-  private deploymentToken: string;
+  private deploymentToken?: string;
 
   constructor(config?: VercelAPLConfig) {
     const registerAppURL =
       config?.registerAppURL || process.env[VercelAPLVariables.SALEOR_REGISTER_APP_URL];
-    if (!registerAppURL) {
-      throw new Error("Misconfiguration: please provide registerAppUrl");
-    }
+
     const deploymentToken =
       config?.deploymentToken || process.env[VercelAPLVariables.SALEOR_DEPLOYMENT_TOKEN];
-    if (!deploymentToken) {
-      throw new Error("Misconfiguration: please provide deploymentToken");
-    }
 
     this.registerAppURL = registerAppURL;
     this.deploymentToken = deploymentToken;
   }
 
   private async saveDataToVercel(authData?: AuthData) {
+    if (!this.registerAppURL) {
+      throw new Error(
+        "VercelAPL is not configured. See https://github.com/saleor/saleor-app-sdk/blob/main/docs/apl.md"
+      );
+    }
+
     debug("saveDataToVercel() called with: %j", {
       domain: authData?.domain,
       token: authData?.token.substring(0, 4),
