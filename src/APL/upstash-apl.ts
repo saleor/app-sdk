@@ -28,34 +28,34 @@ export class UpstashAplMisconfiguredError extends Error {
 }
 
 export type UpstashAPLConfig = {
-  restUrl: string;
+  restURL: string;
   restToken: string;
 };
 
 // https://docs.upstash.com/redis/features/restapi
 export class UpstashAPL implements APL {
-  private restUrl?: string;
+  private restURL?: string;
 
   private restToken?: string;
 
   constructor(config?: UpstashAPLConfig) {
-    const restUrl = config?.restUrl || process.env[UpstashAPLVariables.UPSTASH_URL];
+    const restURL = config?.restURL || process.env[UpstashAPLVariables.UPSTASH_URL];
     const restToken = config?.restToken || process.env[UpstashAPLVariables.UPSTASH_TOKEN];
 
-    this.restUrl = restUrl;
+    this.restURL = restURL;
     this.restToken = restToken;
   }
 
   private async upstashRequest(requestBody: string) {
     debug("Sending request to Upstash");
-    if (!this.restUrl || !this.restToken) {
+    if (!this.restURL || !this.restToken) {
       throw new Error(
         "UpstashAPL is not configured. See https://github.com/saleor/saleor-app-sdk/blob/main/docs/apl.md"
       );
     }
     let response: Response;
     try {
-      response = await fetch(this.restUrl, {
+      response = await fetch(this.restURL, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${this.restToken}` },
         body: requestBody,
@@ -68,7 +68,7 @@ export class UpstashAPL implements APL {
       debug("Non 200 response code. Upstash responded with %j", response);
       throw new Error(`Upstash APL responded with the code ${response.status}`);
     }
-    const parsedResponse = response.json() as UpstashResponse;
+    const parsedResponse = (await response.json()) as UpstashResponse;
     if (parsedResponse.error) {
       debug("Upstash API responded with error: %s", parsedResponse.error);
       throw new Error("Upstash APL was not able to perform operation");
@@ -91,9 +91,9 @@ export class UpstashAPL implements APL {
   }
 
   private async fetchDataFromUpstash(domain: string) {
-    const response = await this.upstashRequest(`["GET", "${domain}"]`);
-    if (response) {
-      return { domain, token: response };
+    const result = await this.upstashRequest(`["GET", "${domain}"]`);
+    if (result) {
+      return { domain, token: result };
     }
     return undefined;
   }
@@ -118,11 +118,11 @@ export class UpstashAPL implements APL {
   // eslint-disable-next-line class-methods-use-this
   async isReady(): Promise<AplReadyResult> {
     const missingConf: string[] = [];
-    if (this.restToken) {
+    if (!this.restToken) {
       missingConf.push("restToken");
     }
-    if (this.restUrl) {
-      missingConf.push("restUrl");
+    if (!this.restURL) {
+      missingConf.push("restURL");
     }
 
     if (missingConf.length > 0) {
