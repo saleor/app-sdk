@@ -30,7 +30,7 @@ describe("settings-manager", () => {
       expect(await manager.get("a")).toBe(initialEntry.value);
       expect(fetchMock).toBeCalledTimes(1);
 
-      // Calling get method second time should use cached values and not call fetch a second time
+      // Calling get method with different values should also use the cache, since API returns all metadata ot once
       expect(await manager.get("unknown")).toBe(undefined);
       expect(fetchMock).toBeCalledTimes(1);
     });
