@@ -3,13 +3,11 @@ import { toNextHandler } from "retes/adapter";
 import { withMethod } from "retes/middleware";
 import { Response } from "retes/response";
 
-import { APL } from "../../APL";
 import { SALEOR_DOMAIN_HEADER } from "../../const";
 import { withAuthTokenRequired, withSaleorDomainPresent } from "../../middleware";
+import { HasAPL } from "../../saleor-app";
 
-export type CreateAppRegisterHandlerOptions = {
-  apl: APL;
-};
+export type CreateAppRegisterHandlerOptions = HasAPL;
 
 /**
  * Creates API handler for Next.js. Creates handler called by Saleor that registers app.
@@ -20,6 +18,23 @@ export const createAppRegisterHandler = ({ apl }: CreateAppRegisterHandlerOption
   const baseHandler: Handler = async (request) => {
     const authToken = request.params.auth_token;
     const saleorDomain = request.headers[SALEOR_DOMAIN_HEADER] as string;
+
+    const { ready: aplReady } = await apl.isReady();
+
+    if (!aplReady) {
+      return new Response(
+        {
+          success: false,
+          error: {
+            code: "APL_NOT_READY",
+            message: "App is not ready yet",
+          },
+        },
+        {
+          status: 503,
+        }
+      );
+    }
 
     try {
       await apl.set({ domain: saleorDomain, token: authToken });

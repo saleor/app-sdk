@@ -1,7 +1,8 @@
 /* eslint-disable class-methods-use-this */
+// eslint-disable-next-line max-classes-per-file
 import fetch, { Response } from "node-fetch";
 
-import { APL, AuthData } from "./apl";
+import { APL, AplReadyResult, AuthData } from "./apl";
 import { createAPLDebug } from "./apl-debug";
 
 const debug = createAPLDebug("VercelAPL");
@@ -12,6 +13,16 @@ export const VercelAPLVariables = {
   SALEOR_REGISTER_APP_URL: "SALEOR_REGISTER_APP_URL",
   SALEOR_DEPLOYMENT_TOKEN: "SALEOR_DEPLOYMENT_TOKEN",
 };
+
+export class VercelAplMisconfiguredError extends Error {
+  constructor(public missingEnvVars: string[]) {
+    super(
+      `Env variables: ${missingEnvVars
+        .map((v) => `"${v}"`)
+        .join(", ")} not found or is empty. Ensure env variables exist`
+    );
+  }
+}
 
 const getEnvAuth = (): AuthData | undefined => {
   const token = process.env[VercelAPLVariables.TOKEN_VARIABLE_NAME];
@@ -32,9 +43,9 @@ export type VercelAPLConfig = {
 /** Vercel APL
  *
  * Use environment variables for auth data storage. To update data on existing deployment,
- * theres Saleor microservice which update new values with the Vercel API and restarts the instance.
+ * there's Saleor microservice which update new values with the Vercel API and restarts the instance.
  *
- * This APL should be used for single tenant purposes due to it's limitations:
+ * This APL should be used for single tenant purposes due to its limitations:
  *   - only stores single auth data entry (setting up a new one will overwrite previous values)
  *   - changing the environment variables require server restart
  *
@@ -121,5 +132,25 @@ export class VercelAPL implements APL {
       return [];
     }
     return [authData];
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  async isReady(): Promise<AplReadyResult> {
+    const invalidEnvKeys = Object.values(VercelAPLVariables).filter((key) => {
+      const envValue = process.env[key];
+
+      return !envValue || envValue.length === 0;
+    });
+
+    if (invalidEnvKeys.length > 0) {
+      return {
+        ready: false,
+        error: new VercelAplMisconfiguredError(invalidEnvKeys),
+      };
+    }
+
+    return {
+      ready: true,
+    };
   }
 }
