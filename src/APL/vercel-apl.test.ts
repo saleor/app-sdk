@@ -28,20 +28,6 @@ describe("APL", () => {
   });
 
   describe("VercelAPL", () => {
-    describe("constructor", () => {
-      it("Raise an error when configuration is missing", async () => {
-        delete process.env[VercelAPLVariables.SALEOR_REGISTER_APP_URL];
-        process.env[VercelAPLVariables.SALEOR_DEPLOYMENT_TOKEN] = "token";
-
-        expect(() => new VercelAPL()).toThrow();
-
-        process.env[VercelAPLVariables.SALEOR_REGISTER_APP_URL] = "http://example.com";
-        delete process.env[VercelAPLVariables.SALEOR_DEPLOYMENT_TOKEN];
-
-        expect(() => new VercelAPL()).toThrow();
-      });
-    });
-
     it("Constructs VercelAPL instance when deploymentToken and registerAppURL provided", async () => {
       expect(() => new VercelAPL(aplConfig)).not.toThrow();
     });
