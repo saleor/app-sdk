@@ -55,15 +55,6 @@ export const withJWTVerified =
       });
     }
 
-    if (tokenClaims.iss !== domain) {
-      debug("Token iss doesn't match domain, will response with Bad Request");
-
-      return Response.BadRequest({
-        success: false,
-        message: `${ERROR_MESSAGE} Token iss property is different than domain header.`,
-      });
-    }
-
     let appId: string | undefined;
 
     try {

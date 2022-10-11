@@ -32,17 +32,12 @@ export const useDashboardToken = (): DashboardTokenProps => {
     return null;
   }, [appBridgeState?.token]);
 
-  if (tokenClaims && !tokenClaims.iss) {
-    console.error(`
-    "iss" not found in decoded token claims. Ensure Saleor has domain assigned
-    Check documentation for more details
-    https://docs.saleor.io/docs/3.x/dashboard/configuration/site#general-information`);
-  }
-
-  const isTokenValid = tokenClaims ? tokenClaims.iss === appBridgeState?.domain : false;
-
   return {
-    isTokenValid,
+    /**
+     * TODO: Add tokenClaims.iss validation, when added to Saleor
+     * @see: https://github.com/saleor/saleor/pull/10852
+     */
+    isTokenValid: !!tokenClaims,
     tokenClaims,
     hasAppToken: Boolean(appBridgeState?.token),
   };
