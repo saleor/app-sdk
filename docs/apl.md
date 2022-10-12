@@ -12,6 +12,34 @@ APL is an interface for managing auth data of registered Apps. Implementing it d
 
 - `getAll: () => Promise<AuthData[]>` - Returns all auth data available.
 
+- `isReady: () => Promise<AplReadyResult>` - Check if persistence layer behind APL is ready. For example: database connection established
+
+- `isConfigured: () => Promise<AplConfiguredResult>` - Check if persistence layer behind APL is configured. For example: env variable required by database connection
+
+## AplReadyResult & ApConfiguredResult
+
+Responses from `isReady()` and `isConfigured()` should match following:
+
+```ts
+type AplReadyResult =
+  | {
+      ready: true;
+    }
+  | {
+      ready: false;
+      error: Error;
+    };
+
+type AplConfiguredResult =
+  | {
+      configured: true;
+    }
+  | {
+      configured: false;
+      error: Error;
+    };
+```
+
 ## Example implementation
 
 Let's create an APL, which uses Redis for data storage:
