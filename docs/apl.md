@@ -137,3 +137,22 @@ sequenceDiagram
     SSI->>V: Set auth data as environment variables
     V->>A: Redeploy the application
 ```
+
+### UpstashAPL
+
+[Upstash](https://upstash.com) is a Redis SaaS targeting serverless applications. It's free tier is more than enough to start developing multi-tenant Saleor Apps, and credit card info is not required to create an account.
+
+APL implementation use REST endpoints to store the data, so no extra dependencies are required.
+
+To use UpstashAPL, you'll need endpoint URL and password. Both will be available at [dashboard](https://console.upstash.com/) after creating a database. Credentials can be passed to APL during it's creation:
+
+```ts
+import { UpstashAPL } from "@saleor/app-sdk/APL";
+
+const apl = new UpstashAPL({
+  restToken: "XXXXXXXXXXXXXX",
+  restUrl: "https://eu2-red-panda-00000.upstash.io",
+});
+```
+
+Or using environment variables: `UPSTASH_TOKEN`, `UPSTASH_URL`.
