@@ -33,7 +33,16 @@ export type UpstashAPLConfig = {
   restToken: string;
 };
 
-// https://docs.upstash.com/redis/features/restapi
+/**
+ * Upstash APL
+ *
+ * Use [Upstash](https://upstash.com) which is SaaS Redis provider, to store auth data.
+ * You can create free developer account and use it to develop multi-tenant apps.
+ *
+ * Configuration require 2 elements: URL to the REST service and auth token. Both can be
+ * found in the Upstash dashboard. You can choose to store them using environment variables
+ * (`UPSTASH_URL` and `UPSTASH_TOKEN`) or pass directly to APL's constructor.
+ */
 export class UpstashAPL implements APL {
   private restURL?: string;
 
@@ -146,7 +155,7 @@ export class UpstashAPL implements APL {
       : {
           configured: false,
           error: new UpstashAplNotConfiguredError(
-            "VercelAPL not configured. Check if register URL and deployment token provided in constructor or env "
+            "UpstashAPL not configured. Check if REST URL and token provided in constructor or env"
           ),
         };
   }
