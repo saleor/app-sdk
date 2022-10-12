@@ -14,6 +14,9 @@ describe("create-app-register-handler", () => {
       isReady: vi.fn().mockImplementation(async () => ({
         ready: true,
       })),
+      isConfigured: vi.fn().mockImplementation(async () => ({
+        configured: true,
+      })),
     };
 
     const { res, req } = createMocks({

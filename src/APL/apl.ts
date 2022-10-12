@@ -12,6 +12,15 @@ export type AplReadyResult =
       error: Error;
     };
 
+export type AplConfiguredResult =
+  | {
+      configured: true;
+    }
+  | {
+      configured: false;
+      error: Error;
+    };
+
 export interface APL {
   get: (domain: string) => Promise<AuthData | undefined>;
   set: (authData: AuthData) => Promise<void>;
@@ -21,4 +30,5 @@ export interface APL {
    * Inform that configuration is finished and correct
    */
   isReady: () => Promise<AplReadyResult>;
+  isConfigured: () => Promise<AplConfiguredResult>;
 }

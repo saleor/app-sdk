@@ -19,15 +19,15 @@ export const createAppRegisterHandler = ({ apl }: CreateAppRegisterHandlerOption
     const authToken = request.params.auth_token;
     const saleorDomain = request.headers[SALEOR_DOMAIN_HEADER] as string;
 
-    const { ready: aplReady } = await apl.isReady();
+    const { configured: aplConfigured } = await apl.isConfigured();
 
-    if (!aplReady) {
+    if (!aplConfigured) {
       return new Response(
         {
           success: false,
           error: {
-            code: "APL_NOT_READY",
-            message: "App is not ready yet",
+            code: "APL_NOT_CONFIGURED",
+            message: "APL_NOT_CONFIGURED. App is configured properly. Check APL docs for help.",
           },
         },
         {

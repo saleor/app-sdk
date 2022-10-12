@@ -1,6 +1,6 @@
 import { promises as fsPromises } from "fs";
 
-import { APL, AplReadyResult, AuthData } from "./apl";
+import { APL, AplConfiguredResult, AplReadyResult, AuthData } from "./apl";
 import { createAPLDebug } from "./apl-debug";
 
 const debug = createAPLDebug("FileAPL");
@@ -107,6 +107,17 @@ export class FileAPL implements APL {
      */
     return {
       ready: true,
+    };
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  async isConfigured(): Promise<AplConfiguredResult> {
+    /**
+     * Assume FileAPL is just ready to use.
+     * Consider checking if directory is writable
+     */
+    return {
+      configured: true,
     };
   }
 }

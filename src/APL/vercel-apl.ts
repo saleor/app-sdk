@@ -2,7 +2,7 @@
 // eslint-disable-next-line max-classes-per-file
 import fetch, { Response } from "node-fetch";
 
-import { APL, AplReadyResult, AuthData } from "./apl";
+import { APL, AplConfiguredResult, AplReadyResult, AuthData } from "./apl";
 import { createAPLDebug } from "./apl-debug";
 
 const debug = createAPLDebug("VercelAPL");
@@ -14,7 +14,7 @@ export const VercelAPLVariables = {
   SALEOR_DEPLOYMENT_TOKEN: "SALEOR_DEPLOYMENT_TOKEN",
 };
 
-export class VercelAplMisconfiguredError extends Error {
+export class VercelAplNotReadyError extends Error {
   constructor(public missingEnvVars: string[]) {
     super(
       `Env variables: ${missingEnvVars
@@ -23,6 +23,8 @@ export class VercelAplMisconfiguredError extends Error {
     );
   }
 }
+
+export class VercelAplNotConfiguredError extends Error {}
 
 const getEnvAuth = (): AuthData | undefined => {
   const token = process.env[VercelAPLVariables.TOKEN_VARIABLE_NAME];
@@ -146,12 +148,25 @@ export class VercelAPL implements APL {
     if (invalidEnvKeys.length > 0) {
       return {
         ready: false,
-        error: new VercelAplMisconfiguredError(invalidEnvKeys),
+        error: new VercelAplNotReadyError(invalidEnvKeys),
       };
     }
 
     return {
       ready: true,
     };
+  }
+
+  async isConfigured(): Promise<AplConfiguredResult> {
+    return this.registerAppURL && this.deploymentToken
+      ? {
+          configured: true,
+        }
+      : {
+          configured: false,
+          error: new VercelAplNotConfiguredError(
+            "VercelAPL not configured. Check if register URL and deployment token provided in constructor or env "
+          ),
+        };
   }
 }
