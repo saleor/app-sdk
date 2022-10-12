@@ -2,7 +2,7 @@
 // eslint-disable-next-line max-classes-per-file
 import fetch, { Response } from "node-fetch";
 
-import { APL, AplReadyResult, AuthData } from "./apl";
+import { APL, AplConfiguredResult, AplReadyResult, AuthData } from "./apl";
 import { createAPLDebug } from "./apl-debug";
 
 const debug = createAPLDebug("UpstashAPL");
@@ -25,6 +25,8 @@ export class UpstashAplMisconfiguredError extends Error {
     );
   }
 }
+
+export class UpstashAplNotConfiguredError extends Error {}
 
 export type UpstashAPLConfig = {
   restURL: string;
@@ -134,5 +136,18 @@ export class UpstashAPL implements APL {
     return {
       ready: true,
     };
+  }
+
+  async isConfigured(): Promise<AplConfiguredResult> {
+    return this.restToken && this.restURL
+      ? {
+          configured: true,
+        }
+      : {
+          configured: false,
+          error: new UpstashAplNotConfiguredError(
+            "VercelAPL not configured. Check if register URL and deployment token provided in constructor or env "
+          ),
+        };
   }
 }
