@@ -27,6 +27,10 @@ const defaultProps: Props = {
   unmounted: <p>Loading</p>,
 };
 
+type WithAuthorizationHOC<P> = React.FunctionComponent<P> & {
+  getLayout?: (page: React.ReactElement) => React.ReactNode;
+};
+
 /**
  * Most likely, views from your app will be only accessibly inside Dashboard iframe.
  * This HOC can be used to handle all checks, with default messages included.
@@ -38,7 +42,7 @@ export const withAuthorization =
   (props: Props = defaultProps) =>
   <BaseProps extends React.ComponentProps<NextPage>>(
     BaseComponent: React.FunctionComponent<BaseProps>
-  ) => {
+  ): WithAuthorizationHOC<BaseProps> => {
     const { dashboardTokenInvalid, noDashboardToken, notIframe, unmounted } = {
       ...defaultProps,
       ...props,
@@ -67,5 +71,5 @@ export const withAuthorization =
       return <BaseComponent {...innerProps} />;
     }
 
-    return AuthorizedPage;
+    return AuthorizedPage as WithAuthorizationHOC<BaseProps>;
   };
