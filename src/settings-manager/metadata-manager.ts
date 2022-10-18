@@ -32,7 +32,7 @@ const serializeSettingsToMetadata = ({ key, value, domain }: SettingsValue): Met
   };
 };
 
-interface MetadataManagerConfig {
+export interface MetadataManagerConfig {
   fetchMetadata: FetchMetadataCallback;
   mutateMetadata: MutateMetadataCallback;
 }
