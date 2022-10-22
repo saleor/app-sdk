@@ -184,3 +184,22 @@ const apl = new UpstashAPL({
 ```
 
 Or using environment variables: `UPSTASH_TOKEN`, `UPSTASH_URL`.
+
+### Google Firestore APL
+
+[Google Firestore](https://cloud.google.com/firestore) is a modern noSQL database allowing real-time connections with short latency.
+It has a generous free tier and can be used both as an APL source and as a main app's database.
+
+SDK doesn't create a database - it requires a created Firestore client's collection to be provided in the constructor.
+
+Check the [official Node.js client](https://www.npmjs.com/package/@google-cloud/firestore) to learn how to set up the database.
+
+```ts
+import { FirestoreAPL, AuthData } from "@saleor/app-sdk/APL";
+import { CollectionReference, Firestore } from "@google-cloud/firestore";
+
+const fireStore = new Firestore(/* ...configuration */);
+const aplCollection = firestore.collection("apl") as CollectionReference<AuthData>; // Assert collection document type
+
+const apl = new FirestoreAPL(aplCollection);
+```

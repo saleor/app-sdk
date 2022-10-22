@@ -5,7 +5,7 @@ import { createAPLDebug } from "./apl-debug";
 
 const debug = createAPLDebug("FirestoreAPL");
 
-export class FirestoreApl implements APL {
+export class FirestoreAPL implements APL {
   // eslint-disable-next-line no-useless-constructor
   constructor(private firebaseCollection: CollectionReference<AuthData>) {}
 
