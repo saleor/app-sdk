@@ -15,18 +15,14 @@ describe("APL", () => {
 
   describe("FileAPL", () => {
     describe("get", () => {
-      it("Should throw error when JSON parse fails", async () => {
-        vi.spyOn(fsPromises, "access").mockResolvedValue();
+      it("Should fallback to 'undefined' if parsing fail fails", async () => {
         vi.spyOn(fsPromises, "readFile").mockResolvedValue("Not a valid JSON");
 
         const apl = new FileAPL();
-        await expect(apl.get(stubAuthData.domain)).rejects.toThrow(
-          "File APL could not read auth data from the .saleor-app-auth.json file"
-        );
+        await expect(apl.get(stubAuthData.domain)).resolves.toBe(undefined);
       });
 
       it("Returns auth data for existing domain", async () => {
-        vi.spyOn(fsPromises, "access").mockResolvedValue();
         vi.spyOn(fsPromises, "readFile").mockResolvedValue(JSON.stringify(stubAuthData));
 
         const apl = new FileAPL();
@@ -35,7 +31,6 @@ describe("APL", () => {
       });
 
       it("Returns undefined for unknown domain", async () => {
-        vi.spyOn(fsPromises, "access").mockResolvedValue();
         vi.spyOn(fsPromises, "readFile").mockResolvedValue(JSON.stringify(stubAuthData));
 
         const apl = new FileAPL();
@@ -57,21 +52,20 @@ describe("APL", () => {
         );
         expect(spyWriteFile).toBeCalledWith(".saleor-app-auth.json", JSON.stringify(stubAuthData));
       });
-    });
 
-    it("Successfully save to file", async () => {
-      const spyWriteFile = vi.spyOn(fsPromises, "writeFile").mockResolvedValue();
+      it("Successfully save to file", async () => {
+        const spyWriteFile = vi.spyOn(fsPromises, "writeFile").mockResolvedValue();
 
-      const apl = new FileAPL();
+        const apl = new FileAPL();
 
-      await expect(apl.set(stubAuthData));
+        await expect(apl.set(stubAuthData));
 
-      expect(spyWriteFile).toBeCalledWith(".saleor-app-auth.json", JSON.stringify(stubAuthData));
+        expect(spyWriteFile).toBeCalledWith(".saleor-app-auth.json", JSON.stringify(stubAuthData));
+      });
     });
 
     describe("delete", () => {
       it("Should override file when called with known domain", async () => {
-        vi.spyOn(fsPromises, "access").mockResolvedValue();
         vi.spyOn(fsPromises, "readFile").mockResolvedValue(JSON.stringify(stubAuthData));
         const spyWriteFile = vi.spyOn(fsPromises, "writeFile").mockResolvedValue();
 
@@ -83,7 +77,6 @@ describe("APL", () => {
       });
 
       it("Should not delete data when called with unknown domain", async () => {
-        vi.spyOn(fsPromises, "access").mockResolvedValue();
         vi.spyOn(fsPromises, "readFile").mockResolvedValue(JSON.stringify(stubAuthData));
 
         const spyWriteFile = vi.spyOn(fsPromises, "writeFile").mockResolvedValue();
@@ -98,7 +91,6 @@ describe("APL", () => {
 
     describe("getAll", () => {
       it("Should return list with one item when auth data are existing", async () => {
-        vi.spyOn(fsPromises, "access").mockResolvedValue();
         vi.spyOn(fsPromises, "readFile").mockResolvedValue(JSON.stringify(stubAuthData));
 
         const apl = new FileAPL();
@@ -107,7 +99,6 @@ describe("APL", () => {
       });
 
       it("Should return empty list when auth data are empty", async () => {
-        vi.spyOn(fsPromises, "access").mockResolvedValue();
         vi.spyOn(fsPromises, "readFile").mockResolvedValue("{}");
 
         const apl = new FileAPL();
