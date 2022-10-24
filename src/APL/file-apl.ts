@@ -31,38 +31,46 @@ export class FileAPL implements APL {
   /**
    * Load auth data from a file and return it as AuthData format.
    * In case of incomplete or invalid data, return `undefined`.
-   *
-   * @param {string} fileName
    */
   private async loadDataFromFile(): Promise<AuthData | undefined> {
-    debug(`Load auth data from the ${this.fileName} file`);
+    debug(`Will try to load auth data from the ${this.fileName} file`);
     let parsedData: Record<string, string> = {};
+
     try {
-      await fsPromises.access(this.fileName);
       parsedData = JSON.parse(await fsPromises.readFile(this.fileName, "utf-8"));
+      debug("%s read successfully", this.fileName);
     } catch (err) {
       debug(`Could not read auth data from the ${this.fileName} file`, err);
-      throw new Error(`File APL could not read auth data from the ${this.fileName} file`);
+      debug(
+        "Maybe apl.get() was called before app was registered. Returning empty, fallback data (undefined)"
+      );
+
+      return undefined;
     }
+
     const { token, domain } = parsedData;
+
     if (token && domain) {
+      debug("Token and domain found, returning values: %s, %s", domain, `${token[0]}***`);
       return { token, domain };
     }
+
     return undefined;
   }
 
   /**
    * Save auth data to file.
    * When `authData` argument is empty, will overwrite file with empty values.
-   *
-   * @param {string} fileName
-   * @param {AuthData} [authData]
    */
   private async saveDataToFile(authData?: AuthData) {
-    debug(`Save auth data to the ${this.fileName} file`);
+    debug(`Trying to save auth data to the ${this.fileName} file`);
+
     const newData = authData ? JSON.stringify(authData) : "{}";
+
     try {
       await fsPromises.writeFile(this.fileName, newData);
+
+      debug("Successfully written file %", this.fileName);
     } catch (err) {
       debug(`Could not save auth data to the ${this.fileName} file`, err);
       throw new Error("File APL was unable to save auth data");
