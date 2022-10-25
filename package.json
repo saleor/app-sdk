@@ -115,6 +115,11 @@
       "types": "./handlers/next/index.d.ts",
       "import": "./handlers/next/index.mjs",
       "require": "./handlers/next/index.js"
+    },
+    "./saleor-app": {
+      "types": "./saleor-app.d.ts",
+      "import": "./saleor-app.mjs",
+      "require": "./saleor-app.js"
     }
   },
   "publishConfig": {
