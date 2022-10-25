@@ -115,11 +115,6 @@
       "types": "./handlers/next/index.d.ts",
       "import": "./handlers/next/index.mjs",
       "require": "./handlers/next/index.js"
-    },
-    ".": {
-      "types": "./index.d.ts",
-      "import": "./index.mjs",
-      "require": "./index.js"
     }
   },
   "publishConfig": {
