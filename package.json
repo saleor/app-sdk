@@ -116,10 +116,15 @@
       "import": "./handlers/next/index.mjs",
       "require": "./handlers/next/index.js"
     },
-    ".": {
-      "types": "./index.d.ts",
-      "import": "./index.mjs",
-      "require": "./index.js"
+    "./saleor-app": {
+      "types": "./saleor-app.d.ts",
+      "import": "./saleor-app.mjs",
+      "require": "./saleor-app.js"
+    },
+    "./infer-webhooks": {
+      "types": "./infer-webhooks.d.ts",
+      "import": "./infer-webhooks.mjs",
+      "require": "./infer-webhooks.js"
     }
   },
   "publishConfig": {
