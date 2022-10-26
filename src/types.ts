@@ -59,7 +59,9 @@ export interface AppWebhook {
   name: string;
   asyncEvents?: WebhookEvent[];
   syncEvents?: WebhookEvent[];
-  query: string;
+  /** If query is not provided, the default webhook payload will be used */
+  query?: string;
+  /** The full URL of the endpoint where request will be sent */
   targetUrl: string;
   isActive?: boolean;
 }
