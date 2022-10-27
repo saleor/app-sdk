@@ -1,7 +1,6 @@
-import { CollectionReference, Firestore } from "@google-cloud/firestore";
+import { Firestore } from "@google-cloud/firestore";
 import { describe, expect, it } from "vitest";
 
-import { AuthData } from "./apl";
 import { FirestoreAPL } from "./firestore-apl";
 
 let firestore: Firestore | null = null;
@@ -23,7 +22,7 @@ try {
 
 describe.runIf(Boolean(firestore))("Firestore APL", async () => {
   // @ts-expect-error
-  const apl = new FirestoreAPL(firestore.collection("apl") as CollectionReference<AuthData>);
+  const apl = new FirestoreAPL(firestore.collection("apl"));
 
   it("Sets & gets document", async () => {
     const authData = { domain: "https://foo.bar", token: "asd" };

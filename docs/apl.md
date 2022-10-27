@@ -196,10 +196,10 @@ Check the [official Node.js client](https://www.npmjs.com/package/@google-cloud/
 
 ```ts
 import { FirestoreAPL, AuthData } from "@saleor/app-sdk/APL";
-import { CollectionReference, Firestore } from "@google-cloud/firestore";
+import { CollectionReference, Firestore } from "@google-cloud/firestore"; // Must be installed!
 
 const fireStore = new Firestore(/* ...configuration */);
-const aplCollection = firestore.collection("apl") as CollectionReference<AuthData>; // Assert collection document type
+const aplCollection = firestore.collection("apl"); // Collection name doesnt matter, APL uses reference
 
 const apl = new FirestoreAPL(aplCollection);
 ```
