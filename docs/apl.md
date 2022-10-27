@@ -191,6 +191,7 @@ Or using environment variables: `UPSTASH_TOKEN`, `UPSTASH_URL`.
 It has a generous free tier and can be used both as an APL source and as a main app's database.
 
 SDK doesn't create a database - it requires a created Firestore client's collection to be provided in the constructor.
+SDK doesn't install this library - `@google-cloud/firestore` must be in `node_modules`.
 
 Check the [official Node.js client](https://www.npmjs.com/package/@google-cloud/firestore) to learn how to set up the database.
 
