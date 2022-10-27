@@ -5,6 +5,15 @@ import { getJwksUrl } from "./urls";
 
 const debug = createDebug("verify-signature");
 
+/**
+ * Verify payload signature with public key of given `domain`
+ * https://docs.saleor.io/docs/3.x/developer/extending/apps/asynchronous-webhooks#payload-signature
+ *
+ * @param domain Saleor API domain
+ * @param signature Value of the saleor-signature header
+ * @param rawBody String value of request body
+ * @returns
+ */
 export const verifySignature = async (domain: string, signature: string, rawBody: string) => {
   const [header, , jwsSignature] = signature.split(".");
   const jws: jose.FlattenedJWSInput = {
@@ -24,10 +33,6 @@ export const verifySignature = async (domain: string, signature: string, rawBody
     debug("JWKS verified");
   } catch {
     debug("JWKS verification failed");
-
-    // TODO: if we chose the way of making framework agnostic verify functions, we should unify
-    // how we return the errors
-    return "Verification using public key has failed.";
+    throw new Error("JWKS verification failed");
   }
-  return null;
 };
