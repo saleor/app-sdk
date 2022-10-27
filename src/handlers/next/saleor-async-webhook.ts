@@ -17,7 +17,7 @@ const debug = createDebug("SaleorAsyncWebhook");
 
 export interface WebhookManifestConf {
   name?: string;
-  webhookUrl: string;
+  webhookPath: string;
   subscriptionQueryAst?: ASTNode;
   query?: string;
   asyncEvent: WebhookEvent;
@@ -49,7 +49,7 @@ export type NextWebhookApiHandler<TPayload, TResp = unknown> = (
 export class SaleorAsyncWebhook<TPayload = unknown> {
   name: string;
 
-  webhookUrl: string;
+  webhookPath: string;
 
   subscriptionQueryAst?: ASTNode;
 
@@ -63,7 +63,7 @@ export class SaleorAsyncWebhook<TPayload = unknown> {
 
   constructor({
     name,
-    webhookUrl,
+    webhookPath,
     subscriptionQueryAst,
     query,
     asyncEvent,
@@ -73,7 +73,7 @@ export class SaleorAsyncWebhook<TPayload = unknown> {
     this.name = name || `${asyncEvent} webhook`;
     this.subscriptionQueryAst = subscriptionQueryAst;
     this.query = query;
-    this.webhookUrl = webhookUrl;
+    this.webhookPath = webhookPath;
     this.asyncEvent = asyncEvent;
     this.isActive = isActive;
     this.apl = apl;
@@ -85,7 +85,7 @@ export class SaleorAsyncWebhook<TPayload = unknown> {
    * @param baseUrl Base URL used by your application
    */
   targetUrl(baseUrl: string) {
-    return new URL(this.webhookUrl, baseUrl).href;
+    return new URL(this.webhookPath, baseUrl).href;
   }
 
   /**
