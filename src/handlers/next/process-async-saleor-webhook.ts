@@ -98,7 +98,7 @@ export const processAsyncSaleorWebhook: ProcessAsyncSaleorWebhook = async <T>({
 
   if (!signature) {
     debug("No signature");
-    throw new WebhookError("Missing saleor-event header", "MISSING_SIGNATURE_HEADER");
+    throw new WebhookError("Missing saleor-signature header", "MISSING_SIGNATURE_HEADER");
   }
 
   const rawBody = (
