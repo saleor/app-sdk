@@ -40,7 +40,7 @@ export const ErrorCodeMap: Record<SaleorWebhookError, number> = {
   CANT_BE_PARSED: 400,
 };
 
-export type NextWebhookApiHandler<TPayload, TResp = unknown> = (
+export type NextWebhookApiHandler<TPayload = unknown, TResp = unknown> = (
   req: NextApiRequest,
   res: NextApiResponse<TResp>,
   ctx: WebhookContext<TPayload>
@@ -84,7 +84,7 @@ export class SaleorAsyncWebhook<TPayload = unknown> {
    *
    * @param baseUrl Base URL used by your application
    */
-  targetUrl(baseUrl: string) {
+  getTargetUrl(baseUrl: string) {
     return new URL(this.webhookPath, baseUrl).href;
   }
 
@@ -97,7 +97,7 @@ export class SaleorAsyncWebhook<TPayload = unknown> {
   getWebhookManifest(baseUrl: string): WebhookManifest {
     return {
       name: this.name,
-      targetUrl: this.targetUrl(baseUrl),
+      targetUrl: this.getTargetUrl(baseUrl),
       asyncEvents: [this.asyncEvent],
       isActive: this.isActive,
       // Query can be provided as plaintext..
