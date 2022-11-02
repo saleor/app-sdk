@@ -200,7 +200,7 @@ import { FirestoreAPL, AuthData } from "@saleor/app-sdk/APL";
 import { CollectionReference, Firestore } from "@google-cloud/firestore"; // Must be installed!
 
 const fireStore = new Firestore(/* ...configuration */);
-const aplCollection = firestore.collection("apl"); // Collection name doesnt matter, APL uses reference
+const aplCollection = firestore.collection("apl"); // Collection name doesn't matter, APL uses reference
 
 const apl = new FirestoreAPL(aplCollection);
 ```

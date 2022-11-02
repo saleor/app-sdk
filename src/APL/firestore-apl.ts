@@ -36,7 +36,7 @@ export class FirestoreAPL implements APL {
   }
 
   /**
-   * This APL is always configured, because it accepts the Collection, which means Client is already defined.
+   * This APL is always configured because it accepts the Collection, which means the Client is already defined.
    */
   // eslint-disable-next-line class-methods-use-this
   async isConfigured(): Promise<AplConfiguredResult> {
@@ -49,7 +49,7 @@ export class FirestoreAPL implements APL {
     } catch (e) {
       return {
         configured: false,
-        error: new Error("Firestore cant connect to server"),
+        error: new Error("Firestore can't connect to server"),
       };
     }
   }
@@ -118,7 +118,7 @@ export class FirestoreAPL implements APL {
       }
       case "timeout":
       default: {
-        debug("Firestore cant connect to network in 500ms");
+        debug("Firestore can't connect to network in 500ms");
         throw new Error("Firestore cant connect to server");
       }
     }
