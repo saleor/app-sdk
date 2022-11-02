@@ -4,9 +4,8 @@ import getRawBody from "raw-body";
 import { APL } from "../../APL";
 import { AuthData } from "../../APL/apl";
 import { createDebug } from "../../debug";
-import { getSaleorHeaders } from "../../headers";
+import { getBaseUrl, getSaleorHeaders } from "../../headers";
 import { verifySignature } from "../../verify-signature";
-import { getBaseURL } from "./get-base-url";
 
 const debug = createDebug("processAsyncWebhook");
 
@@ -70,7 +69,7 @@ export const processAsyncSaleorWebhook: ProcessAsyncSaleorWebhook = async <T>({
     throw new WebhookError("Wrong request method", "WRONG_METHOD");
   }
   const { event, domain, signature } = getSaleorHeaders(req.headers);
-  const baseUrl = getBaseURL(req);
+  const baseUrl = getBaseUrl(req.headers);
 
   if (!baseUrl) {
     debug("Missing host header");
