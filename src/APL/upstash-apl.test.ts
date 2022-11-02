@@ -122,6 +122,10 @@ describe("APL", () => {
 
     describe("isReady", () => {
       it("Returns error with message mentioning missing configuration variables", async () => {
+        // Delete upstash variables if are already present in the env
+        delete process.env[UpstashAPLVariables.UPSTASH_TOKEN];
+        delete process.env[UpstashAPLVariables.UPSTASH_URL];
+
         const apl = new UpstashAPL();
 
         const result = await apl.isReady();
