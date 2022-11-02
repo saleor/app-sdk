@@ -44,7 +44,6 @@ specifiers:
   uuid: ^8.3.2
   vite: ^3.1.0
   vitest: ^0.23.1
-  watchlist: ^0.3.1
 
 dependencies:
   debug: 4.3.4
@@ -92,7 +91,6 @@ devDependencies:
   typescript: 4.8.2
   vite: 3.1.0
   vitest: 0.23.1_jsdom@20.0.0
-  watchlist: 0.3.1
 
 packages:
 
@@ -882,7 +880,7 @@ packages:
     dev: true
 
   /@types/node-fetch/2.6.2:
-    resolution: {integrity: sha512-DHqhlq5jeESLy19TYhLakJ07kNumXWjcDdxXsLUMJZ6ue8VZJj4kLPQVE/2mdHh3xZziNF1xppu5lwmS53HR+A==, registry: https://registry.npmjs.com/}
+    resolution: {integrity: sha512-DHqhlq5jeESLy19TYhLakJ07kNumXWjcDdxXsLUMJZ6ue8VZJj4kLPQVE/2mdHh3xZziNF1xppu5lwmS53HR+A==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.com/@types/node-fetch/-/node-fetch-2.6.2.tgz}
     dependencies:
       '@types/node': 18.7.15
       form-data: 3.0.1
@@ -4003,11 +4001,6 @@ packages:
     resolution: {integrity: sha512-Jsjnk4bw3YJqYzbdyBiNsPWHPfO++UGG749Cxs6peCu5Xg4nrena6OVxOYxrQTqww0Jmwt+Ref8rggumkTLz9Q==}
     dev: true
 
-  /mri/1.2.0:
-    resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
-    engines: {node: '>=4'}
-    dev: true
-
   /ms/2.0.0:
     resolution: {integrity: sha512-Tpp60P6IUJDTuOq/5Z8cdskzJujfwqfOTkrwIwj7IRISpnkJnT6SyJ4PCPnGMoFjC9ddhal5KVIYtAt97ix05A==}
     dev: true
@@ -4109,7 +4102,7 @@ packages:
     dev: true
 
   /node-fetch/2.6.7:
-    resolution: {integrity: sha512-ZjMPFEfVx5j+y2yF35Kzx5sF7kDzxuDj6ziH4FFbOp87zKDZNx8yExJIb05OGF4Nlt9IHFIMBkRl41VdvcNdbQ==, registry: https://registry.npmjs.com/}
+    resolution: {integrity: sha512-ZjMPFEfVx5j+y2yF35Kzx5sF7kDzxuDj6ziH4FFbOp87zKDZNx8yExJIb05OGF4Nlt9IHFIMBkRl41VdvcNdbQ==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.com/node-fetch/-/node-fetch-2.6.7.tgz}
     engines: {node: 4.x || >=6.0.0}
     peerDependencies:
       encoding: ^0.1.0
@@ -4120,7 +4113,7 @@ packages:
       whatwg-url: 5.0.0
 
   /node-fetch/3.2.10:
-    resolution: {integrity: sha512-MhuzNwdURnZ1Cp4XTazr69K0BTizsBroX7Zx3UgDSVcZYKF/6p0CBe4EUb/hLqmzVhl0UpYfgRljQ4yxE+iCxA==, registry: https://registry.npmjs.com/}
+    resolution: {integrity: sha512-MhuzNwdURnZ1Cp4XTazr69K0BTizsBroX7Zx3UgDSVcZYKF/6p0CBe4EUb/hLqmzVhl0UpYfgRljQ4yxE+iCxA==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.com/node-fetch/-/node-fetch-3.2.10.tgz}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
     dependencies:
       data-uri-to-buffer: 4.0.0
@@ -5662,14 +5655,6 @@ packages:
       xml-name-validator: 4.0.0
     dev: true
 
-  /watchlist/0.3.1:
-    resolution: {integrity: sha512-m5r4bzxJ9eg07TT/O0Q49imFPD45ZTuQ3kaHwSpUJj1QwVd3pzit4UYOmySdmAP5Egkz6mB6hcAPuPfhIbNo0g==}
-    engines: {node: '>=8'}
-    hasBin: true
-    dependencies:
-      mri: 1.2.0
-    dev: true
-
   /wcwidth/1.0.1:
     resolution: {integrity: sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==}
     dependencies:
@@ -5714,7 +5699,7 @@ packages:
     dev: true
 
   /whatwg-url/5.0.0:
-    resolution: {integrity: sha512-saE57nupxk6v3HY35+jzBwYa0rKSy0XR8JSxZPwgLr7ys0IBzhGviA1/TUGJLmSVqs8pb9AnvICXEuOHLprYTw==, registry: https://registry.npmjs.com/}
+    resolution: {integrity: sha512-saE57nupxk6v3HY35+jzBwYa0rKSy0XR8JSxZPwgLr7ys0IBzhGviA1/TUGJLmSVqs8pb9AnvICXEuOHLprYTw==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.com/whatwg-url/-/whatwg-url-5.0.0.tgz}
     dependencies:
       tr46: 0.0.3
       webidl-conversions: 3.0.1
