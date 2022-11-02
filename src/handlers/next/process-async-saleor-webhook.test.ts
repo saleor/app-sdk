@@ -1,5 +1,6 @@
 import { NextApiRequest } from "next/types";
 import { createMocks } from "node-mocks-http";
+import rawBody from "raw-body";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { APL } from "../../APL";
@@ -7,7 +8,7 @@ import { processAsyncSaleorWebhook } from "./process-async-saleor-webhook";
 
 vi.mock("./../../verify-signature", () => ({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  verifySignature: vi.fn((domain, signature, rawBody) => {
+  verifySignature: vi.fn((domain, signature) => {
     if (signature !== "mocked_signature") {
       throw new Error("Wrong signature");
     }
@@ -106,19 +107,19 @@ describe("processAsyncSaleorWebhook", () => {
     ).rejects.toThrow("Missing saleor-signature header");
   });
 
-  // TODO: Fix the test - not able to overwrite import mock
-  // it("Throw error on missing request body", async () => {
-  //   vi.mock("raw-body", () => ({
-  //     default: vi.fn().mockResolvedValue(""),
-  //   }));
-  //   await expect(
-  //     processAsyncSaleorWebhook({
-  //       req: mockRequest,
-  //       apl: mockAPL,
-  //       allowedEvent: "PRODUCT_UPDATED",
-  //     })
-  //   ).rejects.toThrow("Missing request body");
-  // });
+  it("Throw error on missing request body", async () => {
+    vi.mocked(rawBody).mockImplementationOnce(async () => {
+      throw new Error("Missing request body");
+    });
+
+    await expect(
+      processAsyncSaleorWebhook({
+        req: mockRequest,
+        apl: mockAPL,
+        allowedEvent: "PRODUCT_UPDATED",
+      })
+    ).rejects.toThrow("Missing request body");
+  });
 
   it("Throw error on not registered app", async () => {
     mockRequest.headers["saleor-domain"] = "not-registered.example.com";
