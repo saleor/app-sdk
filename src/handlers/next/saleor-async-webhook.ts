@@ -15,7 +15,7 @@ import {
 
 const debug = createDebug("SaleorAsyncWebhook");
 
-export interface WebhookManifestConf {
+export interface WebhookManifestConfiguration {
   name?: string;
   webhookPath: string;
   subscriptionQueryAst?: ASTNode;
@@ -69,7 +69,7 @@ export class SaleorAsyncWebhook<TPayload = unknown> {
     asyncEvent,
     apl,
     isActive = true,
-  }: WebhookManifestConf) {
+  }: WebhookManifestConfiguration) {
     this.name = name || `${asyncEvent} webhook`;
     this.subscriptionQueryAst = subscriptionQueryAst;
     this.query = query;
