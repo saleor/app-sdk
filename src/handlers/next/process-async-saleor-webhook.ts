@@ -135,7 +135,7 @@ export const processAsyncSaleorWebhook: ProcessAsyncSaleorWebhook = async <T>({
   try {
     await verifySignature(domain, signature, rawBody);
   } catch {
-    console.debug("Request signature check failed");
+    debug("Request signature check failed");
     throw new WebhookError("Request signature check failed", "SIGNATURE_VERIFICATION_FAILED");
   }
 
