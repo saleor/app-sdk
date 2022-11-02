@@ -8,11 +8,6 @@ const debug = createDebug("verify-signature");
 /**
  * Verify payload signature with public key of given `domain`
  * https://docs.saleor.io/docs/3.x/developer/extending/apps/asynchronous-webhooks#payload-signature
- *
- * @param domain Saleor API domain
- * @param signature Value of the saleor-signature header
- * @param rawBody String value of request body
- * @returns
  */
 export const verifySignature = async (domain: string, signature: string, rawBody: string) => {
   const [header, , jwsSignature] = signature.split(".");

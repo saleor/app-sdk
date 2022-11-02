@@ -18,7 +18,6 @@ vi.mock("raw-body", () => ({
   default: vi.fn().mockResolvedValue("{}"),
 }));
 describe("processAsyncSaleorWebhook", () => {
-  // let mockHandlerFn: Handler = vi.fn(getMockSuccessResponse);
   let mockRequest: NextApiRequest;
 
   const mockAPL: APL = {
