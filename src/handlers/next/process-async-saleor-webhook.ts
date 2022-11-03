@@ -66,7 +66,7 @@ export const processAsyncSaleorWebhook: ProcessAsyncSaleorWebhook = async <T>({
   debug("Request processing started");
   if (req.method !== "POST") {
     debug("Wrong HTTP method");
-    throw new WebhookError("Wrong request method", "WRONG_METHOD");
+    throw new WebhookError("Wrong request method, only POST allowed", "WRONG_METHOD");
   }
   const { event, domain, signature } = getSaleorHeaders(req.headers);
   const baseUrl = getBaseUrl(req.headers);
