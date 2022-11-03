@@ -1,11 +1,10 @@
 import crypto from "crypto";
-import * as jose from "jose";
 import { Middleware } from "retes";
 import { Response } from "retes/response";
 
 import { SALEOR_DOMAIN_HEADER, SALEOR_SIGNATURE_HEADER } from "../const";
 import { getSaleorHeaders } from "../headers";
-import { getJwksUrl } from "../urls";
+import { verifySignature } from "../verify-signature";
 import { createMiddlewareDebug } from "./middleware-debug";
 
 const debug = createMiddlewareDebug("withWebhookSignatureVerified");
@@ -62,26 +61,11 @@ export const withWebhookSignatureVerified =
         });
       }
     } else {
-      const [header, , signature] = payloadSignature.split(".");
-      const jws = {
-        protected: header,
-        payload: request.rawBody,
-        signature,
-      };
-
-      const remoteJwks = jose.createRemoteJWKSet(
-        new URL(getJwksUrl(saleorDomain))
-      ) as jose.FlattenedVerifyGetKey;
-
-      debug("Created remote JWKS");
-
       try {
-        await jose.flattenedVerify(jws, remoteJwks);
-
+        await verifySignature(saleorDomain, payloadSignature, request.rawBody);
         debug("JWKS verified");
       } catch {
         debug("JWKS verification failed");
-
         return Response.BadRequest({
           success: false,
           message: `${ERROR_MESSAGE} Verification using public key has failed.`,

@@ -16,3 +16,8 @@ export const getSaleorHeaders = (headers: {
   signature: toStringOrUndefined(headers[SALEOR_SIGNATURE_HEADER]),
   event: toStringOrUndefined(headers[SALEOR_EVENT_HEADER]),
 });
+
+export const getBaseUrl = (headers: { [name: string]: string | string[] | undefined }): string => {
+  const { host, "x-forwarded-proto": protocol = "http" } = headers;
+  return `${protocol}://${host}`;
+};
