@@ -117,22 +117,25 @@ export class SaleorAsyncWebhook<TPayload = unknown> {
    */
   createHandler(handlerFn: NextWebhookApiHandler<TPayload>): NextApiHandler {
     return async (req, res) => {
+      debug(`Handler for webhook ${this.name} called`);
       await processAsyncSaleorWebhook<TPayload>({
         req,
         apl: this.apl,
         allowedEvent: this.asyncEvent,
       })
         .then(async (context) => {
-          debug("Call handlerFn");
+          debug("Incoming request validated. Call handlerFn");
           return handlerFn(req, res, context);
         })
         .catch((e) => {
+          debug(`Unexpected error during processing the webhook ${this.name}`);
+
           if (e instanceof WebhookError) {
-            debug(e.message);
+            debug(`Validation error: ${e.message}`);
             res.status(ErrorCodeMap[e.errorType] || 400).end();
             return;
           }
-          debug("Unexpected error during processing the webhook %O", e);
+          debug("Unexpected error: %O", e);
           res.status(500).end();
         });
     };
