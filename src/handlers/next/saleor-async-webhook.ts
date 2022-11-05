@@ -15,15 +15,25 @@ import {
 
 const debug = createDebug("SaleorAsyncWebhook");
 
-export interface WebhookManifestConfiguration {
+interface WebhookManifestConfigurationBase {
   name?: string;
   webhookPath: string;
-  subscriptionQueryAst?: ASTNode;
-  query?: string;
   asyncEvent: WebhookEvent;
   isActive?: boolean;
   apl: APL;
 }
+
+interface WebhookManifestConfigurationWithAst extends WebhookManifestConfigurationBase {
+  subscriptionQueryAst: ASTNode;
+}
+
+interface WebhookManifestConfigurationWithQuery extends WebhookManifestConfigurationBase {
+  query: string;
+}
+
+type WebhookManifestConfiguration =
+  | WebhookManifestConfigurationWithAst
+  | WebhookManifestConfigurationWithQuery;
 
 export const ErrorCodeMap: Record<SaleorWebhookError, number> = {
   OTHER: 500,
@@ -38,6 +48,7 @@ export const ErrorCodeMap: Record<SaleorWebhookError, number> = {
   SIGNATURE_VERIFICATION_FAILED: 401,
   WRONG_METHOD: 405,
   CANT_BE_PARSED: 400,
+  CONFIGURATION_ERROR: 500,
 };
 
 export type NextWebhookApiHandler<TPayload = unknown, TResp = unknown> = (
@@ -61,18 +72,22 @@ export class SaleorAsyncWebhook<TPayload = unknown> {
 
   apl: APL;
 
-  constructor({
-    name,
-    webhookPath,
-    subscriptionQueryAst,
-    query,
-    asyncEvent,
-    apl,
-    isActive = true,
-  }: WebhookManifestConfiguration) {
+  constructor(configuration: WebhookManifestConfiguration) {
+    const { name, webhookPath, asyncEvent, apl, isActive = true } = configuration;
     this.name = name || `${asyncEvent} webhook`;
-    this.subscriptionQueryAst = subscriptionQueryAst;
-    this.query = query;
+    if ("query" in configuration) {
+      this.query = configuration.query;
+    }
+    if ("subscriptionQueryAst" in configuration) {
+      this.subscriptionQueryAst = configuration.subscriptionQueryAst;
+    }
+    if (!this.subscriptionQueryAst && !this.query) {
+      throw new WebhookError(
+        "Need to specify `subscriptionQueryAst` or `query` to create webhook subscription",
+        "CONFIGURATION_ERROR"
+      );
+    }
+
     this.webhookPath = webhookPath;
     this.asyncEvent = asyncEvent;
     this.isActive = isActive;

@@ -21,7 +21,8 @@ export type SaleorWebhookError =
   | "NOT_REGISTERED"
   | "SIGNATURE_VERIFICATION_FAILED"
   | "WRONG_METHOD"
-  | "CANT_BE_PARSED";
+  | "CANT_BE_PARSED"
+  | "CONFIGURATION_ERROR";
 
 export class WebhookError extends Error {
   errorType: SaleorWebhookError = "OTHER";
@@ -116,7 +117,7 @@ export const processAsyncSaleorWebhook: ProcessAsyncSaleorWebhook = async <T>({
     parsedBody = JSON.parse(rawBody);
   } catch {
     debug("Request body cannot be parsed");
-    throw new WebhookError("Request body cant be parsed", "CANT_BE_PARSED");
+    throw new WebhookError("Request body can't be parsed", "CANT_BE_PARSED");
   }
 
   // Check if domain is installed in the app
