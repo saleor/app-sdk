@@ -73,3 +73,9 @@ export type CreateAppRegisterHandlerOptions = {
 ```
 
 See [APL](./apl.md) for details what is Auth Persistence Layer in Saleor apps
+
+### Async Webhook Handler
+
+App SDK provides a utility that helps building (async) webhook handlers, so app can react on Saleor events.
+
+Read about it [here](./saleor-async-webhook.md).

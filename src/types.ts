@@ -55,7 +55,7 @@ export interface AppExtension {
   url: string;
 }
 
-export interface AppWebhook {
+export interface WebhookManifest {
   name: string;
   asyncEvents?: WebhookEvent[];
   syncEvents?: WebhookEvent[];
@@ -111,5 +111,5 @@ export interface AppManifest {
 
   Be aware that subscription queries are required in manifest sections
   */
-  webhooks?: AppWebhook[];
+  webhooks?: WebhookManifest[];
 }
