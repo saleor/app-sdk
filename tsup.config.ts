@@ -10,6 +10,7 @@ export default defineConfig({
     "src/infer-webhooks.ts",
     "src/APL/index.ts",
     "src/app-bridge/index.ts",
+    "src/app-bridge/next/index.ts",
     "src/handlers/next/index.ts",
     "src/middleware/index.ts",
     "src/settings-manager/index.ts",
