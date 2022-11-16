@@ -13,6 +13,7 @@ describe("app-bridge-state.ts", () => {
       path: "/",
       theme: "light",
       locale: "en",
+      saleorApiUrl: "",
     });
   });
 
@@ -20,7 +21,8 @@ describe("app-bridge-state.ts", () => {
     const instance = new AppBridgeStateContainer();
 
     const newState: Partial<AppBridgeState> = {
-      domain: "https://my-saleor-instance.cloud",
+      domain: "my-saleor-instance.cloud",
+      saleorApiUrl: "https://my-saleor-instance.cloud/graphql/",
       id: "foo-bar",
       path: "/",
       theme: "light",

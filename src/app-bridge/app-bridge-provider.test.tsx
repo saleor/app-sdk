@@ -4,10 +4,12 @@ import { describe, expect, it, vi } from "vitest";
 
 import { AppBridge } from "./app-bridge";
 import { AppBridgeProvider, useAppBridge } from "./app-bridge-provider";
+import { AppIframeParams } from "./app-iframe-params";
 import { DashboardEventFactory } from "./events";
 
 const origin = "http://example.com";
 const domain = "saleor.domain.host";
+const apiUrl = "https://saleor.domain.host/graphql/";
 
 Object.defineProperty(window.document, "referrer", {
   value: origin,
@@ -16,7 +18,7 @@ Object.defineProperty(window.document, "referrer", {
 
 Object.defineProperty(window, "location", {
   value: {
-    href: `${origin}?domain=${domain}&id=appid`,
+    href: `${origin}?${AppIframeParams.DOMAIN}=${domain}&${AppIframeParams.APP_ID}=appid&${AppIframeParams.SALEOR_API_URL}=${apiUrl}`,
   },
   writable: true,
 });
@@ -37,7 +39,8 @@ describe("AppBridgeProvider", () => {
       <AppBridgeProvider
         appBridgeInstance={
           new AppBridge({
-            targetDomain: "https://test-domain",
+            targetDomain: domain,
+            saleorApiUrl: apiUrl,
           })
         }
       >
@@ -86,19 +89,20 @@ describe("useAppBridge hook", () => {
 
   it("Returned instance provided in Provider", () => {
     const appBridge = new AppBridge({
-      targetDomain: "test-domain",
+      targetDomain: domain,
     });
 
     const { result } = renderHook(() => useAppBridge(), {
       wrapper: (props: {}) => <AppBridgeProvider {...props} appBridgeInstance={appBridge} />,
     });
 
-    expect(result.current.appBridge?.getState().domain).toBe("test-domain");
+    expect(result.current.appBridge?.getState().domain).toBe(domain);
   });
 
   it("Stores active state in React State", () => {
     const appBridge = new AppBridge({
-      targetDomain: origin,
+      targetDomain: domain,
+      saleorApiUrl: apiUrl,
     });
 
     const renderCallback = vi.fn();
@@ -128,12 +132,13 @@ describe("useAppBridge hook", () => {
     return waitFor(() => {
       expect(renderCallback).toHaveBeenCalledTimes(2);
       expect(renderCallback).toHaveBeenCalledWith({
-        domain: "http://example.com",
+        domain,
         id: "appid",
         path: "",
         ready: false,
         theme: "light",
         locale: "en",
+        saleorApiUrl: apiUrl,
       });
     });
   });

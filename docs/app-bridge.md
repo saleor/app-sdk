@@ -17,6 +17,8 @@ Options object is following:
 ```
 type AppBridgeOptions = {
   targetDomain?: string;
+  saleorApiUrl?: string;
+  initialLocale?: LocaleCode;
 };
 ```
 
@@ -33,9 +35,14 @@ type AppBridgeState = {
   token?: string;
   id: string;
   ready: boolean;
+  /**
+   * @deprecated - use saleorApiUrl instead
+   */
   domain: string;
   path: string;
   theme: ThemeType;
+  locale: LocaleCode; // See src/locales.ts
+  saleorApiUrl: string;
 };
 ```
 

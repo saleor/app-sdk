@@ -3,6 +3,7 @@ import debugPkg from "debug";
 import { LocaleCode } from "../locales";
 import { Actions } from "./actions";
 import { AppBridgeState, AppBridgeStateContainer } from "./app-bridge-state";
+import { AppIframeParams } from "./app-iframe-params";
 import { SSR } from "./constants";
 import { Events, EventType, PayloadOfEvent, ThemeType } from "./events";
 
@@ -68,6 +69,7 @@ const createEmptySubscribeMap = (): SubscribeMap => ({
 
 export type AppBridgeOptions = {
   targetDomain?: string;
+  saleorApiUrl?: string;
   initialLocale?: LocaleCode;
 };
 
@@ -75,16 +77,22 @@ export type AppBridgeOptions = {
  * TODO: Consider validating locale if wrong code provided
  */
 const getLocaleFromUrl = () =>
-  (new URL(window.location.href).searchParams.get("locale") as LocaleCode) || undefined;
+  (new URL(window.location.href).searchParams.get(AppIframeParams.LOCALE) as LocaleCode) ||
+  undefined;
 
 /**
  * TODO: Probably remove empty string fallback
  */
-const getDomainFromUrl = () => new URL(window.location.href).searchParams.get("domain") || "";
+const getDomainFromUrl = () =>
+  new URL(window.location.href).searchParams.get(AppIframeParams.DOMAIN) || "";
+
+const getSaleorApiUrlFromUrl = () =>
+  new URL(window.location.href).searchParams.get(AppIframeParams.SALEOR_API_URL) || "";
 
 const getDefaultOptions = (): AppBridgeOptions => ({
   targetDomain: getDomainFromUrl(),
-  initialLocale: getLocaleFromUrl(),
+  saleorApiUrl: getSaleorApiUrlFromUrl(),
+  initialLocale: getLocaleFromUrl() ?? "en",
 });
 
 export class AppBridge {
@@ -243,11 +251,19 @@ export class AppBridge {
     debug("setInitialState() called");
 
     const url = new URL(window.location.href);
-    const id = url.searchParams.get("id") || "";
+    const id = url.searchParams.get(AppIframeParams.APP_ID) || "";
     const path = window.location.pathname || "";
-    const theme: ThemeType = url.searchParams.get("theme") === "light" ? "light" : "dark";
+    const theme: ThemeType =
+      url.searchParams.get(AppIframeParams.THEME) === "light" ? "light" : "dark";
 
-    const state = { domain: this.combinedOptions.targetDomain, id, path, theme };
+    const state: Partial<AppBridgeState> = {
+      domain: this.combinedOptions.targetDomain,
+      id,
+      path,
+      theme,
+      saleorApiUrl: this.combinedOptions.saleorApiUrl,
+      locale: this.combinedOptions.initialLocale,
+    };
 
     debug("setInitialState() will setState with %j", state);
 
