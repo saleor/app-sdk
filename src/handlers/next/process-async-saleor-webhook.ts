@@ -5,7 +5,7 @@ import { APL } from "../../APL";
 import { AuthData } from "../../APL/apl";
 import { createDebug } from "../../debug";
 import { getBaseUrl, getSaleorHeaders } from "../../headers";
-import { verifySignature } from "../../verify-signature";
+import { verifySignature, verifySignatureFromApiUrl } from "../../verify-signature";
 
 const debug = createDebug("processAsyncWebhook");
 
@@ -69,7 +69,7 @@ export const processAsyncSaleorWebhook: ProcessAsyncSaleorWebhook = async <T>({
     debug("Wrong HTTP method");
     throw new WebhookError("Wrong request method, only POST allowed", "WRONG_METHOD");
   }
-  const { event, domain, signature } = getSaleorHeaders(req.headers);
+  const { event, domain, signature, saleorApiUrl } = getSaleorHeaders(req.headers);
   const baseUrl = getBaseUrl(req.headers);
 
   if (!baseUrl) {
@@ -134,7 +134,14 @@ export const processAsyncSaleorWebhook: ProcessAsyncSaleorWebhook = async <T>({
   // Payload signature check
   // TODO: Since it require additional request, can we cache it's response?
   try {
-    await verifySignature(domain, signature, rawBody);
+    /**
+     * saleorApiUrl is a new header, is it if available. Verification by domain will be removed in future versions
+     */
+    if (saleorApiUrl) {
+      await verifySignatureFromApiUrl(saleorApiUrl, signature, rawBody);
+    } else {
+      await verifySignature(domain, signature, rawBody);
+    }
   } catch {
     debug("Request signature check failed");
     throw new WebhookError("Request signature check failed", "SIGNATURE_VERIFICATION_FAILED");

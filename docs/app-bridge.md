@@ -35,13 +35,13 @@ type AppBridgeState = {
   token?: string;
   id: string;
   ready: boolean;
-  /**
-   * @deprecated - use saleorApiUrl instead
-   */
   domain: string;
   path: string;
   theme: ThemeType;
   locale: LocaleCode; // See src/locales.ts
+  /**
+   * Full URL including protocol and path where graphql is available
+   */
   saleorApiUrl: string;
 };
 ```
