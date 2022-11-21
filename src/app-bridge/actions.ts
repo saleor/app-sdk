@@ -6,6 +6,7 @@ import { Values } from "./helpers";
 export const ActionType = {
   redirect: "redirect",
   notification: "notification",
+  updateRouting: "updateRouting",
 } as const;
 
 export type ActionType = Values<typeof ActionType>;
@@ -74,9 +75,24 @@ function createNotificationAction(payload: NotificationPayload): NotificationAct
   });
 }
 
-export type Actions = RedirectAction | NotificationAction;
+export type UpdateRoutingPayload = {
+  newRoute: string;
+  strategy: "replace" | "push";
+};
+
+export type UpdateRouting = ActionWithId<"updateRouting", UpdateRoutingPayload>;
+
+function createUpdateRoutingAction(payload: UpdateRoutingPayload): UpdateRouting {
+  return withActionId({
+    type: "updateRouting",
+    payload,
+  });
+}
+
+export type Actions = RedirectAction | NotificationAction | UpdateRouting;
 
 export const actions = {
   Redirect: createRedirectAction,
   Notification: createNotificationAction,
+  UpdateRouting: createUpdateRoutingAction,
 };
