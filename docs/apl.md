@@ -184,3 +184,27 @@ const apl = new UpstashAPL({
 ```
 
 Or using environment variables: `UPSTASH_TOKEN`, `UPSTASH_URL`.
+
+### RestAPL
+
+RestAPL is a simple CRUD client that performs basic operations on resource provided in constructor
+
+Example usage:
+
+```typescript
+import { RestAPL } from "@saleor/app-sdk/APL";
+
+const apl = new RestAPL({
+  resourceUrl: "https://crudcrud.com/api/2c35cdbf2a2c48669b2feda4ab260e1c", // Required, should point to CRUD resource
+  headers: {
+    Authorization: "Bearer XYZ", // Optional. Headers will be merged into request, allowing to pass auth.
+  },
+});
+```
+
+Target resource must accept "standard" CRUD operations:
+
+- `GET /` - get all
+- `GET /:domain` - get AuthData for given domain
+- `POST /` - set AuthData (`{domain: string, token: string}`) from BODY
+- `DELETE /:domain` - deletes AuthData for given domain
