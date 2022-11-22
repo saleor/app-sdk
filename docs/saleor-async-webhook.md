@@ -53,14 +53,15 @@ export const orderCreatedWebhook = new SaleorAsyncWebhook<OrderPayload>({
 });
 ```
 
-- Check available events [here](todo)
+- Check available events [here](https://docs.saleor.io/docs/3.x/developer/extending/apps/asynchronous-webhooks#available-webhook-events)
 - [Read more about APLs](./apl.md)
+- [Subscription query documentation](https://docs.saleor.io/docs/3.x/developer/extending/apps/subscription-webhook-payloads)
 
 You can consider created `orderCreatedWebhook` a center point of your webhook configuration. Now, you need to create a handler and add it to manifest.
 
 ### Extending app manifest
 
-Webhooks are created in Saleor when the App is installed. Saleor uses [AppManifest](todo) to get information about webhooks to create.  
+Webhooks are created in Saleor when the App is installed. Saleor uses [AppManifest](https://docs.saleor.io/docs/3.x/developer/extending/apps/manifest) to get information about webhooks to create.  
 `SaleorAsyncWebhook` utility can generate this manifest:
 
 ```typescript
@@ -112,4 +113,32 @@ export default orderCreatedWebhook.createHandler((req, res, context) => {
 
 ### query vs subscriptionQueryAst
 
-todo
+Subscription query can be specified using plain string or as `ASTNode` object created by `gql` tag.
+
+If your project does not use any code generation for GraphQL operations, use the string. In case you are using [GraphQL Code Generator](https://the-guild.dev/graphql/codegen), which we highly recommend, you should pass a subscription as GraphQL ASTNode:
+
+```typescript
+/**
+ * Subscription query, you can define it in the `.ts` file. If you write operations in separate `.graphql` files, codegen will also export them in the generated file.
+ */
+export const ExampleProductUpdatedSubscription = gql`
+  ${ProductUpdatedWebhookPayload}
+  subscription ExampleProductUpdated {
+    event {
+      fragment ProductUpdatedWebhookPayload on ProductUpdated {
+      product {
+        id
+        name
+      }
+    }
+    }
+  }
+`;
+
+export const productUpdatedWebhook = new SaleorAsyncWebhook<ProductUpdatedWebhookPayloadFragment>({
+  name: "Example product updated webhook",
+  webhookPath: "api/webhooks/saleor/product-updated",
+  asyncEvent: "PRODUCT_UPDATED",
+  apl: saleorApp.apl,
+  subscriptionQueryAst: ExampleProductUpdatedSubscription,
+});
