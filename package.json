@@ -4,6 +4,10 @@
   "description": "SDK for building great Saleor Apps",
   "types": "index.d.ts",
   "main": "index.js",
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "prepublishOnly": "pnpm build",
     "watch": "tsup --watch",
