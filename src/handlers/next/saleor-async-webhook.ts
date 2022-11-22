@@ -1,11 +1,10 @@
 import { ASTNode } from "graphql";
 import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
 
-import { WebhookManifest } from "../..";
 import { APL } from "../../APL";
 import { createDebug } from "../../debug";
 import { gqlAstToString } from "../../gql-ast-to-string";
-import { WebhookEvent } from "../../types";
+import { WebhookEvent,WebhookManifest } from "../../types";
 import {
   processAsyncSaleorWebhook,
   SaleorWebhookError,
@@ -96,6 +95,8 @@ export class SaleorAsyncWebhook<TPayload = unknown> {
 
   /**
    * Returns full URL to the webhook, based on provided baseUrl.
+   *
+   * TODO: Shouldnt it be private?
    *
    * @param baseUrl Base URL used by your application
    */
