@@ -47,7 +47,7 @@ export const orderCreatedWebhook = new SaleorAsyncWebhook<OrderPayload>({
    */
   apl: require("../lib/apl"),
   /**
-   * Subscription query, telling Saleor what payload app expects.
+   * Subscription query, telling Saleor what payload app expects
    */
   query: "TODO",
 });
