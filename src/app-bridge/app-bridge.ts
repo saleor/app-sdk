@@ -129,9 +129,17 @@ export class AppBridge {
       console.warn("document.referrer is empty");
     }
 
+    if (!this.combinedOptions.saleorApiUrl) {
+      debug("?saleorApiUrl was not found in iframe url");
+    }
+
     if (!this.combinedOptions.targetDomain) {
+      debug("?domain was not found in iframe url");
+    }
+
+    if (!(this.combinedOptions.saleorApiUrl && this.combinedOptions.targetDomain)) {
       console.error(
-        "No domain set, ensure ?domain param in iframe exist or provide in AppBridge constructor"
+        "domain and saleorApiUrl params were not found in iframe url. Ensure at least one of them is present"
       );
     }
 
