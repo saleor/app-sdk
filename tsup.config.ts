@@ -19,5 +19,5 @@ export default defineConfig({
   clean: true,
   format: ["esm", "cjs"],
   splitting: true,
-  external: ["**/*.md", "next", "react"],
+  external: ["**/*.md"],
 });

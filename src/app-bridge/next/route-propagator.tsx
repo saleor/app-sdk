@@ -1,4 +1,7 @@
-import { useRouter } from "next/router";
+/**
+ * Use .js extension to avoid broken builds with ESM
+ */
+import { useRouter } from "next/router.js";
 import { useEffect } from "react";
 
 import { actions } from "../actions";
