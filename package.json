@@ -1,6 +1,6 @@
 {
   "name": "@saleor/app-sdk",
-  "version": "0.20.0",
+  "version": "0.20.1-1",
   "description": "SDK for building great Saleor Apps",
   "types": "index.d.ts",
   "main": "index.js",
@@ -19,7 +19,7 @@
   "author": "",
   "license": "ISC",
   "peerDependencies": {
-    "next": "^12",
+    "next": ">=12",
     "react": ">=17",
     "react-dom": ">=17"
   },
