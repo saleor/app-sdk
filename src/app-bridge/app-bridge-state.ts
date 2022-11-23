@@ -9,6 +9,7 @@ export type AppBridgeState = {
   path: string;
   theme: ThemeType;
   locale: LocaleCode;
+  saleorApiUrl: string;
 };
 
 type Options = {
@@ -19,6 +20,7 @@ export class AppBridgeStateContainer {
   private state: AppBridgeState = {
     id: "",
     domain: "",
+    saleorApiUrl: "",
     ready: false,
     path: "/",
     theme: "light",

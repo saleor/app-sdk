@@ -127,9 +127,6 @@ export class SaleorAsyncWebhook<TPayload = unknown> {
   /**
    * Wraps provided function, to ensure incoming request comes from registered Saleor instance.
    * Also provides additional `context` object containing typed payload and request properties.
-   *
-   * @param handlerFn NextApiHandler function which takes additional `context` argument
-   * @returns NextApiHandler
    */
   createHandler(handlerFn: NextWebhookApiHandler<TPayload>): NextApiHandler {
     return async (req, res) => {

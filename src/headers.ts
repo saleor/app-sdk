@@ -1,4 +1,5 @@
 import {
+  SALEOR_API_URL_HEADER,
   SALEOR_AUTHORIZATION_BEARER_HEADER,
   SALEOR_DOMAIN_HEADER,
   SALEOR_EVENT_HEADER,
@@ -8,13 +9,12 @@ import {
 const toStringOrUndefined = (value: string | string[] | undefined) =>
   value ? value.toString() : undefined;
 
-export const getSaleorHeaders = (headers: {
-  [name: string]: string | string[] | undefined;
-}): Record<string, string | undefined> => ({
+export const getSaleorHeaders = (headers: { [name: string]: string | string[] | undefined }) => ({
   domain: toStringOrUndefined(headers[SALEOR_DOMAIN_HEADER]),
   authorizationBearer: toStringOrUndefined(headers[SALEOR_AUTHORIZATION_BEARER_HEADER]),
   signature: toStringOrUndefined(headers[SALEOR_SIGNATURE_HEADER]),
   event: toStringOrUndefined(headers[SALEOR_EVENT_HEADER]),
+  saleorApiUrl: toStringOrUndefined(headers[SALEOR_API_URL_HEADER]),
 });
 
 export const getBaseUrl = (headers: { [name: string]: string | string[] | undefined }): string => {

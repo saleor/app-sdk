@@ -17,6 +17,8 @@ Options object is following:
 ```
 type AppBridgeOptions = {
   targetDomain?: string;
+  saleorApiUrl?: string;
+  initialLocale?: LocaleCode;
 };
 ```
 
@@ -36,6 +38,11 @@ type AppBridgeState = {
   domain: string;
   path: string;
   theme: ThemeType;
+  locale: LocaleCode; // See src/locales.ts
+  /**
+   * Full URL including protocol and path where graphql is available
+   */
+  saleorApiUrl: string;
 };
 ```
 

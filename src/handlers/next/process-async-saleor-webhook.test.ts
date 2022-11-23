@@ -13,6 +13,11 @@ vi.mock("./../../verify-signature", () => ({
       throw new Error("Wrong signature");
     }
   }),
+  verifySignatureFromApiUrl: vi.fn((domain, signature) => {
+    if (signature !== "mocked_signature") {
+      throw new Error("Wrong signature");
+    }
+  }),
 }));
 
 vi.mock("raw-body", () => ({
@@ -43,6 +48,7 @@ describe("processAsyncSaleorWebhook", () => {
         host: "some-saleor-host.cloud",
         "x-forwarded-proto": "https",
         "saleor-domain": "example.com",
+        "saleor-api-url": "https://example.com/graphql/",
         "saleor-event": "product_updated",
         "saleor-signature": "mocked_signature",
         "content-length": "0", // is ignored by mocked raw-body
