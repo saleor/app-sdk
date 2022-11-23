@@ -4,7 +4,7 @@ import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
 import { APL } from "../../APL";
 import { createDebug } from "../../debug";
 import { gqlAstToString } from "../../gql-ast-to-string";
-import { WebhookEvent,WebhookManifest } from "../../types";
+import { WebhookEvent, WebhookManifest } from "../../types";
 import {
   processAsyncSaleorWebhook,
   SaleorWebhookError,
@@ -34,7 +34,7 @@ type WebhookManifestConfiguration =
   | WebhookManifestConfigurationWithAst
   | WebhookManifestConfigurationWithQuery;
 
-export const ErrorCodeMap: Record<SaleorWebhookError, number> = {
+export const AsyncWebhookErrorCodeMap: Record<SaleorWebhookError, number> = {
   OTHER: 500,
   MISSING_HOST_HEADER: 400,
   MISSING_DOMAIN_HEADER: 400,
@@ -148,7 +148,7 @@ export class SaleorAsyncWebhook<TPayload = unknown> {
 
           if (e instanceof WebhookError) {
             debug(`Validation error: ${e.message}`);
-            res.status(ErrorCodeMap[e.errorType] || 400).end();
+            res.status(AsyncWebhookErrorCodeMap[e.errorType] || 400).end();
             return;
           }
           debug("Unexpected error: %O", e);

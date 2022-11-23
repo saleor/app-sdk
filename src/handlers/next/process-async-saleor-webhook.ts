@@ -43,6 +43,11 @@ export type WebhookContext<T> = {
   authData: AuthData;
 };
 
+export type ProtectedHandlerContext = {
+  baseUrl: string;
+  authData: AuthData;
+};
+
 interface ProcessSaleorWebhookArgs {
   req: NextApiRequest;
   apl: APL;

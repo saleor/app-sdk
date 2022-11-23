@@ -12,6 +12,7 @@ const dropFileExtension = (filename: string) => path.parse(filename).name;
 export const inferWebhooks = async (
   baseURL: string,
   webhooksPath: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   generatedGraphQL: any
 ) => {
   let entries;
@@ -38,6 +39,7 @@ export const inferWebhooks = async (
     const statement = `${camelCaseName}SubscriptionDocument`;
     let query: string;
     if (statement in generatedGraphQL) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       query = print((generatedGraphQL as any)[statement]);
     } else {
       throw Error("Subscription not found.");
