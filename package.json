@@ -4,16 +4,21 @@
   "description": "SDK for building great Saleor Apps",
   "types": "index.d.ts",
   "main": "index.js",
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "prepublishOnly": "pnpm build",
     "watch": "tsup --watch",
-    "build": "tsup && clear-package-json package.json -o dist/package.json --fields publishConfig",
+    "build": "tsup && clear-package-json package.json -o dist/package.json --fields publishConfig && pnpm copy-readme",
     "clean": "rm -rf ./dist/*",
     "test": "vitest",
     "test:ci": "CI=true vitest --coverage",
     "prepare": "husky install",
     "lint": "prettier --loglevel warn --write . && eslint --fix .",
-    "release": "release-it"
+    "release": "release-it",
+    "copy-readme": "cp README.md dist/README.md"
   },
   "keywords": [],
   "author": "",
