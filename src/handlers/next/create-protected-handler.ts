@@ -30,15 +30,12 @@ export type NextProtectedApiHandler<TResp = unknown> = (
 /**
  * Wraps provided function, to ensure incoming request comes from Saleor Dashboard.
  * Also provides additional `context` object containing request properties.
- *
- * @param handlerFn NextApiHandler function which takes additional `context` argument
- * @returns NextApiHandler
  */
 export const createProtectedHandler =
   (handlerFn: NextProtectedApiHandler, apl: APL): NextApiHandler =>
-  async (req, res) => {
+  (req, res) => {
     debug("Protected handler called");
-    await processSaleorProtectedHandler({
+    processSaleorProtectedHandler({
       req,
       apl,
     })
