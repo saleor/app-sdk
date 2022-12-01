@@ -137,7 +137,7 @@ export class AppBridge {
       debug("?domain was not found in iframe url");
     }
 
-    if (!(this.combinedOptions.saleorApiUrl && this.combinedOptions.targetDomain)) {
+    if (!(this.combinedOptions.saleorApiUrl || this.combinedOptions.targetDomain)) {
       console.error(
         "domain and saleorApiUrl params were not found in iframe url. Ensure at least one of them is present"
       );
