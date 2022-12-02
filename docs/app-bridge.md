@@ -153,11 +153,13 @@ handleRedirect();
 
 ### Available actions
 
-| Action         | Arguments                                                        | Description |
-| :------------- | :--------------------------------------------------------------- | :---------- |
-| `Redirect`     | `to` (string) - relative (inside Dashboard) or absolute URL path |             |
-|                | `newContext` (boolean) - should open in a new browsing context   |             |
-| `Notification` | `status` (`info` / `success` / `warning` / `error` / undefined)  |             |
-|                | `title` (string / undefined) - title of the notification         |             |
-|                | `text` (string / undefined) - content of the notification        |             |
-|                | `apiMessage` (string / undefined) - error log from api           |             |
+| Action          | Arguments                                                        | Description                                            |
+| :-------------- | :--------------------------------------------------------------- | :----------------------------------------------------- |
+| `Redirect`      | `to` (string) - relative (inside Dashboard) or absolute URL path |                                                        |
+|                 | `newContext` (boolean) - should open in a new browsing context   |                                                        |
+| `Notification`  | `status` (`info` / `success` / `warning` / `error` / undefined)  |                                                        |
+|                 | `title` (string / undefined) - title of the notification         |                                                        |
+|                 | `text` (string / undefined) - content of the notification        |                                                        |
+|                 | `apiMessage` (string / undefined) - error log from api           |                                                        |
+| `NotifyReady`   |                                                                  | Automatically inform Dashboard that AppBridge is ready |
+| `UpdateRouting` | `newRoute` - current path of App to be set in URL                |                                                        |

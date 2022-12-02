@@ -3,7 +3,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { LocaleCode } from "../locales";
 // eslint-disable-next-line
-import { actions, AppBridge, DispatchResponseEvent, HandshakeEvent, ThemeEvent } from ".";
+import {
+  actions,
+  ActionType,
+  AppBridge,
+  DispatchResponseEvent,
+  HandshakeEvent,
+  ThemeEvent,
+} from ".";
 
 // mock document.referrer
 const origin = "http://example.com";
@@ -41,11 +48,37 @@ const delay = (timeout: number) =>
     setTimeout(res, timeout);
   });
 
+const mockDashboardActionResponse = (actionType: ActionType, actionID: string) => {
+  function onMessage(event: MessageEvent) {
+    if (event.data.type === actionType) {
+      fireEvent(
+        window,
+        new MessageEvent("message", {
+          data: {
+            type: "response",
+            payload: { ok: true, actionId: actionID },
+          } as DispatchResponseEvent,
+          origin,
+        })
+      );
+    }
+  }
+
+  window.addEventListener("message", onMessage);
+
+  return function cleanup() {
+    window.removeEventListener("message", onMessage);
+  };
+};
+
 describe("AppBridge", () => {
   let appBridge = new AppBridge();
 
   beforeEach(() => {
     appBridge = new AppBridge();
+    vi.spyOn(console, "error").mockImplementation(() => {
+      // noop
+    });
   });
 
   it("correctly sets the default domain, if not set in constructor", () => {
@@ -152,20 +185,7 @@ describe("AppBridge", () => {
     const target = "/test";
     const action = actions.Redirect({ to: target });
 
-    window.addEventListener("message", (event) => {
-      if (event.data.type === action.type) {
-        fireEvent(
-          window,
-          new MessageEvent("message", {
-            data: {
-              type: "response",
-              payload: { ok: true, actionId: action.payload.actionId },
-            } as DispatchResponseEvent,
-            origin,
-          })
-        );
-      }
-    });
+    mockDashboardActionResponse(action.type, action.payload.actionId);
 
     return expect(appBridge.dispatch(action)).resolves.toBeUndefined();
   });
@@ -231,5 +251,15 @@ describe("AppBridge", () => {
     expect(new AppBridge().getState().locale).toBe(localeToOverwrite);
 
     window.location.href = currentLocationHref;
+  });
+
+  it("dispatches 'notifyReady' action when created", (done) => {
+    appBridge = new AppBridge();
+
+    window.addEventListener("message", (event) => {
+      if (event.data.type === ActionType.notifyReady) {
+        done();
+      }
+    });
   });
 });

@@ -1,7 +1,7 @@
 import debugPkg from "debug";
 
 import { LocaleCode } from "../locales";
-import { Actions } from "./actions";
+import { Actions, actions } from "./actions";
 import { AppBridgeState, AppBridgeStateContainer } from "./app-bridge-state";
 import { AppIframeParams } from "./app-iframe-params";
 import { SSR } from "./constants";
@@ -145,6 +145,7 @@ export class AppBridge {
 
     this.setInitialState();
     this.listenOnMessages();
+    this.sendNotifyReadyAction();
   }
 
   /**
@@ -310,5 +311,12 @@ export class AppBridge {
         }
       }
     );
+  }
+
+  private sendNotifyReadyAction() {
+    this.dispatch(actions.NotifyReady()).catch((e) => {
+      console.error("notifyReady action failed");
+      console.error(e);
+    });
   }
 }
