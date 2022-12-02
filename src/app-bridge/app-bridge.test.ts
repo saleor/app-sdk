@@ -254,12 +254,12 @@ describe("AppBridge", () => {
   });
 
   it("dispatches 'notifyReady' action when created", (done) => {
-    appBridge = new AppBridge();
-
     window.addEventListener("message", (event) => {
       if (event.data.type === ActionType.notifyReady) {
         done();
       }
     });
+    
+    appBridge = new AppBridge();
   });
 });

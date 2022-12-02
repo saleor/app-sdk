@@ -13,7 +13,7 @@ export const ActionType = {
    */
   notification: "notification",
   /**
-   * Ask Dashboard to update depp URL to preserve app route after refresh
+   * Ask Dashboard to update deep URL to preserve app route after refresh
    */
   updateRouting: "updateRouting",
   /**
