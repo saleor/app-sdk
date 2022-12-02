@@ -200,49 +200,50 @@ export class AppBridge {
         debug("window.parent doesnt exist, will throw");
 
         reject(new Error("Parent window does not exist."));
-      } else {
-        debug("Calling window.parent.postMessage with %j", action);
+        return;
+      }
 
-        window.parent.postMessage(
-          {
-            type: action.type,
-            payload: action.payload,
-          },
-          "*"
+      debug("Calling window.parent.postMessage with %j", action);
+
+      window.parent.postMessage(
+        {
+          type: action.type,
+          payload: action.payload,
+        },
+        "*"
+      );
+
+      let timeoutId: number;
+
+      const unsubscribe = this.subscribe(EventType.response, ({ actionId, ok }) => {
+        debug(
+          "Subscribing to %s with action id: %s and status 'ok' is: %s",
+          EventType.response,
+          actionId,
+          ok
         );
 
-        let intervalId: number;
-
-        const unsubscribe = this.subscribe(EventType.response, ({ actionId, ok }) => {
-          debug(
-            "Subscribing to %s with action id: %s and status 'ok' is: %s",
-            EventType.response,
-            actionId,
-            ok
-          );
-
-          if (action.payload.actionId === actionId) {
-            debug("Received matching action id: %s. Will unsubscribe", actionId);
-            unsubscribe();
-            clearInterval(intervalId);
-
-            if (ok) {
-              resolve();
-            } else {
-              reject(
-                new Error(
-                  "Action responded with negative status. This indicates the action method was not used properly."
-                )
-              );
-            }
-          }
-        });
-
-        intervalId = window.setInterval(() => {
+        if (action.payload.actionId === actionId) {
+          debug("Received matching action id: %s. Will unsubscribe", actionId);
           unsubscribe();
-          reject(new Error("Action response timed out."));
-        }, DISPATCH_RESPONSE_TIMEOUT);
-      }
+          clearTimeout(timeoutId);
+
+          if (ok) {
+            resolve();
+          } else {
+            reject(
+              new Error(
+                "Action responded with negative status. This indicates the action method was not used properly."
+              )
+            );
+          }
+        }
+      });
+
+      timeoutId = window.setTimeout(() => {
+        unsubscribe();
+        reject(new Error("Action response timed out."));
+      }, DISPATCH_RESPONSE_TIMEOUT);
     });
   }
 
