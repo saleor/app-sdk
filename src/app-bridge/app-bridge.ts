@@ -1,7 +1,7 @@
 import debugPkg from "debug";
 
 import { LocaleCode } from "../locales";
-import { Actions } from "./actions";
+import { Actions, actions } from "./actions";
 import { AppBridgeState, AppBridgeStateContainer } from "./app-bridge-state";
 import { AppIframeParams } from "./app-iframe-params";
 import { SSR } from "./constants";
@@ -71,6 +71,11 @@ export type AppBridgeOptions = {
   targetDomain?: string;
   saleorApiUrl?: string;
   initialLocale?: LocaleCode;
+  /**
+   * Should automatically emit Actions.NotifyReady.
+   * If app loading time is longer, this can be disabled and sent manually.
+   */
+  autoNotifyReady?: boolean;
 };
 
 /**
@@ -93,6 +98,7 @@ const getDefaultOptions = (): AppBridgeOptions => ({
   targetDomain: getDomainFromUrl(),
   saleorApiUrl: getSaleorApiUrlFromUrl(),
   initialLocale: getLocaleFromUrl() ?? "en",
+  autoNotifyReady: true,
 });
 
 export class AppBridge {
@@ -145,6 +151,10 @@ export class AppBridge {
 
     this.setInitialState();
     this.listenOnMessages();
+
+    if (this.combinedOptions.autoNotifyReady) {
+      this.sendNotifyReadyAction();
+    }
   }
 
   /**
@@ -254,6 +264,13 @@ export class AppBridge {
     debug("getState() called and will return %j", this.state.getState());
 
     return this.state.getState();
+  }
+
+  sendNotifyReadyAction() {
+    this.dispatch(actions.NotifyReady()).catch((e) => {
+      console.error("notifyReady action failed");
+      console.error(e);
+    });
   }
 
   private setInitialState() {

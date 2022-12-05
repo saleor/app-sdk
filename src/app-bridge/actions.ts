@@ -4,9 +4,22 @@ import { Values } from "./helpers";
 
 // Using constants over Enums, more info: https://fettblog.eu/tidy-typescript-avoid-enums/
 export const ActionType = {
+  /**
+   * Ask Dashboard to redirect - either internal or external route
+   */
   redirect: "redirect",
+  /**
+   * Ask Dashboard to send a notification toast
+   */
   notification: "notification",
+  /**
+   * Ask Dashboard to update deep URL to preserve app route after refresh
+   */
   updateRouting: "updateRouting",
+  /**
+   * Inform Dashboard that AppBridge is ready
+   */
+  notifyReady: "notifyReady",
 } as const;
 
 export type ActionType = Values<typeof ActionType>;
@@ -77,7 +90,6 @@ function createNotificationAction(payload: NotificationPayload): NotificationAct
 
 export type UpdateRoutingPayload = {
   newRoute: string;
-  strategy: "replace" | "push";
 };
 
 export type UpdateRouting = ActionWithId<"updateRouting", UpdateRoutingPayload>;
@@ -89,10 +101,20 @@ function createUpdateRoutingAction(payload: UpdateRoutingPayload): UpdateRouting
   });
 }
 
-export type Actions = RedirectAction | NotificationAction | UpdateRouting;
+export type NotifyReady = ActionWithId<"notifyReady", {}>;
+
+function createNotifyReadyAction(): NotifyReady {
+  return withActionId({
+    type: "notifyReady",
+    payload: {},
+  });
+}
+
+export type Actions = RedirectAction | NotificationAction | UpdateRouting | NotifyReady;
 
 export const actions = {
   Redirect: createRedirectAction,
   Notification: createNotificationAction,
   UpdateRouting: createUpdateRoutingAction,
+  NotifyReady: createNotifyReadyAction,
 };

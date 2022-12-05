@@ -24,7 +24,6 @@ export const useRoutePropagator = () => {
         ?.dispatch(
           actions.UpdateRouting({
             newRoute: url,
-            strategy: "replace",
           })
         )
         .catch(() => {
