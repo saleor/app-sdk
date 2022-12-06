@@ -6,6 +6,10 @@ import { createAppRegisterHandler } from "./create-app-register-handler";
 
 describe("create-app-register-handler", () => {
   it("Sets auth data for correct request", async () => {
+    vi.mock("../../get-app-id", () => ({
+      getAppId: vi.fn().mockResolvedValue("42"),
+    }));
+
     const mockApl: APL = {
       get: vi.fn(),
       set: vi.fn(),
