@@ -4,8 +4,12 @@ import { withMethod } from "retes/middleware";
 import { Response } from "retes/response";
 
 import { SALEOR_DOMAIN_HEADER } from "../../const";
+import { createDebug } from "../../debug";
+import { getAppId } from "../../get-app-id";
 import { withAuthTokenRequired, withSaleorDomainPresent } from "../../middleware";
 import { HasAPL } from "../../saleor-app";
+
+const debug = createDebug("createAppRegisterHandler");
 
 export type CreateAppRegisterHandlerOptions = HasAPL;
 
@@ -16,12 +20,14 @@ export type CreateAppRegisterHandlerOptions = HasAPL;
  */
 export const createAppRegisterHandler = ({ apl }: CreateAppRegisterHandlerOptions) => {
   const baseHandler: Handler = async (request) => {
+    debug("Request received");
     const authToken = request.params.auth_token;
     const saleorDomain = request.headers[SALEOR_DOMAIN_HEADER] as string;
 
     const { configured: aplConfigured } = await apl.isConfigured();
 
     if (!aplConfigured) {
+      debug("The APL has not been configured");
       return new Response(
         {
           success: false,
@@ -36,9 +42,28 @@ export const createAppRegisterHandler = ({ apl }: CreateAppRegisterHandlerOption
       );
     }
 
+    // Try to get App ID from the API, to confirm that communication can be established
+    const appId = await getAppId({ domain: saleorDomain, token: authToken });
+    if (!appId) {
+      return new Response(
+        {
+          success: false,
+          error: {
+            code: "UNKNOWN_APP_ID",
+            message:
+              "The auth data given during registration request could not be used to fetch app ID.",
+          },
+        },
+        {
+          status: 401,
+        }
+      );
+    }
+
     try {
       await apl.set({ domain: saleorDomain, token: authToken });
     } catch {
+      debug("There was an error during saving the auth data");
       return Response.InternalServerError({
         success: false,
         error: {
@@ -46,6 +71,7 @@ export const createAppRegisterHandler = ({ apl }: CreateAppRegisterHandlerOption
         },
       });
     }
+    debug("Register  complete");
     return Response.OK({ success: true });
   };
 
