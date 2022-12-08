@@ -1,4 +1,4 @@
-import { describe, expect,it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { SALEOR_AUTHORIZATION_BEARER_HEADER, SALEOR_DOMAIN_HEADER } from "../const";
 import { AppBridge } from "./app-bridge";
@@ -33,11 +33,36 @@ describe("createAuthenticatedFetch", () => {
     }
 
     const fetchCallArguments = spiedFetch.mock.lastCall;
-    const fetchCallHeaders = fetchCallArguments![1].headers;
+    const fetchCallHeaders = fetchCallArguments![1]?.headers;
 
     expect((fetchCallHeaders as Headers).get(SALEOR_DOMAIN_HEADER)).toBe(
       "master.staging.saleor.cloud"
     );
     expect((fetchCallHeaders as Headers).get(SALEOR_AUTHORIZATION_BEARER_HEADER)).toBe("XXX_YYY");
+  });
+
+  it("Extends existing fetch config", async () => {
+    const spiedFetch = vi.spyOn(window, "fetch");
+
+    const fetchFn = createAuthenticatedFetch(mockedAppBridge);
+
+    try {
+      await fetchFn("/api/test", {
+        headers: {
+          foo: "bar",
+        },
+      });
+    } catch (e) {
+      // ignore
+    }
+
+    const fetchCallArguments = spiedFetch.mock.lastCall;
+    const fetchCallHeaders = fetchCallArguments![1]?.headers;
+
+    expect((fetchCallHeaders as Headers).get(SALEOR_DOMAIN_HEADER)).toBe(
+      "master.staging.saleor.cloud"
+    );
+    expect((fetchCallHeaders as Headers).get(SALEOR_AUTHORIZATION_BEARER_HEADER)).toBe("XXX_YYY");
+    expect((fetchCallHeaders as Headers).get("foo")).toBe("bar");
   });
 });
