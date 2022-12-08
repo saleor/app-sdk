@@ -1,1 +1,1 @@
-import "node-fetch";
+import "vi-fetch/setup";
