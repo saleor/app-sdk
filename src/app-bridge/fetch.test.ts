@@ -22,7 +22,7 @@ describe("createAuthenticatedFetch", () => {
   };
 
   it("Decorates request headers with AppBridge headers", async () => {
-    const spiedFetch = vi.spyOn(window, "fetch");
+    const spiedFetch = vi.spyOn(global, "fetch");
 
     const fetchFn = createAuthenticatedFetch(mockedAppBridge);
 
@@ -42,7 +42,7 @@ describe("createAuthenticatedFetch", () => {
   });
 
   it("Extends existing fetch config", async () => {
-    const spiedFetch = vi.spyOn(window, "fetch");
+    const spiedFetch = vi.spyOn(global, "fetch");
 
     const fetchFn = createAuthenticatedFetch(mockedAppBridge);
 
