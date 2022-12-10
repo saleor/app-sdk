@@ -3,8 +3,12 @@ import { AppBridge } from "./app-bridge";
 import { useAppBridge } from "./app-bridge-provider";
 
 type HasAppBridgeState = Pick<AppBridge, "getState">;
+
+/**
+ * Created decorated window.fetch with headers required by app-sdk Next api handlers utilities
+ */
 export const createAuthenticatedFetch =
-  (appBridge: HasAppBridgeState, fetch = window.fetch): typeof window.fetch =>
+  (appBridge: HasAppBridgeState, fetch = global.fetch): typeof global.fetch =>
   (input, init) => {
     const { token, domain } = appBridge.getState();
 
@@ -20,7 +24,10 @@ export const createAuthenticatedFetch =
     return fetch(input, clonedInit);
   };
 
-export const useAuthenticatedFetch = (fetch = window.fetch) => {
+/**
+ * Hook working only in browser context. Ensure parent component is dynamic() and mounted in the browser.
+ */
+export const useAuthenticatedFetch = (fetch = global.fetch) => {
   const { appBridge } = useAppBridge();
 
   if (!appBridge) {
