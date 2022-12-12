@@ -1,0 +1,1 @@
+import "vi-fetch/setup";
