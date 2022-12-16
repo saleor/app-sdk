@@ -78,6 +78,51 @@ describe("APL", () => {
         );
       });
 
+      it("Successful save of the auth data during reinstallation for the same domain", async () => {
+        process.env[VercelAPLVariables.TOKEN_VARIABLE_NAME] = "old_token";
+        process.env[VercelAPLVariables.DOMAIN_VARIABLE_NAME] = "example.com";
+
+        // @ts-ignore Ignore type of mocked response
+        mockFetch.mockResolvedValue({ status: 200 });
+        const apl = new VercelAPL({
+          registerAppURL: "https://registerService.example.com",
+          deploymentToken: "token",
+        });
+        await apl.set({ domain: "example.com", token: "token" });
+        expect(mockFetch).toBeCalledWith(
+          "https://registerService.example.com",
+
+          {
+            body: JSON.stringify({
+              token: "token",
+              envs: [
+                { key: "SALEOR_AUTH_TOKEN", value: "token" },
+                { key: "SALEOR_DOMAIN", value: "example.com" },
+              ],
+            }),
+            headers: {
+              "Content-Type": "application/json",
+            },
+            method: "POST",
+          }
+        );
+      });
+
+      it("Reject save of the auth data during reinstallation for a different domain", async () => {
+        process.env[VercelAPLVariables.TOKEN_VARIABLE_NAME] = "old_token";
+        process.env[VercelAPLVariables.DOMAIN_VARIABLE_NAME] = "not.example.com";
+
+        // @ts-ignore Ignore type of mocked response
+        mockFetch.mockResolvedValue({ status: 200 });
+        const apl = new VercelAPL({
+          registerAppURL: "https://registerService.example.com",
+          deploymentToken: "token",
+        });
+        await expect(apl.set({ domain: "example.com", token: "token" })).rejects.toThrow(
+          "Vercel APL was not able to save auth data, application already registered"
+        );
+      });
+
       it("Raise error when register service returns non 200 response", async () => {
         // @ts-ignore Ignore type of mocked response
         mockFetch.mockResolvedValue({ status: 500 });

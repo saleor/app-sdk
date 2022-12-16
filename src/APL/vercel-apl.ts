@@ -51,7 +51,11 @@ export type VercelAPLConfig = {
  *   - only stores single auth data entry (setting up a new one will overwrite previous values)
  *   - changing the environment variables require server restart
  *
- * With this APL we recommend using the [Saleor CLI](https://docs.saleor.io/docs/3.x/cli),
+ * To avoid override of existing auth data, setting a new auth token is only allowed for the same domain.
+ * If you want to change registration to another domain, you have to remove `SALEOR_AUTH_TOKEN` and
+ * `SALEOR_DOMAIN` environment variables in [Vercel dashboard](https://vercel.com/docs/concepts/projects/environment-variables).
+ *
+ * With this APL we recommend deployment using the [Saleor CLI](https://docs.saleor.io/docs/3.x/cli),
  * which automatically set up the required environment variables during deployment:
  *   - SALEOR_REGISTER_APP_URL: the URL for microservice which set up variables using Vercel API
  *   - SALEOR_DEPLOYMENT_TOKEN: token for your particular Vercel deployment
@@ -119,6 +123,11 @@ export class VercelAPL implements APL {
   }
 
   async set(authData: AuthData) {
+    const existingAuthData = getEnvAuth();
+    if (existingAuthData && existingAuthData.domain !== authData.domain) {
+      // Registering again should be available only for the already installed domain
+      throw new Error("Vercel APL was not able to save auth data, application already registered");
+    }
     await this.saveDataToVercel(authData);
   }
 
