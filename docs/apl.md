@@ -148,9 +148,7 @@ Please note: this APL supports single tenant only (new registrations overwrite p
 
 ### VercelAPL
 
-Single tenant APL dedicated for apps deployed on Vercel. Apps deployed from Marketplace and CLI automatically set up Vercel project for this APL (`SALEOR_REGISTER_APP_URL` and `SALEOR_DEPLOYMENT_TOKEN` variables).
-
-The auth data are stored using environment variables:
+Single tenant APL dedicated for apps deployed on Vercel. To use this APL you'll need to deploy application from the Marketplace or use the [Saleor CLI](https://docs.saleor.io/docs/3.x/cli). This way the required `SALEOR_REGISTER_APP_URL` and `SALEOR_DEPLOYMENT_TOKEN` variables will be set up automatically during the first deployment. During the registration process Saleor's service will set up auth data in the environment variables and trigger the deployment:
 
 ```mermaid
 sequenceDiagram
@@ -165,6 +163,8 @@ sequenceDiagram
     SSI->>V: Set auth data as environment variables
     V->>A: Redeploy the application
 ```
+
+If auth data are already saved in the environment, registration will proceed only if the domain of new request is the same as the previous one. This check is made to allow reinstalling the application possible and prevent unintended 3rd party to overwrite existing data. If you want to change the domain of registered Saleor domain, remove `SALEOR_DOMAIN` and `SALEOR_AUTH_TOKEN` environment variables from your Vercel project and redeploy it to refresh it's context.
 
 ### UpstashAPL
 
