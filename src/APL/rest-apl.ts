@@ -1,6 +1,6 @@
-import { hasProp } from "../has-prop";
 import { APL, AplConfiguredResult, AplReadyResult, AuthData } from "./apl";
 import { createAPLDebug } from "./apl-debug";
+import { authDataFromObject } from "./auth-data-from-object";
 
 const debug = createAPLDebug("RestAPL");
 
@@ -30,14 +30,14 @@ export class RestAPL implements APL {
     this.headers = config.headers;
   }
 
-  private getUrlForDomain(domain: string) {
-    return `${this.resourceUrl}/${domain}`;
+  private getUrlForDomain(apiUrl: string) {
+    return `${this.resourceUrl}/${btoa(apiUrl)}`;
   }
 
-  async get(domain: string): Promise<AuthData | undefined> {
-    debug("Will fetch data from RestAPL for domain %s", domain);
+  async get(apiUrl: string): Promise<AuthData | undefined> {
+    debug("Will fetch data from RestAPL for apiUrl %s", apiUrl);
 
-    const response = await fetch(this.getUrlForDomain(domain), {
+    const response = await fetch(this.getUrlForDomain(apiUrl), {
       method: "GET",
       headers: { "Content-Type": "application/json", ...this.headers },
     }).catch((error) => {
@@ -51,13 +51,13 @@ export class RestAPL implements APL {
       debug("Failed to parse response: %s", e?.message ?? "Unknown error");
     })) as unknown;
 
-    if (hasProp(parsedResponse, "domain") && hasProp(parsedResponse, "token")) {
-      return { domain: parsedResponse.domain as string, token: parsedResponse.token as string };
+    const authData = authDataFromObject(parsedResponse);
+    if (!authData) {
+      debug("No auth data for given apiUrl");
+      return undefined;
     }
 
-    debug("Response had no domain and token.");
-
-    return undefined;
+    return authData;
   }
 
   async set(authData: AuthData) {
@@ -66,7 +66,13 @@ export class RestAPL implements APL {
     const response = await fetch(this.resourceUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json", ...this.headers },
-      body: JSON.stringify(authData),
+      body: JSON.stringify({
+        saleor_app_id: authData.appId,
+        api_url: authData.apiUrl,
+        jwks: authData.jwks,
+        domain: authData.domain,
+        token: authData.token,
+      }),
     }).catch((e) => {
       debug("Failed to reach API call:  %s", e?.message ?? "Unknown error");
 
@@ -132,6 +138,7 @@ export class RestAPL implements APL {
 
   async isConfigured(): Promise<AplConfiguredResult> {
     if (!this.resourceUrl) {
+      debug("Resource URL has not been specified.");
       return {
         configured: false,
         error: new Error("RestAPL required resourceUrl param"),

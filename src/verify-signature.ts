@@ -62,3 +62,32 @@ export const verifySignatureFromApiUrl = async (
     throw new Error("JWKS verification failed");
   }
 };
+
+export const verifySignatureWithJwks = async (jwks: string, signature: string, rawBody: string) => {
+  const [header, , jwsSignature] = signature.split(".");
+  const jws: jose.FlattenedJWSInput = {
+    protected: header,
+    payload: rawBody,
+    signature: jwsSignature,
+  };
+
+  let localJwks: jose.FlattenedVerifyGetKey;
+
+  try {
+    const parsedJWKS = JSON.parse(jwks);
+    localJwks = jose.createLocalJWKSet(parsedJWKS) as jose.FlattenedVerifyGetKey;
+  } catch {
+    debug("Could not create local JWKSSet from given data: %s", jwks);
+    throw new Error("JWKS verification failed - could not parse given JWKS");
+  }
+
+  debug("Created remote JWKS");
+
+  try {
+    await jose.flattenedVerify(jws, localJwks);
+    debug("JWKS verified");
+  } catch {
+    debug("JWKS verification failed");
+    throw new Error("JWKS verification failed");
+  }
+};

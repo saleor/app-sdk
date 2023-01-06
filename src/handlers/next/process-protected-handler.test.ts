@@ -26,11 +26,14 @@ describe("processSaleorProtectedHandler", () => {
   let mockRequest: NextApiRequest;
 
   const mockAPL: APL = {
-    get: async (domain: string) =>
-      domain === "example.com"
+    get: async (apiUrl: string) =>
+      apiUrl === "https://example.com/graphql/"
         ? {
             domain: "example.com",
             token: "mock-token",
+            apiUrl: "https://example.com/graphql/",
+            appId: "42",
+            jwks: "{}",
           }
         : undefined,
     set: vi.fn(),
@@ -47,6 +50,7 @@ describe("processSaleorProtectedHandler", () => {
         host: "some-saleor-host.cloud",
         "x-forwarded-proto": "https",
         "saleor-domain": "example.com",
+        "saleor-api-url": "https://example.com/graphql/",
         "saleor-event": "product_updated",
         "saleor-signature": "mocked_signature",
         "authorization-bearer": validToken,
@@ -68,27 +72,22 @@ describe("processSaleorProtectedHandler", () => {
       authData: {
         domain: "example.com",
         token: "mock-token",
+        apiUrl: "https://example.com/graphql/",
+        appId: "42",
+        jwks: "{}",
       },
       baseUrl: "https://some-saleor-host.cloud",
     });
   });
 
-  it("Throw error when app ID can't be fetched", async () => {
-    vi.mocked(getAppId).mockResolvedValue("");
-
-    await expect(processSaleorProtectedHandler({ apl: mockAPL, req: mockRequest })).rejects.toThrow(
-      "Could not get the app ID from the domain example.com"
-    );
-  });
-
-  it("Throw error when domain header is missing", async () => {
+  it("Throw error when api url header is missing", async () => {
     vi.mocked(getAppId).mockResolvedValue(validAppId);
     vi.mocked(verifyJWT).mockResolvedValue();
 
-    delete mockRequest.headers["saleor-domain"];
+    delete mockRequest.headers["saleor-api-url"];
 
     await expect(processSaleorProtectedHandler({ apl: mockAPL, req: mockRequest })).rejects.toThrow(
-      "Missing saleor-domain header"
+      "Missing saleor-api-url header"
     );
   });
 
@@ -107,10 +106,10 @@ describe("processSaleorProtectedHandler", () => {
     vi.mocked(getAppId).mockResolvedValue(validAppId);
     vi.mocked(verifyJWT).mockResolvedValue();
 
-    mockRequest.headers["saleor-domain"] = "wrong.example.com";
+    mockRequest.headers["saleor-api-url"] = "https://wrong.example.com/graphql/";
 
     await expect(processSaleorProtectedHandler({ apl: mockAPL, req: mockRequest })).rejects.toThrow(
-      "Can't find auth data for domain wrong.example.com. Please register the application"
+      "Can't find auth data for saleorApiUrl https://wrong.example.com/graphql/. Please register the application"
     );
   });
 

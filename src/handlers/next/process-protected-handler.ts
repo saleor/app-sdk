@@ -3,7 +3,6 @@ import { NextApiRequest } from "next";
 import { APL } from "../../APL";
 import { AuthData } from "../../APL/apl";
 import { createDebug } from "../../debug";
-import { getAppId } from "../../get-app-id";
 import { getBaseUrl, getSaleorHeaders } from "../../headers";
 import { verifyJWT } from "../../verify-jwt";
 
@@ -13,6 +12,7 @@ export type SaleorProtectedHandlerError =
   | "OTHER"
   | "MISSING_HOST_HEADER"
   | "MISSING_DOMAIN_HEADER"
+  | "MISSING_API_URL_HEADER"
   | "MISSING_AUTHORIZATION_BEARER_HEADER"
   | "NOT_REGISTERED"
   | "JWT_VERIFICATION_FAILED"
@@ -53,7 +53,7 @@ export const processSaleorProtectedHandler: ProcessAsyncSaleorProtectedHandler =
   apl,
 }: ProcessSaleorProtectedHandlerArgs): Promise<ProtectedHandlerContext> => {
   debug("Request processing started");
-  const { domain, authorizationBearer: token } = getSaleorHeaders(req.headers);
+  const { saleorApiUrl, authorizationBearer: token } = getSaleorHeaders(req.headers);
 
   const baseUrl = getBaseUrl(req.headers);
   if (!baseUrl) {
@@ -61,9 +61,9 @@ export const processSaleorProtectedHandler: ProcessAsyncSaleorProtectedHandler =
     throw new ProtectedHandlerError("Missing host header", "MISSING_HOST_HEADER");
   }
 
-  if (!domain) {
-    debug("Missing saleor-domain header");
-    throw new ProtectedHandlerError("Missing saleor-domain header", "MISSING_DOMAIN_HEADER");
+  if (!saleorApiUrl) {
+    debug("Missing saleor-api-url header");
+    throw new ProtectedHandlerError("Missing saleor-api-url header", "MISSING_API_URL_HEADER");
   }
 
   if (!token) {
@@ -75,26 +75,17 @@ export const processSaleorProtectedHandler: ProcessAsyncSaleorProtectedHandler =
   }
 
   // Check if domain has been registered in the APL
-  const authData = await apl.get(domain);
+  const authData = await apl.get(saleorApiUrl);
   if (!authData) {
-    debug("APL didn't found auth data for domain %s", domain);
+    debug("APL didn't found auth data for domain %s", saleorApiUrl);
     throw new ProtectedHandlerError(
-      `Can't find auth data for domain ${domain}. Please register the application`,
+      `Can't find auth data for saleorApiUrl ${saleorApiUrl}. Please register the application`,
       "NOT_REGISTERED"
     );
   }
 
-  const appId = await getAppId(authData);
-  if (!appId) {
-    debug("Could not get the app ID.");
-    throw new ProtectedHandlerError(
-      `Could not get the app ID from the domain ${domain}`,
-      "NO_APP_ID"
-    );
-  }
-
   try {
-    await verifyJWT({ appId, token, domain });
+    await verifyJWT({ appId: authData.appId, token, apiUrl: saleorApiUrl });
   } catch (e) {
     throw new ProtectedHandlerError("JWT verification failed: ", "JWT_VERIFICATION_FAILED");
   }

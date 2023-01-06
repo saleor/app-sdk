@@ -1,4 +1,3 @@
-import { AuthData } from "./APL";
 import { createDebug } from "./debug";
 
 const debug = createDebug("getAppId");
@@ -11,13 +10,21 @@ type GetIdResponseType = {
   };
 };
 
-export const getAppId = async (authData: AuthData): Promise<string | undefined> => {
+export interface GetAppIdProperties {
+  apiUrl: string;
+  token: string;
+}
+
+export const getAppId = async ({
+  apiUrl,
+  token,
+}: GetAppIdProperties): Promise<string | undefined> => {
   try {
-    const response = await fetch(`https://${authData.domain}/graphql/`, {
+    const response = await fetch(apiUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${authData.token}`,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         query: `

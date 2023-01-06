@@ -1,7 +1,7 @@
 import * as jose from "jose";
 
 import { createDebug } from "./debug";
-import { getJwksUrl } from "./urls";
+import { getJwksUrlFromSaleorApiUrl } from "./urls";
 
 const debug = createDebug("verify-jwt");
 
@@ -11,11 +11,11 @@ export interface DashboardTokenPayload extends jose.JWTPayload {
 
 export interface verifyJWTArguments {
   appId: string;
-  domain: string;
+  apiUrl: string;
   token: string;
 }
 
-export const verifyJWT = async ({ domain, token, appId }: verifyJWTArguments) => {
+export const verifyJWT = async ({ apiUrl, token, appId }: verifyJWTArguments) => {
   let tokenClaims: DashboardTokenPayload;
   const ERROR_MESSAGE = "JWT verification failed:";
 
@@ -38,7 +38,7 @@ export const verifyJWT = async ({ domain, token, appId }: verifyJWTArguments) =>
   try {
     debug("Trying to create JWKS");
 
-    const JWKS = jose.createRemoteJWKSet(new URL(getJwksUrl(domain)));
+    const JWKS = jose.createRemoteJWKSet(new URL(getJwksUrlFromSaleorApiUrl(apiUrl)));
     debug("Trying to compare JWKS with token");
     await jose.jwtVerify(token, JWKS);
   } catch (e) {

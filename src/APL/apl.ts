@@ -1,6 +1,9 @@
 export interface AuthData {
   domain: string;
   token: string;
+  apiUrl: string;
+  appId: string;
+  jwks: string;
 }
 
 export type AplReadyResult =
@@ -22,9 +25,9 @@ export type AplConfiguredResult =
     };
 
 export interface APL {
-  get: (domain: string) => Promise<AuthData | undefined>;
+  get: (apiUrl: string) => Promise<AuthData | undefined>;
   set: (authData: AuthData) => Promise<void>;
-  delete: (domain: string) => Promise<void>;
+  delete: (apiUrl: string) => Promise<void>;
   getAll: () => Promise<AuthData[]>;
   /**
    * Inform that configuration is finished and correct
