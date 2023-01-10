@@ -17,6 +17,14 @@ const validateResponseStatus = (response: Response) => {
   }
 };
 
+const mapAuthDataToAPIBody = (authData: AuthData) => ({
+  saleor_app_id: authData.appId,
+  api_url: authData.apiUrl,
+  jwks: authData.jwks,
+  domain: authData.domain,
+  token: authData.token,
+});
+
 /**
  * TODO Add test
  */
@@ -69,13 +77,7 @@ export class SaleorCloudAPL implements APL {
     const response = await fetch(this.resourceUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json", ...this.headers },
-      body: JSON.stringify({
-        saleor_app_id: authData.appId,
-        api_url: authData.apiUrl,
-        jwks: authData.jwks,
-        domain: authData.domain,
-        token: authData.token,
-      }),
+      body: JSON.stringify(mapAuthDataToAPIBody(authData)),
     }).catch((e) => {
       debug("Failed to reach API call:  %s", e?.message ?? "Unknown error");
 
