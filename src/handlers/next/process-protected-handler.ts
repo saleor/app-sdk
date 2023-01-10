@@ -74,10 +74,10 @@ export const processSaleorProtectedHandler: ProcessAsyncSaleorProtectedHandler =
     );
   }
 
-  // Check if domain has been registered in the APL
+  // Check if API URL has been registered in the APL
   const authData = await apl.get(saleorApiUrl);
   if (!authData) {
-    debug("APL didn't found auth data for domain %s", saleorApiUrl);
+    debug("APL didn't found auth data for API URL %s", saleorApiUrl);
     throw new ProtectedHandlerError(
       `Can't find auth data for saleorApiUrl ${saleorApiUrl}. Please register the application`,
       "NOT_REGISTERED"

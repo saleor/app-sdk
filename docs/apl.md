@@ -4,17 +4,37 @@ APL is an interface for managing auth data of registered Apps. Implementing it d
 
 ## Available methods
 
-- `get: (domain: string) => Promise<AuthData | undefined>` - If the entry for given domain exists, returns AuthData (`{ domain: string, token: string }`) object.
+- `get: (apiUrl: string) => Promise<AuthData | undefined>` - If the entry for given apiUrl exists, returns AuthData object.
 
 - `set: (authData: AuthData) => Promise<void>` - Save auth data.
 
-- `delete: (domain: string) => Promise<void>` - Remove auth data fot the given domain.
+- `delete: (apiUrl: string) => Promise<void>` - Remove auth data fot the given API URL.
 
 - `getAll: () => Promise<AuthData[]>` - Returns all auth data available.
 
 - `isReady: () => Promise<AplReadyResult>` - Check if persistence layer behind APL is ready. For example: database connection established
 
 - `isConfigured: () => Promise<AplConfiguredResult>` - Check if persistence layer behind APL is configured. For example: env variable required by database connection
+
+## AuthData
+
+Interface containing data used for communication with the Saleor API:
+
+```ts
+export interface AuthData {
+  domain: string;
+  token: string;
+  apiUrl: string;
+  appId: string;
+  jwks: string;
+}
+```
+
+- `domain` - Domain of the API
+- `token` - Authorization token
+- `apiUrl` - Full URL to the Saleor GraphQL API
+- `appID` - ID of the app assigned during the installation process
+- `jwks` - JSON Web Key Set available at `https://<your-saleor-domain>/.well-known/jwks.json`, cached in the APL for the faster webhook validation
 
 ## AplReadyResult & ApConfiguredResult
 
@@ -52,18 +72,18 @@ const client = createClient();
 await client.connect();
 
 const redisAPL: APL = {
-  get: async (domain: string) => {
-    const token = await client.get(domain);
-    if (token) {
-      return { token, domain };
+  get: async (apiUrl: string) => {
+    const response = await client.get(apiUrl);
+    if (response) {
+      return JSON.parse(response);
     }
     return;
   },
   set: async (authData: AuthData) => {
-    await client.set(authData.domain, authData.token);
+    await client.set(authData.apiUrl, JSON.stringify(authData));
   },
-  delete: async (domain: string) => {
-    await client.del(domain);
+  delete: async (apiUrl: string) => {
+    await client.del(apiUrl);
   },
   getAll: async () => {
     throw new Exception("Not implemented.");
@@ -76,8 +96,8 @@ You'll be able to use it directly:
 ```ts
 import { redisAPL } from "./apl";
 
-const createTestData = async () => {
-  await redisAPL.set({ domain: "example.com ", token: "test-token" });
+const getSavedAuthData = async () => {
+  await redisAPL.get("https://demo.saleor.io/graphql/");
 };
 ```
 
@@ -115,7 +135,7 @@ export const apl = process.env.VERCEL === "1" ? new VercelAPL() : new FileAPL();
 Now you can use it for in your view:
 
 ```ts
-import { SALEOR_DOMAIN_HEADER } from "@saleor/app-sdk/const";
+import { SALEOR_API_URL_HEADER } from "@saleor/app-sdk/const";
 import { withRegisteredSaleorDomainHeader } from "@saleor/app-sdk/middleware";
 import type { Handler } from "retes";
 import { toNextHandler } from "retes/adapter";
@@ -125,10 +145,10 @@ import { Response } from "retes/response";
 import { apl } from "@lib/saleorApp";
 
 const handler: Handler = async (request) => {
-  const saleorDomain = request.headers[SALEOR_DOMAIN_HEADER];
+  const saleorApiUrl = request.headers[SALEOR_API_URL_HEADER];
 
   // Get auth data
-  const authData = apl.get(saleorDomain);
+  const authData = apl.get(saleorApiUrl);
 
   // view logic...
 
