@@ -26,12 +26,18 @@ const mapAuthDataToAPIBody = (authData: AuthData) => ({
 });
 
 /**
- * TODO Add test
+ *
+ * Saleor Cloud APL - handle auth data management via REST API.
+ *
+ * Required configuration options:
+ * - `resourceUrl` URL to the REST API
+ * - `token` Authorization token assigned to your deployment
+ *
  */
 export class SaleorCloudAPL implements APL {
   private readonly resourceUrl: string;
 
-  private headers?: Record<string, string>;
+  private headers: Record<string, string>;
 
   constructor(config: SaleorCloudAPLConfig) {
     this.resourceUrl = config.resourceUrl;
