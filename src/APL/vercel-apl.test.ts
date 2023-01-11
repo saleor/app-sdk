@@ -83,25 +83,26 @@ describe("APL", () => {
       });
 
       it("Successful save of the auth data during reinstallation for the same domain", async () => {
-        process.env[VercelAPLVariables.TOKEN_VARIABLE_NAME] = "old_token";
-        process.env[VercelAPLVariables.DOMAIN_VARIABLE_NAME] = "example.com";
+        process.env[VercelAPLVariables.AUTH_DATA_VARIABLE_NAME] = JSON.stringify(stubAuthData);
 
         // @ts-ignore Ignore type of mocked response
-        mockFetch.mockResolvedValue({ status: 200 });
+        fetchMock.mockResolvedValue({ status: 200 });
         const apl = new VercelAPL({
           registerAppURL: "https://registerService.example.com",
           deploymentToken: "token",
         });
-        await apl.set({ domain: "example.com", token: "token" });
-        expect(mockFetch).toBeCalledWith(
+        await apl.set({ ...stubAuthData, token: "new_token" });
+        expect(fetchMock).toBeCalledWith(
           "https://registerService.example.com",
 
           {
             body: JSON.stringify({
               token: "token",
               envs: [
-                { key: "SALEOR_AUTH_TOKEN", value: "token" },
-                { key: "SALEOR_DOMAIN", value: "example.com" },
+                {
+                  key: VercelAPLVariables.AUTH_DATA_VARIABLE_NAME,
+                  value: JSON.stringify({ ...stubAuthData, token: "new_token" }),
+                },
               ],
             }),
             headers: {
@@ -113,16 +114,17 @@ describe("APL", () => {
       });
 
       it("Reject save of the auth data during reinstallation for a different domain", async () => {
-        process.env[VercelAPLVariables.TOKEN_VARIABLE_NAME] = "old_token";
-        process.env[VercelAPLVariables.DOMAIN_VARIABLE_NAME] = "not.example.com";
+        process.env[VercelAPLVariables.AUTH_DATA_VARIABLE_NAME] = JSON.stringify(stubAuthData);
 
         // @ts-ignore Ignore type of mocked response
-        mockFetch.mockResolvedValue({ status: 200 });
+        fetchMock.mockResolvedValue({ status: 200 });
         const apl = new VercelAPL({
           registerAppURL: "https://registerService.example.com",
           deploymentToken: "token",
         });
-        await expect(apl.set({ domain: "example.com", token: "token" })).rejects.toThrow(
+        await expect(
+          apl.set({ ...stubAuthData, domain: "different.domain.example.com" })
+        ).rejects.toThrow(
           "Vercel APL was not able to save auth data, application already registered"
         );
       });
