@@ -1,43 +1,60 @@
-import { hasProp } from "../has-prop";
 import { APL, AplConfiguredResult, AplReadyResult, AuthData } from "./apl";
 import { createAPLDebug } from "./apl-debug";
+import { authDataFromObject } from "./auth-data-from-object";
 
-const debug = createAPLDebug("RestAPL");
+const debug = createAPLDebug("SaleorCloudAPL");
 
-export type RestAPLConfig = {
+export type SaleorCloudAPLConfig = {
   resourceUrl: string;
-  headers?: Record<string, string>;
+  token: string;
 };
 
 const validateResponseStatus = (response: Response) => {
-  if (response.status < 200 || response.status >= 400) {
+  if (!response.ok) {
     debug("Response failed with status %s", response.status);
 
     throw new Error(`Fetch returned with non 200 status code ${response.status}`);
   }
 };
 
+const mapAuthDataToAPIBody = (authData: AuthData) => ({
+  saleor_app_id: authData.appId,
+  api_url: authData.apiUrl,
+  jwks: authData.jwks,
+  domain: authData.domain,
+  token: authData.token,
+});
+
 /**
- * TODO Add test
+ *
+ * Saleor Cloud APL - handle auth data management via REST API.
+ *
+ * Required configuration options:
+ * - `resourceUrl` URL to the REST API
+ * - `token` Authorization token assigned to your deployment
+ *
  */
-export class RestAPL implements APL {
+export class SaleorCloudAPL implements APL {
   private readonly resourceUrl: string;
 
-  private headers?: Record<string, string>;
+  private headers: Record<string, string>;
 
-  constructor(config: RestAPLConfig) {
+  constructor(config: SaleorCloudAPLConfig) {
     this.resourceUrl = config.resourceUrl;
-    this.headers = config.headers;
+    this.headers = {
+      Authorization: `Bearer ${config.token}`,
+    };
   }
 
-  private getUrlForDomain(domain: string) {
-    return `${this.resourceUrl}/${domain}`;
+  private getUrlForDomain(apiUrl: string) {
+    // API URL has to be base64 encoded
+    return `${this.resourceUrl}/${btoa(apiUrl)}`;
   }
 
-  async get(domain: string): Promise<AuthData | undefined> {
-    debug("Will fetch data from RestAPL for domain %s", domain);
+  async get(apiUrl: string): Promise<AuthData | undefined> {
+    debug("Will fetch data from SaleorCloudAPL for apiUrl %s", apiUrl);
 
-    const response = await fetch(this.getUrlForDomain(domain), {
+    const response = await fetch(this.getUrlForDomain(apiUrl), {
       method: "GET",
       headers: { "Content-Type": "application/json", ...this.headers },
     }).catch((error) => {
@@ -51,22 +68,22 @@ export class RestAPL implements APL {
       debug("Failed to parse response: %s", e?.message ?? "Unknown error");
     })) as unknown;
 
-    if (hasProp(parsedResponse, "domain") && hasProp(parsedResponse, "token")) {
-      return { domain: parsedResponse.domain as string, token: parsedResponse.token as string };
+    const authData = authDataFromObject(parsedResponse);
+    if (!authData) {
+      debug("No auth data for given apiUrl");
+      return undefined;
     }
 
-    debug("Response had no domain and token.");
-
-    return undefined;
+    return authData;
   }
 
   async set(authData: AuthData) {
-    debug("Saving data to RestAPL for domain: %s", authData.domain);
+    debug("Saving data to SaleorCloudAPL for domain: %s", authData.domain);
 
     const response = await fetch(this.resourceUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json", ...this.headers },
-      body: JSON.stringify(authData),
+      body: JSON.stringify(mapAuthDataToAPIBody(authData)),
     }).catch((e) => {
       debug("Failed to reach API call:  %s", e?.message ?? "Unknown error");
 
@@ -80,26 +97,25 @@ export class RestAPL implements APL {
     return undefined;
   }
 
-  async delete(domain: string) {
-    debug("Deleting data from Rest for domain: %s", domain);
+  async delete(apiUrl: string) {
+    debug("Deleting data from SaleorCloud for apiUrl: %s", apiUrl);
 
     try {
-      const response = await fetch(this.getUrlForDomain(domain), {
+      const response = await fetch(this.getUrlForDomain(apiUrl), {
         method: "DELETE",
         headers: { "Content-Type": "application/json", ...this.headers },
-        body: JSON.stringify({ domain }),
       });
 
       debug(`Delete responded with ${response.status} code`);
     } catch (error) {
       debug("Error during deleting the data: %s", error);
 
-      throw new Error(`Error during saving the data: ${error}`);
+      throw new Error(`Error during deleting the data: ${error}`);
     }
   }
 
   async getAll() {
-    debug("Get all data from Rest");
+    debug("Get all data from SaleorCloud");
 
     try {
       const response = await fetch(this.resourceUrl, {
@@ -126,15 +142,16 @@ export class RestAPL implements APL {
         }
       : {
           ready: false,
-          error: new Error("App is not configured"),
+          error: new Error("SaleorCloudAPL is not configured"),
         };
   }
 
   async isConfigured(): Promise<AplConfiguredResult> {
     if (!this.resourceUrl) {
+      debug("Resource URL has not been specified.");
       return {
         configured: false,
-        error: new Error("RestAPL required resourceUrl param"),
+        error: new Error("SaleorCloudAPL required resourceUrl param"),
       };
     }
 

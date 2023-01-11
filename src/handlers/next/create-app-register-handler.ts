@@ -3,8 +3,9 @@ import { toNextHandler } from "retes/adapter";
 import { withMethod } from "retes/middleware";
 import { Response } from "retes/response";
 
-import { SALEOR_DOMAIN_HEADER } from "../../const";
+import { SALEOR_API_URL_HEADER, SALEOR_DOMAIN_HEADER } from "../../const";
 import { createDebug } from "../../debug";
+import { fetchRemoteJwks } from "../../fetch-remote-jwks";
 import { getAppId } from "../../get-app-id";
 import { withAuthTokenRequired, withSaleorDomainPresent } from "../../middleware";
 import { HasAPL } from "../../saleor-app";
@@ -23,6 +24,7 @@ export const createAppRegisterHandler = ({ apl }: CreateAppRegisterHandlerOption
     debug("Request received");
     const authToken = request.params.auth_token;
     const saleorDomain = request.headers[SALEOR_DOMAIN_HEADER] as string;
+    const saleorApiUrl = request.headers[SALEOR_API_URL_HEADER] as string;
 
     const { configured: aplConfigured } = await apl.isConfigured();
 
@@ -43,7 +45,7 @@ export const createAppRegisterHandler = ({ apl }: CreateAppRegisterHandlerOption
     }
 
     // Try to get App ID from the API, to confirm that communication can be established
-    const appId = await getAppId({ domain: saleorDomain, token: authToken });
+    const appId = await getAppId({ apiUrl: saleorApiUrl, token: authToken });
     if (!appId) {
       return new Response(
         {
@@ -60,8 +62,25 @@ export const createAppRegisterHandler = ({ apl }: CreateAppRegisterHandlerOption
       );
     }
 
+    // Fetch the JWKS which will be used during webhook validation
+    const jwks = await fetchRemoteJwks(saleorApiUrl);
+    if (!jwks) {
+      return new Response(
+        {
+          success: false,
+          error: {
+            code: "JWKS_NOT_AVAILABLE",
+            message: "Can't fetch the remote JWKS.",
+          },
+        },
+        {
+          status: 401,
+        }
+      );
+    }
+
     try {
-      await apl.set({ domain: saleorDomain, token: authToken });
+      await apl.set({ domain: saleorDomain, token: authToken, apiUrl: saleorApiUrl, appId, jwks });
     } catch {
       debug("There was an error during saving the auth data");
       return Response.InternalServerError({

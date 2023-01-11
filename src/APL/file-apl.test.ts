@@ -1,11 +1,15 @@
 import { promises as fsPromises } from "fs";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { AuthData } from "./apl";
 import { FileAPL } from "./file-apl";
 
-const stubAuthData = {
+const stubAuthData: AuthData = {
   domain: "example.com",
   token: "example-token",
+  apiUrl: "https://example.com/graphql/",
+  appId: "42",
+  jwks: "{}",
 };
 
 describe("APL", () => {
@@ -19,18 +23,18 @@ describe("APL", () => {
         vi.spyOn(fsPromises, "readFile").mockResolvedValue("Not a valid JSON");
 
         const apl = new FileAPL();
-        await expect(apl.get(stubAuthData.domain)).resolves.toBe(undefined);
+        await expect(apl.get(stubAuthData.apiUrl)).resolves.toBe(undefined);
       });
 
-      it("Returns auth data for existing domain", async () => {
+      it("Returns auth data for existing api url", async () => {
         vi.spyOn(fsPromises, "readFile").mockResolvedValue(JSON.stringify(stubAuthData));
 
         const apl = new FileAPL();
 
-        expect(await apl.get(stubAuthData.domain)).toStrictEqual(stubAuthData);
+        expect(await apl.get(stubAuthData.apiUrl)).toStrictEqual(stubAuthData);
       });
 
-      it("Returns undefined for unknown domain", async () => {
+      it("Returns undefined for unknown api url", async () => {
         vi.spyOn(fsPromises, "readFile").mockResolvedValue(JSON.stringify(stubAuthData));
 
         const apl = new FileAPL();
@@ -71,7 +75,7 @@ describe("APL", () => {
 
         const apl = new FileAPL();
 
-        await apl.delete(stubAuthData.domain);
+        await apl.delete(stubAuthData.apiUrl);
 
         expect(spyWriteFile).toBeCalledWith(".saleor-app-auth.json", "{}");
       });

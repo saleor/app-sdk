@@ -1,15 +1,12 @@
 /* eslint-disable class-methods-use-this */
 // eslint-disable-next-line max-classes-per-file
-import fetch, { Response } from "node-fetch";
-
 import { APL, AplConfiguredResult, AplReadyResult, AuthData } from "./apl";
 import { createAPLDebug } from "./apl-debug";
 
 const debug = createAPLDebug("VercelAPL");
 
 export const VercelAPLVariables = {
-  TOKEN_VARIABLE_NAME: "SALEOR_AUTH_TOKEN",
-  DOMAIN_VARIABLE_NAME: "SALEOR_DOMAIN",
+  AUTH_DATA_VARIABLE_NAME: "SALEOR_AUTH_DATA",
   SALEOR_REGISTER_APP_URL: "SALEOR_REGISTER_APP_URL",
   SALEOR_DEPLOYMENT_TOKEN: "SALEOR_DEPLOYMENT_TOKEN",
 };
@@ -27,15 +24,11 @@ export class VercelAplNotReadyError extends Error {
 export class VercelAplNotConfiguredError extends Error {}
 
 const getEnvAuth = (): AuthData | undefined => {
-  const token = process.env[VercelAPLVariables.TOKEN_VARIABLE_NAME];
-  const domain = process.env[VercelAPLVariables.DOMAIN_VARIABLE_NAME];
-  if (!token || !domain) {
+  const authDataSerialized = process.env[VercelAPLVariables.AUTH_DATA_VARIABLE_NAME];
+  if (!authDataSerialized) {
     return undefined;
   }
-  return {
-    token,
-    domain,
-  };
+  return JSON.parse(authDataSerialized) as AuthData;
 };
 
 export type VercelAPLConfig = {
@@ -95,8 +88,10 @@ export class VercelAPL implements APL {
         body: JSON.stringify({
           token: this.deploymentToken,
           envs: [
-            { key: VercelAPLVariables.TOKEN_VARIABLE_NAME, value: authData?.token || "" },
-            { key: VercelAPLVariables.DOMAIN_VARIABLE_NAME, value: authData?.domain || "" },
+            {
+              key: VercelAPLVariables.AUTH_DATA_VARIABLE_NAME,
+              value: authData ? JSON.stringify(authData) : "",
+            },
           ],
         }),
       });
@@ -113,10 +108,10 @@ export class VercelAPL implements APL {
     debug("Register service responded successfully");
   }
 
-  async get(domain: string) {
+  async get(apiUrl: string) {
     const authData = getEnvAuth();
 
-    if (authData && domain === authData?.domain) {
+    if (authData && apiUrl === authData.apiUrl) {
       return authData;
     }
     return undefined;
@@ -131,8 +126,8 @@ export class VercelAPL implements APL {
     await this.saveDataToVercel(authData);
   }
 
-  async delete(domain: string) {
-    if (domain === getEnvAuth()?.domain) {
+  async delete(apiUrl: string) {
+    if (apiUrl === getEnvAuth()?.apiUrl) {
       // Override existing data with the empty values
       await this.saveDataToVercel();
     }

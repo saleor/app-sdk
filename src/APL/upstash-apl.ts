@@ -1,7 +1,5 @@
 /* eslint-disable class-methods-use-this */
 // eslint-disable-next-line max-classes-per-file
-import fetch, { Response } from "node-fetch";
-
 import { APL, AplConfiguredResult, AplReadyResult, AuthData } from "./apl";
 import { createAPLDebug } from "./apl-debug";
 
@@ -87,37 +85,39 @@ export class UpstashAPL implements APL {
     return parsedResponse.result;
   }
 
-  private async saveDataToUpstash(authData?: AuthData) {
+  private async saveDataToUpstash(authData: AuthData) {
     debug("saveDataToUpstash() called with: %j", {
-      domain: authData?.domain,
-      token: authData?.token.substring(0, 4),
+      apiUrl: authData.apiUrl,
+      token: authData.token.substring(0, 4),
     });
 
-    await this.upstashRequest(`["SET", "${authData?.domain}", "${authData?.token}"]`);
+    const data = JSON.stringify(authData);
+    await this.upstashRequest(`["SET", "${authData.apiUrl}", "${data}"]`);
   }
 
-  private async deleteDataFromUpstash(domain: string) {
-    await this.upstashRequest(`["DEL", "${domain}"]`);
+  private async deleteDataFromUpstash(apiUrl: string) {
+    await this.upstashRequest(`["DEL", "${apiUrl}"]`);
   }
 
-  private async fetchDataFromUpstash(domain: string) {
-    const result = await this.upstashRequest(`["GET", "${domain}"]`);
+  private async fetchDataFromUpstash(apiUrl: string) {
+    const result = await this.upstashRequest(`["GET", "${apiUrl}"]`);
     if (result) {
-      return { domain, token: result };
+      const authData = JSON.parse(result);
+      return authData;
     }
     return undefined;
   }
 
-  async get(domain: string) {
-    return this.fetchDataFromUpstash(domain);
+  async get(apiUrl: string) {
+    return this.fetchDataFromUpstash(apiUrl);
   }
 
   async set(authData: AuthData) {
     await this.saveDataToUpstash(authData);
   }
 
-  async delete(domain: string) {
-    await this.deleteDataFromUpstash(domain);
+  async delete(apiUrl: string) {
+    await this.deleteDataFromUpstash(apiUrl);
   }
 
   async getAll() {

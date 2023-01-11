@@ -15,10 +15,10 @@ export type ProtectedHandlerContext = {
 
 `createProtectedHandler` will check if:
 
-- the request has `saleor-domain` header
-- the domain has been registered, with help of the APL
+- the request has `saleor-api-url` header of the Saleor instance
+- the API URL has been registered, with help of the APL
 - the request has `authorization-bearer`
-- the auth token is a valid JWT token created by the Saleor running on the given domain
+- the auth token is a valid JWT token created by the Saleor running on the given URL
 
 For example purposes our endpoint will only log welcome message:
 
@@ -43,17 +43,17 @@ export const handler = async (
 export default createProtectedHandler(handler, saleorApp.apl);
 ```
 
-To make your requests successfully communicate with the backend, `saleor-domain` and `authorization-bearer` headers are required:
+To make your requests successfully communicate with the backend, `saleor-api-url` and `authorization-bearer` headers are required:
 
 ```typescript
 fetch("/api/protected", {
   headers: {
     /**
-     * Both domain and token are available in the appBridgeState. Based on those
+     * Both API URL and token are available in the appBridgeState. Based on those
      * headers the backend will check if the request has enough permissions to
      * perform the action.
      */
-    "saleor-domain": domain,
+    "saleor-api-url": apiUrl,
     "authorization-bearer": token,
   },
 });

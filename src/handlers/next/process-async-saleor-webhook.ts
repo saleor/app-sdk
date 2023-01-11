@@ -4,8 +4,9 @@ import getRawBody from "raw-body";
 import { APL } from "../../APL";
 import { AuthData } from "../../APL/apl";
 import { createDebug } from "../../debug";
+import { fetchRemoteJwks } from "../../fetch-remote-jwks";
 import { getBaseUrl, getSaleorHeaders } from "../../headers";
-import { verifySignature, verifySignatureFromApiUrl } from "../../verify-signature";
+import { verifySignatureWithJwks } from "../../verify-signature";
 
 const debug = createDebug("processAsyncWebhook");
 
@@ -13,6 +14,7 @@ export type SaleorWebhookError =
   | "OTHER"
   | "MISSING_HOST_HEADER"
   | "MISSING_DOMAIN_HEADER"
+  | "MISSING_API_URL_HEADER"
   | "MISSING_EVENT_HEADER"
   | "MISSING_PAYLOAD_HEADER"
   | "MISSING_SIGNATURE_HEADER"
@@ -74,7 +76,7 @@ export const processAsyncSaleorWebhook: ProcessAsyncSaleorWebhook = async <T>({
     debug("Wrong HTTP method");
     throw new WebhookError("Wrong request method, only POST allowed", "WRONG_METHOD");
   }
-  const { event, domain, signature, saleorApiUrl } = getSaleorHeaders(req.headers);
+  const { event, signature, saleorApiUrl } = getSaleorHeaders(req.headers);
   const baseUrl = getBaseUrl(req.headers);
 
   if (!baseUrl) {
@@ -82,9 +84,9 @@ export const processAsyncSaleorWebhook: ProcessAsyncSaleorWebhook = async <T>({
     throw new WebhookError("Missing host header", "MISSING_HOST_HEADER");
   }
 
-  if (!domain) {
-    debug("Missing saleor-domain header");
-    throw new WebhookError("Missing saleor-domain header", "MISSING_DOMAIN_HEADER");
+  if (!saleorApiUrl) {
+    debug("Missing saleor-api-url header");
+    throw new WebhookError("Missing saleor-api-url header", "MISSING_API_URL_HEADER");
   }
 
   if (!event) {
@@ -126,30 +128,31 @@ export const processAsyncSaleorWebhook: ProcessAsyncSaleorWebhook = async <T>({
   }
 
   // Check if domain is installed in the app
-  const authData = await apl.get(domain);
+  const authData = await apl.get(saleorApiUrl);
 
   if (!authData) {
-    debug("APL didn't found auth data for domain %s", domain);
+    debug("APL didn't found auth data for %s", saleorApiUrl);
     throw new WebhookError(
-      `Can't find auth data for domain ${domain}. Please register the application`,
+      `Can't find auth data for ${saleorApiUrl}. Please register the application`,
       "NOT_REGISTERED"
     );
   }
 
   // Payload signature check
-  // TODO: Since it require additional request, can we cache it's response?
   try {
-    /**
-     * saleorApiUrl is a new header, is it if available. Verification by domain will be removed in future versions
-     */
-    if (saleorApiUrl) {
-      await verifySignatureFromApiUrl(saleorApiUrl, signature, rawBody);
-    } else {
-      await verifySignature(domain, signature, rawBody);
-    }
+    await verifySignatureWithJwks(authData.jwks, signature, rawBody);
   } catch {
-    debug("Request signature check failed");
-    throw new WebhookError("Request signature check failed", "SIGNATURE_VERIFICATION_FAILED");
+    debug("Request signature check failed. Refresh the JWKS cache and check again");
+    const newJwks = await fetchRemoteJwks(authData.apiUrl);
+    try {
+      debug("Second attempt to validate the signature JWKS, using fresh tokens from the API");
+      await verifySignatureWithJwks(newJwks, signature, rawBody);
+      debug("Verification successful - update JWKS in the AuthData");
+      await apl.set({ ...authData, jwks: newJwks });
+    } catch {
+      debug("Second attempt also ended with validation error. Reject the webhook");
+      throw new WebhookError("Request signature check failed", "SIGNATURE_VERIFICATION_FAILED");
+    }
   }
 
   return {

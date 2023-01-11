@@ -18,6 +18,12 @@ vi.mock("./../../verify-signature", () => ({
       throw new Error("Wrong signature");
     }
   }),
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  verifySignatureWithJwks: vi.fn((jwks, signature, body) => {
+    if (signature !== "mocked_signature") {
+      throw new Error("Wrong signature");
+    }
+  }),
 }));
 
 vi.mock("raw-body", () => ({
@@ -27,11 +33,14 @@ describe("processAsyncSaleorWebhook", () => {
   let mockRequest: NextApiRequest;
 
   const mockAPL: APL = {
-    get: async (domain: string) =>
-      domain === "example.com"
+    get: async (apiUrl: string) =>
+      apiUrl === "https://example.com/graphql/"
         ? {
             domain: "example.com",
             token: "mock-token",
+            apiUrl: "https://example.com/graphql/",
+            appId: "42",
+            jwks: "{}",
           }
         : undefined,
     set: vi.fn(),
@@ -75,12 +84,12 @@ describe("processAsyncSaleorWebhook", () => {
     ).rejects.toThrow("Wrong request method");
   });
 
-  it("Throw error on missing domain header", async () => {
-    delete mockRequest.headers["saleor-domain"];
+  it("Throw error on missing api url header", async () => {
+    delete mockRequest.headers["saleor-api-url"];
 
     await expect(
       processAsyncSaleorWebhook({ req: mockRequest, apl: mockAPL, allowedEvent: "PRODUCT_UPDATED" })
-    ).rejects.toThrow("Missing saleor-domain header");
+    ).rejects.toThrow("Missing saleor-api-url header");
   });
 
   it("Throw error on missing event header", async () => {
@@ -128,7 +137,7 @@ describe("processAsyncSaleorWebhook", () => {
   });
 
   it("Throw error on not registered app", async () => {
-    mockRequest.headers["saleor-domain"] = "not-registered.example.com";
+    mockRequest.headers["saleor-api-url"] = "https://not-registered.example.com/graphql/";
     await expect(
       processAsyncSaleorWebhook({
         req: mockRequest,
@@ -136,7 +145,7 @@ describe("processAsyncSaleorWebhook", () => {
         allowedEvent: "PRODUCT_UPDATED",
       })
     ).rejects.toThrow(
-      "Can't find auth data for domain not-registered.example.com. Please register the application"
+      "Can't find auth data for https://not-registered.example.com/graphql/. Please register the application"
     );
   });
 

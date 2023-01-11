@@ -1,14 +1,11 @@
-import fetch from "node-fetch";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { AuthData } from "./apl";
 import { UpstashAPL, UpstashAPLConfig, UpstashAPLVariables } from "./upstash-apl";
 
-vi.mock("node-fetch", () => ({
-  default: vi.fn().mockImplementation(() => ""),
-}));
+const fetchMock = vi.fn();
 
-const mockFetch = vi.mocked(fetch);
+vi.stubGlobal("fetch", fetchMock);
 
 const aplConfig: UpstashAPLConfig = {
   restToken: "token",
@@ -18,6 +15,9 @@ const aplConfig: UpstashAPLConfig = {
 const stubAuthData: AuthData = {
   domain: "example.com",
   token: "example-token",
+  apiUrl: "https://example.com/graphql/",
+  appId: "42",
+  jwks: "{}",
 };
 
 describe("APL", () => {
@@ -43,7 +43,7 @@ describe("APL", () => {
     describe("set", () => {
       it("Successful save of the auth data", async () => {
         // @ts-ignore Ignore type of mocked response
-        mockFetch.mockResolvedValue({
+        fetchMock.mockResolvedValue({
           status: 200,
           json: async () => ({ result: "ok" }),
         });
@@ -51,13 +51,13 @@ describe("APL", () => {
           restURL: "https://example.com",
           restToken: "token",
         });
-        await apl.set({ domain: "example.com", token: "token" });
-        expect(mockFetch).toBeCalledWith(
+        await apl.set(stubAuthData);
+        expect(fetchMock).toBeCalledWith(
           "https://example.com",
 
           {
             // eslint-disable-next-line quotes
-            body: '["SET", "example.com", "token"]',
+            body: `["SET", "${stubAuthData.apiUrl}", "${JSON.stringify(stubAuthData)}"]`,
             headers: {
               "Content-Type": "application/json",
               Authorization: "Bearer token",
@@ -69,36 +69,36 @@ describe("APL", () => {
 
       it("Raise error when register service returns non 200 response", async () => {
         // @ts-ignore Ignore type of mocked response
-        mockFetch.mockResolvedValue({ status: 500 });
+        fetchMock.mockResolvedValue({ status: 500 });
 
         const apl = new UpstashAPL({
           restURL: "https://example.com",
           restToken: "token",
         });
-        await expect(apl.set({ domain: "example.com", token: "token" })).rejects.toThrow(
+        await expect(apl.set(stubAuthData)).rejects.toThrow(
           "Upstash APL responded with the code 500"
         );
       });
     });
 
     describe("get", () => {
-      describe("Read existing auth data from env", () => {
+      describe("Read existing auth data from upstash", () => {
         it("Read existing auth data", async () => {
           // @ts-ignore Ignore type of mocked response
-          mockFetch.mockResolvedValue({
+          fetchMock.mockResolvedValue({
             status: 200,
             json: async () => ({
-              result: stubAuthData.token,
+              result: JSON.stringify(stubAuthData),
             }),
           });
           const apl = new UpstashAPL(aplConfig);
 
-          expect(await apl.get(stubAuthData.domain)).toStrictEqual(stubAuthData);
+          expect(await apl.get(stubAuthData.apiUrl)).toStrictEqual(stubAuthData);
         });
 
         it("Return undefined when unknown domain requested", async () => {
           // @ts-ignore Ignore type of mocked response
-          mockFetch.mockResolvedValue({
+          fetchMock.mockResolvedValue({
             status: 200,
             json: async () => ({
               result: null,

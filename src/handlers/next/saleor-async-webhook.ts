@@ -38,6 +38,7 @@ export const AsyncWebhookErrorCodeMap: Record<SaleorWebhookError, number> = {
   OTHER: 500,
   MISSING_HOST_HEADER: 400,
   MISSING_DOMAIN_HEADER: 400,
+  MISSING_API_URL_HEADER: 400,
   MISSING_EVENT_HEADER: 400,
   MISSING_PAYLOAD_HEADER: 400,
   MISSING_SIGNATURE_HEADER: 400,
@@ -96,7 +97,7 @@ export class SaleorAsyncWebhook<TPayload = unknown> {
   /**
    * Returns full URL to the webhook, based on provided baseUrl.
    *
-   * TODO: Shouldnt it be private?
+   * TODO: Shouldn't it be private?
    *
    * @param baseUrl Base URL used by your application
    */

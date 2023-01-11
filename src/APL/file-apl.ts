@@ -48,11 +48,11 @@ export class FileAPL implements APL {
       return undefined;
     }
 
-    const { token, domain } = parsedData;
+    const { token, domain, apiUrl, appId, jwks } = parsedData;
 
-    if (token && domain) {
+    if (token && domain && apiUrl && appId && jwks) {
       debug("Token and domain found, returning values: %s, %s", domain, `${token[0]}***`);
-      return { token, domain };
+      return { token, domain, apiUrl, appId, jwks };
     }
 
     return undefined;
@@ -77,9 +77,9 @@ export class FileAPL implements APL {
     }
   }
 
-  async get(domain: string) {
+  async get(apiUrl: string) {
     const authData = await this.loadDataFromFile();
-    if (domain === authData?.domain) {
+    if (apiUrl === authData?.apiUrl) {
       return authData;
     }
     return undefined;
@@ -89,10 +89,10 @@ export class FileAPL implements APL {
     await this.saveDataToFile(authData);
   }
 
-  async delete(domain: string) {
+  async delete(apiUrl: string) {
     const authData = await this.loadDataFromFile();
 
-    if (domain === authData?.domain) {
+    if (apiUrl === authData?.apiUrl) {
       await this.saveDataToFile();
     }
   }

@@ -1,22 +1,24 @@
-import fetch from "node-fetch";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { AuthData } from "./apl";
 import { VercelAPL, VercelAPLVariables } from "./vercel-apl";
 
-vi.mock("node-fetch", () => ({
-  default: vi.fn().mockImplementation(() => ""),
-}));
+const fetchMock = vi.fn();
 
-const mockFetch = vi.mocked(fetch);
+vi.stubGlobal("fetch", fetchMock);
 
+// now you can access it as `IntersectionObserver` or `window.IntersectionObserver`
 const aplConfig = {
   deploymentToken: "token",
   registerAppURL: "http://example.com",
 };
 
-const stubAuthData = {
+const stubAuthData: AuthData = {
   domain: "example.com",
   token: "example-token",
+  apiUrl: "https://example.com/graphql/",
+  appId: "42",
+  jwks: "{}",
 };
 
 describe("APL", () => {
@@ -53,21 +55,23 @@ describe("APL", () => {
     describe("set", () => {
       it("Successful save of the auth data", async () => {
         // @ts-ignore Ignore type of mocked response
-        mockFetch.mockResolvedValue({ status: 200 });
+        fetchMock.mockResolvedValue({ status: 200 });
         const apl = new VercelAPL({
           registerAppURL: "https://registerService.example.com",
           deploymentToken: "token",
         });
-        await apl.set({ domain: "example.com", token: "token" });
-        expect(mockFetch).toBeCalledWith(
+        await apl.set(stubAuthData);
+        expect(fetchMock).toBeCalledWith(
           "https://registerService.example.com",
 
           {
             body: JSON.stringify({
               token: "token",
               envs: [
-                { key: "SALEOR_AUTH_TOKEN", value: "token" },
-                { key: "SALEOR_DOMAIN", value: "example.com" },
+                {
+                  key: VercelAPLVariables.AUTH_DATA_VARIABLE_NAME,
+                  value: JSON.stringify(stubAuthData),
+                },
               ],
             }),
             headers: {
@@ -79,25 +83,26 @@ describe("APL", () => {
       });
 
       it("Successful save of the auth data during reinstallation for the same domain", async () => {
-        process.env[VercelAPLVariables.TOKEN_VARIABLE_NAME] = "old_token";
-        process.env[VercelAPLVariables.DOMAIN_VARIABLE_NAME] = "example.com";
+        process.env[VercelAPLVariables.AUTH_DATA_VARIABLE_NAME] = JSON.stringify(stubAuthData);
 
         // @ts-ignore Ignore type of mocked response
-        mockFetch.mockResolvedValue({ status: 200 });
+        fetchMock.mockResolvedValue({ status: 200 });
         const apl = new VercelAPL({
           registerAppURL: "https://registerService.example.com",
           deploymentToken: "token",
         });
-        await apl.set({ domain: "example.com", token: "token" });
-        expect(mockFetch).toBeCalledWith(
+        await apl.set({ ...stubAuthData, token: "new_token" });
+        expect(fetchMock).toBeCalledWith(
           "https://registerService.example.com",
 
           {
             body: JSON.stringify({
               token: "token",
               envs: [
-                { key: "SALEOR_AUTH_TOKEN", value: "token" },
-                { key: "SALEOR_DOMAIN", value: "example.com" },
+                {
+                  key: VercelAPLVariables.AUTH_DATA_VARIABLE_NAME,
+                  value: JSON.stringify({ ...stubAuthData, token: "new_token" }),
+                },
               ],
             }),
             headers: {
@@ -109,29 +114,30 @@ describe("APL", () => {
       });
 
       it("Reject save of the auth data during reinstallation for a different domain", async () => {
-        process.env[VercelAPLVariables.TOKEN_VARIABLE_NAME] = "old_token";
-        process.env[VercelAPLVariables.DOMAIN_VARIABLE_NAME] = "not.example.com";
+        process.env[VercelAPLVariables.AUTH_DATA_VARIABLE_NAME] = JSON.stringify(stubAuthData);
 
         // @ts-ignore Ignore type of mocked response
-        mockFetch.mockResolvedValue({ status: 200 });
+        fetchMock.mockResolvedValue({ status: 200 });
         const apl = new VercelAPL({
           registerAppURL: "https://registerService.example.com",
           deploymentToken: "token",
         });
-        await expect(apl.set({ domain: "example.com", token: "token" })).rejects.toThrow(
+        await expect(
+          apl.set({ ...stubAuthData, domain: "different.domain.example.com" })
+        ).rejects.toThrow(
           "Vercel APL was not able to save auth data, application already registered"
         );
       });
 
       it("Raise error when register service returns non 200 response", async () => {
         // @ts-ignore Ignore type of mocked response
-        mockFetch.mockResolvedValue({ status: 500 });
+        fetchMock.mockResolvedValue({ status: 500 });
 
         const apl = new VercelAPL({
           registerAppURL: "https://registerService.example.com/internalError",
           deploymentToken: "token",
         });
-        await expect(apl.set({ domain: "example.com", token: "token" })).rejects.toThrow(
+        await expect(apl.set(stubAuthData)).rejects.toThrow(
           "Vercel APL was not able to save auth data, register service responded with the code 500"
         );
       });
@@ -140,30 +146,27 @@ describe("APL", () => {
     describe("get", () => {
       describe("Read existing auth data from env", () => {
         it("Read existing auth data", async () => {
-          process.env[VercelAPLVariables.TOKEN_VARIABLE_NAME] = stubAuthData.token;
-          process.env[VercelAPLVariables.DOMAIN_VARIABLE_NAME] = stubAuthData.domain;
+          process.env[VercelAPLVariables.AUTH_DATA_VARIABLE_NAME] = JSON.stringify(stubAuthData);
 
           const apl = new VercelAPL(aplConfig);
 
-          expect(await apl.get(stubAuthData.domain)).toStrictEqual(stubAuthData);
+          expect(await apl.get(stubAuthData.apiUrl)).toStrictEqual(stubAuthData);
         });
 
-        it("Return undefined when unknown domain requested", async () => {
-          process.env[VercelAPLVariables.TOKEN_VARIABLE_NAME] = stubAuthData.token;
-          process.env[VercelAPLVariables.DOMAIN_VARIABLE_NAME] = stubAuthData.domain;
+        it("Return undefined when unknown api url requested", async () => {
+          process.env[VercelAPLVariables.AUTH_DATA_VARIABLE_NAME] = JSON.stringify(stubAuthData);
 
           const apl = new VercelAPL(aplConfig);
 
-          expect(await apl.get("unknown-domain.example.com")).toBe(undefined);
+          expect(await apl.get("https://unknown-domain.example.com/graphql/")).toBe(undefined);
         });
 
         it("Return undefined when no data is defined", async () => {
-          delete process.env[VercelAPLVariables.TOKEN_VARIABLE_NAME];
-          delete process.env[VercelAPLVariables.DOMAIN_VARIABLE_NAME];
+          delete process.env[VercelAPLVariables.AUTH_DATA_VARIABLE_NAME];
 
           const apl = new VercelAPL(aplConfig);
 
-          expect(await apl.get("example.com")).toBe(undefined);
+          expect(await apl.get("https://example.com/graphql/")).toBe(undefined);
         });
       });
     });
@@ -171,8 +174,7 @@ describe("APL", () => {
     describe("getAll", () => {
       describe("Read existing auth data from env", () => {
         it("Read existing auth data", async () => {
-          process.env[VercelAPLVariables.TOKEN_VARIABLE_NAME] = stubAuthData.token;
-          process.env[VercelAPLVariables.DOMAIN_VARIABLE_NAME] = stubAuthData.domain;
+          process.env[VercelAPLVariables.AUTH_DATA_VARIABLE_NAME] = JSON.stringify(stubAuthData);
 
           const apl = new VercelAPL(aplConfig);
 
@@ -180,8 +182,7 @@ describe("APL", () => {
         });
 
         it("Return empty list when no auth data are existing", async () => {
-          delete process.env[VercelAPLVariables.TOKEN_VARIABLE_NAME];
-          delete process.env[VercelAPLVariables.DOMAIN_VARIABLE_NAME];
+          delete process.env[VercelAPLVariables.AUTH_DATA_VARIABLE_NAME];
 
           const apl = new VercelAPL(aplConfig);
 
@@ -198,7 +199,7 @@ describe("APL", () => {
 
         if (!result.ready) {
           expect(result.error.message).toEqual(
-            "Env variables: \"SALEOR_AUTH_TOKEN\", \"SALEOR_DOMAIN\", \"SALEOR_REGISTER_APP_URL\", \"SALEOR_DEPLOYMENT_TOKEN\" not found or is empty. Ensure env variables exist"
+            "Env variables: \"SALEOR_AUTH_DATA\", \"SALEOR_REGISTER_APP_URL\", \"SALEOR_DEPLOYMENT_TOKEN\" not found or is empty. Ensure env variables exist"
           );
         } else {
           throw new Error("This should not happen");

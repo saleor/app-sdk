@@ -10,6 +10,10 @@ describe("create-app-register-handler", () => {
       getAppId: vi.fn().mockResolvedValue("42"),
     }));
 
+    vi.mock("../../fetch-remote-jwks", () => ({
+      fetchRemoteJwks: vi.fn().mockResolvedValue("{}"),
+    }));
+
     const mockApl: APL = {
       get: vi.fn(),
       set: vi.fn(),
@@ -34,7 +38,8 @@ describe("create-app-register-handler", () => {
       headers: {
         host: "some-saleor-host.cloud",
         "x-forwarded-proto": "https",
-        "saleor-domain": "https://mock-saleor-domain.saleor.cloud",
+        "saleor-api-url": "https://mock-saleor-domain.saleor.cloud/graphql/",
+        "saleor-domain": "https://mock-saleor-domain.saleor.cloud/",
       },
       method: "POST",
     });
@@ -49,8 +54,11 @@ describe("create-app-register-handler", () => {
      * It fails -> params.auth_token isn't present
      */
     expect(mockApl.set).toHaveBeenCalledWith({
-      domain: "https://mock-saleor-domain.saleor.cloud",
+      apiUrl: "https://mock-saleor-domain.saleor.cloud/graphql/",
+      domain: "https://mock-saleor-domain.saleor.cloud/",
       token: "mock-auth-token",
+      appId: "42",
+      jwks: "{}",
     });
   });
 });

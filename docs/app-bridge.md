@@ -26,7 +26,7 @@ type AppBridgeOptions = {
 ## Access app state:
 
 ```js
-const { token, domain, ready, id } = appBridge.getState();
+const { token, saleorApiUrl, ready, id } = appBridge.getState();
 ```
 
 Available state represents `AppBridgeState`:
@@ -41,8 +41,8 @@ type AppBridgeState = {
   theme: ThemeType;
   locale: LocaleCode; // See src/locales.ts
   /**
-   * Full URL including protocol and path where graphql is available
-   */
+   * Full URL including protocol and path where GraphQL API is available
+   **/
   saleorApiUrl: string;
 };
 ```
