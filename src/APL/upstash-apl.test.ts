@@ -1,14 +1,11 @@
-import fetch from "node-fetch";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { AuthData } from "./apl";
 import { UpstashAPL, UpstashAPLConfig, UpstashAPLVariables } from "./upstash-apl";
 
-vi.mock("node-fetch", () => ({
-  default: vi.fn().mockImplementation(() => ""),
-}));
+const fetchMock = vi.fn();
 
-const mockFetch = vi.mocked(fetch);
+vi.stubGlobal("fetch", fetchMock);
 
 const aplConfig: UpstashAPLConfig = {
   restToken: "token",
@@ -46,7 +43,7 @@ describe("APL", () => {
     describe("set", () => {
       it("Successful save of the auth data", async () => {
         // @ts-ignore Ignore type of mocked response
-        mockFetch.mockResolvedValue({
+        fetchMock.mockResolvedValue({
           status: 200,
           json: async () => ({ result: "ok" }),
         });
@@ -55,7 +52,7 @@ describe("APL", () => {
           restToken: "token",
         });
         await apl.set(stubAuthData);
-        expect(mockFetch).toBeCalledWith(
+        expect(fetchMock).toBeCalledWith(
           "https://example.com",
 
           {
@@ -72,7 +69,7 @@ describe("APL", () => {
 
       it("Raise error when register service returns non 200 response", async () => {
         // @ts-ignore Ignore type of mocked response
-        mockFetch.mockResolvedValue({ status: 500 });
+        fetchMock.mockResolvedValue({ status: 500 });
 
         const apl = new UpstashAPL({
           restURL: "https://example.com",
@@ -88,7 +85,7 @@ describe("APL", () => {
       describe("Read existing auth data from upstash", () => {
         it("Read existing auth data", async () => {
           // @ts-ignore Ignore type of mocked response
-          mockFetch.mockResolvedValue({
+          fetchMock.mockResolvedValue({
             status: 200,
             json: async () => ({
               result: JSON.stringify(stubAuthData),
@@ -101,7 +98,7 @@ describe("APL", () => {
 
         it("Return undefined when unknown domain requested", async () => {
           // @ts-ignore Ignore type of mocked response
-          mockFetch.mockResolvedValue({
+          fetchMock.mockResolvedValue({
             status: 200,
             json: async () => ({
               result: null,
