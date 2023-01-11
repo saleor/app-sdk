@@ -1,7 +1,5 @@
 /* eslint-disable class-methods-use-this */
 // eslint-disable-next-line max-classes-per-file
-import fetch, { Response } from "node-fetch";
-
 import { APL, AplConfiguredResult, AplReadyResult, AuthData } from "./apl";
 import { createAPLDebug } from "./apl-debug";
 

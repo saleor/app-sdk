@@ -1,15 +1,13 @@
-import fetch from "node-fetch";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { AuthData } from "./apl";
 import { VercelAPL, VercelAPLVariables } from "./vercel-apl";
 
-vi.mock("node-fetch", () => ({
-  default: vi.fn().mockImplementation(() => ""),
-}));
+const fetchMock = vi.fn();
 
-const mockFetch = vi.mocked(fetch);
+vi.stubGlobal("fetch", fetchMock);
 
+// now you can access it as `IntersectionObserver` or `window.IntersectionObserver`
 const aplConfig = {
   deploymentToken: "token",
   registerAppURL: "http://example.com",
@@ -57,13 +55,13 @@ describe("APL", () => {
     describe("set", () => {
       it("Successful save of the auth data", async () => {
         // @ts-ignore Ignore type of mocked response
-        mockFetch.mockResolvedValue({ status: 200 });
+        fetchMock.mockResolvedValue({ status: 200 });
         const apl = new VercelAPL({
           registerAppURL: "https://registerService.example.com",
           deploymentToken: "token",
         });
         await apl.set(stubAuthData);
-        expect(mockFetch).toBeCalledWith(
+        expect(fetchMock).toBeCalledWith(
           "https://registerService.example.com",
 
           {
@@ -131,7 +129,7 @@ describe("APL", () => {
 
       it("Raise error when register service returns non 200 response", async () => {
         // @ts-ignore Ignore type of mocked response
-        mockFetch.mockResolvedValue({ status: 500 });
+        fetchMock.mockResolvedValue({ status: 500 });
 
         const apl = new VercelAPL({
           registerAppURL: "https://registerService.example.com/internalError",
