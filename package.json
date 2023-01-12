@@ -1,6 +1,6 @@
 {
   "name": "@saleor/app-sdk",
-  "version": "0.26.0-1",
+  "version": "0.26.0-2",
   "description": "SDK for building great Saleor Apps",
   "types": "index.d.ts",
   "main": "index.js",
