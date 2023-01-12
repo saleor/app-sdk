@@ -87,20 +87,20 @@ export class UpstashAPL implements APL {
 
   private async saveDataToUpstash(authData: AuthData) {
     debug("saveDataToUpstash() called with: %j", {
-      apiUrl: authData.apiUrl,
+      saleorApiUrl: authData.saleorApiUrl,
       token: authData.token.substring(0, 4),
     });
 
     const data = JSON.stringify(authData);
-    await this.upstashRequest(`["SET", "${authData.apiUrl}", "${data}"]`);
+    await this.upstashRequest(`["SET", "${authData.saleorApiUrl}", "${data}"]`);
   }
 
-  private async deleteDataFromUpstash(apiUrl: string) {
-    await this.upstashRequest(`["DEL", "${apiUrl}"]`);
+  private async deleteDataFromUpstash(saleorApiUrl: string) {
+    await this.upstashRequest(`["DEL", "${saleorApiUrl}"]`);
   }
 
-  private async fetchDataFromUpstash(apiUrl: string) {
-    const result = await this.upstashRequest(`["GET", "${apiUrl}"]`);
+  private async fetchDataFromUpstash(saleorApiUrl: string) {
+    const result = await this.upstashRequest(`["GET", "${saleorApiUrl}"]`);
     if (result) {
       const authData = JSON.parse(result);
       return authData;
@@ -108,16 +108,16 @@ export class UpstashAPL implements APL {
     return undefined;
   }
 
-  async get(apiUrl: string) {
-    return this.fetchDataFromUpstash(apiUrl);
+  async get(saleorApiUrl: string) {
+    return this.fetchDataFromUpstash(saleorApiUrl);
   }
 
   async set(authData: AuthData) {
     await this.saveDataToUpstash(authData);
   }
 
-  async delete(apiUrl: string) {
-    await this.deleteDataFromUpstash(apiUrl);
+  async delete(saleorApiUrl: string) {
+    await this.deleteDataFromUpstash(saleorApiUrl);
   }
 
   async getAll() {

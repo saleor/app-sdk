@@ -11,11 +11,11 @@ export interface DashboardTokenPayload extends jose.JWTPayload {
 
 export interface verifyJWTArguments {
   appId: string;
-  apiUrl: string;
+  saleorApiUrl: string;
   token: string;
 }
 
-export const verifyJWT = async ({ apiUrl, token, appId }: verifyJWTArguments) => {
+export const verifyJWT = async ({ saleorApiUrl, token, appId }: verifyJWTArguments) => {
   let tokenClaims: DashboardTokenPayload;
   const ERROR_MESSAGE = "JWT verification failed:";
 
@@ -38,7 +38,7 @@ export const verifyJWT = async ({ apiUrl, token, appId }: verifyJWTArguments) =>
   try {
     debug("Trying to create JWKS");
 
-    const JWKS = jose.createRemoteJWKSet(new URL(getJwksUrlFromSaleorApiUrl(apiUrl)));
+    const JWKS = jose.createRemoteJWKSet(new URL(getJwksUrlFromSaleorApiUrl(saleorApiUrl)));
     debug("Trying to compare JWKS with token");
     await jose.jwtVerify(token, JWKS);
   } catch (e) {

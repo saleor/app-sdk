@@ -37,7 +37,7 @@ export const verifySignature = async (domain: string, signature: string, rawBody
  * https://docs.saleor.io/docs/3.x/developer/extending/apps/asynchronous-webhooks#payload-signature
  */
 export const verifySignatureFromApiUrl = async (
-  apiUrl: string,
+  saleorApiUrl: string,
   signature: string,
   rawBody: string
 ) => {
@@ -49,7 +49,7 @@ export const verifySignatureFromApiUrl = async (
   };
 
   const remoteJwks = jose.createRemoteJWKSet(
-    new URL(getJwksUrlFromSaleorApiUrl(apiUrl))
+    new URL(getJwksUrlFromSaleorApiUrl(saleorApiUrl))
   ) as jose.FlattenedVerifyGetKey;
 
   debug("Created remote JWKS");

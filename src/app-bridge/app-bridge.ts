@@ -207,7 +207,7 @@ export class AppBridge {
 
     return new Promise<void>((resolve, reject) => {
       if (!window.parent) {
-        debug("window.parent doesnt exist, will throw");
+        debug("window.parent doesn't exist, will throw");
 
         reject(new Error("Parent window does not exist."));
         return;
@@ -305,7 +305,7 @@ export class AppBridge {
         debug("Received message from origin: %s and data: %j", origin, data);
 
         if (origin !== this.refererOrigin) {
-          debug("Origin from message doesnt match refererOrigin. Function will return now");
+          debug("Origin from message doesn't match refererOrigin. Function will return now");
           // TODO what should happen here - be explicit
           return;
         }

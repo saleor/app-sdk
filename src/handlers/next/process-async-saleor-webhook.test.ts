@@ -33,12 +33,12 @@ describe("processAsyncSaleorWebhook", () => {
   let mockRequest: NextApiRequest;
 
   const mockAPL: APL = {
-    get: async (apiUrl: string) =>
-      apiUrl === "https://example.com/graphql/"
+    get: async (saleorApiUrl: string) =>
+      saleorApiUrl === "https://example.com/graphql/"
         ? {
             domain: "example.com",
             token: "mock-token",
-            apiUrl: "https://example.com/graphql/",
+            saleorApiUrl: "https://example.com/graphql/",
             appId: "42",
             jwks: "{}",
           }

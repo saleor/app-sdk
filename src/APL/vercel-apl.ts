@@ -108,10 +108,10 @@ export class VercelAPL implements APL {
     debug("Register service responded successfully");
   }
 
-  async get(apiUrl: string) {
+  async get(saleorApiUrl: string) {
     const authData = getEnvAuth();
 
-    if (authData && apiUrl === authData.apiUrl) {
+    if (authData && saleorApiUrl === authData.saleorApiUrl) {
       return authData;
     }
     return undefined;
@@ -126,8 +126,8 @@ export class VercelAPL implements APL {
     await this.saveDataToVercel(authData);
   }
 
-  async delete(apiUrl: string) {
-    if (apiUrl === getEnvAuth()?.apiUrl) {
+  async delete(saleorApiUrl: string) {
+    if (saleorApiUrl === getEnvAuth()?.saleorApiUrl) {
       // Override existing data with the empty values
       await this.saveDataToVercel();
     }

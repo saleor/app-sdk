@@ -143,7 +143,7 @@ export const processAsyncSaleorWebhook: ProcessAsyncSaleorWebhook = async <T>({
     await verifySignatureWithJwks(authData.jwks, signature, rawBody);
   } catch {
     debug("Request signature check failed. Refresh the JWKS cache and check again");
-    const newJwks = await fetchRemoteJwks(authData.apiUrl);
+    const newJwks = await fetchRemoteJwks(authData.saleorApiUrl);
     try {
       debug("Second attempt to validate the signature JWKS, using fresh tokens from the API");
       await verifySignatureWithJwks(newJwks, signature, rawBody);
