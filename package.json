@@ -132,6 +132,11 @@
       "types": "./infer-webhooks.d.ts",
       "import": "./infer-webhooks.mjs",
       "require": "./infer-webhooks.js"
+    },
+    "./verify-jwt": {
+      "types": "./verify-jwt.d.ts",
+      "import": "./verify-jwt.mjs",
+      "require": "./verify-jwt.js"
     }
   },
   "publishConfig": {
