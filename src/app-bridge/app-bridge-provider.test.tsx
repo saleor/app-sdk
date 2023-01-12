@@ -9,7 +9,7 @@ import { DashboardEventFactory } from "./events";
 
 const origin = "http://example.com";
 const domain = "saleor.domain.host";
-const apiUrl = "https://saleor.domain.host/graphql/";
+const saleorApiUrl = "https://saleor.domain.host/graphql/";
 
 Object.defineProperty(window.document, "referrer", {
   value: origin,
@@ -18,7 +18,7 @@ Object.defineProperty(window.document, "referrer", {
 
 Object.defineProperty(window, "location", {
   value: {
-    href: `${origin}?${AppIframeParams.DOMAIN}=${domain}&${AppIframeParams.APP_ID}=appid&${AppIframeParams.SALEOR_API_URL}=${apiUrl}`,
+    href: `${origin}?${AppIframeParams.DOMAIN}=${domain}&${AppIframeParams.APP_ID}=appid&${AppIframeParams.SALEOR_API_URL}=${saleorApiUrl}`,
   },
   writable: true,
 });
@@ -40,7 +40,7 @@ describe("AppBridgeProvider", () => {
         appBridgeInstance={
           new AppBridge({
             targetDomain: domain,
-            saleorApiUrl: apiUrl,
+            saleorApiUrl,
           })
         }
       >
@@ -102,7 +102,7 @@ describe("useAppBridge hook", () => {
   it("Stores active state in React State", () => {
     const appBridge = new AppBridge({
       targetDomain: domain,
-      saleorApiUrl: apiUrl,
+      saleorApiUrl,
     });
 
     const renderCallback = vi.fn();
@@ -138,7 +138,7 @@ describe("useAppBridge hook", () => {
         ready: false,
         theme: "light",
         locale: "en",
-        saleorApiUrl: apiUrl,
+        saleorApiUrl,
       });
     });
   });

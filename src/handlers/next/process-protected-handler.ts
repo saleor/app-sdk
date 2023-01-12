@@ -85,7 +85,7 @@ export const processSaleorProtectedHandler: ProcessAsyncSaleorProtectedHandler =
   }
 
   try {
-    await verifyJWT({ appId: authData.appId, token, apiUrl: saleorApiUrl });
+    await verifyJWT({ appId: authData.appId, token, saleorApiUrl });
   } catch (e) {
     throw new ProtectedHandlerError("JWT verification failed: ", "JWT_VERIFICATION_FAILED");
   }

@@ -7,4 +7,4 @@ export const hasAuthData = (data: unknown) =>
   hasProp(data, "domain") &&
   hasProp(data, "token") &&
   hasProp(data, "appId") &&
-  hasProp(data, "apiUrl");
+  hasProp(data, "saleorApiUrl");

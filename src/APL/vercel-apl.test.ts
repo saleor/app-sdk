@@ -16,7 +16,7 @@ const aplConfig = {
 const stubAuthData: AuthData = {
   domain: "example.com",
   token: "example-token",
-  apiUrl: "https://example.com/graphql/",
+  saleorApiUrl: "https://example.com/graphql/",
   appId: "42",
   jwks: "{}",
 };
@@ -150,7 +150,7 @@ describe("APL", () => {
 
           const apl = new VercelAPL(aplConfig);
 
-          expect(await apl.get(stubAuthData.apiUrl)).toStrictEqual(stubAuthData);
+          expect(await apl.get(stubAuthData.saleorApiUrl)).toStrictEqual(stubAuthData);
         });
 
         it("Return undefined when unknown api url requested", async () => {

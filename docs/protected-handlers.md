@@ -53,7 +53,7 @@ fetch("/api/protected", {
      * headers the backend will check if the request has enough permissions to
      * perform the action.
      */
-    "saleor-api-url": apiUrl,
+    "saleor-api-url": saleorApiUrl,
     "authorization-bearer": token,
   },
 });

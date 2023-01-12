@@ -7,7 +7,7 @@ import { FileAPL } from "./file-apl";
 const stubAuthData: AuthData = {
   domain: "example.com",
   token: "example-token",
-  apiUrl: "https://example.com/graphql/",
+  saleorApiUrl: "https://example.com/graphql/",
   appId: "42",
   jwks: "{}",
 };
@@ -23,7 +23,7 @@ describe("APL", () => {
         vi.spyOn(fsPromises, "readFile").mockResolvedValue("Not a valid JSON");
 
         const apl = new FileAPL();
-        await expect(apl.get(stubAuthData.apiUrl)).resolves.toBe(undefined);
+        await expect(apl.get(stubAuthData.saleorApiUrl)).resolves.toBe(undefined);
       });
 
       it("Returns auth data for existing api url", async () => {
@@ -31,7 +31,7 @@ describe("APL", () => {
 
         const apl = new FileAPL();
 
-        expect(await apl.get(stubAuthData.apiUrl)).toStrictEqual(stubAuthData);
+        expect(await apl.get(stubAuthData.saleorApiUrl)).toStrictEqual(stubAuthData);
       });
 
       it("Returns undefined for unknown api url", async () => {
@@ -75,7 +75,7 @@ describe("APL", () => {
 
         const apl = new FileAPL();
 
-        await apl.delete(stubAuthData.apiUrl);
+        await apl.delete(stubAuthData.saleorApiUrl);
 
         expect(spyWriteFile).toBeCalledWith(".saleor-app-auth.json", "{}");
       });

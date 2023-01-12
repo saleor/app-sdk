@@ -11,16 +11,16 @@ type GetIdResponseType = {
 };
 
 export interface GetAppIdProperties {
-  apiUrl: string;
+  saleorApiUrl: string;
   token: string;
 }
 
 export const getAppId = async ({
-  apiUrl,
+  saleorApiUrl,
   token,
 }: GetAppIdProperties): Promise<string | undefined> => {
   try {
-    const response = await fetch(apiUrl, {
+    const response = await fetch(saleorApiUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

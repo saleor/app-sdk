@@ -4,11 +4,11 @@ APL is an interface for managing auth data of registered Apps. Implementing it d
 
 ## Available methods
 
-- `get: (apiUrl: string) => Promise<AuthData | undefined>` - If the entry for given apiUrl exists, returns AuthData object.
+- `get: (saleorApiUrl: string) => Promise<AuthData | undefined>` - If the entry for given saleorApiUrl exists, returns AuthData object.
 
 - `set: (authData: AuthData) => Promise<void>` - Save auth data.
 
-- `delete: (apiUrl: string) => Promise<void>` - Remove auth data fot the given API URL.
+- `delete: (saleorApiUrl: string) => Promise<void>` - Remove auth data fot the given API URL.
 
 - `getAll: () => Promise<AuthData[]>` - Returns all auth data available.
 
@@ -24,7 +24,7 @@ Interface containing data used for communication with the Saleor API:
 export interface AuthData {
   domain: string;
   token: string;
-  apiUrl: string;
+  saleorApiUrl: string;
   appId: string;
   jwks: string;
 }
@@ -32,7 +32,7 @@ export interface AuthData {
 
 - `domain` - Domain of the API
 - `token` - Authorization token
-- `apiUrl` - Full URL to the Saleor GraphQL API
+- `saleorApiUrl` - Full URL to the Saleor GraphQL API
 - `appID` - ID of the app assigned during the installation process
 - `jwks` - JSON Web Key Set available at `https://<your-saleor-domain>/.well-known/jwks.json`, cached in the APL for the faster webhook validation
 
@@ -72,18 +72,18 @@ const client = createClient();
 await client.connect();
 
 const redisAPL: APL = {
-  get: async (apiUrl: string) => {
-    const response = await client.get(apiUrl);
+  get: async (saleorApiUrl: string) => {
+    const response = await client.get(saleorApiUrl);
     if (response) {
       return JSON.parse(response);
     }
     return;
   },
   set: async (authData: AuthData) => {
-    await client.set(authData.apiUrl, JSON.stringify(authData));
+    await client.set(authData.saleorApiUrl, JSON.stringify(authData));
   },
-  delete: async (apiUrl: string) => {
-    await client.del(apiUrl);
+  delete: async (saleorApiUrl: string) => {
+    await client.del(saleorApiUrl);
   },
   getAll: async () => {
     throw new Exception("Not implemented.");

@@ -54,7 +54,7 @@ describe("create-app-register-handler", () => {
      * It fails -> params.auth_token isn't present
      */
     expect(mockApl.set).toHaveBeenCalledWith({
-      apiUrl: "https://mock-saleor-domain.saleor.cloud/graphql/",
+      saleorApiUrl: "https://mock-saleor-domain.saleor.cloud/graphql/",
       domain: "https://mock-saleor-domain.saleor.cloud/",
       token: "mock-auth-token",
       appId: "42",

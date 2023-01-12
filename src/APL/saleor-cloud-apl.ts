@@ -19,7 +19,7 @@ const validateResponseStatus = (response: Response) => {
 
 const mapAuthDataToAPIBody = (authData: AuthData) => ({
   saleor_app_id: authData.appId,
-  api_url: authData.apiUrl,
+  api_url: authData.saleorApiUrl,
   jwks: authData.jwks,
   domain: authData.domain,
   token: authData.token,
@@ -46,15 +46,15 @@ export class SaleorCloudAPL implements APL {
     };
   }
 
-  private getUrlForDomain(apiUrl: string) {
+  private getUrlForDomain(saleorApiUrl: string) {
     // API URL has to be base64 encoded
-    return `${this.resourceUrl}/${btoa(apiUrl)}`;
+    return `${this.resourceUrl}/${btoa(saleorApiUrl)}`;
   }
 
-  async get(apiUrl: string): Promise<AuthData | undefined> {
-    debug("Will fetch data from SaleorCloudAPL for apiUrl %s", apiUrl);
+  async get(saleorApiUrl: string): Promise<AuthData | undefined> {
+    debug("Will fetch data from SaleorCloudAPL for saleorApiUrl %s", saleorApiUrl);
 
-    const response = await fetch(this.getUrlForDomain(apiUrl), {
+    const response = await fetch(this.getUrlForDomain(saleorApiUrl), {
       method: "GET",
       headers: { "Content-Type": "application/json", ...this.headers },
     }).catch((error) => {
@@ -70,7 +70,7 @@ export class SaleorCloudAPL implements APL {
 
     const authData = authDataFromObject(parsedResponse);
     if (!authData) {
-      debug("No auth data for given apiUrl");
+      debug("No auth data for given saleorApiUrl");
       return undefined;
     }
 
@@ -97,11 +97,11 @@ export class SaleorCloudAPL implements APL {
     return undefined;
   }
 
-  async delete(apiUrl: string) {
-    debug("Deleting data from SaleorCloud for apiUrl: %s", apiUrl);
+  async delete(saleorApiUrl: string) {
+    debug("Deleting data from SaleorCloud for saleorApiUrl: %s", saleorApiUrl);
 
     try {
-      const response = await fetch(this.getUrlForDomain(apiUrl), {
+      const response = await fetch(this.getUrlForDomain(saleorApiUrl), {
         method: "DELETE",
         headers: { "Content-Type": "application/json", ...this.headers },
       });

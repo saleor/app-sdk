@@ -45,7 +45,7 @@ export const createAppRegisterHandler = ({ apl }: CreateAppRegisterHandlerOption
     }
 
     // Try to get App ID from the API, to confirm that communication can be established
-    const appId = await getAppId({ apiUrl: saleorApiUrl, token: authToken });
+    const appId = await getAppId({ saleorApiUrl, token: authToken });
     if (!appId) {
       return new Response(
         {
@@ -80,7 +80,13 @@ export const createAppRegisterHandler = ({ apl }: CreateAppRegisterHandlerOption
     }
 
     try {
-      await apl.set({ domain: saleorDomain, token: authToken, apiUrl: saleorApiUrl, appId, jwks });
+      await apl.set({
+        domain: saleorDomain,
+        token: authToken,
+        saleorApiUrl,
+        appId,
+        jwks,
+      });
     } catch {
       debug("There was an error during saving the auth data");
       return Response.InternalServerError({

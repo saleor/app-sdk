@@ -15,7 +15,7 @@ const aplConfig: UpstashAPLConfig = {
 const stubAuthData: AuthData = {
   domain: "example.com",
   token: "example-token",
-  apiUrl: "https://example.com/graphql/",
+  saleorApiUrl: "https://example.com/graphql/",
   appId: "42",
   jwks: "{}",
 };
@@ -57,7 +57,7 @@ describe("APL", () => {
 
           {
             // eslint-disable-next-line quotes
-            body: `["SET", "${stubAuthData.apiUrl}", "${JSON.stringify(stubAuthData)}"]`,
+            body: `["SET", "${stubAuthData.saleorApiUrl}", "${JSON.stringify(stubAuthData)}"]`,
             headers: {
               "Content-Type": "application/json",
               Authorization: "Bearer token",
@@ -93,7 +93,7 @@ describe("APL", () => {
           });
           const apl = new UpstashAPL(aplConfig);
 
-          expect(await apl.get(stubAuthData.apiUrl)).toStrictEqual(stubAuthData);
+          expect(await apl.get(stubAuthData.saleorApiUrl)).toStrictEqual(stubAuthData);
         });
 
         it("Return undefined when unknown domain requested", async () => {

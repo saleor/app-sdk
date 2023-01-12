@@ -27,18 +27,18 @@ describe("verifyJWT", () => {
   });
 
   it("Process valid request", async () => {
-    await verifyJWT({ appId: validAppId, apiUrl: validApiUrl, token: validToken });
+    await verifyJWT({ appId: validAppId, saleorApiUrl: validApiUrl, token: validToken });
   });
 
   it("Throw error on decode issue", async () => {
     await expect(
-      verifyJWT({ appId: validAppId, apiUrl: validApiUrl, token: "wrong_token" })
+      verifyJWT({ appId: validAppId, saleorApiUrl: validApiUrl, token: "wrong_token" })
     ).rejects.toThrow("JWT verification failed: Could not decode authorization token.");
   });
 
   it("Throw error on app ID missmatch", async () => {
     await expect(
-      verifyJWT({ appId: "wrong_id", apiUrl: validApiUrl, token: validToken })
+      verifyJWT({ appId: "wrong_id", saleorApiUrl: validApiUrl, token: validToken })
     ).rejects.toThrow("JWT verification failed: Token's app property is different than app ID.");
   });
 });
