@@ -19,7 +19,7 @@ const validateResponseStatus = (response: Response) => {
 
 const mapAuthDataToAPIBody = (authData: AuthData) => ({
   saleor_app_id: authData.appId,
-  api_url: authData.saleorApiUrl,
+  saleor_api_url: authData.saleorApiUrl,
   jwks: authData.jwks,
   domain: authData.domain,
   token: authData.token,
