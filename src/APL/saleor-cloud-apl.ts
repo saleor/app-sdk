@@ -25,6 +25,15 @@ const mapAuthDataToAPIBody = (authData: AuthData) => ({
   token: authData.token,
 });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const mapAPIResponseToAuthData = (response: any): AuthData => ({
+  appId: response.saleor_app_id,
+  domain: response.domain,
+  jwks: response.jwks,
+  saleorApiUrl: response.saleor_api_url,
+  token: response.token,
+});
+
 /**
  *
  * Saleor Cloud APL - handle auth data management via REST API.
@@ -68,7 +77,8 @@ export class SaleorCloudAPL implements APL {
       debug("Failed to parse response: %s", e?.message ?? "Unknown error");
     })) as unknown;
 
-    const authData = authDataFromObject(parsedResponse);
+    const authData = authDataFromObject(mapAPIResponseToAuthData(parsedResponse));
+
     if (!authData) {
       debug("No auth data for given saleorApiUrl");
       return undefined;
