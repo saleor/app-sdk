@@ -12,7 +12,16 @@ import { HasAPL } from "../../saleor-app";
 
 const debug = createDebug("createAppRegisterHandler");
 
-export type CreateAppRegisterHandlerOptions = HasAPL;
+export type CreateAppRegisterHandlerOptions = HasAPL & {
+  /**
+   * Protect app from being registered in Saleor other than specific.
+   * By default, allow everything.
+   *
+   * Provide array of  either a full Saleor API URL (eg. my-shop.saleor.cloud/graphql/)
+   * or a function that receives a full Saleor API URL ad returns true/false.
+   */
+  allowSaleorUrls?: Array<string | ((saleorApiUrl: string) => boolean)>;
+};
 
 /**
  * Creates API handler for Next.js. Creates handler called by Saleor that registers app.
