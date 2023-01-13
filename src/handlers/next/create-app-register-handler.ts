@@ -21,7 +21,7 @@ export type CreateAppRegisterHandlerOptions = HasAPL & {
    * Provide array of  either a full Saleor API URL (eg. my-shop.saleor.cloud/graphql/)
    * or a function that receives a full Saleor API URL ad returns true/false.
    */
-  allowSaleorUrls?: Array<string | ((saleorApiUrl: string) => boolean)>;
+  allowedSaleorUrls?: Array<string | ((saleorApiUrl: string) => boolean)>;
 };
 
 /**
@@ -31,7 +31,7 @@ export type CreateAppRegisterHandlerOptions = HasAPL & {
  */
 export const createAppRegisterHandler = ({
   apl,
-  allowSaleorUrls,
+  allowedSaleorUrls,
 }: CreateAppRegisterHandlerOptions) => {
   const baseHandler: Handler = async (request) => {
     debug("Request received");
@@ -39,7 +39,7 @@ export const createAppRegisterHandler = ({
     const saleorDomain = request.headers[SALEOR_DOMAIN_HEADER] as string;
     const saleorApiUrl = request.headers[SALEOR_API_URL_HEADER] as string;
 
-    if (!validateAllowSaleorUrls(saleorApiUrl, allowSaleorUrls)) {
+    if (!validateAllowSaleorUrls(saleorApiUrl, allowedSaleorUrls)) {
       debug("Validation of URL %s against allowSaleorUrls param resolves to false, throwing");
 
       return Response.Forbidden({

@@ -2,7 +2,7 @@ import { CreateAppRegisterHandlerOptions } from "./create-app-register-handler";
 
 export const validateAllowSaleorUrls = (
   saleorApiUrl: string,
-  allowedUrls: CreateAppRegisterHandlerOptions["allowSaleorUrls"]
+  allowedUrls: CreateAppRegisterHandlerOptions["allowedSaleorUrls"]
 ) => {
   if (!allowedUrls || allowedUrls.length === 0) {
     return true;

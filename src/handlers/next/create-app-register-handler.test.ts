@@ -82,7 +82,7 @@ describe("create-app-register-handler", () => {
 
     const handler = createAppRegisterHandler({
       apl: mockApl,
-      allowSaleorUrls: [(url: string) => url === "https://mock-saleor-domain.saleor.cloud"],
+      allowedSaleorUrls: [(url: string) => url === "https://mock-saleor-domain.saleor.cloud"],
     });
 
     await handler(req, res);
