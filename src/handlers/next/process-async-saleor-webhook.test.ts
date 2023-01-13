@@ -151,6 +151,9 @@ describe("processAsyncSaleorWebhook", () => {
 
   it("Throw error on wrong signature", async () => {
     mockRequest.headers["saleor-signature"] = "wrong_signature";
+    vi.mock("./../../fetch-remote-jwks", () => ({
+      fetchRemoteJwks: vi.fn(() => "wrong_signature"),
+    }));
     await expect(
       processAsyncSaleorWebhook({
         req: mockRequest,
