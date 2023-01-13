@@ -61,6 +61,7 @@ import { VercelAPL } from "./vercel-apl";
 
 export default createAppRegisterHandler({
   apl: new VercelAPL(),
+  allowedSaleorUrls: ["https://your-saleor.saleor.cloud/graphql/"], // optional, see options below
 });
 ```
 
@@ -69,6 +70,11 @@ Options provided to handler factory
 ```typescript
 export type CreateAppRegisterHandlerOptions = {
   apl: APL;
+  /**
+   * Provide your Saleor /graphql/ endpoints (or functions),
+   * to allow app registration only in allowed Saleor instances.
+   */
+  allowedSaleorUrls?: Array<string | ((saleorApiUrl: string) => boolean)>;
 };
 ```
 
