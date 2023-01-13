@@ -8,7 +8,7 @@ const onPremiseSaleorUrlMock = "https://my-shop-123.aws-services.com/graphql/";
 const saleorCloudRegexValidator = (url: string) => /https:\/\/.*.saleor.cloud\/graphql\//.test(url);
 
 describe("validateAllowSaleorUrls", () => {
-  it("Passes any url if allow list is empty", () => {
+  it("Passes any URL if allow list is empty", () => {
     expect(validateAllowSaleorUrls(saleorCloudUrlMock, [])).toBe(true);
     expect(validateAllowSaleorUrls(onPremiseSaleorUrlMock, [])).toBe(true);
   });

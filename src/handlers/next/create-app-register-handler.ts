@@ -40,7 +40,7 @@ export const createAppRegisterHandler = ({
     const saleorApiUrl = request.headers[SALEOR_API_URL_HEADER] as string;
 
     if (!validateAllowSaleorUrls(saleorApiUrl, allowSaleorUrls)) {
-      debug("Validattion of url %s against allowSaleorUrls param resolves to false, throwing");
+      debug("Validation of URL %s against allowSaleorUrls param resolves to false, throwing");
 
       return Response.Forbidden({
         success: false,
