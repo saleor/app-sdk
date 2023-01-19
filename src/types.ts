@@ -15,8 +15,9 @@ export type AppExtensionMount =
   | "ORDER_OVERVIEW_MORE_ACTIONS";
 
 export type AppPermission =
-  | "HANDLE_PAYMENTS"
   | "HANDLE_CHECKOUTS"
+  | "HANDLE_PAYMENTS"
+  | "HANDLE_TAXES"
   | "MANAGE_APPS"
   | "MANAGE_CHECKOUTS"
   | "MANAGE_DISCOUNTS"
