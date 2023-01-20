@@ -10,6 +10,11 @@ export type SaleorCloudAPLConfig = {
 };
 
 const validateResponseStatus = (response: Response) => {
+  if (response.status === 404) {
+    debug("Auth data not found");
+
+    throw new Error("Auth data not found");
+  }
   if (!response.ok) {
     debug("Response failed with status %s", response.status);
 
@@ -56,8 +61,8 @@ export class SaleorCloudAPL implements APL {
   }
 
   private getUrlForDomain(saleorApiUrl: string) {
-    // API URL has to be base64 encoded
-    return `${this.resourceUrl}/${btoa(saleorApiUrl)}`;
+    // API URL has to be base64url encoded
+    return `${this.resourceUrl}/${Buffer.from(saleorApiUrl).toString("base64url")}`;
   }
 
   async get(saleorApiUrl: string): Promise<AuthData | undefined> {
@@ -68,10 +73,20 @@ export class SaleorCloudAPL implements APL {
       headers: { "Content-Type": "application/json", ...this.headers },
     }).catch((error) => {
       debug("Failed to reach API call:  %s", error?.message ?? "Unknown error");
-      throw new Error(`Attempt in fetch the data resulted with error: ${error}`);
+      return undefined;
     });
 
-    validateResponseStatus(response);
+    if (!response) {
+      debug("No response from the API");
+      return undefined;
+    }
+
+    try {
+      validateResponseStatus(response);
+    } catch {
+      debug("Response status not valid");
+      return undefined;
+    }
 
     const parsedResponse = (await response.json().catch((e) => {
       debug("Failed to parse response: %s", e?.message ?? "Unknown error");

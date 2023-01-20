@@ -5,6 +5,10 @@ import { hasProp } from "../has-prop";
  */
 export const hasAuthData = (data: unknown) =>
   hasProp(data, "domain") &&
+  data.domain &&
   hasProp(data, "token") &&
+  data.token &&
   hasProp(data, "appId") &&
-  hasProp(data, "saleorApiUrl");
+  data.appId &&
+  hasProp(data, "saleorApiUrl") &&
+  data.saleorApiUrl;
