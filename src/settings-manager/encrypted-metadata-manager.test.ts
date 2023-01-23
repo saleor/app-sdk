@@ -29,10 +29,6 @@ describe("settings-manager", () => {
       });
 
       it("Process exit should be called when no encryption key is set if the environment type is production", async () => {
-        const mockExit = vi.spyOn(process, "exit").mockImplementation(() => {
-          throw new Error("process.exit called");
-        });
-
         // @ts-expect-error
         process.env.NODE_ENV = "production";
         const fetchMock = vi.fn(async () => metadata);
@@ -45,8 +41,9 @@ describe("settings-manager", () => {
               // @ts-expect-error
               encryptionKey: undefined,
             })
-        ).toThrowError("process.exit called");
-        expect(mockExit).toHaveBeenCalledWith(1);
+        ).toThrowError(
+          "Encryption key for the EncryptedMetadataManager has not been set. Setting it for the production environments is necessary. You can find more in the documentation: https://github.com/saleor/saleor-app-sdk/blob/main/docs/settings-manager.md"
+        );
       });
 
       it("If env type is different than production (development/test) use placeholder value", async () => {

@@ -77,7 +77,9 @@ export class EncryptedMetadataManager implements SettingsManager {
       console.warn("Encrypted Metadata Manager secret key has not been set.");
       if (process.env.NODE_ENV === "production") {
         console.error("Can't start the application without the secret key.");
-        process.exit(1);
+        throw new Error(
+          "Encryption key for the EncryptedMetadataManager has not been set. Setting it for the production environments is necessary. You can find more in the documentation: https://github.com/saleor/saleor-app-sdk/blob/main/docs/settings-manager.md"
+        );
       }
       console.warn(
         "WARNING: Encrypted Metadata Manager encryption key has not been set. For production deployments, it need's to be set"
