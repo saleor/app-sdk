@@ -80,4 +80,5 @@ new EncryptedMetadataManager({
 });
 ```
 
-Warning: If encryption key won't be passed, the application will exit.
+> **Warning**
+> If encryption key won't be passed, the application will exit.
