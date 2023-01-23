@@ -66,3 +66,18 @@ const settings = new MetadataManager({
   mutateMetadata: (md) => mutateMetadata(client, md),
 });
 ```
+
+# EncryptedMetadataManager
+
+This manager encrypts add the layer of encryption for all the stored data.
+To operate correctly, the encryption key needs to be passed to the constructor:
+
+```ts
+new EncryptedMetadataManager({
+  encryptionKey: process.env.SECRET_KEY, // secrets should be saved in the environment variables, never in the source code
+  fetchMetadata: () => fetchAllMetadata(client),
+  mutateMetadata: (metadata) => mutateMetadata(client, metadata),
+});
+```
+
+Warning: If encryption key won't be passed, the application will exit.

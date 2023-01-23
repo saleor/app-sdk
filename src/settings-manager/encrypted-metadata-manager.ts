@@ -71,7 +71,20 @@ export class EncryptedMetadataManager implements SettingsManager {
       fetchMetadata,
       mutateMetadata,
     });
-    this.encryptionKey = encryptionKey;
+    if (encryptionKey) {
+      this.encryptionKey = encryptionKey;
+    } else {
+      console.warn("Encrypted Metadata Manager secret key has not been set.");
+      if (process.env.NODE_ENV === "production") {
+        console.error("Can't start the application without the secret key.");
+        process.exit(1);
+      }
+      console.warn(
+        "WARNING: Encrypted Metadata Manager encryption key has not been set. For production deployments, it need's to be set"
+      );
+      console.warn("Using placeholder value for the development.");
+      this.encryptionKey = "CHANGE_ME";
+    }
     this.encryptionMethod = encryptionMethod || encrypt;
     this.decryptionMethod = decryptionMethod || decrypt;
   }
