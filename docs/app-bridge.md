@@ -20,6 +20,7 @@ type AppBridgeOptions = {
   saleorApiUrl?: string;
   initialLocale?: LocaleCode;
   autoNotifyReady?: boolean;
+  initialTheme?: "dark" | "light"
 };
 ```
 

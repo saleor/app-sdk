@@ -25,7 +25,7 @@ describe("app-bridge-state.ts", () => {
       saleorApiUrl: "https://my-saleor-instance.cloud/graphql/",
       id: "foo-bar",
       path: "/",
-      theme: "light",
+      theme: "dark",
       locale: "pl",
     };
 
@@ -44,5 +44,13 @@ describe("app-bridge-state.ts", () => {
         initialLocale: "pl",
       }).getState().locale
     ).toBe("pl");
+  });
+
+  it("Can be constructed with initial theme", () => {
+    expect(
+      new AppBridgeStateContainer({
+        initialTheme: "dark",
+      }).getState().theme
+    ).toBe("dark");
   });
 });

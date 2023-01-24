@@ -76,6 +76,7 @@ export type AppBridgeOptions = {
    * If app loading time is longer, this can be disabled and sent manually.
    */
   autoNotifyReady?: boolean;
+  initialTheme?: ThemeType;
 };
 
 /**
@@ -94,11 +95,24 @@ const getDomainFromUrl = () =>
 const getSaleorApiUrlFromUrl = () =>
   new URL(window.location.href).searchParams.get(AppIframeParams.SALEOR_API_URL) || "";
 
+const getThemeFromUrl = () => {
+  const value = new URL(window.location.href).searchParams.get(AppIframeParams.THEME);
+
+  switch (value) {
+    case "dark":
+    case "light":
+      return value;
+    default:
+      return undefined;
+  }
+};
+
 const getDefaultOptions = (): AppBridgeOptions => ({
   targetDomain: getDomainFromUrl(),
   saleorApiUrl: getSaleorApiUrlFromUrl(),
   initialLocale: getLocaleFromUrl() ?? "en",
-  autoNotifyReady: true,
+  autoNotifyReady: false,
+  initialTheme: getThemeFromUrl() ?? undefined,
 });
 
 export class AppBridge {
@@ -279,14 +293,12 @@ export class AppBridge {
     const url = new URL(window.location.href);
     const id = url.searchParams.get(AppIframeParams.APP_ID) || "";
     const path = window.location.pathname || "";
-    const theme: ThemeType =
-      url.searchParams.get(AppIframeParams.THEME) === "light" ? "light" : "dark";
 
     const state: Partial<AppBridgeState> = {
       domain: this.combinedOptions.targetDomain,
       id,
       path,
-      theme,
+      theme: this.combinedOptions.initialTheme,
       saleorApiUrl: this.combinedOptions.saleorApiUrl,
       locale: this.combinedOptions.initialLocale,
     };
