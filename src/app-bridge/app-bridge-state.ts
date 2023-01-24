@@ -14,6 +14,7 @@ export type AppBridgeState = {
 
 type Options = {
   initialLocale?: LocaleCode;
+  initialTheme?: ThemeType;
 };
 
 export class AppBridgeStateContainer {
@@ -28,9 +29,8 @@ export class AppBridgeStateContainer {
   };
 
   constructor(options: Options = {}) {
-    if (options.initialLocale) {
-      this.state.locale = options.initialLocale;
-    }
+    this.state.locale = options.initialLocale ?? this.state.locale;
+    this.state.theme = options.initialTheme ?? this.state.theme;
   }
 
   getState() {

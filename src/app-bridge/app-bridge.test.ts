@@ -253,13 +253,26 @@ describe("AppBridge", () => {
     window.location.href = currentLocationHref;
   });
 
-  it("dispatches 'notifyReady' action when created", (done) => {
-    window.addEventListener("message", (event) => {
-      if (event.data.type === ActionType.notifyReady) {
-        done();
-      }
-    });
-    
-    appBridge = new AppBridge();
+  it("Detects theme from URL param and set it to be initial", () => {
+    const themeToOverwrite = "dark";
+
+    const currentLocationHref = window.location.href;
+
+    window.location.href = `${origin}?domain=${domain}&id=appid&theme=${themeToOverwrite}`;
+
+    expect(new AppBridge().getState().theme).toBe(themeToOverwrite);
+
+    window.location.href = currentLocationHref;
   });
+
+  it("dispatches 'notifyReady' action when enabled in constructor", () =>
+    new Promise<void>((res) => {
+      window.addEventListener("message", (event) => {
+        if (event.data.type === ActionType.notifyReady) {
+          res();
+        }
+      });
+
+      appBridge = new AppBridge({ autoNotifyReady: true });
+    }));
 });
