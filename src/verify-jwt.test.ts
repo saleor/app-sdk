@@ -41,4 +41,15 @@ describe("verifyJWT", () => {
       verifyJWT({ appId: "wrong_id", saleorApiUrl: validApiUrl, token: validToken })
     ).rejects.toThrow("JWT verification failed: Token's app property is different than app ID.");
   });
+
+  it("Throw error on user missing the permissions", async () => {
+    await expect(
+      verifyJWT({
+        appId: validAppId,
+        saleorApiUrl: validApiUrl,
+        token: validToken,
+        requiredPermissions: ["HANDLE_TAXES"],
+      })
+    ).rejects.toThrow("JWT verification failed: Token's permissions are not sufficient.");
+  });
 });
