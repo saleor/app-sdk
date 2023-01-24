@@ -1,0 +1,36 @@
+import { createDebug } from "./debug";
+import { AppPermission } from "./types";
+import { DashboardTokenPayload } from "./verify-jwt";
+
+const debug = createDebug("checkJwtPermissions");
+
+export const hasPermissionsInJwtToken = (
+  tokenData?: DashboardTokenPayload,
+  permissionsToCheckAgainst?: AppPermission[]
+) => {
+  debug(`Permissions required ${permissionsToCheckAgainst}`);
+
+  if (!permissionsToCheckAgainst?.length) {
+    debug("No permissions specified, check passed");
+    return true;
+  }
+
+  const userPermissions = tokenData?.user_permissions || undefined;
+
+  if (!userPermissions?.length) {
+    debug("User has no permissions assigned. Rejected");
+    return false;
+  }
+
+  const arePermissionsSatisfied = permissionsToCheckAgainst.every((permission) =>
+    userPermissions.includes(permission)
+  );
+
+  if (!arePermissionsSatisfied) {
+    debug("Permissions check not passed");
+    return false;
+  }
+
+  debug("Permissions check successful");
+  return true;
+};

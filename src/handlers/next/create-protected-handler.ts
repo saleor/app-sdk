@@ -2,6 +2,7 @@ import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
 
 import { APL } from "../../APL";
 import { createDebug } from "../../debug";
+import { AppPermission } from "../../types";
 import { ProtectedHandlerContext } from "./process-async-saleor-webhook";
 import {
   processSaleorProtectedHandler,
@@ -33,12 +34,17 @@ export type NextProtectedApiHandler<TResp = unknown> = (
  * Also provides additional `context` object containing request properties.
  */
 export const createProtectedHandler =
-  (handlerFn: NextProtectedApiHandler, apl: APL): NextApiHandler =>
+  (
+    handlerFn: NextProtectedApiHandler,
+    apl: APL,
+    requiredPermissions?: AppPermission[]
+  ): NextApiHandler =>
   (req, res) => {
     debug("Protected handler called");
     processSaleorProtectedHandler({
       req,
       apl,
+      requiredPermissions,
     })
       .then(async (context) => {
         debug("Incoming request validated. Call handlerFn");

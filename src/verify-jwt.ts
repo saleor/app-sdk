@@ -1,21 +1,30 @@
 import * as jose from "jose";
 
 import { createDebug } from "./debug";
+import { hasPermissionsInJwtToken } from "./has-permissions-in-jwt-token";
+import { AppPermission } from "./types";
 import { getJwksUrlFromSaleorApiUrl } from "./urls";
 
 const debug = createDebug("verify-jwt");
 
 export interface DashboardTokenPayload extends jose.JWTPayload {
   app: string;
+  user_permissions: AppPermission[];
 }
 
 export interface verifyJWTArguments {
   appId: string;
   saleorApiUrl: string;
   token: string;
+  requiredPermissions?: AppPermission[];
 }
 
-export const verifyJWT = async ({ saleorApiUrl, token, appId }: verifyJWTArguments) => {
+export const verifyJWT = async ({
+  saleorApiUrl,
+  token,
+  appId,
+  requiredPermissions,
+}: verifyJWTArguments) => {
   let tokenClaims: DashboardTokenPayload;
   const ERROR_MESSAGE = "JWT verification failed:";
 
@@ -33,6 +42,11 @@ export const verifyJWT = async ({ saleorApiUrl, token, appId }: verifyJWTArgumen
     );
 
     throw new Error(`${ERROR_MESSAGE} Token's app property is different than app ID.`);
+  }
+
+  if (!hasPermissionsInJwtToken(tokenClaims, requiredPermissions)) {
+    debug("Token did not meet requirements for permissions: %s", requiredPermissions);
+    throw new Error(`${ERROR_MESSAGE} Token's permissions are not sufficient.`);
   }
 
   try {
