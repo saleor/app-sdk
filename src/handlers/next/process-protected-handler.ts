@@ -4,6 +4,7 @@ import { APL } from "../../APL";
 import { AuthData } from "../../APL/apl";
 import { createDebug } from "../../debug";
 import { getBaseUrl, getSaleorHeaders } from "../../headers";
+import { AppPermission } from "../../types";
 import { verifyJWT } from "../../verify-jwt";
 
 const debug = createDebug("processProtectedHandler");
@@ -38,6 +39,7 @@ export type ProtectedHandlerContext = {
 interface ProcessSaleorProtectedHandlerArgs {
   req: NextApiRequest;
   apl: APL;
+  requiredPermissions?: AppPermission[];
 }
 
 type ProcessAsyncSaleorProtectedHandler = (
@@ -51,8 +53,10 @@ type ProcessAsyncSaleorProtectedHandler = (
 export const processSaleorProtectedHandler: ProcessAsyncSaleorProtectedHandler = async ({
   req,
   apl,
+  requiredPermissions,
 }: ProcessSaleorProtectedHandlerArgs): Promise<ProtectedHandlerContext> => {
   debug("Request processing started");
+
   const { saleorApiUrl, authorizationBearer: token } = getSaleorHeaders(req.headers);
 
   const baseUrl = getBaseUrl(req.headers);
@@ -85,7 +89,7 @@ export const processSaleorProtectedHandler: ProcessAsyncSaleorProtectedHandler =
   }
 
   try {
-    await verifyJWT({ appId: authData.appId, token, saleorApiUrl });
+    await verifyJWT({ appId: authData.appId, token, saleorApiUrl, requiredPermissions });
   } catch (e) {
     throw new ProtectedHandlerError("JWT verification failed: ", "JWT_VERIFICATION_FAILED");
   }
