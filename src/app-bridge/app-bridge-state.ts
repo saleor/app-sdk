@@ -1,4 +1,5 @@
 import { LocaleCode } from "../locales";
+import { Permission } from "../types";
 import { ThemeType } from "./events";
 
 export type AppBridgeState = {
@@ -10,6 +11,17 @@ export type AppBridgeState = {
   theme: ThemeType;
   locale: LocaleCode;
   saleorApiUrl: string;
+  user?: {
+    /**
+     * Original permissions of the user that is using the app.
+     * *Not* the same permissions as the app itself.
+     *
+     * Can be used by app to check if user is authorized to perform
+     * domain specific actions
+     */
+    ownPermissions: Permission[];
+    email: string;
+  };
 };
 
 type Options = {
