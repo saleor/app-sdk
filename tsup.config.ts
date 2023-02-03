@@ -7,7 +7,6 @@ export default defineConfig({
     "src/urls.ts",
     "src/headers.ts",
     "src/saleor-app.ts",
-    "src/infer-webhooks.ts",
     "src/verify-jwt.ts",
     "src/APL/index.ts",
     "src/app-bridge/index.ts",
