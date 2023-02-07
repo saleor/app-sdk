@@ -19,7 +19,7 @@ export type AppBridgeState = {
      * Can be used by app to check if user is authorized to perform
      * domain specific actions
      */
-    ownPermissions: Permission[];
+    permissions: Permission[];
     email: string;
   };
 };
