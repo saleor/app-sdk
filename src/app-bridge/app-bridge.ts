@@ -30,7 +30,7 @@ function eventStateReducer(state: AppBridgeState, event: Events) {
         token: event.payload.token,
         user: {
           email: userJwtPayload.email,
-          ownPermissions: userJwtPayload.userPermissions,
+          permissions: userJwtPayload.userPermissions,
         },
       };
     }
