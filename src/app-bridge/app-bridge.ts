@@ -1,6 +1,7 @@
 import debugPkg from "debug";
 
 import { LocaleCode } from "../locales";
+import { extractUserFromJwt } from "../util/extract-user-from-jwt";
 import { Actions, actions } from "./actions";
 import { AppBridgeState, AppBridgeStateContainer } from "./app-bridge-state";
 import { AppIframeParams } from "./app-iframe-params";
@@ -21,10 +22,16 @@ function eventStateReducer(state: AppBridgeState, event: Events) {
 
   switch (event.type) {
     case EventType.handshake: {
+      const userJwtPayload = extractUserFromJwt(event.payload.token);
+
       return {
         ...state,
         ready: true,
         token: event.payload.token,
+        user: {
+          email: userJwtPayload.email,
+          permissions: userJwtPayload.userPermissions,
+        },
       };
     }
     case EventType.redirect: {

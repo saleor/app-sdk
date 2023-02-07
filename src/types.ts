@@ -14,25 +14,36 @@ export type AppExtensionMount =
   | "ORDER_OVERVIEW_CREATE"
   | "ORDER_OVERVIEW_MORE_ACTIONS";
 
-export type AppPermission =
-  | "HANDLE_CHECKOUTS"
-  | "HANDLE_PAYMENTS"
-  | "HANDLE_TAXES"
+/**
+ * TODO: Extract from Saleor graphQL schema
+ * Reference https://docs.saleor.io/docs/3.x/api-reference/enums/permission-enum
+ */
+export type Permission =
+  | "MANAGE_USERS"
+  | "MANAGE_STAFF"
+  | "IMPERSONATE_USER"
   | "MANAGE_APPS"
+  | "MANAGE_OBSERVABILITY"
   | "MANAGE_CHECKOUTS"
+  | "HANDLE_CHECKOUTS"
+  | "HANDLE_TAXES"
+  | "MANAGE_TAXES"
+  | "MANAGE_CHANNELS"
   | "MANAGE_DISCOUNTS"
   | "MANAGE_GIFT_CARD"
   | "MANAGE_MENUS"
   | "MANAGE_ORDERS"
   | "MANAGE_PAGES"
+  | "MANAGE_PAGE_TYPES_AND_ATTRIBUTES"
+  | "HANDLE_PAYMENTS"
   | "MANAGE_PLUGINS"
-  | "MANAGE_PRODUCT_TYPES_AND_ATTRIBUTES"
   | "MANAGE_PRODUCTS"
-  | "MANAGE_SETTINGS"
+  | "MANAGE_PRODUCT_TYPES_AND_ATTRIBUTES"
   | "MANAGE_SHIPPING"
-  | "MANAGE_STAFF"
-  | "MANAGE_TRANSLATIONS"
-  | "MANAGE_USERS";
+  | "MANAGE_SETTINGS"
+  | "MANAGE_TRANSLATIONS";
+
+export type AppPermission = Permission;
 
 export type WebhookEvent = string;
 
