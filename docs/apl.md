@@ -124,12 +124,12 @@ To handle both scenarios, initialize the proper APLs in your code based on it's 
 ```ts
 // lib/saleorApp.ts
 
-import { FileAPL, VercelAPL } from "@saleor/app-sdk/APL";
+import { FileAPL, UpstashAPL } from "@saleor/app-sdk/APL";
 
 // Based on environment variable the app will use a different APL:
 // - For local development store auth data in the `.auth-data.json`.
-// - For app deployment on Vercel with Saleor CLI, use vercelAPL.
-export const apl = process.env.VERCEL === "1" ? new VercelAPL() : new FileAPL();
+// - For app deployment on hosted environment like Vercel, use UpstashAPL
+export const apl = process.env.APL === "upstash" ? new UpstashAPL() : new FileAPL();
 ```
 
 Now you can use it for in your view:
@@ -165,26 +165,6 @@ export default toNextHandler([withRegisteredSaleorDomainHeader({ apl }), handler
 File based storage of auth data, intended for local development. Data are stored in the `.saleor-app-auth.json` file. You'll be able to develop app without additional dependencies or infrastructure.
 
 Please note: this APL supports single tenant only (new registrations overwrite previous ones) and should not be used on production.
-
-### VercelAPL
-
-Single tenant APL dedicated for apps deployed on Vercel. To use this APL you'll need to deploy application from the Marketplace or use the [Saleor CLI](https://docs.saleor.io/docs/3.x/cli). This way the required `SALEOR_REGISTER_APP_URL` and `SALEOR_DEPLOYMENT_TOKEN` variables will be set up automatically during the first deployment. During the registration process Saleor's service will set up auth data in the environment variables and trigger the deployment:
-
-```mermaid
-sequenceDiagram
-    participant SI as Saleor Instance
-    participant A as App
-    participant SSI as Saleor x Vercel integration
-    participant V as Vercel
-
-    SI->>+A: Register
-    A->>SSI: Update auth data
-    A->>-SI: Register completed
-    SSI->>V: Set auth data as environment variables
-    V->>A: Redeploy the application
-```
-
-If auth data are already saved in the environment, registration will proceed only if the domain of new request is the same as the previous one. This check is made to allow reinstalling the application possible and prevent unintended 3rd party to overwrite existing data. If you want to change the domain of registered Saleor domain, remove `SALEOR_DOMAIN` and `SALEOR_AUTH_TOKEN` environment variables from your Vercel project and redeploy it to refresh it's context.
 
 ### UpstashAPL
 
