@@ -25,6 +25,7 @@
     "react-dom": ">=17"
   },
   "dependencies": {
+    "@changesets/cli": "^2.26.0",
     "debug": "^4.3.4",
     "fast-glob": "^3.2.11",
     "graphql": "^16.6.0",
