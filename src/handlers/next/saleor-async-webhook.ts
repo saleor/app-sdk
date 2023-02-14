@@ -4,7 +4,7 @@ import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
 import { APL } from "../../APL";
 import { createDebug } from "../../debug";
 import { gqlAstToString } from "../../gql-ast-to-string";
-import { WebhookEvent, WebhookManifest } from "../../types";
+import { AsyncWebhookEventType, WebhookManifest } from "../../types";
 import {
   processAsyncSaleorWebhook,
   SaleorWebhookError,
@@ -17,7 +17,7 @@ const debug = createDebug("SaleorAsyncWebhook");
 interface WebhookManifestConfigurationBase {
   name?: string;
   webhookPath: string;
-  asyncEvent: WebhookEvent;
+  asyncEvent: AsyncWebhookEventType;
   isActive?: boolean;
   apl: APL;
 }
@@ -66,7 +66,7 @@ export class SaleorAsyncWebhook<TPayload = unknown> {
 
   query?: string;
 
-  asyncEvent: WebhookEvent;
+  asyncEvent: AsyncWebhookEventType;
 
   isActive?: boolean;
 
