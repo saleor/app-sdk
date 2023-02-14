@@ -12,11 +12,13 @@ export type SaleorCloudAPLConfig = {
 const validateResponseStatus = (response: Response) => {
   if (response.status === 404) {
     debug("Auth data not found");
+    debug("%O", response);
 
     throw new Error("Auth data not found");
   }
   if (!response.ok) {
     debug("Response failed with status %s", response.status);
+    debug("%O", response);
 
     throw new Error(`Fetch returned with non 200 status code ${response.status}`);
   }
@@ -73,6 +75,8 @@ export class SaleorCloudAPL implements APL {
       headers: { "Content-Type": "application/json", ...this.headers },
     }).catch((error) => {
       debug("Failed to reach API call:  %s", error?.message ?? "Unknown error");
+      debug("%O", error);
+
       return undefined;
     });
 
@@ -83,6 +87,7 @@ export class SaleorCloudAPL implements APL {
 
     try {
       validateResponseStatus(response);
+      debug("Response status valid");
     } catch {
       debug("Response status not valid");
       return undefined;
@@ -90,6 +95,7 @@ export class SaleorCloudAPL implements APL {
 
     const parsedResponse = (await response.json().catch((e) => {
       debug("Failed to parse response: %s", e?.message ?? "Unknown error");
+      debug("%O", e);
     })) as unknown;
 
     const authData = authDataFromObject(mapAPIResponseToAuthData(parsedResponse));
@@ -103,7 +109,7 @@ export class SaleorCloudAPL implements APL {
   }
 
   async set(authData: AuthData) {
-    debug("Saving data to SaleorCloudAPL for domain: %s", authData.domain);
+    debug("Saving data to SaleorCloudAPL for saleorApiUrl: %s", authData.saleorApiUrl);
 
     const response = await fetch(this.resourceUrl, {
       method: "POST",
@@ -111,13 +117,14 @@ export class SaleorCloudAPL implements APL {
       body: JSON.stringify(mapAuthDataToAPIBody(authData)),
     }).catch((e) => {
       debug("Failed to reach API call:  %s", e?.message ?? "Unknown error");
+      debug("%O", e);
 
-      throw new Error(`Error during saving the data: ${e}`);
+      throw new Error(`Error during saving the data: ${e?.message ?? "Unknown error"}`);
     });
 
     validateResponseStatus(response);
 
-    debug("Set command finished successfully for domain: %", authData.domain);
+    debug("Set command finished successfully for saleorApiUrl: %", authData.saleorApiUrl);
 
     return undefined;
   }
@@ -132,10 +139,13 @@ export class SaleorCloudAPL implements APL {
       });
 
       debug(`Delete responded with ${response.status} code`);
-    } catch (error) {
-      debug("Error during deleting the data: %s", error);
+    } catch (error: any) {
+      const errorMessage = error?.message ?? "Unknown error";
 
-      throw new Error(`Error during deleting the data: ${error}`);
+      debug("Error during deleting the data: %s", errorMessage);
+      debug("%O", error);
+
+      throw new Error(`Error during deleting the data: ${errorMessage}`);
     }
   }
 
@@ -151,8 +161,11 @@ export class SaleorCloudAPL implements APL {
       debug(`Get all responded with ${response.status} code`);
 
       return ((await response.json()) as AuthData[]) || [];
-    } catch (error) {
-      debug("Error during getting all the data:", error);
+    } catch (error: any) {
+      const errorMessage = error?.message ?? "Unknown error";
+
+      debug("Error during getting all the data:", errorMessage);
+      debug("%O", error);
     }
 
     return [];
