@@ -201,7 +201,7 @@ export interface AppExtension {
 export interface WebhookManifest {
   name: string;
   asyncEvents?: AsyncWebhookEventType[];
-  syncEvents?: AsyncWebhookEventType[];
+  syncEvents?: SyncWebhookEventType[];
   /** If query is not provided, the default webhook payload will be used */
   query?: string;
   /** The full URL of the endpoint where request will be sent */
