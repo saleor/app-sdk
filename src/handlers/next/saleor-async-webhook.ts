@@ -20,6 +20,15 @@ interface WebhookManifestConfigurationBase {
   asyncEvent: AsyncWebhookEventType;
   isActive?: boolean;
   apl: APL;
+  onError?(error: WebhookError | Error): void;
+  formatErrorResponse?(
+    error: WebhookError | Error,
+    req: NextApiRequest,
+    res: NextApiResponse
+  ): {
+    code: number;
+    body: object | string;
+  };
 }
 
 interface WebhookManifestConfigurationWithAst extends WebhookManifestConfigurationBase {
@@ -72,6 +81,10 @@ export class SaleorAsyncWebhook<TPayload = unknown> {
 
   apl: APL;
 
+  onError: WebhookManifestConfigurationBase["onError"];
+
+  formatErrorResponse: WebhookManifestConfigurationBase["formatErrorResponse"];
+
   constructor(configuration: WebhookManifestConfiguration) {
     const { name, webhookPath, asyncEvent, apl, isActive = true } = configuration;
     this.name = name || `${asyncEvent} webhook`;
@@ -92,6 +105,8 @@ export class SaleorAsyncWebhook<TPayload = unknown> {
     this.asyncEvent = asyncEvent;
     this.isActive = isActive;
     this.apl = apl;
+    this.onError = configuration.onError;
+    this.formatErrorResponse = configuration.formatErrorResponse;
   }
 
   /**
@@ -146,10 +161,41 @@ export class SaleorAsyncWebhook<TPayload = unknown> {
 
           if (e instanceof WebhookError) {
             debug(`Validation error: ${e.message}`);
-            res.status(AsyncWebhookErrorCodeMap[e.errorType] || 400).end();
+
+            if (this.onError) {
+              this.onError(e);
+            }
+
+            if (this.formatErrorResponse) {
+              const { code, body } = this.formatErrorResponse(e, req, res);
+
+              res.status(code).send(body);
+
+              return;
+            }
+
+            res.status(AsyncWebhookErrorCodeMap[e.errorType] || 400).send({
+              error: {
+                type: e.errorType,
+                message: e.message,
+              },
+            });
             return;
           }
           debug("Unexpected error: %O", e);
+
+          if (this.onError) {
+            this.onError(e);
+          }
+
+          if (this.formatErrorResponse) {
+            const { code, body } = this.formatErrorResponse(e, req, res);
+
+            res.status(code).send(body);
+
+            return;
+          }
+
           res.status(500).end();
         });
     };

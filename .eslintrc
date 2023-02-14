@@ -57,7 +57,8 @@
     "import/no-cycle": "off", // pathpidia issue
     "import/prefer-default-export": "off",
     "@typescript-eslint/no-misused-promises": ["error"],
-    "@typescript-eslint/no-floating-promises": ["error"]
+    "@typescript-eslint/no-floating-promises": ["error"],
+    "class-methods-use-this": "off"
   },
   "settings": {
     "import/parsers": {

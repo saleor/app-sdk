@@ -3,7 +3,7 @@ import { createMocks } from "node-mocks-http";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { APL } from "../../APL";
-import { processAsyncSaleorWebhook } from "./process-async-saleor-webhook";
+import { processAsyncSaleorWebhook, WebhookError } from "./process-async-saleor-webhook";
 import { NextWebhookApiHandler, SaleorAsyncWebhook } from "./saleor-async-webhook";
 
 const webhookPath = "api/webhooks/product-updated";
@@ -113,5 +113,56 @@ describe("SaleorAsyncWebhook", () => {
 
     // Check if test handler was used by the wrapper
     expect(testHandler).toBeCalledTimes(1);
+  });
+
+  it("Calls callbacks for error handling", async () => {
+    const onErrorCallback = vi.fn();
+    const formatErrorCallback = vi.fn().mockImplementation(() => ({
+      code: 401,
+      body: "My Body",
+    }));
+
+    const webhook = new SaleorAsyncWebhook({
+      ...validAsyncWebhookConfiguration,
+      onError: onErrorCallback,
+      formatErrorResponse: formatErrorCallback,
+    });
+
+    // prepare mocked context returned by mocked process function
+    vi.mock("./process-async-saleor-webhook");
+
+    vi.mocked(processAsyncSaleorWebhook).mockImplementationOnce(async () => {
+      throw new WebhookError("Test error message", "MISSING_PAYLOAD_HEADER");
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const testHandler: NextWebhookApiHandler = vi.fn().mockImplementation((req, res, context) => {
+      if (context.payload.data === "test_payload") {
+        res.status(200).end();
+        return;
+      }
+      throw new Error("Test payload has not been passed to handler function");
+    });
+
+    const { req, res } = createMocks();
+    const wrappedHandler = webhook.createHandler(testHandler);
+
+    await wrappedHandler(req, res);
+
+    /**
+     * Response should match formatErrorCallback
+     */
+    expect(res.statusCode).toBe(401);
+    expect(res._getData()).toBe("My Body");
+    /**
+     * TODO This assertion fails, due to WebhookError constructor:
+     *  [TypeError: Class constructor WebhookError cannot be invoked without 'new']
+     */
+    expect(onErrorCallback).toHaveBeenCalledWith("Test error message");
+
+    /**
+     * Handler should not be called, since it thrown before
+     */
+    expect(testHandler).not.toHaveBeenCalled();
   });
 });
