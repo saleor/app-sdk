@@ -49,7 +49,41 @@ export const orderCreatedWebhook = new SaleorAsyncWebhook<OrderPayload>({
   /**
    * Subscription query, telling Saleor what payload app expects
    */
-  query: "TODO",
+  query: `
+    subscription {
+      event {
+        ... on OrderCreated {
+          order {
+            id
+          }
+        }
+      }
+    }  
+  `,
+  /**
+   * Optional
+   *
+   * Read internal errors
+   */
+  onError(error: WebhookError | Error) {
+    // Can be used to e.g. trace errors
+    sentry.captureError(error);
+  },
+  /**
+   * Optional
+   * Allows to set custom error response. If not provided, default mapping and message will be responsed
+   * if Webhook validation fails
+   */
+  async formatErrorResponse(
+    error: WebhookError | Error,
+    req: NextApiRequest,
+    res: NextApiResponse
+  ) {
+    return {
+      code: 400,
+      body: "My custom response",
+    };
+  },
 });
 ```
 
@@ -125,12 +159,15 @@ export const ExampleProductUpdatedSubscription = gql`
   ${ProductUpdatedWebhookPayload}
   subscription ExampleProductUpdated {
     event {
-      fragment ProductUpdatedWebhookPayload on ProductUpdated {
-      product {
-        id
-        name
+      fragment
+      ProductUpdatedWebhookPayload
+      on
+      ProductUpdated {
+        product {
+          id
+          name
+        }
       }
-    }
     }
   }
 `;
@@ -142,3 +179,4 @@ export const productUpdatedWebhook = new SaleorAsyncWebhook<ProductUpdatedWebhoo
   apl: saleorApp.apl,
   subscriptionQueryAst: ExampleProductUpdatedSubscription,
 });
+```
