@@ -1,3 +1,4 @@
+import { hasProp } from "../has-prop";
 import { APL, AplConfiguredResult, AplReadyResult, AuthData } from "./apl";
 import { createAPLDebug } from "./apl-debug";
 import { authDataFromObject } from "./auth-data-from-object";
@@ -41,6 +42,18 @@ const mapAPIResponseToAuthData = (response: any): AuthData => ({
   token: response.token,
 });
 
+const extractErrorMessage = (error: unknown) => {
+  if (typeof error === "string") {
+    return error;
+  }
+
+  if (hasProp(error, "message")) {
+    return error.message;
+  }
+
+  return "Unknown error";
+};
+
 /**
  *
  * Saleor Cloud APL - handle auth data management via REST API.
@@ -74,7 +87,7 @@ export class SaleorCloudAPL implements APL {
       method: "GET",
       headers: { "Content-Type": "application/json", ...this.headers },
     }).catch((error) => {
-      debug("Failed to reach API call:  %s", error?.message ?? "Unknown error");
+      debug("Failed to reach API call:  %s", extractErrorMessage(error));
       debug("%O", error);
 
       return undefined;
@@ -94,7 +107,7 @@ export class SaleorCloudAPL implements APL {
     }
 
     const parsedResponse = (await response.json().catch((e) => {
-      debug("Failed to parse response: %s", e?.message ?? "Unknown error");
+      debug("Failed to parse response: %s", extractErrorMessage(e));
       debug("%O", e);
     })) as unknown;
 
@@ -116,10 +129,10 @@ export class SaleorCloudAPL implements APL {
       headers: { "Content-Type": "application/json", ...this.headers },
       body: JSON.stringify(mapAuthDataToAPIBody(authData)),
     }).catch((e) => {
-      debug("Failed to reach API call:  %s", e?.message ?? "Unknown error");
+      debug("Failed to reach API call:  %s", extractErrorMessage(e));
       debug("%O", e);
 
-      throw new Error(`Error during saving the data: ${e?.message ?? "Unknown error"}`);
+      throw new Error(`Error during saving the data: ${extractErrorMessage(e)}`);
     });
 
     validateResponseStatus(response);
@@ -139,8 +152,8 @@ export class SaleorCloudAPL implements APL {
       });
 
       debug(`Delete responded with ${response.status} code`);
-    } catch (error: any) {
-      const errorMessage = error?.message ?? "Unknown error";
+    } catch (error) {
+      const errorMessage = extractErrorMessage(error);
 
       debug("Error during deleting the data: %s", errorMessage);
       debug("%O", error);
@@ -161,8 +174,8 @@ export class SaleorCloudAPL implements APL {
       debug(`Get all responded with ${response.status} code`);
 
       return ((await response.json()) as AuthData[]) || [];
-    } catch (error: any) {
-      const errorMessage = error?.message ?? "Unknown error";
+    } catch (error) {
+      const errorMessage = extractErrorMessage(error);
 
       debug("Error during getting all the data:", errorMessage);
       debug("%O", error);
