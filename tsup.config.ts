@@ -8,6 +8,7 @@ export default defineConfig({
     "src/headers.ts",
     "src/saleor-app.ts",
     "src/verify-jwt.ts",
+    "src/verify-signature.ts",
     "src/APL/index.ts",
     "src/app-bridge/index.ts",
     "src/app-bridge/next/index.ts",

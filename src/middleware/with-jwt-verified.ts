@@ -2,9 +2,9 @@ import * as jose from "jose";
 import type { Middleware, Request } from "retes";
 import { Response } from "retes/response";
 
-import { SALEOR_AUTHORIZATION_BEARER_HEADER, SALEOR_DOMAIN_HEADER } from "../const";
+import { SALEOR_API_URL_HEADER, SALEOR_AUTHORIZATION_BEARER_HEADER } from "../const";
 import { getSaleorHeaders } from "../headers";
-import { getJwksUrl } from "../urls";
+import { getJwksUrlFromSaleorApiUrl } from "../urls";
 import { createMiddlewareDebug } from "./middleware-debug";
 
 const debug = createMiddlewareDebug("withJWTVerified");
@@ -19,9 +19,9 @@ export const withJWTVerified =
   (getAppId: (request: Request) => Promise<string | undefined>): Middleware =>
   (handler) =>
   async (request) => {
-    const { domain, authorizationBearer: token } = getSaleorHeaders(request.headers);
+    const { authorizationBearer: token, saleorApiUrl } = getSaleorHeaders(request.headers);
 
-    debug("Middleware called with domain: \"%s\"", domain);
+    debug("Middleware called with apiUrl: \"%s\"", saleorApiUrl);
 
     if (typeof token !== "string") {
       debug("Middleware with empty token, will response with Bad Request", token);
@@ -34,10 +34,10 @@ export const withJWTVerified =
 
     debug("Middleware called with token starting with: \"%s\"", token.substring(0, 4));
 
-    if (domain === undefined) {
+    if (saleorApiUrl === undefined) {
       return Response.BadRequest({
         success: false,
-        message: `${ERROR_MESSAGE} Missing ${SALEOR_DOMAIN_HEADER} header.`,
+        message: `${ERROR_MESSAGE} Missing ${SALEOR_API_URL_HEADER} header.`,
       });
     }
 
@@ -93,7 +93,7 @@ export const withJWTVerified =
     try {
       debug("Trying to create JWKS");
 
-      const JWKS = jose.createRemoteJWKSet(new URL(getJwksUrl(domain)));
+      const JWKS = jose.createRemoteJWKSet(new URL(getJwksUrlFromSaleorApiUrl(saleorApiUrl)));
       debug("Trying to compare JWKS with token");
       await jose.jwtVerify(token, JWKS);
     } catch (e) {

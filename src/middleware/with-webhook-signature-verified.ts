@@ -2,15 +2,18 @@ import crypto from "crypto";
 import { Middleware } from "retes";
 import { Response } from "retes/response";
 
-import { SALEOR_DOMAIN_HEADER, SALEOR_SIGNATURE_HEADER } from "../const";
+import { SALEOR_API_URL_HEADER, SALEOR_SIGNATURE_HEADER } from "../const";
 import { getSaleorHeaders } from "../headers";
-import { verifySignature } from "../verify-signature";
+import { verifySignatureFromApiUrl } from "../verify-signature";
 import { createMiddlewareDebug } from "./middleware-debug";
 
 const debug = createMiddlewareDebug("withWebhookSignatureVerified");
 
 const ERROR_MESSAGE = "Webhook signature verification failed:";
 
+/**
+ * TODO: Add test
+ */
 export const withWebhookSignatureVerified =
   (secretKey: string | undefined = undefined): Middleware =>
   (handler) =>
@@ -26,7 +29,7 @@ export const withWebhookSignatureVerified =
       });
     }
 
-    const { domain: saleorDomain, signature: payloadSignature } = getSaleorHeaders(request.headers);
+    const { signature: payloadSignature, saleorApiUrl } = getSaleorHeaders(request.headers);
 
     if (!payloadSignature) {
       debug("Signature header was not found");
@@ -37,10 +40,10 @@ export const withWebhookSignatureVerified =
       });
     }
 
-    if (!saleorDomain) {
+    if (!saleorApiUrl) {
       return Response.BadRequest({
         success: false,
-        message: `${ERROR_MESSAGE} Missing ${SALEOR_DOMAIN_HEADER} header.`,
+        message: `${ERROR_MESSAGE} Missing ${SALEOR_API_URL_HEADER} header.`,
       });
     }
 
@@ -62,7 +65,7 @@ export const withWebhookSignatureVerified =
       }
     } else {
       try {
-        await verifySignature(saleorDomain, payloadSignature, request.rawBody);
+        await verifySignatureFromApiUrl(saleorApiUrl, payloadSignature, request.rawBody);
         debug("JWKS verified");
       } catch {
         debug("JWKS verification failed");
