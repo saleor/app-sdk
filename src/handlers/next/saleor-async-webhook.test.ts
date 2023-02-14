@@ -16,6 +16,9 @@ describe("SaleorAsyncWebhook", () => {
         ? {
             domain: "example.com",
             token: "mock-token",
+            jwks: "",
+            saleorApiUrl: "https://example.com/graphql/",
+            appId: "12345",
           }
         : undefined,
     set: vi.fn(),
@@ -34,7 +37,7 @@ describe("SaleorAsyncWebhook", () => {
     asyncEvent: "PRODUCT_UPDATED",
     webhookPath,
     query: "subscription { event { ... on ProductUpdated { product { id }}}}",
-  };
+  } as const;
 
   const saleorAsyncWebhook = new SaleorAsyncWebhook(validAsyncWebhookConfiguration);
 
@@ -83,7 +86,13 @@ describe("SaleorAsyncWebhook", () => {
       baseUrl: "example.com",
       event: "product_updated",
       payload: { data: "test_payload" },
-      authData: { domain: "example.com", token: "token" },
+      authData: {
+        domain: "example.com",
+        token: "token",
+        jwks: "",
+        saleorApiUrl: "https://example.com/graphql/",
+        appId: "12345",
+      },
     }));
 
     // Test handler - will throw error if mocked context is not passed to it
