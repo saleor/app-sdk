@@ -117,7 +117,7 @@ describe("SaleorAsyncWebhook", () => {
 
   it("Calls callbacks for error handling", async () => {
     const onErrorCallback = vi.fn();
-    const formatErrorCallback = vi.fn().mockImplementation(() => ({
+    const formatErrorCallback = vi.fn().mockImplementation(async () => ({
       code: 401,
       body: "My Body",
     }));

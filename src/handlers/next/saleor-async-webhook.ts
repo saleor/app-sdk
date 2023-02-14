@@ -25,10 +25,10 @@ interface WebhookManifestConfigurationBase {
     error: WebhookError | Error,
     req: NextApiRequest,
     res: NextApiResponse
-  ): {
+  ): Promise<{
     code: number;
     body: object | string;
-  };
+  }>;
 }
 
 interface WebhookManifestConfigurationWithAst extends WebhookManifestConfigurationBase {
@@ -156,7 +156,7 @@ export class SaleorAsyncWebhook<TPayload = unknown> {
           debug("Incoming request validated. Call handlerFn");
           return handlerFn(req, res, context);
         })
-        .catch((e) => {
+        .catch(async (e) => {
           debug(`Unexpected error during processing the webhook ${this.name}`);
 
           if (e instanceof WebhookError) {
@@ -167,7 +167,7 @@ export class SaleorAsyncWebhook<TPayload = unknown> {
             }
 
             if (this.formatErrorResponse) {
-              const { code, body } = this.formatErrorResponse(e, req, res);
+              const { code, body } = await this.formatErrorResponse(e, req, res);
 
               res.status(code).send(body);
 
@@ -189,7 +189,7 @@ export class SaleorAsyncWebhook<TPayload = unknown> {
           }
 
           if (this.formatErrorResponse) {
-            const { code, body } = this.formatErrorResponse(e, req, res);
+            const { code, body } = await this.formatErrorResponse(e, req, res);
 
             res.status(code).send(body);
 
