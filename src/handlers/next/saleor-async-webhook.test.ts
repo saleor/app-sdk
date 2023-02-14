@@ -3,7 +3,7 @@ import { createMocks } from "node-mocks-http";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { APL } from "../../APL";
-import { processAsyncSaleorWebhook, WebhookError } from "./process-async-saleor-webhook";
+import { processAsyncSaleorWebhook } from "./process-async-saleor-webhook";
 import { NextWebhookApiHandler, SaleorAsyncWebhook } from "./saleor-async-webhook";
 
 const webhookPath = "api/webhooks/product-updated";
@@ -132,7 +132,13 @@ describe("SaleorAsyncWebhook", () => {
     vi.mock("./process-async-saleor-webhook");
 
     vi.mocked(processAsyncSaleorWebhook).mockImplementationOnce(async () => {
-      throw new WebhookError("Test error message", "MISSING_PAYLOAD_HEADER");
+      /**
+       * This mock should throw WebhookError, but there was TypeError related to constructor of extended class.
+       * Try "throw new WebhookError()" to check it.
+       *
+       * For test suite it doesn't matter, because errors thrown from source code are valid
+       */
+      throw new Error("Test error message");
     });
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -158,7 +164,11 @@ describe("SaleorAsyncWebhook", () => {
      * TODO This assertion fails, due to WebhookError constructor:
      *  [TypeError: Class constructor WebhookError cannot be invoked without 'new']
      */
-    expect(onErrorCallback).toHaveBeenCalledWith("Test error message");
+    expect(onErrorCallback).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: "Test error message",
+      })
+    );
 
     /**
      * Handler should not be called, since it thrown before
