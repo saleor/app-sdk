@@ -132,6 +132,11 @@
       "types": "./verify-jwt.d.ts",
       "import": "./verify-jwt.mjs",
       "require": "./verify-jwt.js"
+    },
+    "./verify-signature": {
+      "types": "./verify-signature.d.ts",
+      "import": "./verify-signature.mjs",
+      "require": "./verify-signature.js"
     }
   },
   "publishConfig": {
