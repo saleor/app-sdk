@@ -41,7 +41,7 @@ export const verifySignatureFromApiUrl = async (
 };
 
 /**
- * Verify Webhook payload signature from provided jwks string.
+ * Verify the Webhook payload signature from provided JWKS string.
  * JWKS can be cached to avoid unnecessary calls.
  *
  * TODO: Add test
