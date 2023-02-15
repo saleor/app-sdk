@@ -1,6 +1,6 @@
 # SDK for Saleor Apps
 
-SDK for building great [Saleor Apps](https://github.com/saleor/saleor-app-template).
+SDK for building great [Saleor Apps](https://github.com/saleor/apps).
 
 <div>
 
