@@ -151,5 +151,6 @@
   "bugs": {
     "url": "https://github.com/saleor/saleor-app-sdk/issues"
   },
-  "homepage": "https://github.com/saleor/saleor-app-sdk#readme"
+  "homepage": "https://github.com/saleor/saleor-app-sdk#readme",
+  "packageManager": "pnpm@7.26.2"
 }
