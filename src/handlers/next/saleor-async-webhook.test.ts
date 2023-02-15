@@ -160,14 +160,12 @@ describe("SaleorAsyncWebhook", () => {
      */
     expect(res.statusCode).toBe(401);
     expect(res._getData()).toBe("My Body");
-    /**
-     * TODO This assertion fails, due to WebhookError constructor:
-     *  [TypeError: Class constructor WebhookError cannot be invoked without 'new']
-     */
     expect(onErrorCallback).toHaveBeenCalledWith(
       expect.objectContaining({
         message: "Test error message",
-      })
+      }),
+      req,
+      res
     );
 
     /**

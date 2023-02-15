@@ -20,7 +20,7 @@ interface WebhookManifestConfigurationBase {
   asyncEvent: AsyncWebhookEventType;
   isActive?: boolean;
   apl: APL;
-  onError?(error: WebhookError | Error): void;
+  onError?(error: WebhookError | Error, req: NextApiRequest, res: NextApiResponse): void;
   formatErrorResponse?(
     error: WebhookError | Error,
     req: NextApiRequest,
@@ -163,7 +163,7 @@ export class SaleorAsyncWebhook<TPayload = unknown> {
             debug(`Validation error: ${e.message}`);
 
             if (this.onError) {
-              this.onError(e);
+              this.onError(e, req, res);
             }
 
             if (this.formatErrorResponse) {
@@ -185,7 +185,7 @@ export class SaleorAsyncWebhook<TPayload = unknown> {
           debug("Unexpected error: %O", e);
 
           if (this.onError) {
-            this.onError(e);
+            this.onError(e, req, res);
           }
 
           if (this.formatErrorResponse) {
