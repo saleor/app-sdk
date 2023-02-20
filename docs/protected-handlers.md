@@ -1,6 +1,11 @@
 # Protected API handlers
 
-The App SDK provides helpers which ensure, that incoming requests are send from Saleor dashboard. Example of such situation could be a change of the application configuration iframe.
+The App SDK provides helpers which ensure, that incoming requests are sent from Saleor dashboard.
+Example of such situation could be a change of the application configuration iframe.
+
+> **Warning**
+> This handler only works for requests originated from frontend calls. It checks JWT token from the client, which is available
+> in AppBridge. Do not call this endpoint from backend context (calling it from API function will fail)
 
 ## How to protect the endpoint
 
