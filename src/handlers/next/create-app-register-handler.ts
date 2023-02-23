@@ -1,4 +1,4 @@
-import type { Handler } from "retes";
+import type { Handler, Request } from "retes";
 import { toNextHandler } from "retes/adapter";
 import { withMethod } from "retes/middleware";
 import { Response } from "retes/response";
@@ -22,6 +22,44 @@ export type CreateAppRegisterHandlerOptions = HasAPL & {
    * or a function that receives a full Saleor API URL ad returns true/false.
    */
   allowedSaleorUrls?: Array<string | ((saleorApiUrl: string) => boolean)>;
+  hooks?: {
+    onRequestStart?(
+      request: Request,
+      context: {
+        authToken?: string;
+        saleorDomain?: string;
+        saleorApiUrl?: string;
+      }
+    ): Promise<void>;
+    onRequestVerified?(
+      request: Request,
+      context: {
+        authToken: string;
+        saleorDomain: string;
+        saleorApiUrl: string;
+        appId: string;
+      }
+    ): Promise<void>;
+    onAuthAplSaved?(
+      request: Request,
+      context: {
+        authToken: string;
+        saleorDomain: string;
+        saleorApiUrl: string;
+        appId: string;
+      }
+    ): Promise<void>;
+    onAuthAplFailed?(
+      request: Request,
+      context: {
+        authToken: string;
+        saleorDomain: string;
+        saleorApiUrl: string;
+        appId: string;
+        error: unknown;
+      }
+    ): Promise<void>;
+  };
 };
 
 /**
@@ -32,12 +70,21 @@ export type CreateAppRegisterHandlerOptions = HasAPL & {
 export const createAppRegisterHandler = ({
   apl,
   allowedSaleorUrls,
+  hooks,
 }: CreateAppRegisterHandlerOptions) => {
   const baseHandler: Handler = async (request) => {
     debug("Request received");
     const authToken = request.params.auth_token;
     const saleorDomain = request.headers[SALEOR_DOMAIN_HEADER] as string;
     const saleorApiUrl = request.headers[SALEOR_API_URL_HEADER] as string;
+
+    if (hooks?.onRequestStart) {
+      await hooks.onRequestStart(request, {
+        authToken,
+        saleorApiUrl,
+        saleorDomain,
+      });
+    }
 
     if (!validateAllowSaleorUrls(saleorApiUrl, allowedSaleorUrls)) {
       debug("Validation of URL %s against allowSaleorUrls param resolves to false, throwing");
@@ -104,6 +151,15 @@ export const createAppRegisterHandler = ({
       );
     }
 
+    if (hooks?.onRequestVerified) {
+      await hooks.onRequestVerified(request, {
+        authToken,
+        saleorApiUrl,
+        appId,
+        saleorDomain,
+      });
+    }
+
     try {
       await apl.set({
         domain: saleorDomain,
@@ -112,8 +168,28 @@ export const createAppRegisterHandler = ({
         appId,
         jwks,
       });
-    } catch {
+
+      if (hooks?.onAuthAplSaved) {
+        await hooks?.onAuthAplSaved(request, {
+          appId,
+          saleorDomain,
+          saleorApiUrl,
+          authToken,
+        });
+      }
+    } catch (e: unknown) {
       debug("There was an error during saving the auth data");
+
+      if (hooks?.onAuthAplFailed) {
+        await hooks?.onAuthAplFailed(request, {
+          appId,
+          saleorDomain,
+          saleorApiUrl,
+          authToken,
+          error: e,
+        });
+      }
+
       return Response.InternalServerError({
         success: false,
         error: {
@@ -121,7 +197,9 @@ export const createAppRegisterHandler = ({
         },
       });
     }
+
     debug("Register  complete");
+
     return Response.OK({ success: true });
   };
 
