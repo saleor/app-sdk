@@ -57,10 +57,13 @@ Example usage of app register handler in Next.js
 // pages/api/register.ts
 
 import { createAppRegisterHandler } from "@saleor/app-sdk/handlers/next";
-import { VercelAPL } from "./vercel-apl";
+import { UpstashAPL } from "@saleor/app-sdk/APL";
 
 export default createAppRegisterHandler({
-  apl: new VercelAPL(),
+  apl: new UpstashAPL({
+    restURL: "...",
+    restToken: "...",
+  }),
   allowedSaleorUrls: ["https://your-saleor.saleor.cloud/graphql/"], // optional, see options below
 });
 ```
