@@ -66,7 +66,7 @@ Let's create an APL, which uses Redis for data storage:
 
 ```ts
 import { createClient } from "redis";
-import { APL, AuthData } from "@saleor/app-sdk/types/apl";
+import { APL, AuthData } from "@saleor/app-sdk/apl";
 
 const client = createClient();
 await client.connect();
