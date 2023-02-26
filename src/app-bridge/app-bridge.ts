@@ -118,7 +118,7 @@ const getDefaultOptions = (): AppBridgeOptions => ({
   targetDomain: getDomainFromUrl(),
   saleorApiUrl: getSaleorApiUrlFromUrl(),
   initialLocale: getLocaleFromUrl() ?? "en",
-  autoNotifyReady: false,
+  autoNotifyReady: true,
   initialTheme: getThemeFromUrl() ?? undefined,
 });
 
