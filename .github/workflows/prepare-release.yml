@@ -27,7 +27,7 @@ jobs:
       - uses: pnpm/action-setup@v2
         name: Install pnpm
       - run: pnpm install
-        # TODO -> publish to npm as pre-release
+        # TODO -> publish to npm as pre-release https://github.com/changesets/changesets/blob/8447c677a37d1d23858059e0ce2b5cd98f4c24ae/docs/snapshot-releases.md
       - name: Create Release Pull Request
         uses: changesets/action@v1
         id: changesets
@@ -42,3 +42,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Push tags
+        run: changeset tag && git push --follow-tags
