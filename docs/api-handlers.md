@@ -65,6 +65,11 @@ export default createAppRegisterHandler({
     restToken: "...",
   }),
   allowedSaleorUrls: ["https://your-saleor.saleor.cloud/graphql/"], // optional, see options below
+  async onRequestVerified(req, { authData, respondWithError }) {
+    await doSomethingAndBlockInstallation(authData.token).catch((err) => {
+      throw respondWithError({ body: "Error, installation will fail" });
+    });
+  },
 });
 ```
 
@@ -78,6 +83,53 @@ export type CreateAppRegisterHandlerOptions = {
    * to allow app registration only in allowed Saleor instances.
    */
   allowedSaleorUrls?: Array<string | ((saleorApiUrl: string) => boolean)>;
+  /**
+   * Optional
+   * Run right after Saleor calls this endpoint
+   */
+  onRequestStart?(
+    request: Request,
+    context: {
+      authToken?: string;
+      saleorDomain?: string;
+      saleorApiUrl?: string;
+      respondWithError: ({ status, message, body }) => never; // should throw
+    }
+  ): Promise<void>;
+  /**
+   * Optional
+   * Run after all security checks
+   */
+  onRequestVerified?(
+    request: Request,
+    context: {
+      authData: AuthData;
+      respondWithError: ({ status, message, body }) => never; // should throw
+    }
+  ): Promise<void>;
+  /**
+   * Optional
+   * Run after APL successfully AuthData, assuming that APL.set will reject a Promise in case of error
+   */
+  onAuthAplSaved?(
+    request: Request,
+    context: {
+      authData: AuthData;
+      respondWithError: ({ status, message, body }) => never; // should throw
+    }
+  ): Promise<void>;
+  /**
+   * Optional
+   * Run after APL fails to set AuthData
+   */
+  onAuthAplFailed?(
+    request: Request,
+    context: {
+      authData: AuthData;
+      error: unknown;
+      respondWithError: ({ status, message, body }) => never; // should throw
+    }
+  ): Promise<void>;
 };
 ```
 
