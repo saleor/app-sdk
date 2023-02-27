@@ -14,7 +14,8 @@
     "prepare": "husky install",
     "lint": "prettier --loglevel warn --write . && eslint --fix .",
     "release": "release-it",
-    "copy-readme": "cp README.md dist/README.md"
+    "copy-readme": "cp README.md dist/README.md",
+    "publish:ci": "pnpm publish && npx changeset tag && git push --follow-tags"
   },
   "keywords": [],
   "author": "",
