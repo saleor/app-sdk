@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 0.32.4
+
+### Patch Changes
+
+- 5b7f3cf: Test changeset
+
 ## 0.32.3
 
 ### Patch Changes
