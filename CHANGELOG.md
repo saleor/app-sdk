@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 0.32.5
+
+### Patch Changes
+
+- bf5764f: Test changeset
+
 ## 0.32.4
 
 ### Patch Changes
