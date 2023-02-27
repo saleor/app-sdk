@@ -134,7 +134,7 @@ export const createAppRegisterHandler = ({
       } catch (e: HookCallbackError | unknown) {
         debug("\"onRequestStart\" hook thrown error: %o", e);
 
-        handleHookError(e);
+        return handleHookError(e);
       }
     }
 
@@ -222,7 +222,7 @@ export const createAppRegisterHandler = ({
       } catch (e: HookCallbackError | unknown) {
         debug("\"onRequestVerified\" hook thrown error: %o", e);
 
-        handleHookError(e);
+        return handleHookError(e);
       }
     }
 
@@ -240,7 +240,7 @@ export const createAppRegisterHandler = ({
         } catch (e: HookCallbackError | unknown) {
           debug("\"onAuthAplSaved\" hook thrown error: %o", e);
 
-          handleHookError(e);
+          return handleHookError(e);
         }
       }
     } catch (aplError: unknown) {
@@ -258,7 +258,7 @@ export const createAppRegisterHandler = ({
         } catch (hookError: HookCallbackError | unknown) {
           debug("\"onAuthAplFailed\" hook thrown error: %o", hookError);
 
-          handleHookError(hookError);
+          return handleHookError(hookError);
         }
       }
 
