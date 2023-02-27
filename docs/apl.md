@@ -179,7 +179,7 @@ import { UpstashAPL } from "@saleor/app-sdk/APL";
 
 const apl = new UpstashAPL({
   restToken: "XXXXXXXXXXXXXX",
-  restUrl: "https://eu2-red-panda-00000.upstash.io",
+  restURL: "https://eu2-red-panda-00000.upstash.io",
 });
 ```
 
