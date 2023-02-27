@@ -122,7 +122,7 @@ export type CreateAppRegisterHandlerOptions = {
    * Optional
    * Run after APL fails to set AuthData
    */
-  onAuthAplFailed?(
+  onAplSetFailed?(
     request: Request,
     context: {
       authData: AuthData;
