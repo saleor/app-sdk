@@ -74,7 +74,6 @@ export class UpstashAPL implements APL {
     }
     if (response.status >= 400 || response.status < 200) {
       debug("Non 200 response code. Upstash responded with %j", response);
-      throw new Error(`Upstash APL responded with the code ${response.status}`);
     }
     const parsedResponse = (await response.json()) as UpstashResponse;
     if ("error" in parsedResponse) {
