@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 0.32.1
+
+### Patch Changes
+
+- cd25a3b: Add automatic publish to npm after changeset release
+
 ## 0.32.0
 
 ### Minor Changes
