@@ -36,7 +36,9 @@ jobs:
           commit: Release to npm
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Publish
         if: steps.changesets.outputs.hasChangesets == 'false'
         run: "pnpm publish:ci"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
