@@ -34,7 +34,7 @@ jobs:
         with:
           title: Release to npm
           commit: Release to npm
-          # publish: pnpm publish --dry-run
+          publish: pnpm publish --dry-run
           # action is automatically pushing even before PR is merged?
           # This should:
           # 1. Push to "next" every time
