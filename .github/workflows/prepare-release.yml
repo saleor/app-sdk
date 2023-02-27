@@ -34,14 +34,7 @@ jobs:
         with:
           title: Release to npm
           commit: Release to npm
-          publish: pnpm publish
-          # action is automatically pushing even before PR is merged?
-          # This should:
-          # 1. Push to "next" every time
-          # 2. Push to latest AFTER PR is merged
+          publish: pnpm publish && npx changeset tag && git push --follow-tags
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Push tags
-        if: steps.changesets.outputs.published == 'true'
-        run: npx changeset tag && git push --follow-tags
