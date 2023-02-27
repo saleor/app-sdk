@@ -43,4 +43,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Push tags
-        run: changeset tag && git push --follow-tags
+        run: npx changeset tag && git push --follow-tags
