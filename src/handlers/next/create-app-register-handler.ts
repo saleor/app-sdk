@@ -20,7 +20,7 @@ type HookCallbackErrorParams = {
   message?: string;
 };
 
-class HookCallbackError extends Error {
+class RegisterCallbackError extends Error {
   public status = 500;
 
   public body: object = {};
@@ -38,10 +38,10 @@ class HookCallbackError extends Error {
   }
 }
 
-const createCallbackError = (params: HookCallbackErrorParams) => new HookCallbackError(params);
+const createCallbackError = (params: HookCallbackErrorParams) => new RegisterCallbackError(params);
 
-const handleHookError = (e: HookCallbackError | unknown) => {
-  if (e instanceof HookCallbackError) {
+const handleHookError = (e: RegisterCallbackError | unknown) => {
+  if (e instanceof RegisterCallbackError) {
     return new Response(e.body, { status: e.status });
   }
   return Response.InternalServerError("Error during app installation");
@@ -91,7 +91,7 @@ export type CreateAppRegisterHandlerOptions = HasAPL & {
   /**
    * Run after APL fails to set AuthData
    */
-  onAuthAplFailed?(
+  onAplSetFailed?(
     request: Request,
     context: {
       authData: AuthData;
@@ -109,7 +109,7 @@ export type CreateAppRegisterHandlerOptions = HasAPL & {
 export const createAppRegisterHandler = ({
   apl,
   allowedSaleorUrls,
-  onAuthAplFailed,
+  onAplSetFailed,
   onAuthAplSaved,
   onRequestVerified,
   onRequestStart,
@@ -131,7 +131,7 @@ export const createAppRegisterHandler = ({
           saleorDomain,
           respondWithError: createCallbackError,
         });
-      } catch (e: HookCallbackError | unknown) {
+      } catch (e: RegisterCallbackError | unknown) {
         debug("\"onRequestStart\" hook thrown error: %o", e);
 
         return handleHookError(e);
@@ -219,7 +219,7 @@ export const createAppRegisterHandler = ({
           authData,
           respondWithError: createCallbackError,
         });
-      } catch (e: HookCallbackError | unknown) {
+      } catch (e: RegisterCallbackError | unknown) {
         debug("\"onRequestVerified\" hook thrown error: %o", e);
 
         return handleHookError(e);
@@ -237,7 +237,7 @@ export const createAppRegisterHandler = ({
             authData,
             respondWithError: createCallbackError,
           });
-        } catch (e: HookCallbackError | unknown) {
+        } catch (e: RegisterCallbackError | unknown) {
           debug("\"onAuthAplSaved\" hook thrown error: %o", e);
 
           return handleHookError(e);
@@ -246,16 +246,16 @@ export const createAppRegisterHandler = ({
     } catch (aplError: unknown) {
       debug("There was an error during saving the auth data");
 
-      if (onAuthAplFailed) {
+      if (onAplSetFailed) {
         debug("Calling \"onAuthAplFailed\" hook");
 
         try {
-          await onAuthAplFailed(request, {
+          await onAplSetFailed(request, {
             authData,
             error: aplError,
             respondWithError: createCallbackError,
           });
-        } catch (hookError: HookCallbackError | unknown) {
+        } catch (hookError: RegisterCallbackError | unknown) {
           debug("\"onAuthAplFailed\" hook thrown error: %o", hookError);
 
           return handleHookError(hookError);

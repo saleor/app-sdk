@@ -122,7 +122,7 @@ describe("create-app-register-handler", () => {
         apl: mockApl,
         onRequestStart: mockOnRequestStart,
         onRequestVerified: mockOnRequestVerified,
-        onAuthAplFailed: mockOnAuthAplFailed,
+        onAplSetFailed: mockOnAuthAplFailed,
         onAuthAplSaved: mockOnAuthAplSaved,
       });
 
@@ -186,7 +186,7 @@ describe("create-app-register-handler", () => {
 
       const handler = createAppRegisterHandler({
         apl: mockApl,
-        onAuthAplFailed: mockOnAuthAplFailed,
+        onAplSetFailed: mockOnAuthAplFailed,
         onAuthAplSaved: mockOnAuthAplSaved,
       });
 
@@ -213,13 +213,20 @@ describe("create-app-register-handler", () => {
     });
 
     it("Allows to send custom error response via callback hook", async () => {
-      const mockOnRequestStart = vi.fn().mockImplementation((req, context: any) => {
-        throw context.respondWithError({
-          status: 401,
-          body: "test",
-          message: "test message",
-        });
-      });
+      const mockOnRequestStart = vi.fn().mockImplementation(
+        (
+          req,
+          context: {
+            respondWithError(params: { status: number; body: string; message: string }): Error;
+          }
+        ) => {
+          throw context.respondWithError({
+            status: 401,
+            body: "test",
+            message: "test message",
+          });
+        }
+      );
 
       const { res, req } = createMocks({
         /**
