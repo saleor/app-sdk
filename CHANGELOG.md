@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 0.32.3
+
+### Patch Changes
+
+- cce32fb: Test changeset
+
 ## 0.32.2
 
 ### Patch Changes
