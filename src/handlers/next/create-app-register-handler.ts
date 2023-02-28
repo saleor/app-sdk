@@ -16,14 +16,11 @@ const debug = createDebug("createAppRegisterHandler");
 
 type HookCallbackErrorParams = {
   status?: number;
-  body?: object;
   message?: string;
 };
 
 class RegisterCallbackError extends Error {
   public status = 500;
-
-  public body: object = {};
 
   constructor(errorParams: HookCallbackErrorParams) {
     super(errorParams.message);
@@ -31,18 +28,37 @@ class RegisterCallbackError extends Error {
     if (errorParams.status) {
       this.status = errorParams.status;
     }
-
-    if (errorParams.body) {
-      this.body = errorParams.body;
-    }
   }
 }
 
-const createCallbackError = (params: HookCallbackErrorParams) => new RegisterCallbackError(params);
+const createCallbackError = (params: HookCallbackErrorParams) => {
+  throw new RegisterCallbackError(params);
+};
+
+export type RegisterHandlerResponseBody = {
+  success: boolean;
+  error?: {
+    code?: string;
+    message?: string;
+  };
+};
+export const createRegisterHandlerResponseBody = (
+  success: boolean,
+  error?: RegisterHandlerResponseBody["error"]
+): RegisterHandlerResponseBody => ({
+  success,
+  error,
+});
 
 const handleHookError = (e: RegisterCallbackError | unknown) => {
   if (e instanceof RegisterCallbackError) {
-    return new Response(e.body, { status: e.status });
+    return new Response(
+      createRegisterHandlerResponseBody(false, {
+        code: "REGISTER_HANDLER_HOOK_ERROR",
+        message: e.message,
+      }),
+      { status: e.status }
+    );
   }
   return Response.InternalServerError("Error during app installation");
 };
@@ -141,27 +157,24 @@ export const createAppRegisterHandler = ({
     if (!validateAllowSaleorUrls(saleorApiUrl, allowedSaleorUrls)) {
       debug("Validation of URL %s against allowSaleorUrls param resolves to false, throwing");
 
-      return Response.Forbidden({
-        success: false,
-        error: {
+      return Response.Forbidden(
+        createRegisterHandlerResponseBody(false, {
           code: "SALEOR_URL_PROHIBITED",
           message: "This app expects to be installed only in allowed saleor instances",
-        },
-      });
+        })
+      );
     }
 
     const { configured: aplConfigured } = await apl.isConfigured();
 
     if (!aplConfigured) {
       debug("The APL has not been configured");
+
       return new Response(
-        {
-          success: false,
-          error: {
-            code: "APL_NOT_CONFIGURED",
-            message: "APL_NOT_CONFIGURED. App is configured properly. Check APL docs for help.",
-          },
-        },
+        createRegisterHandlerResponseBody(false, {
+          code: "APL_NOT_CONFIGURED",
+          message: "APL_NOT_CONFIGURED. App is configured properly. Check APL docs for help.",
+        }),
         {
           status: 503,
         }
@@ -172,14 +185,11 @@ export const createAppRegisterHandler = ({
     const appId = await getAppId({ saleorApiUrl, token: authToken });
     if (!appId) {
       return new Response(
-        {
-          success: false,
-          error: {
-            code: "UNKNOWN_APP_ID",
-            message:
-              "The auth data given during registration request could not be used to fetch app ID.",
-          },
-        },
+        createRegisterHandlerResponseBody(false, {
+          code: "UNKNOWN_APP_ID",
+          message:
+            "The auth data given during registration request could not be used to fetch app ID.",
+        }),
         {
           status: 401,
         }
@@ -190,13 +200,10 @@ export const createAppRegisterHandler = ({
     const jwks = await fetchRemoteJwks(saleorApiUrl);
     if (!jwks) {
       return new Response(
-        {
-          success: false,
-          error: {
-            code: "JWKS_NOT_AVAILABLE",
-            message: "Can't fetch the remote JWKS.",
-          },
-        },
+        createRegisterHandlerResponseBody(false, {
+          code: "JWKS_NOT_AVAILABLE",
+          message: "Can't fetch the remote JWKS.",
+        }),
         {
           status: 401,
         }
@@ -262,17 +269,16 @@ export const createAppRegisterHandler = ({
         }
       }
 
-      return Response.InternalServerError({
-        success: false,
-        error: {
+      return Response.InternalServerError(
+        createRegisterHandlerResponseBody(false, {
           message: "Registration failed: could not save the auth data.",
-        },
-      });
+        })
+      );
     }
 
     debug("Register  complete");
 
-    return Response.OK({ success: true });
+    return Response.OK(createRegisterHandlerResponseBody(true));
   };
 
   return toNextHandler([
