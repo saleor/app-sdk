@@ -67,7 +67,8 @@ export default createAppRegisterHandler({
   allowedSaleorUrls: ["https://your-saleor.saleor.cloud/graphql/"], // optional, see options below
   async onRequestVerified(req, { authData, respondWithError }) {
     await doSomethingAndBlockInstallation(authData.token).catch((err) => {
-      throw respondWithError({ body: "Error, installation will fail" });
+      // Return this method to break installation flow and show error in the Dashboard
+      return respondWithError({ message: "Error, installation will fail" });
     });
   },
 });
@@ -93,7 +94,7 @@ export type CreateAppRegisterHandlerOptions = {
       authToken?: string;
       saleorDomain?: string;
       saleorApiUrl?: string;
-      respondWithError: ({ status, message, body }) => never; // should throw
+      respondWithError: ({ status, message }) => never; // will throw
     }
   ): Promise<void>;
   /**
@@ -104,7 +105,7 @@ export type CreateAppRegisterHandlerOptions = {
     request: Request,
     context: {
       authData: AuthData;
-      respondWithError: ({ status, message, body }) => never; // should throw
+      respondWithError: ({ status, message }) => never; // will throw
     }
   ): Promise<void>;
   /**
@@ -115,7 +116,7 @@ export type CreateAppRegisterHandlerOptions = {
     request: Request,
     context: {
       authData: AuthData;
-      respondWithError: ({ status, message, body }) => never; // should throw
+      respondWithError: ({ status, message }) => never; // will throw
     }
   ): Promise<void>;
   /**
@@ -127,7 +128,7 @@ export type CreateAppRegisterHandlerOptions = {
     context: {
       authData: AuthData;
       error: unknown;
-      respondWithError: ({ status, message, body }) => never; // should throw
+      respondWithError: ({ status, message }) => never; // will throw
     }
   ): Promise<void>;
 };

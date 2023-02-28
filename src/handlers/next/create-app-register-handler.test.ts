@@ -219,13 +219,12 @@ describe("create-app-register-handler", () => {
           context: {
             respondWithError(params: { status: number; body: string; message: string }): Error;
           }
-        ) => {
-          throw context.respondWithError({
+        ) =>
+          context.respondWithError({
             status: 401,
             body: "test",
             message: "test message",
-          });
-        }
+          })
       );
 
       const { res, req } = createMocks({
@@ -253,7 +252,13 @@ describe("create-app-register-handler", () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(401);
-      expect(res._getData()).toBe("test");
+      expect(res._getData()).toEqual({
+        success: false,
+        error: {
+          code: "REGISTER_HANDLER_HOOK_ERROR",
+          message: "test message",
+        },
+      });
     });
   });
 });
