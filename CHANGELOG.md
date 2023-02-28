@@ -1,5 +1,15 @@
 # @saleor/app-sdk
 
+## 0.33.0
+
+### Minor Changes
+
+- a939281: Register handler hooks will now respond with errors parsable by the dashboard. "Body" in error was removed, so client code can provide message and status.
+
+### Patch Changes
+
+- 5a93a16: Fix typo in UpstashAPL docs
+
 ## 0.32.0
 
 ### Minor Changes
