@@ -3,12 +3,12 @@ import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
 import { APL } from "../../APL";
 import { createDebug } from "../../debug";
 import { AppPermission } from "../../types";
-import { ProtectedHandlerContext } from "./process-async-saleor-webhook";
 import {
   processSaleorProtectedHandler,
   ProtectedHandlerError,
   SaleorProtectedHandlerError,
 } from "./process-protected-handler";
+import { ProtectedHandlerContext } from "./process-saleor-webhook";
 
 const debug = createDebug("ProtectedHandler");
 

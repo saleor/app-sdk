@@ -10,7 +10,7 @@ import {
   SaleorWebhookError,
   WebhookContext,
   WebhookError,
-} from "./process-async-saleor-webhook";
+} from "./process-saleor-webhook";
 
 const debug = createDebug("SaleorAsyncWebhook");
 

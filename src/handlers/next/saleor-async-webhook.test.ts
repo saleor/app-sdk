@@ -3,7 +3,7 @@ import { createMocks } from "node-mocks-http";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { APL } from "../../APL";
-import { processAsyncSaleorWebhook } from "./process-async-saleor-webhook";
+import { processAsyncSaleorWebhook } from "./process-saleor-webhook";
 import { NextWebhookApiHandler, SaleorAsyncWebhook } from "./saleor-async-webhook";
 
 const webhookPath = "api/webhooks/product-updated";
@@ -80,7 +80,7 @@ describe("SaleorAsyncWebhook", () => {
 
   it("Test createHandler which return success", async () => {
     // prepare mocked context returned by mocked process function
-    vi.mock("./process-async-saleor-webhook");
+    vi.mock("./process-saleor-webhook");
 
     vi.mocked(processAsyncSaleorWebhook).mockImplementationOnce(async () => ({
       baseUrl: "example.com",
@@ -129,7 +129,7 @@ describe("SaleorAsyncWebhook", () => {
     });
 
     // prepare mocked context returned by mocked process function
-    vi.mock("./process-async-saleor-webhook");
+    vi.mock("./process-saleor-webhook");
 
     vi.mocked(processAsyncSaleorWebhook).mockImplementationOnce(async () => {
       /**

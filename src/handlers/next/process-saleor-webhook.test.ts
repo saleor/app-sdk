@@ -4,7 +4,7 @@ import rawBody from "raw-body";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { APL } from "../../APL";
-import { processAsyncSaleorWebhook } from "./process-async-saleor-webhook";
+import { processAsyncSaleorWebhook } from "./process-saleor-webhook";
 
 vi.mock("./../../verify-signature", () => ({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -151,10 +151,12 @@ describe("processAsyncSaleorWebhook", () => {
 
   it("Throw error on wrong signature", async () => {
     mockRequest.headers["saleor-signature"] = "wrong_signature";
+
     vi.mock("./../../fetch-remote-jwks", () => ({
-      fetchRemoteJwks: vi.fn(() => "wrong_signature"),
+      fetchRemoteJwks: vi.fn(async () => "wrong_signature"),
     }));
-    await expect(
+
+    return expect(
       processAsyncSaleorWebhook({
         req: mockRequest,
         apl: mockAPL,

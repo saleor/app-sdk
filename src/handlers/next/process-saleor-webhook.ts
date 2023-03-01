@@ -8,7 +8,7 @@ import { fetchRemoteJwks } from "../../fetch-remote-jwks";
 import { getBaseUrl, getSaleorHeaders } from "../../headers";
 import { verifySignatureWithJwks } from "../../verify-signature";
 
-const debug = createDebug("processAsyncWebhook");
+const debug = createDebug("processSaleorWebhook");
 
 export type SaleorWebhookError =
   | "OTHER"
@@ -56,7 +56,7 @@ interface ProcessSaleorWebhookArgs {
   allowedEvent: string;
 }
 
-type ProcessAsyncSaleorWebhook = <T = unknown>(
+type ProcessSaleorWebhook = <T = unknown>(
   props: ProcessSaleorWebhookArgs
 ) => Promise<WebhookContext<T>>;
 
@@ -66,16 +66,18 @@ type ProcessAsyncSaleorWebhook = <T = unknown>(
  *
  * @returns WebhookContext
  */
-export const processAsyncSaleorWebhook: ProcessAsyncSaleorWebhook = async <T>({
+export const processAsyncSaleorWebhook: ProcessSaleorWebhook = async <T>({
   req,
   apl,
   allowedEvent,
 }: ProcessSaleorWebhookArgs): Promise<WebhookContext<T>> => {
   debug("Request processing started");
+
   if (req.method !== "POST") {
     debug("Wrong HTTP method");
     throw new WebhookError("Wrong request method, only POST allowed", "WRONG_METHOD");
   }
+
   const { event, signature, saleorApiUrl } = getSaleorHeaders(req.headers);
   const baseUrl = getBaseUrl(req.headers);
 
@@ -95,8 +97,10 @@ export const processAsyncSaleorWebhook: ProcessAsyncSaleorWebhook = async <T>({
   }
 
   const expected = allowedEvent.toLowerCase();
+
   if (event !== expected) {
     debug(`Wrong incoming request event: ${event}. Expected: ${expected}`);
+
     throw new WebhookError(
       `Wrong incoming request event: ${event}. Expected: ${expected}`,
       "WRONG_EVENT"
@@ -105,6 +109,7 @@ export const processAsyncSaleorWebhook: ProcessAsyncSaleorWebhook = async <T>({
 
   if (!signature) {
     debug("No signature");
+
     throw new WebhookError("Missing saleor-signature header", "MISSING_SIGNATURE_HEADER");
   }
 
@@ -116,41 +121,65 @@ export const processAsyncSaleorWebhook: ProcessAsyncSaleorWebhook = async <T>({
   ).toString();
   if (!rawBody) {
     debug("Missing request body");
+
     throw new WebhookError("Missing request body", "MISSING_REQUEST_BODY");
   }
 
   let parsedBody: unknown;
+
   try {
     parsedBody = JSON.parse(rawBody);
   } catch {
     debug("Request body cannot be parsed");
+
     throw new WebhookError("Request body can't be parsed", "CANT_BE_PARSED");
   }
 
-  // Check if domain is installed in the app
+  /**
+   * Verify if app is properly installed for given saleor api URL
+   */
   const authData = await apl.get(saleorApiUrl);
 
   if (!authData) {
     debug("APL didn't found auth data for %s", saleorApiUrl);
+
     throw new WebhookError(
       `Can't find auth data for ${saleorApiUrl}. Please register the application`,
       "NOT_REGISTERED"
     );
   }
 
-  // Payload signature check
+  /**
+   * Verify payload signature
+   *
+   * TODO: Add test for repeat verification scenario
+   */
   try {
+    debug("Will verify signature with JWKS saved in AuthData");
+
     await verifySignatureWithJwks(authData.jwks, signature, rawBody);
   } catch {
     debug("Request signature check failed. Refresh the JWKS cache and check again");
-    const newJwks = await fetchRemoteJwks(authData.saleorApiUrl);
+
+    const newJwks = await fetchRemoteJwks(authData.saleorApiUrl).catch((e) => {
+      debug(e);
+
+      throw new WebhookError("Fetching remote JWKS failed", "SIGNATURE_VERIFICATION_FAILED");
+    });
+
+    debug("Fetched refreshed JWKS");
+
     try {
       debug("Second attempt to validate the signature JWKS, using fresh tokens from the API");
+
       await verifySignatureWithJwks(newJwks, signature, rawBody);
+
       debug("Verification successful - update JWKS in the AuthData");
+
       await apl.set({ ...authData, jwks: newJwks });
     } catch {
       debug("Second attempt also ended with validation error. Reject the webhook");
+
       throw new WebhookError("Request signature check failed", "SIGNATURE_VERIFICATION_FAILED");
     }
   }
