@@ -17,6 +17,7 @@ const debug = createDebug("SaleorAsyncWebhook");
 interface WebhookConfig {
   name?: string;
   webhookPath: string;
+  // TODO Maybe pass as generic type
   event: AsyncWebhookEventType | SyncWebhookEventType;
   isActive?: boolean;
   apl: APL;
@@ -55,7 +56,9 @@ export type NextWebhookApiHandler<TPayload = unknown, TResp = unknown> = (
   ctx: WebhookContext<TPayload>
 ) => unknown | Promise<unknown>;
 
-export class SaleorAsyncWebhook<TPayload = unknown> {
+abstract class SaleorWebhook<TPayload = unknown> {
+  protected abstract type: "async" | "sync";
+
   name: string;
 
   webhookPath: string;
@@ -96,13 +99,28 @@ export class SaleorAsyncWebhook<TPayload = unknown> {
    * @returns WebhookManifest
    */
   getWebhookManifest(baseUrl: string): WebhookManifest {
-    return {
+    const manifestBase: Omit<WebhookManifest, "asyncEvents" | "syncEvents"> = {
       query: typeof this.query === "string" ? this.query : gqlAstToString(this.query),
       name: this.name,
       targetUrl: this.getTargetUrl(baseUrl),
-      asyncEvents: [this.asyncEvent], // todo override or config
       isActive: this.isActive,
     };
+
+    switch (this.type) {
+      case "async":
+        return {
+          ...manifestBase,
+          asyncEvents: [this.event as AsyncWebhookEventType],
+        };
+      case "sync":
+        return {
+          ...manifestBase,
+          syncEvents: [this.event as SyncWebhookEventType],
+        };
+      default: {
+        throw new Error("Class extended incorrectly");
+      }
+    }
   }
 
   /**
@@ -112,6 +130,7 @@ export class SaleorAsyncWebhook<TPayload = unknown> {
   createHandler(handlerFn: NextWebhookApiHandler<TPayload>): NextApiHandler {
     return async (req, res) => {
       debug(`Handler for webhook ${this.name} called`);
+
       await processSaleorWebhook<TPayload>({
         req,
         apl: this.apl,
@@ -119,6 +138,7 @@ export class SaleorAsyncWebhook<TPayload = unknown> {
       })
         .then(async (context) => {
           debug("Incoming request validated. Call handlerFn");
+
           return handlerFn(req, res, context);
         })
         .catch(async (e) => {
@@ -164,5 +184,36 @@ export class SaleorAsyncWebhook<TPayload = unknown> {
           res.status(500).end();
         });
     };
+  }
+}
+
+export class AsyncSaleorWebhook<TPayload = unknown> extends SaleorWebhook<TPayload> {
+  event: AsyncWebhookEventType;
+
+  type = "async" as const;
+
+  constructor(configuration: Omit<WebhookConfig, "event"> & { event: AsyncWebhookEventType }) {
+    super(configuration);
+
+    this.event = configuration.event;
+  }
+}
+
+export class SyncSaleorWebhook<TPayload = unknown> extends SaleorWebhook<TPayload> {
+  event: SyncWebhookEventType;
+
+  type = "sync" as const;
+
+  constructor(configuration: Omit<WebhookConfig, "event"> & { event: SyncWebhookEventType }) {
+    super(configuration);
+
+    this.event = configuration.event;
+  }
+
+  /**
+   * TODO: Enrich handler context to contain ResponseBuilder
+   */
+  createHandler(handlerFn: NextWebhookApiHandler<TPayload>): NextApiHandler {
+    return this.createHandler(handlerFn);
   }
 }
