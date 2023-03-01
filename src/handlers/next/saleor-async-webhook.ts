@@ -4,7 +4,7 @@ import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
 import { APL } from "../../APL";
 import { createDebug } from "../../debug";
 import { gqlAstToString } from "../../gql-ast-to-string";
-import { AsyncWebhookEventType, WebhookManifest } from "../../types";
+import { AsyncWebhookEventType, SyncWebhookEventType, WebhookManifest } from "../../types";
 import {
   processSaleorWebhook,
   SaleorWebhookError,
@@ -14,10 +14,10 @@ import {
 
 const debug = createDebug("SaleorAsyncWebhook");
 
-interface WebhookManifestConfigurationBase {
+interface WebhookConfig {
   name?: string;
   webhookPath: string;
-  asyncEvent: AsyncWebhookEventType;
+  event: AsyncWebhookEventType | SyncWebhookEventType;
   isActive?: boolean;
   apl: APL;
   onError?(error: WebhookError | Error, req: NextApiRequest, res: NextApiResponse): void;
@@ -29,19 +29,8 @@ interface WebhookManifestConfigurationBase {
     code: number;
     body: object | string;
   }>;
+  query: string | ASTNode;
 }
-
-interface WebhookManifestConfigurationWithAst extends WebhookManifestConfigurationBase {
-  subscriptionQueryAst: ASTNode;
-}
-
-interface WebhookManifestConfigurationWithQuery extends WebhookManifestConfigurationBase {
-  query: string;
-}
-
-type WebhookManifestConfiguration =
-  | WebhookManifestConfigurationWithAst
-  | WebhookManifestConfigurationWithQuery;
 
 export const AsyncWebhookErrorCodeMap: Record<SaleorWebhookError, number> = {
   OTHER: 500,
@@ -71,52 +60,32 @@ export class SaleorAsyncWebhook<TPayload = unknown> {
 
   webhookPath: string;
 
-  subscriptionQueryAst?: ASTNode;
+  query: string | ASTNode;
 
-  query?: string;
-
-  asyncEvent: AsyncWebhookEventType;
+  event: AsyncWebhookEventType | SyncWebhookEventType;
 
   isActive?: boolean;
 
   apl: APL;
 
-  onError: WebhookManifestConfigurationBase["onError"];
+  onError: WebhookConfig["onError"];
 
-  formatErrorResponse: WebhookManifestConfigurationBase["formatErrorResponse"];
+  formatErrorResponse: WebhookConfig["formatErrorResponse"];
 
-  constructor(configuration: WebhookManifestConfiguration) {
-    const { name, webhookPath, asyncEvent, apl, isActive = true } = configuration;
-    this.name = name || `${asyncEvent} webhook`;
-    if ("query" in configuration) {
-      this.query = configuration.query;
-    }
-    if ("subscriptionQueryAst" in configuration) {
-      this.subscriptionQueryAst = configuration.subscriptionQueryAst;
-    }
-    if (!this.subscriptionQueryAst && !this.query) {
-      throw new WebhookError(
-        "Need to specify `subscriptionQueryAst` or `query` to create webhook subscription",
-        "CONFIGURATION_ERROR"
-      );
-    }
+  constructor(configuration: WebhookConfig) {
+    const { name, webhookPath, event, query, apl, isActive = true } = configuration;
 
+    this.name = name || `${event} webhook`;
+    this.query = query;
     this.webhookPath = webhookPath;
-    this.asyncEvent = asyncEvent;
+    this.event = event;
     this.isActive = isActive;
     this.apl = apl;
     this.onError = configuration.onError;
     this.formatErrorResponse = configuration.formatErrorResponse;
   }
 
-  /**
-   * Returns full URL to the webhook, based on provided baseUrl.
-   *
-   * TODO: Shouldn't it be private?
-   *
-   * @param baseUrl Base URL used by your application
-   */
-  getTargetUrl(baseUrl: string) {
+  private getTargetUrl(baseUrl: string) {
     return new URL(this.webhookPath, baseUrl).href;
   }
 
@@ -128,15 +97,11 @@ export class SaleorAsyncWebhook<TPayload = unknown> {
    */
   getWebhookManifest(baseUrl: string): WebhookManifest {
     return {
+      query: typeof this.query === "string" ? this.query : gqlAstToString(this.query),
       name: this.name,
       targetUrl: this.getTargetUrl(baseUrl),
-      asyncEvents: [this.asyncEvent],
+      asyncEvents: [this.asyncEvent], // todo override or config
       isActive: this.isActive,
-      // Query can be provided as plaintext..
-      ...(this.query && { query: this.query }),
-      // ...GQL AST which has to be stringified..
-      ...(this.subscriptionQueryAst && { query: gqlAstToString(this.subscriptionQueryAst) }),
-      // or no query at all. In such case default webhook payload will be sent
     };
   }
 
@@ -150,7 +115,7 @@ export class SaleorAsyncWebhook<TPayload = unknown> {
       await processSaleorWebhook<TPayload>({
         req,
         apl: this.apl,
-        allowedEvent: this.asyncEvent,
+        allowedEvent: this.event,
       })
         .then(async (context) => {
           debug("Incoming request validated. Call handlerFn");
