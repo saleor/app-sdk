@@ -3,7 +3,7 @@ import { createMocks } from "node-mocks-http";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { APL } from "../../APL";
-import { processAsyncSaleorWebhook } from "./process-saleor-webhook";
+import { processSaleorWebhook } from "./process-saleor-webhook";
 import { NextWebhookApiHandler, SaleorAsyncWebhook } from "./saleor-async-webhook";
 
 const webhookPath = "api/webhooks/product-updated";
@@ -82,7 +82,7 @@ describe("SaleorAsyncWebhook", () => {
     // prepare mocked context returned by mocked process function
     vi.mock("./process-saleor-webhook");
 
-    vi.mocked(processAsyncSaleorWebhook).mockImplementationOnce(async () => ({
+    vi.mocked(processSaleorWebhook).mockImplementationOnce(async () => ({
       baseUrl: "example.com",
       event: "product_updated",
       payload: { data: "test_payload" },
@@ -131,7 +131,7 @@ describe("SaleorAsyncWebhook", () => {
     // prepare mocked context returned by mocked process function
     vi.mock("./process-saleor-webhook");
 
-    vi.mocked(processAsyncSaleorWebhook).mockImplementationOnce(async () => {
+    vi.mocked(processSaleorWebhook).mockImplementationOnce(async () => {
       /**
        * This mock should throw WebhookError, but there was TypeError related to constructor of extended class.
        * Try "throw new WebhookError()" to check it.

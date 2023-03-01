@@ -6,7 +6,7 @@ import { createDebug } from "../../debug";
 import { gqlAstToString } from "../../gql-ast-to-string";
 import { AsyncWebhookEventType, WebhookManifest } from "../../types";
 import {
-  processAsyncSaleorWebhook,
+  processSaleorWebhook,
   SaleorWebhookError,
   WebhookContext,
   WebhookError,
@@ -147,7 +147,7 @@ export class SaleorAsyncWebhook<TPayload = unknown> {
   createHandler(handlerFn: NextWebhookApiHandler<TPayload>): NextApiHandler {
     return async (req, res) => {
       debug(`Handler for webhook ${this.name} called`);
-      await processAsyncSaleorWebhook<TPayload>({
+      await processSaleorWebhook<TPayload>({
         req,
         apl: this.apl,
         allowedEvent: this.asyncEvent,

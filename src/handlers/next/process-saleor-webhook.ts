@@ -66,7 +66,7 @@ type ProcessSaleorWebhook = <T = unknown>(
  *
  * @returns WebhookContext
  */
-export const processAsyncSaleorWebhook: ProcessSaleorWebhook = async <T>({
+export const processSaleorWebhook: ProcessSaleorWebhook = async <T>({
   req,
   apl,
   allowedEvent,
