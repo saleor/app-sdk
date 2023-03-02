@@ -55,10 +55,11 @@ export type NextWebhookApiHandler<TPayload = unknown, TExtras = {}> = (
   ctx: WebhookContext<TPayload> & TExtras
 ) => unknown | Promise<unknown>;
 
-export abstract class SaleorWebhook<TPayload = unknown> {
+export abstract class SaleorWebhook<TPayload = unknown, TExtras extends Record<string, unknown> = {}> {
   protected abstract type: "async" | "sync";
 
-  protected extraContext: Record<string, unknown> = {}
+  // todo breaking type
+  protected extraContext: any  = {}; // should be TExtra
 
   name: string;
 
@@ -128,7 +129,7 @@ export abstract class SaleorWebhook<TPayload = unknown> {
    * Wraps provided function, to ensure incoming request comes from registered Saleor instance.
    * Also provides additional `context` object containing typed payload and request properties.
    */
-  createHandler(handlerFn: NextWebhookApiHandler<TPayload>): NextApiHandler {
+  createHandler(handlerFn: NextWebhookApiHandler<TPayload, TExtras>): NextApiHandler {
     return async (req, res) => {
       debug(`Handler for webhook ${this.name} called`);
 
@@ -140,7 +141,7 @@ export abstract class SaleorWebhook<TPayload = unknown> {
         .then(async (context) => {
           debug("Incoming request validated. Call handlerFn");
 
-          return handlerFn(req, res, {...this.extraContext, ...context } );
+          return handlerFn(req, res, { ...this.extraContext, ...context });
         })
         .catch(async (e) => {
           debug(`Unexpected error during processing the webhook ${this.name}`);

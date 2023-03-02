@@ -1,26 +1,18 @@
-import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
+import { NextApiHandler } from "next";
 
+import { APL } from "../../../APL";
 import { SyncWebhookEventType } from "../../../types";
-import { WebhookContext } from "./process-saleor-webhook";
-import { SaleorWebhook, WebhookConfig } from "./saleor-webhook";
+import { NextWebhookApiHandler, SaleorWebhook, WebhookConfig } from "./saleor-webhook";
 import { buildSyncWebhookResponsePayload } from "./sync-webhook-response-builder";
 
-type NextWebhookApiHandler<
-  TPayload = unknown,
-
-  TEvent extends SyncWebhookEventType = SyncWebhookEventType
-> = (
-  req: NextApiRequest,
-  res: NextApiResponse,
-  ctx: WebhookContext<TPayload> & {
-    responseBuilder: typeof buildSyncWebhookResponsePayload<TEvent>;
-  }
-) => unknown | Promise<unknown>;
+type InjectedContext<TEvent extends SyncWebhookEventType> = {
+  responseBuilder: typeof buildSyncWebhookResponsePayload<TEvent>;
+};
 
 export class SyncSaleorWebhook<
   TPayload = unknown,
   TEvent extends SyncWebhookEventType = SyncWebhookEventType
-> extends SaleorWebhook<TPayload> {
+> extends SaleorWebhook<TPayload, InjectedContext<TEvent>> {
   event: TEvent;
 
   protected type = "sync" as const;
@@ -35,11 +27,26 @@ export class SyncSaleorWebhook<
     this.event = configuration.event;
   }
 
-  createHandler(handlerFn: NextWebhookApiHandler<TPayload, TEvent>): NextApiHandler {
+  createHandler(
+    handlerFn: NextWebhookApiHandler<
+      TPayload,
+      {
+        responseBuilder: typeof buildSyncWebhookResponsePayload<TEvent>;
+      }
+    >
+  ): NextApiHandler {
     return super.createHandler(handlerFn);
   }
 }
 
-new SyncSaleorWebhook({ event: "ORDER_CALCULATE_TAXES" }).createHandler((req, res, ctx) => {
-  ctx.responseBuilder("");
-});
+// todo this is example
+new SyncSaleorWebhook({
+  event: "CHECKOUT_CALCULATE_TAXES",
+  apl: {} as APL,
+  query: "",
+  webhookPath: "",
+}).createHandler((req, res, ctx) => res.send(
+    ctx.responseBuilder({
+      foo: "asd",
+    })
+  ));
