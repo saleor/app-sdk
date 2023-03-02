@@ -49,14 +49,16 @@ export const WebhookErrorCodeMap: Record<SaleorWebhookError, number> = {
   CONFIGURATION_ERROR: 500,
 };
 
-export type NextWebhookApiHandler<TPayload = unknown, TResp = unknown> = (
+export type NextWebhookApiHandler<TPayload = unknown, TExtras = {}> = (
   req: NextApiRequest,
-  res: NextApiResponse<TResp>,
-  ctx: WebhookContext<TPayload>
+  res: NextApiResponse,
+  ctx: WebhookContext<TPayload> & TExtras
 ) => unknown | Promise<unknown>;
 
 export abstract class SaleorWebhook<TPayload = unknown> {
   protected abstract type: "async" | "sync";
+
+  protected extraContext: Record<string, unknown> = {}
 
   name: string;
 
@@ -138,7 +140,7 @@ export abstract class SaleorWebhook<TPayload = unknown> {
         .then(async (context) => {
           debug("Incoming request validated. Call handlerFn");
 
-          return handlerFn(req, res, context);
+          return handlerFn(req, res, {...this.extraContext, ...context } );
         })
         .catch(async (e) => {
           debug(`Unexpected error during processing the webhook ${this.name}`);
