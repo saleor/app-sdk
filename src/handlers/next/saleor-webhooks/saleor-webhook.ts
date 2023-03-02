@@ -1,10 +1,10 @@
 import { ASTNode } from "graphql";
 import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
 
-import { APL } from "../../APL";
-import { createDebug } from "../../debug";
-import { gqlAstToString } from "../../gql-ast-to-string";
-import { AsyncWebhookEventType, SyncWebhookEventType, WebhookManifest } from "../../types";
+import { APL } from "../../../APL";
+import { createDebug } from "../../../debug";
+import { gqlAstToString } from "../../../gql-ast-to-string";
+import { AsyncWebhookEventType, SyncWebhookEventType, WebhookManifest } from "../../../types";
 import {
   processSaleorWebhook,
   SaleorWebhookError,
@@ -14,11 +14,10 @@ import {
 
 const debug = createDebug("SaleorAsyncWebhook");
 
-interface WebhookConfig {
+export interface WebhookConfig<Event = AsyncWebhookEventType | SyncWebhookEventType> {
   name?: string;
   webhookPath: string;
-  // TODO Maybe pass as generic type
-  event: AsyncWebhookEventType | SyncWebhookEventType;
+  event: Event;
   isActive?: boolean;
   apl: APL;
   onError?(error: WebhookError | Error, req: NextApiRequest, res: NextApiResponse): void;
@@ -33,7 +32,7 @@ interface WebhookConfig {
   query: string | ASTNode;
 }
 
-export const AsyncWebhookErrorCodeMap: Record<SaleorWebhookError, number> = {
+export const WebhookErrorCodeMap: Record<SaleorWebhookError, number> = {
   OTHER: 500,
   MISSING_HOST_HEADER: 400,
   MISSING_DOMAIN_HEADER: 400,
@@ -56,7 +55,7 @@ export type NextWebhookApiHandler<TPayload = unknown, TResp = unknown> = (
   ctx: WebhookContext<TPayload>
 ) => unknown | Promise<unknown>;
 
-abstract class SaleorWebhook<TPayload = unknown> {
+export abstract class SaleorWebhook<TPayload = unknown> {
   protected abstract type: "async" | "sync";
 
   name: string;
@@ -75,7 +74,7 @@ abstract class SaleorWebhook<TPayload = unknown> {
 
   formatErrorResponse: WebhookConfig["formatErrorResponse"];
 
-  constructor(configuration: WebhookConfig) {
+  protected constructor(configuration: WebhookConfig) {
     const { name, webhookPath, event, query, apl, isActive = true } = configuration;
 
     this.name = name || `${event} webhook`;
@@ -159,7 +158,7 @@ abstract class SaleorWebhook<TPayload = unknown> {
               return;
             }
 
-            res.status(AsyncWebhookErrorCodeMap[e.errorType] || 400).send({
+            res.status(WebhookErrorCodeMap[e.errorType] || 400).send({
               error: {
                 type: e.errorType,
                 message: e.message,
@@ -184,36 +183,5 @@ abstract class SaleorWebhook<TPayload = unknown> {
           res.status(500).end();
         });
     };
-  }
-}
-
-export class AsyncSaleorWebhook<TPayload = unknown> extends SaleorWebhook<TPayload> {
-  event: AsyncWebhookEventType;
-
-  type = "async" as const;
-
-  constructor(configuration: Omit<WebhookConfig, "event"> & { event: AsyncWebhookEventType }) {
-    super(configuration);
-
-    this.event = configuration.event;
-  }
-}
-
-export class SyncSaleorWebhook<TPayload = unknown> extends SaleorWebhook<TPayload> {
-  event: SyncWebhookEventType;
-
-  type = "sync" as const;
-
-  constructor(configuration: Omit<WebhookConfig, "event"> & { event: SyncWebhookEventType }) {
-    super(configuration);
-
-    this.event = configuration.event;
-  }
-
-  /**
-   * TODO: Enrich handler context to contain ResponseBuilder
-   */
-  createHandler(handlerFn: NextWebhookApiHandler<TPayload>): NextApiHandler {
-    return this.createHandler(handlerFn);
   }
 }

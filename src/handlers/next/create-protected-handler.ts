@@ -8,7 +8,7 @@ import {
   ProtectedHandlerError,
   SaleorProtectedHandlerError,
 } from "./process-protected-handler";
-import { ProtectedHandlerContext } from "./process-saleor-webhook";
+import { ProtectedHandlerContext } from "./saleor-webhooks/process-saleor-webhook";
 
 const debug = createDebug("ProtectedHandler");
 

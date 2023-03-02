@@ -1,12 +1,12 @@
 import { NextApiRequest } from "next";
 import getRawBody from "raw-body";
 
-import { APL } from "../../APL";
-import { AuthData } from "../../APL/apl";
-import { createDebug } from "../../debug";
-import { fetchRemoteJwks } from "../../fetch-remote-jwks";
-import { getBaseUrl, getSaleorHeaders } from "../../headers";
-import { verifySignatureWithJwks } from "../../verify-signature";
+import { APL } from "../../../APL";
+import { AuthData } from "../../../APL/apl";
+import { createDebug } from "../../../debug";
+import { fetchRemoteJwks } from "../../../fetch-remote-jwks";
+import { getBaseUrl, getSaleorHeaders } from "../../../headers";
+import { verifySignatureWithJwks } from "../../../verify-signature";
 
 const debug = createDebug("processSaleorWebhook");
 

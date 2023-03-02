@@ -3,7 +3,7 @@ import { createMocks } from "node-mocks-http";
 import rawBody from "raw-body";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { APL } from "../../APL";
+import { APL } from "../../../APL";
 import { processSaleorWebhook } from "./process-saleor-webhook";
 
 vi.mock("./../../verify-signature", () => ({
