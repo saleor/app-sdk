@@ -9,7 +9,7 @@ type InjectedContext<TEvent extends SyncWebhookEventType> = {
   responseBuilder: typeof buildSyncWebhookResponsePayload<TEvent>;
 };
 
-export class SyncSaleorWebhook<
+export class SaleorSyncWebhook<
   TPayload = unknown,
   TEvent extends SyncWebhookEventType = SyncWebhookEventType
 > extends SaleorWebhook<TPayload, InjectedContext<TEvent>> {

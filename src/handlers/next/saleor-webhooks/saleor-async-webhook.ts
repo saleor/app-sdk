@@ -3,7 +3,7 @@ import { NextApiHandler } from "next";
 import { AsyncWebhookEventType } from "../../../types";
 import { NextWebhookApiHandler, SaleorWebhook, WebhookConfig } from "./saleor-webhook";
 
-export class AsyncSaleorWebhook<TPayload = unknown> extends SaleorWebhook<TPayload> {
+export class SaleorAsyncWebhook<TPayload = unknown> extends SaleorWebhook<TPayload> {
   event: AsyncWebhookEventType;
 
   protected type = "async" as const;
