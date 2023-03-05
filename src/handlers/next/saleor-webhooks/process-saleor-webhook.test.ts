@@ -3,7 +3,7 @@ import { createMocks } from "node-mocks-http";
 import rawBody from "raw-body";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { APL } from "../../../APL";
+import { MockAPL } from "../../../test-utils/mock-apl";
 import { processSaleorWebhook } from "./process-saleor-webhook";
 
 vi.mock("../../../verify-signature", () => ({
@@ -32,23 +32,7 @@ vi.mock("raw-body", () => ({
 describe("processAsyncSaleorWebhook", () => {
   let mockRequest: NextApiRequest;
 
-  const mockAPL: APL = {
-    get: async (saleorApiUrl: string) =>
-      saleorApiUrl === "https://example.com/graphql/"
-        ? {
-            domain: "example.com",
-            token: "mock-token",
-            saleorApiUrl: "https://example.com/graphql/",
-            appId: "42",
-            jwks: "{}",
-          }
-        : undefined,
-    set: vi.fn(),
-    delete: vi.fn(),
-    getAll: vi.fn(),
-    isReady: vi.fn(),
-    isConfigured: vi.fn(),
-  };
+  const mockAPL = new MockAPL();
 
   beforeEach(() => {
     // Create request method which passes all the tests
@@ -56,8 +40,8 @@ describe("processAsyncSaleorWebhook", () => {
       headers: {
         host: "some-saleor-host.cloud",
         "x-forwarded-proto": "https",
-        "saleor-domain": "example.com",
-        "saleor-api-url": "https://example.com/graphql/",
+        "saleor-domain": mockAPL.workingSaleorDomain,
+        "saleor-api-url": mockAPL.workingSaleorApiUrl,
         "saleor-event": "product_updated",
         "saleor-signature": "mocked_signature",
         "content-length": "0", // is ignored by mocked raw-body

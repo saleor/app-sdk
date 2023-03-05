@@ -1,7 +1,7 @@
 import { createMocks } from "node-mocks-http";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { APL } from "../../../APL";
+import { MockAPL } from "../../../test-utils/mock-apl";
 import { AsyncWebhookEventType } from "../../../types";
 import { processSaleorWebhook } from "./process-saleor-webhook";
 import { SaleorAsyncWebhook } from "./saleor-async-webhook";
@@ -11,23 +11,7 @@ const webhookPath = "api/webhooks/product-updated";
 const baseUrl = "http://example.com";
 
 describe("SaleorAsyncWebhook", () => {
-  const mockAPL: APL = {
-    get: async (domain: string) =>
-      domain === "example.com"
-        ? {
-            domain: "example.com",
-            token: "mock-token",
-            jwks: "",
-            saleorApiUrl: "https://example.com/graphql/",
-            appId: "12345",
-          }
-        : undefined,
-    set: vi.fn(),
-    delete: vi.fn(),
-    getAll: vi.fn(),
-    isReady: vi.fn(),
-    isConfigured: vi.fn(),
-  };
+  const mockAPL = new MockAPL();
 
   afterEach(async () => {
     vi.restoreAllMocks();

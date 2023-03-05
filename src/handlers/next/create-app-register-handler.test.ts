@@ -1,7 +1,8 @@
 import { createMocks } from "node-mocks-http";
-import { describe, expect, it, Mock, vi } from "vitest";
+import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
 
 import { APL, AuthData } from "../../APL";
+import { MockAPL } from "../../test-utils/mock-apl";
 import { createAppRegisterHandler } from "./create-app-register-handler";
 
 const mockJwksValue = "{}";
@@ -15,20 +16,13 @@ vi.mock("../../fetch-remote-jwks", () => ({
   fetchRemoteJwks: vi.fn().mockResolvedValue("{}"), // can't use var reference, due to hoisting
 }));
 
-const mockApl: APL = {
-  get: vi.fn(),
-  set: vi.fn(),
-  delete: vi.fn(),
-  getAll: vi.fn(),
-  isReady: vi.fn().mockImplementation(async () => ({
-    ready: true,
-  })),
-  isConfigured: vi.fn().mockImplementation(async () => ({
-    configured: true,
-  })),
-};
-
 describe("create-app-register-handler", () => {
+  let mockApl: APL;
+
+  beforeEach(() => {
+    mockApl = new MockAPL();
+  });
+
   it("Sets auth data for correct request", async () => {
     const { res, req } = createMocks({
       /**

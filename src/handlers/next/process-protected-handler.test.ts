@@ -2,8 +2,8 @@ import { NextApiRequest } from "next/types";
 import { createMocks } from "node-mocks-http";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { APL } from "../../APL";
 import { getAppId } from "../../get-app-id";
+import { MockAPL } from "../../test-utils/mock-apl";
 import { verifyJWT } from "../../verify-jwt";
 import { processSaleorProtectedHandler } from "./process-protected-handler";
 
@@ -25,32 +25,18 @@ vi.mock("./../../verify-jwt", () => ({
 describe("processSaleorProtectedHandler", () => {
   let mockRequest: NextApiRequest;
 
-  const mockAPL: APL = {
-    get: async (saleorApiUrl: string) =>
-      saleorApiUrl === "https://example.com/graphql/"
-        ? {
-            domain: "example.com",
-            token: "mock-token",
-            saleorApiUrl: "https://example.com/graphql/",
-            appId: "42",
-            jwks: "{}",
-          }
-        : undefined,
-    set: vi.fn(),
-    delete: vi.fn(),
-    getAll: vi.fn(),
-    isReady: vi.fn(),
-    isConfigured: vi.fn(),
-  };
+  let mockAPL: MockAPL;
 
   beforeEach(() => {
+    mockAPL = new MockAPL();
+
     // Create request method which passes all the tests
     const { req } = createMocks({
       headers: {
         host: "some-saleor-host.cloud",
         "x-forwarded-proto": "https",
-        "saleor-domain": "example.com",
-        "saleor-api-url": "https://example.com/graphql/",
+        "saleor-domain": mockAPL.workingSaleorDomain,
+        "saleor-api-url": mockAPL.workingSaleorApiUrl,
         "saleor-event": "product_updated",
         "saleor-signature": "mocked_signature",
         "authorization-bearer": validToken,
@@ -70,11 +56,11 @@ describe("processSaleorProtectedHandler", () => {
 
     expect(await processSaleorProtectedHandler({ apl: mockAPL, req: mockRequest })).toStrictEqual({
       authData: {
-        domain: "example.com",
-        token: "mock-token",
-        saleorApiUrl: "https://example.com/graphql/",
-        appId: "42",
-        jwks: "{}",
+        domain: mockAPL.workingSaleorDomain,
+        token: mockAPL.mockToken,
+        saleorApiUrl: mockAPL.workingSaleorApiUrl,
+        appId: mockAPL.mockAppId,
+        jwks: mockAPL.mockJwks,
       },
       baseUrl: "https://some-saleor-host.cloud",
     });

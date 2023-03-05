@@ -21,6 +21,8 @@ export class MockAPL implements APL {
       ...this.options,
       ...(opts ?? {}),
     };
+
+    this.workingSaleorApiUrl = this.options.workForApiUrl ?? this.workingSaleorApiUrl;
   }
 
   mockJwks = "{}";
@@ -29,11 +31,17 @@ export class MockAPL implements APL {
 
   mockAppId = "mock-app-id";
 
+  workingSaleorApiUrl = "https://example.com/graphql/";
+
   resolveDomainFromApiUrl = (apiUrl: string) =>
     apiUrl.replace("/graphql/", "").replace("https://", "");
 
+  get workingSaleorDomain() {
+    return this.resolveDomainFromApiUrl(this.workingSaleorApiUrl);
+  }
+
   async get(saleorApiUrl: string) {
-    if (saleorApiUrl === this.options.workForApiUrl) {
+    if (saleorApiUrl === this.workingSaleorApiUrl) {
       return {
         domain: this.resolveDomainFromApiUrl(saleorApiUrl),
         token: this.mockToken,
