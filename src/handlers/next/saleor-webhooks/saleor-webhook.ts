@@ -30,6 +30,10 @@ export interface WebhookConfig<Event = AsyncWebhookEventType | SyncWebhookEventT
     body: object | string;
   }>;
   query: string | ASTNode;
+  /**
+   * @deprecated will be removed in 0.35.0, use query field instead
+   */
+  subscriptionQueryAst?: ASTNode;
 }
 
 export const WebhookErrorCodeMap: Record<SaleorWebhookError, number> = {
@@ -55,11 +59,14 @@ export type NextWebhookApiHandler<TPayload = unknown, TExtras = {}> = (
   ctx: WebhookContext<TPayload> & TExtras
 ) => unknown | Promise<unknown>;
 
-export abstract class SaleorWebhook<TPayload = unknown, TExtras extends Record<string, unknown> = {}> {
+export abstract class SaleorWebhook<
+  TPayload = unknown,
+  TExtras extends Record<string, unknown> = {}
+> {
   protected abstract type: "async" | "sync";
 
   // todo breaking type
-  protected extraContext: any  = {}; // should be TExtra
+  protected extraContext: any = {}; // should be TExtra
 
   name: string;
 
@@ -78,10 +85,23 @@ export abstract class SaleorWebhook<TPayload = unknown, TExtras extends Record<s
   formatErrorResponse: WebhookConfig["formatErrorResponse"];
 
   protected constructor(configuration: WebhookConfig) {
-    const { name, webhookPath, event, query, apl, isActive = true } = configuration;
+    const {
+      name,
+      webhookPath,
+      event,
+      query,
+      apl,
+      isActive = true,
+      subscriptionQueryAst,
+    } = configuration;
 
     this.name = name || `${event} webhook`;
-    this.query = query;
+    /**
+     * Fallback subscriptionQueryAst to avoid breaking changes
+     *
+     * TODO Remove in 0.35.0
+     */
+    this.query = query ?? subscriptionQueryAst;
     this.webhookPath = webhookPath;
     this.event = event;
     this.isActive = isActive;
