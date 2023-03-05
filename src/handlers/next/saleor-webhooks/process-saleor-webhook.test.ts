@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { APL } from "../../../APL";
 import { processSaleorWebhook } from "./process-saleor-webhook";
 
-vi.mock("./../../verify-signature", () => ({
+vi.mock("../../../verify-signature", () => ({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   verifySignature: vi.fn((domain, signature) => {
     if (signature !== "mocked_signature") {
@@ -68,13 +68,14 @@ describe("processAsyncSaleorWebhook", () => {
     mockRequest = req;
   });
 
-  it("Process valid request", async () => {
-    await processSaleorWebhook({
-      req: mockRequest,
-      apl: mockAPL,
-      allowedEvent: "PRODUCT_UPDATED",
-    });
-  });
+  it("Process valid request", async () =>
+    expect(() =>
+      processSaleorWebhook({
+        req: mockRequest,
+        apl: mockAPL,
+        allowedEvent: "PRODUCT_UPDATED",
+      })
+    ).not.toThrow());
 
   it("Throw error on non-POST request method", async () => {
     mockRequest.method = "GET";
