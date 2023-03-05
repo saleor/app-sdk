@@ -45,8 +45,19 @@ new SyncSaleorWebhook({
   apl: {} as APL,
   query: "",
   webhookPath: "",
-}).createHandler((req, res, ctx) => res.send(
+}).createHandler((req, res, ctx) =>
+  res.send(
     ctx.responseBuilder({
-      foo: "asd",
+      lines: [
+        {
+          tax_rate: "",
+          total_gross_amount: 1,
+          total_net_amount: 1,
+        },
+      ],
+      shipping_price_gross_amount: 1,
+      shipping_price_net_amount: 1,
+      shipping_tax_rate: "",
     })
-  ));
+  )
+);
