@@ -4,9 +4,9 @@ import { AsyncWebhookEventType } from "../../../types";
 import { NextWebhookApiHandler, SaleorWebhook, WebhookConfig } from "./saleor-webhook";
 
 export class SaleorAsyncWebhook<TPayload = unknown> extends SaleorWebhook<TPayload> {
-  event: AsyncWebhookEventType;
+  readonly event: AsyncWebhookEventType;
 
-  protected type = "async" as const;
+  protected readonly eventType = "async" as const;
 
   constructor(configuration: WebhookConfig<AsyncWebhookEventType>) {
     super(configuration);

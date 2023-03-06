@@ -63,10 +63,9 @@ export abstract class SaleorWebhook<
   TPayload = unknown,
   TExtras extends Record<string, unknown> = {}
 > {
-  protected abstract type: "async" | "sync";
+  protected abstract eventType: "async" | "sync";
 
-  // todo breaking type
-  protected extraContext: any = {}; // should be TExtra
+  protected extraContext?: TExtras;
 
   name: string;
 
@@ -128,7 +127,7 @@ export abstract class SaleorWebhook<
       isActive: this.isActive,
     };
 
-    switch (this.type) {
+    switch (this.eventType) {
       case "async":
         return {
           ...manifestBase,
@@ -161,7 +160,7 @@ export abstract class SaleorWebhook<
         .then(async (context) => {
           debug("Incoming request validated. Call handlerFn");
 
-          return handlerFn(req, res, { ...this.extraContext, ...context });
+          return handlerFn(req, res, { ...(this.extraContext ?? ({} as TExtras)), ...context });
         })
         .catch(async (e) => {
           debug(`Unexpected error during processing the webhook ${this.name}`);

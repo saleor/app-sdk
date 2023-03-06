@@ -12,9 +12,9 @@ export class SaleorSyncWebhook<
   TPayload = unknown,
   TEvent extends SyncWebhookEventType = SyncWebhookEventType
 > extends SaleorWebhook<TPayload, InjectedContext<TEvent>> {
-  event: TEvent;
+  readonly event: TEvent;
 
-  protected type = "sync" as const;
+  protected readonly eventType = "sync" as const;
 
   protected extraContext = {
     responseBuilder: buildSyncWebhookResponsePayload,
