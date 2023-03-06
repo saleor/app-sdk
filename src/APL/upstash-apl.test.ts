@@ -45,6 +45,7 @@ describe("APL", () => {
         // @ts-ignore Ignore type of mocked response
         fetchMock.mockResolvedValue({
           status: 200,
+          ok: true,
           json: async () => ({ result: "ok" }),
         });
         const apl = new UpstashAPL({
@@ -69,14 +70,18 @@ describe("APL", () => {
 
       it("Raise error when register service returns non 200 response", async () => {
         // @ts-ignore Ignore type of mocked response
-        fetchMock.mockResolvedValue({ status: 500 });
+        fetchMock.mockResolvedValue({
+          status: 401,
+          ok: false,
+          json: async () => ({ error: "Unauthorized" }),
+        });
 
         const apl = new UpstashAPL({
           restURL: "https://example.com",
           restToken: "token",
         });
         await expect(apl.set(stubAuthData)).rejects.toThrow(
-          "Upstash APL responded with the code 500"
+          "Upstash APL was not able to perform operation. Status code: 401. Error: Unauthorized"
         );
       });
     });
@@ -87,6 +92,7 @@ describe("APL", () => {
           // @ts-ignore Ignore type of mocked response
           fetchMock.mockResolvedValue({
             status: 200,
+            ok: true,
             json: async () => ({
               result: JSON.stringify(stubAuthData),
             }),
@@ -100,6 +106,7 @@ describe("APL", () => {
           // @ts-ignore Ignore type of mocked response
           fetchMock.mockResolvedValue({
             status: 200,
+            ok: true,
             json: async () => ({
               result: null,
             }),
