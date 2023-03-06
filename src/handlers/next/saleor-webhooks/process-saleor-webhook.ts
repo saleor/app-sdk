@@ -136,7 +136,7 @@ export const processSaleorWebhook: ProcessSaleorWebhook = async <T>({
   }
 
   /**
-   * Verify if app is properly installed for given saleor api URL
+   * Verify if the app is properly installed for given Saleor API URL
    */
   const authData = await apl.get(saleorApiUrl);
 
