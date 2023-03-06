@@ -4,9 +4,9 @@ Apps are usually connected via webhooks - one App sends an HTTP request to anoth
 
 To inform your App about events originated from Saleor, you need to expose a webhook handler, which Saleor will call with POST request.
 
-To avoid boilerplate, App SDK provides utility that abstracts connection details, allowing developers to focus on business logic.
+The App SDK provides a utility that abstracts connection details and auth, allowing developers to focus on business logic.
 
-There are 2 working classes
+Depending on the type of the webhook, you can choose one of the classes:
 
 - `SaleorAsyncWebhook`
 - `SaleorSyncWebhook`
@@ -23,7 +23,7 @@ In Next.js pages create a page, e.g. `pages/api/webhooks/order-created.ts`. We r
 import { SaleorAsyncWebhook } from "@saleor/app-sdk/handlers/next";
 
 /**
- * To be type safe, define payload from API. This should be imported from generated graphQL code
+ * To be type-safe, define payload from API. This should be imported from generated GraphQL code
  */
 type OrderPayload = {
   id: string;
@@ -38,7 +38,7 @@ For `SaleorSyncWebhook` it will be similar. Create e.g. `order-calculate-taxes.t
 import { SaleorSyncWebhook } from "@saleor/app-sdk/handlers/next";
 
 /**
- * To be type safe, define payload from API. This should be imported from generated graphQL code
+ * To be type-safe, define payload from API. This should be imported from generated GraphQL code
  */
 type CalculateTaxedPayload = {
   // taxes payload from subscription
@@ -58,7 +58,7 @@ type Options = {
    */
   name?: string;
   /**
-   * Path to webhook. Should represent relative path from base app URL. In Next.js i will be usually starting with "api/".
+   * Path to webhook. Should represent relative path from base app URL. In Next.js it will start with `api/`, e.g. `api/webhooks/order-created`.
    */
   webhookPath: string;
   /**
@@ -89,7 +89,7 @@ type Options = {
     body: object | string;
   }>;
   /**
-   * Required subscription query. Can be raw graphQL string or the instance of gql`` query
+   * Required subscription query. Can be raw GraphQL string or the instance of query wrapped in `gql` tags
    */
   query: string | ASTNode;
 };
@@ -103,7 +103,7 @@ type Options = {
 // pages/api/webhooks/order-created.ts
 
 /**
- * To be type safe, define payload from API. This should be imported from generated graphQL code
+ * To be type-safe, define payload from API. This should be imported from generated GraphQL code
  */
 type OrderPayload = {
   id: string;
@@ -237,7 +237,7 @@ export const orderCreatedWebhook = new SaleorAsyncWebhook<OrderPayload>({
 });
 
 /**
- * Notice export default - this should be used by Next.js
+ * Handler has to be a default export so the Next.js will be able to use it
  */
 export default orderCreatedWebhook.createHandler((req, res, context) => {
   const { baseUrl, event, payload, authData } = context;
