@@ -3,10 +3,10 @@ import { createMocks } from "node-mocks-http";
 import rawBody from "raw-body";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { APL } from "../../APL";
-import { processAsyncSaleorWebhook } from "./process-async-saleor-webhook";
+import { MockAPL } from "../../../test-utils/mock-apl";
+import { processSaleorWebhook } from "./process-saleor-webhook";
 
-vi.mock("./../../verify-signature", () => ({
+vi.mock("../../../verify-signature", () => ({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   verifySignature: vi.fn((domain, signature) => {
     if (signature !== "mocked_signature") {
@@ -32,23 +32,7 @@ vi.mock("raw-body", () => ({
 describe("processAsyncSaleorWebhook", () => {
   let mockRequest: NextApiRequest;
 
-  const mockAPL: APL = {
-    get: async (saleorApiUrl: string) =>
-      saleorApiUrl === "https://example.com/graphql/"
-        ? {
-            domain: "example.com",
-            token: "mock-token",
-            saleorApiUrl: "https://example.com/graphql/",
-            appId: "42",
-            jwks: "{}",
-          }
-        : undefined,
-    set: vi.fn(),
-    delete: vi.fn(),
-    getAll: vi.fn(),
-    isReady: vi.fn(),
-    isConfigured: vi.fn(),
-  };
+  const mockAPL = new MockAPL();
 
   beforeEach(() => {
     // Create request method which passes all the tests
@@ -56,8 +40,8 @@ describe("processAsyncSaleorWebhook", () => {
       headers: {
         host: "some-saleor-host.cloud",
         "x-forwarded-proto": "https",
-        "saleor-domain": "example.com",
-        "saleor-api-url": "https://example.com/graphql/",
+        "saleor-domain": mockAPL.workingSaleorDomain,
+        "saleor-api-url": mockAPL.workingSaleorApiUrl,
         "saleor-event": "product_updated",
         "saleor-signature": "mocked_signature",
         "content-length": "0", // is ignored by mocked raw-body
@@ -68,19 +52,20 @@ describe("processAsyncSaleorWebhook", () => {
     mockRequest = req;
   });
 
-  it("Process valid request", async () => {
-    await processAsyncSaleorWebhook({
-      req: mockRequest,
-      apl: mockAPL,
-      allowedEvent: "PRODUCT_UPDATED",
-    });
-  });
+  it("Process valid request", async () =>
+    expect(() =>
+      processSaleorWebhook({
+        req: mockRequest,
+        apl: mockAPL,
+        allowedEvent: "PRODUCT_UPDATED",
+      })
+    ).not.toThrow());
 
   it("Throw error on non-POST request method", async () => {
     mockRequest.method = "GET";
 
     await expect(
-      processAsyncSaleorWebhook({ req: mockRequest, apl: mockAPL, allowedEvent: "PRODUCT_UPDATED" })
+      processSaleorWebhook({ req: mockRequest, apl: mockAPL, allowedEvent: "PRODUCT_UPDATED" })
     ).rejects.toThrow("Wrong request method");
   });
 
@@ -88,7 +73,7 @@ describe("processAsyncSaleorWebhook", () => {
     delete mockRequest.headers["saleor-api-url"];
 
     await expect(
-      processAsyncSaleorWebhook({ req: mockRequest, apl: mockAPL, allowedEvent: "PRODUCT_UPDATED" })
+      processSaleorWebhook({ req: mockRequest, apl: mockAPL, allowedEvent: "PRODUCT_UPDATED" })
     ).rejects.toThrow("Missing saleor-api-url header");
   });
 
@@ -96,7 +81,7 @@ describe("processAsyncSaleorWebhook", () => {
     delete mockRequest.headers["saleor-event"];
 
     await expect(
-      processAsyncSaleorWebhook({
+      processSaleorWebhook({
         req: mockRequest,
         apl: mockAPL,
         allowedEvent: "PRODUCT_UPDATED",
@@ -107,14 +92,14 @@ describe("processAsyncSaleorWebhook", () => {
   it("Throw error on mismatched event header", async () => {
     mockRequest.headers["saleor-event"] = "different_event";
     await expect(
-      processAsyncSaleorWebhook({ req: mockRequest, apl: mockAPL, allowedEvent: "PRODUCT_UPDATED" })
+      processSaleorWebhook({ req: mockRequest, apl: mockAPL, allowedEvent: "PRODUCT_UPDATED" })
     ).rejects.toThrow("Wrong incoming request event: different_event. Expected: product_updated");
   });
 
   it("Throw error on missing signature header", async () => {
     delete mockRequest.headers["saleor-signature"];
     await expect(
-      processAsyncSaleorWebhook({
+      processSaleorWebhook({
         req: mockRequest,
         apl: mockAPL,
         allowedEvent: "PRODUCT_UPDATED",
@@ -128,7 +113,7 @@ describe("processAsyncSaleorWebhook", () => {
     });
 
     await expect(
-      processAsyncSaleorWebhook({
+      processSaleorWebhook({
         req: mockRequest,
         apl: mockAPL,
         allowedEvent: "PRODUCT_UPDATED",
@@ -139,7 +124,7 @@ describe("processAsyncSaleorWebhook", () => {
   it("Throw error on not registered app", async () => {
     mockRequest.headers["saleor-api-url"] = "https://not-registered.example.com/graphql/";
     await expect(
-      processAsyncSaleorWebhook({
+      processSaleorWebhook({
         req: mockRequest,
         apl: mockAPL,
         allowedEvent: "PRODUCT_UPDATED",
@@ -151,11 +136,13 @@ describe("processAsyncSaleorWebhook", () => {
 
   it("Throw error on wrong signature", async () => {
     mockRequest.headers["saleor-signature"] = "wrong_signature";
+
     vi.mock("./../../fetch-remote-jwks", () => ({
-      fetchRemoteJwks: vi.fn(() => "wrong_signature"),
+      fetchRemoteJwks: vi.fn(async () => "wrong_signature"),
     }));
-    await expect(
-      processAsyncSaleorWebhook({
+
+    return expect(
+      processSaleorWebhook({
         req: mockRequest,
         apl: mockAPL,
         allowedEvent: "PRODUCT_UPDATED",

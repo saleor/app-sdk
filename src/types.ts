@@ -163,15 +163,10 @@ export type AsyncWebhookEventType =
 
 /**
  * @see https://github.com/saleor/saleor/blob/main/saleor/graphql/schema.graphql#L1995
+ *
+ * TODO Add Payment events after new API in 3.13
  */
 export type SyncWebhookEventType =
-  | "PAYMENT_LIST_GATEWAYS"
-  | "PAYMENT_AUTHORIZE"
-  | "PAYMENT_CAPTURE"
-  | "PAYMENT_REFUND"
-  | "PAYMENT_VOID"
-  | "PAYMENT_CONFIRM"
-  | "PAYMENT_PROCESS"
   | "CHECKOUT_CALCULATE_TAXES"
   | "ORDER_CALCULATE_TAXES"
   | "SHIPPING_LIST_METHODS_FOR_CHECKOUT"

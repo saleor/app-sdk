@@ -8,16 +8,16 @@ import { getSaleorAppFromRequest } from "./with-saleor-app";
 const debug = createMiddlewareDebug("withRegisteredSaleorDomainHeader");
 
 export const withRegisteredSaleorDomainHeader: Middleware = (handler) => async (request) => {
-  const { domain: saleorDomain } = getSaleorHeaders(request.headers);
+  const { saleorApiUrl } = getSaleorHeaders(request.headers);
 
-  if (!saleorDomain) {
+  if (!saleorApiUrl) {
     return Response.BadRequest({
       success: false,
-      message: "Domain header missing.",
+      message: "saleorApiUrl header missing.",
     });
   }
 
-  debug("Middleware called with domain: \"%s\"", saleorDomain);
+  debug("Middleware called with saleorApiUrl: \"%s\"", saleorApiUrl);
 
   const saleorApp = getSaleorAppFromRequest(request);
 
@@ -32,14 +32,14 @@ export const withRegisteredSaleorDomainHeader: Middleware = (handler) => async (
     });
   }
 
-  const authData = await saleorApp?.apl.get(saleorDomain);
+  const authData = await saleorApp?.apl.get(saleorApiUrl);
 
   if (!authData) {
     debug("Auth was not found in APL, will respond with Forbidden status");
 
     return Response.Forbidden({
       success: false,
-      message: `Domain ${saleorDomain} not registered.`,
+      message: `Saleor: ${saleorApiUrl} not registered.`,
     });
   }
 

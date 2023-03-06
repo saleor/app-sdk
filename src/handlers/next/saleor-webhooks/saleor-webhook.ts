@@ -1,23 +1,23 @@
 import { ASTNode } from "graphql";
 import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
 
-import { APL } from "../../APL";
-import { createDebug } from "../../debug";
-import { gqlAstToString } from "../../gql-ast-to-string";
-import { AsyncWebhookEventType, WebhookManifest } from "../../types";
+import { APL } from "../../../APL";
+import { createDebug } from "../../../debug";
+import { gqlAstToString } from "../../../gql-ast-to-string";
+import { AsyncWebhookEventType, SyncWebhookEventType, WebhookManifest } from "../../../types";
 import {
-  processAsyncSaleorWebhook,
+  processSaleorWebhook,
   SaleorWebhookError,
   WebhookContext,
   WebhookError,
-} from "./process-async-saleor-webhook";
+} from "./process-saleor-webhook";
 
 const debug = createDebug("SaleorAsyncWebhook");
 
-interface WebhookManifestConfigurationBase {
+export interface WebhookConfig<Event = AsyncWebhookEventType | SyncWebhookEventType> {
   name?: string;
   webhookPath: string;
-  asyncEvent: AsyncWebhookEventType;
+  event: Event;
   isActive?: boolean;
   apl: APL;
   onError?(error: WebhookError | Error, req: NextApiRequest, res: NextApiResponse): void;
@@ -29,21 +29,14 @@ interface WebhookManifestConfigurationBase {
     code: number;
     body: object | string;
   }>;
+  query: string | ASTNode;
+  /**
+   * @deprecated will be removed in 0.35.0, use query field instead
+   */
+  subscriptionQueryAst?: ASTNode;
 }
 
-interface WebhookManifestConfigurationWithAst extends WebhookManifestConfigurationBase {
-  subscriptionQueryAst: ASTNode;
-}
-
-interface WebhookManifestConfigurationWithQuery extends WebhookManifestConfigurationBase {
-  query: string;
-}
-
-type WebhookManifestConfiguration =
-  | WebhookManifestConfigurationWithAst
-  | WebhookManifestConfigurationWithQuery;
-
-export const AsyncWebhookErrorCodeMap: Record<SaleorWebhookError, number> = {
+export const WebhookErrorCodeMap: Record<SaleorWebhookError, number> = {
   OTHER: 500,
   MISSING_HOST_HEADER: 400,
   MISSING_DOMAIN_HEADER: 400,
@@ -60,63 +53,63 @@ export const AsyncWebhookErrorCodeMap: Record<SaleorWebhookError, number> = {
   CONFIGURATION_ERROR: 500,
 };
 
-export type NextWebhookApiHandler<TPayload = unknown, TResp = unknown> = (
+export type NextWebhookApiHandler<TPayload = unknown, TExtras = {}> = (
   req: NextApiRequest,
-  res: NextApiResponse<TResp>,
-  ctx: WebhookContext<TPayload>
+  res: NextApiResponse,
+  ctx: WebhookContext<TPayload> & TExtras
 ) => unknown | Promise<unknown>;
 
-export class SaleorAsyncWebhook<TPayload = unknown> {
+export abstract class SaleorWebhook<
+  TPayload = unknown,
+  TExtras extends Record<string, unknown> = {}
+> {
+  protected abstract eventType: "async" | "sync";
+
+  protected extraContext?: TExtras;
+
   name: string;
 
   webhookPath: string;
 
-  subscriptionQueryAst?: ASTNode;
+  query: string | ASTNode;
 
-  query?: string;
-
-  asyncEvent: AsyncWebhookEventType;
+  event: AsyncWebhookEventType | SyncWebhookEventType;
 
   isActive?: boolean;
 
   apl: APL;
 
-  onError: WebhookManifestConfigurationBase["onError"];
+  onError: WebhookConfig["onError"];
 
-  formatErrorResponse: WebhookManifestConfigurationBase["formatErrorResponse"];
+  formatErrorResponse: WebhookConfig["formatErrorResponse"];
 
-  constructor(configuration: WebhookManifestConfiguration) {
-    const { name, webhookPath, asyncEvent, apl, isActive = true } = configuration;
-    this.name = name || `${asyncEvent} webhook`;
-    if ("query" in configuration) {
-      this.query = configuration.query;
-    }
-    if ("subscriptionQueryAst" in configuration) {
-      this.subscriptionQueryAst = configuration.subscriptionQueryAst;
-    }
-    if (!this.subscriptionQueryAst && !this.query) {
-      throw new WebhookError(
-        "Need to specify `subscriptionQueryAst` or `query` to create webhook subscription",
-        "CONFIGURATION_ERROR"
-      );
-    }
+  protected constructor(configuration: WebhookConfig) {
+    const {
+      name,
+      webhookPath,
+      event,
+      query,
+      apl,
+      isActive = true,
+      subscriptionQueryAst,
+    } = configuration;
 
+    this.name = name || `${event} webhook`;
+    /**
+     * Fallback subscriptionQueryAst to avoid breaking changes
+     *
+     * TODO Remove in 0.35.0
+     */
+    this.query = query ?? subscriptionQueryAst;
     this.webhookPath = webhookPath;
-    this.asyncEvent = asyncEvent;
+    this.event = event;
     this.isActive = isActive;
     this.apl = apl;
     this.onError = configuration.onError;
     this.formatErrorResponse = configuration.formatErrorResponse;
   }
 
-  /**
-   * Returns full URL to the webhook, based on provided baseUrl.
-   *
-   * TODO: Shouldn't it be private?
-   *
-   * @param baseUrl Base URL used by your application
-   */
-  getTargetUrl(baseUrl: string) {
+  private getTargetUrl(baseUrl: string) {
     return new URL(this.webhookPath, baseUrl).href;
   }
 
@@ -127,34 +120,47 @@ export class SaleorAsyncWebhook<TPayload = unknown> {
    * @returns WebhookManifest
    */
   getWebhookManifest(baseUrl: string): WebhookManifest {
-    return {
+    const manifestBase: Omit<WebhookManifest, "asyncEvents" | "syncEvents"> = {
+      query: typeof this.query === "string" ? this.query : gqlAstToString(this.query),
       name: this.name,
       targetUrl: this.getTargetUrl(baseUrl),
-      asyncEvents: [this.asyncEvent],
       isActive: this.isActive,
-      // Query can be provided as plaintext..
-      ...(this.query && { query: this.query }),
-      // ...GQL AST which has to be stringified..
-      ...(this.subscriptionQueryAst && { query: gqlAstToString(this.subscriptionQueryAst) }),
-      // or no query at all. In such case default webhook payload will be sent
     };
+
+    switch (this.eventType) {
+      case "async":
+        return {
+          ...manifestBase,
+          asyncEvents: [this.event as AsyncWebhookEventType],
+        };
+      case "sync":
+        return {
+          ...manifestBase,
+          syncEvents: [this.event as SyncWebhookEventType],
+        };
+      default: {
+        throw new Error("Class extended incorrectly");
+      }
+    }
   }
 
   /**
    * Wraps provided function, to ensure incoming request comes from registered Saleor instance.
    * Also provides additional `context` object containing typed payload and request properties.
    */
-  createHandler(handlerFn: NextWebhookApiHandler<TPayload>): NextApiHandler {
+  createHandler(handlerFn: NextWebhookApiHandler<TPayload, TExtras>): NextApiHandler {
     return async (req, res) => {
       debug(`Handler for webhook ${this.name} called`);
-      await processAsyncSaleorWebhook<TPayload>({
+
+      await processSaleorWebhook<TPayload>({
         req,
         apl: this.apl,
-        allowedEvent: this.asyncEvent,
+        allowedEvent: this.event,
       })
         .then(async (context) => {
           debug("Incoming request validated. Call handlerFn");
-          return handlerFn(req, res, context);
+
+          return handlerFn(req, res, { ...(this.extraContext ?? ({} as TExtras)), ...context });
         })
         .catch(async (e) => {
           debug(`Unexpected error during processing the webhook ${this.name}`);
@@ -174,7 +180,7 @@ export class SaleorAsyncWebhook<TPayload = unknown> {
               return;
             }
 
-            res.status(AsyncWebhookErrorCodeMap[e.errorType] || 400).send({
+            res.status(WebhookErrorCodeMap[e.errorType] || 400).send({
               error: {
                 type: e.errorType,
                 message: e.message,

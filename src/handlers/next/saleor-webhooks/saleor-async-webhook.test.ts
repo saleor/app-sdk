@@ -1,71 +1,47 @@
-import { ASTNode } from "graphql";
 import { createMocks } from "node-mocks-http";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { APL } from "../../APL";
-import { processAsyncSaleorWebhook } from "./process-async-saleor-webhook";
-import { NextWebhookApiHandler, SaleorAsyncWebhook } from "./saleor-async-webhook";
+import { MockAPL } from "../../../test-utils/mock-apl";
+import { AsyncWebhookEventType } from "../../../types";
+import { processSaleorWebhook } from "./process-saleor-webhook";
+import { SaleorAsyncWebhook } from "./saleor-async-webhook";
+import { NextWebhookApiHandler, WebhookConfig } from "./saleor-webhook";
 
 const webhookPath = "api/webhooks/product-updated";
 const baseUrl = "http://example.com";
 
 describe("SaleorAsyncWebhook", () => {
-  const mockAPL: APL = {
-    get: async (domain: string) =>
-      domain === "example.com"
-        ? {
-            domain: "example.com",
-            token: "mock-token",
-            jwks: "",
-            saleorApiUrl: "https://example.com/graphql/",
-            appId: "12345",
-          }
-        : undefined,
-    set: vi.fn(),
-    delete: vi.fn(),
-    getAll: vi.fn(),
-    isReady: vi.fn(),
-    isConfigured: vi.fn(),
-  };
+  const mockAPL = new MockAPL();
 
   afterEach(async () => {
     vi.restoreAllMocks();
   });
 
-  const validAsyncWebhookConfiguration = {
+  const validAsyncWebhookConfiguration: WebhookConfig<AsyncWebhookEventType> = {
     apl: mockAPL,
-    asyncEvent: "PRODUCT_UPDATED",
+    event: "PRODUCT_UPDATED",
     webhookPath,
     query: "subscription { event { ... on ProductUpdated { product { id }}}}",
   } as const;
 
   const saleorAsyncWebhook = new SaleorAsyncWebhook(validAsyncWebhookConfiguration);
 
-  it("throw CONFIGURATION_ERROR if query and subscriptionQueryAst are both absent", async () => {
+  it("constructor passes if query is provided", async () => {
     expect(() => {
       // eslint-disable-next-line no-new
       new SaleorAsyncWebhook({
         ...validAsyncWebhookConfiguration,
-        // @ts-ignore: We make type error for test purpose
-        query: undefined,
-        subscriptionQueryAst: undefined,
-      });
-    }).toThrowError();
-  });
-
-  it("constructor passes if subscriptionQueryAst is provided", async () => {
-    expect(() => {
-      // eslint-disable-next-line no-new
-      new SaleorAsyncWebhook({
-        ...validAsyncWebhookConfiguration,
-        query: undefined,
-        subscriptionQueryAst: {} as ASTNode,
+        query: "subscription { event { ... on ProductUpdated { product { id }}}}",
       });
     }).not.toThrowError();
   });
 
   it("targetUrl should return full path to the webhook route based on given baseUrl", async () => {
-    expect(saleorAsyncWebhook.getTargetUrl(baseUrl)).toBe(`${baseUrl}/${webhookPath}`);
+    expect(saleorAsyncWebhook.getWebhookManifest(baseUrl)).toEqual(
+      expect.objectContaining({
+        targetUrl: `${baseUrl}/${webhookPath}`,
+      })
+    );
   });
 
   it("getWebhookManifest should return a valid manifest", async () => {
@@ -80,9 +56,9 @@ describe("SaleorAsyncWebhook", () => {
 
   it("Test createHandler which return success", async () => {
     // prepare mocked context returned by mocked process function
-    vi.mock("./process-async-saleor-webhook");
+    vi.mock("./process-saleor-webhook");
 
-    vi.mocked(processAsyncSaleorWebhook).mockImplementationOnce(async () => ({
+    vi.mocked(processSaleorWebhook).mockImplementationOnce(async () => ({
       baseUrl: "example.com",
       event: "product_updated",
       payload: { data: "test_payload" },
@@ -109,6 +85,7 @@ describe("SaleorAsyncWebhook", () => {
     const { req, res } = createMocks();
     const wrappedHandler = saleorAsyncWebhook.createHandler(testHandler);
     await wrappedHandler(req, res);
+
     expect(res.statusCode).toBe(200);
 
     // Check if test handler was used by the wrapper
@@ -129,9 +106,9 @@ describe("SaleorAsyncWebhook", () => {
     });
 
     // prepare mocked context returned by mocked process function
-    vi.mock("./process-async-saleor-webhook");
+    vi.mock("./process-saleor-webhook");
 
-    vi.mocked(processAsyncSaleorWebhook).mockImplementationOnce(async () => {
+    vi.mocked(processSaleorWebhook).mockImplementationOnce(async () => {
       /**
        * This mock should throw WebhookError, but there was TypeError related to constructor of extended class.
        * Try "throw new WebhookError()" to check it.
