@@ -85,6 +85,9 @@ jobs:
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            Released snapshot build with `@dev` tag in npm with version: ${{ fromJson(env.PACKAGE_JSON).version }}
+            Released snapshot build with `@dev` tag in npm with version: `${{ fromJson(env.PACKAGE_JSON).version }}`
 
-            Install it with `pnpm add @saleor/app-sdk@${{ fromJson(env.PACKAGE_JSON).version }}`
+            Install it with 
+            ```bash
+            pnpm add @saleor/app-sdk@${{ fromJson(env.PACKAGE_JSON).version }}
+            ```
