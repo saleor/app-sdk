@@ -71,11 +71,15 @@ jobs:
         run: npx changeset version --snapshot pr && pnpm publish --tag dev --no-git-checks
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # Store package.json version in env
       - run: echo "PACKAGE_JSON=$(jq -c . < package.json)" >> $GITHUB_ENV
       - run: echo '${{ fromJson(env.PACKAGE_JSON).version }}'
+      # Post a comment with released snapshot
       - name: Create with released tag
         uses: peter-evans/create-or-update-comment@v2
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            Released app-sdk to @dev tag in npm with version: ${{ fromJson(env.PACKAGE_JSON).version }}
+            Released snapshot build with `@dev` tag in npm with version: ${{ fromJson(env.PACKAGE_JSON).version }}
+
+            Install it with `pnpm add @saleor/app-sdk@${{ fromJson(env.PACKAGE_JSON).version }}`
