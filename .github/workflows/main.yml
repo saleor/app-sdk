@@ -68,8 +68,9 @@ jobs:
       - name: Build project
         run: pnpm build
       - name: Release on @dev tag in npm
-        # run: npx changeset version --snapshot pr && pnpm publish --tag dev --no-git-checks
-        run: npx changeset version --snapshot pr
+        run: npx changeset version --snapshot pr && pnpm publish --tag dev --no-git-checks
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - run: echo "PACKAGE_JSON=$(jq -c . < package.json)" >> $GITHUB_ENV
       - run: echo '${{ fromJson(env.PACKAGE_JSON).version }}'
       - name: Create with released tag
