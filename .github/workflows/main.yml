@@ -67,3 +67,14 @@ jobs:
         run: pnpm install
       - name: Build project
         run: pnpm build
+      - name: Release on @dev tag in npm
+        # run: npx changeset version --snapshot pr && pnpm publish --tag dev --no-git-checks
+        run: npx changeset version --snapshot pr
+      - run: echo "PACKAGE_JSON=$(jq -c . < package.json)" >> $GITHUB_ENV
+      - run: echo '${{ fromJson(env.PACKAGE_JSON).version }}'
+      - name: Create with released tag
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            Released app-sdk to @dev tag in npm with version: ${{ fromJson(env.PACKAGE_JSON).version }}
