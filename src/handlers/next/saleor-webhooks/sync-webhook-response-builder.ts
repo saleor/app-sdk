@@ -22,51 +22,6 @@ type SyncWebhookResponsesMap = {
   };
   ORDER_CALCULATE_TAXES: SyncWebhookResponsesMap["CHECKOUT_CALCULATE_TAXES"];
   ORDER_FILTER_SHIPPING_METHODS: SyncWebhookResponsesMap["CHECKOUT_FILTER_SHIPPING_METHODS"];
-  /**
-   * TODO
-   */
-  PAYMENT_AUTHORIZE: {};
-  /**
-   * TODO
-   */
-  PAYMENT_CAPTURE: {};
-  /**
-   * TODO
-   */
-  PAYMENT_CONFIRM: {};
-  PAYMENT_LIST_GATEWAYS: Array<{
-    id: string;
-    name: string;
-    currencies: string[]; // or enums?
-    config?: Array<{
-      field: string;
-      value: string;
-    }>;
-  }>;
-  PAYMENT_PROCESS: {
-    action_required: true;
-    action_required_data: {
-      confirmation_url: "https://www.example.com/3ds-confirmation/";
-    };
-    customer_id: "customer-1234";
-    payment_method: {
-      brand: "Visa";
-      exp_month: "01";
-      exp_year: "2025";
-      last_4: "4242";
-      name: "John Doe";
-      type: "Credit card";
-    };
-    transaction_id: "transaction-1234";
-  };
-  /**
-   * TODO
-   */
-  PAYMENT_REFUND: {};
-  /**
-   * TODO
-   */
-  PAYMENT_VOID: {};
   SHIPPING_LIST_METHODS_FOR_CHECKOUT: Array<{
     id: string;
     name: string;

@@ -5,7 +5,7 @@ import { NextWebhookApiHandler, SaleorWebhook, WebhookConfig } from "./saleor-we
 import { buildSyncWebhookResponsePayload } from "./sync-webhook-response-builder";
 
 type InjectedContext<TEvent extends SyncWebhookEventType> = {
-  responseBuilder: typeof buildSyncWebhookResponsePayload<TEvent>;
+  buildResponse: typeof buildSyncWebhookResponsePayload<TEvent>;
 };
 
 export class SaleorSyncWebhook<
@@ -17,7 +17,7 @@ export class SaleorSyncWebhook<
   protected readonly eventType = "sync" as const;
 
   protected extraContext = {
-    responseBuilder: buildSyncWebhookResponsePayload,
+    buildResponse: buildSyncWebhookResponsePayload,
   };
 
   constructor(configuration: WebhookConfig<TEvent>) {
@@ -30,7 +30,7 @@ export class SaleorSyncWebhook<
     handlerFn: NextWebhookApiHandler<
       TPayload,
       {
-        responseBuilder: typeof buildSyncWebhookResponsePayload<TEvent>;
+        buildResponse: typeof buildSyncWebhookResponsePayload<TEvent>;
       }
     >
   ): NextApiHandler {

@@ -45,7 +45,7 @@ describe("SaleorSyncWebhook", () => {
 
     const handler = webhook.createHandler((_req, _res, ctx) => {
       _res.send(
-        ctx.responseBuilder({
+        ctx.buildResponse({
           lines: [
             {
               tax_rate: "VAT8",
