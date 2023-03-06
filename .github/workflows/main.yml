@@ -67,10 +67,15 @@ jobs:
         run: pnpm install
       - name: Build project
         run: pnpm build
-      - name: Release on @dev tag in npm
-        run: npx changeset version --snapshot pr && pnpm publish --tag dev --no-git-checks
+      - name: Creating .npmrc
+        run: |
+          cat << EOF > "$HOME/.npmrc"
+            //registry.npmjs.org/:_authToken=$NPM_TOKEN
+          EOF
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Release on @dev tag in npm
+        run: npx changeset version --snapshot pr && pnpm publish --tag dev --no-git-checks
       # Store package.json version in env
       - run: echo "PACKAGE_JSON=$(jq -c . < package.json)" >> $GITHUB_ENV
       - run: echo '${{ fromJson(env.PACKAGE_JSON).version }}'
