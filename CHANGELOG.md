@@ -1,5 +1,21 @@
 # @saleor/app-sdk
 
+## 0.34.0
+
+### Minor Changes
+
+- 9420209: Add SaleorSyncWebhook class
+
+  Now app-sdk support both `new SaleorAsyncWebhook()` and `new SaleorSyncWebhook()`.
+
+  Changes:
+
+  Constructor field `subscriptionQueryAst?: ASTNode` in `SaleorAsyncWebhook` has been deprecated.
+
+  Use `query` field instead (`query: ASTNode | string`)
+
+  Constructor field `asyncEvent` has been deprecated. Use `event` instead
+
 ## 0.33.0
 
 ### Minor Changes
