@@ -12,7 +12,7 @@ import {
   WebhookError,
 } from "./process-saleor-webhook";
 
-const debug = createDebug("SaleorAsyncWebhook");
+const debug = createDebug("SaleorWebhook");
 
 export interface WebhookConfig<Event = AsyncWebhookEventType | SyncWebhookEventType> {
   name?: string;
