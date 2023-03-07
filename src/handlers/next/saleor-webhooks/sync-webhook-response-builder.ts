@@ -3,7 +3,7 @@ import { SyncWebhookEventType } from "../../../types";
 /**
  * TODO Confirm with Saleor Core source (not the docs) to check if its 100% accurate
  */
-type SyncWebhookResponsesMap = {
+export type SyncWebhookResponsesMap = {
   CHECKOUT_CALCULATE_TAXES: {
     shipping_price_gross_amount: number;
     shipping_price_net_amount: number;
