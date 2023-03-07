@@ -1,8 +1,5 @@
 import { SyncWebhookEventType } from "../../../types";
 
-/**
- * TODO Confirm with Saleor Core source (not the docs) to check if its 100% accurate
- */
 export type SyncWebhookResponsesMap = {
   CHECKOUT_CALCULATE_TAXES: {
     shipping_price_gross_amount: number;
@@ -27,6 +24,9 @@ export type SyncWebhookResponsesMap = {
     name?: string;
     amount: number;
     currency: string; // or enum?
+    /**
+     * Integer
+     */
     maximum_delivery_days?: number;
   }>;
 };
