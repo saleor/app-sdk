@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 0.34.1
+
+### Patch Changes
+
+- 75eff60: Exported SyncWebhookResponsesMap so it can be imported by app
+
 ## 0.34.0
 
 ### Minor Changes
