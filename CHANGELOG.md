@@ -6,7 +6,7 @@
 
 - 3786c86: Original error messages from Upstash in UpstashAPL are now exposed in debug logs
 - 172de4a: Chore: Added template for github feature request
-- 1d7af07: Removed unused @types/node-fetch, since sdk no longer uses it (Node 18 has built-in fetch, for older node.js version polyfill is required)
+- 1d7af07: Removed unused @types/node-fetch, since app-sdk no longer uses it (Node 18 has built-in fetch, for older node.js version polyfill is required)
 
 ## 0.34.1
 
