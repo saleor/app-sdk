@@ -6,7 +6,6 @@ specifiers:
   '@testing-library/react': ^13.4.0
   '@types/debug': ^4.1.7
   '@types/node': ^18.7.15
-  '@types/node-fetch': ^2.6.2
   '@types/react': 18.0.21
   '@types/react-dom': ^18.0.5
   '@types/uuid': ^8.3.4
@@ -61,7 +60,6 @@ devDependencies:
   '@testing-library/react': 13.4.0_biqbaboplfbrettd7655fr4n2y
   '@types/debug': 4.1.7
   '@types/node': 18.7.15
-  '@types/node-fetch': 2.6.2
   '@types/react': 18.0.21
   '@types/react-dom': 18.0.6
   '@types/uuid': 8.3.4
@@ -1094,13 +1092,6 @@ packages:
 
   /@types/ms/0.7.31:
     resolution: {integrity: sha512-iiUgKzV9AuaEkZqkOLDIvlQiL6ltuZd9tGcW3gwpnX8JbuiuhFlEGmmFXEXkN50Cvq7Os88IY2v0dkDqXYWVgA==}
-    dev: true
-
-  /@types/node-fetch/2.6.2:
-    resolution: {integrity: sha512-DHqhlq5jeESLy19TYhLakJ07kNumXWjcDdxXsLUMJZ6ue8VZJj4kLPQVE/2mdHh3xZziNF1xppu5lwmS53HR+A==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.com/@types/node-fetch/-/node-fetch-2.6.2.tgz}
-    dependencies:
-      '@types/node': 18.7.15
-      form-data: 3.0.1
     dev: true
 
   /@types/node/12.20.55:
@@ -3077,15 +3068,6 @@ packages:
     dependencies:
       cross-spawn: 7.0.3
       signal-exit: 3.0.7
-    dev: true
-
-  /form-data/3.0.1:
-    resolution: {integrity: sha512-RHkBKtLWUVwd7SqRIvCZMEvAMoGUp0XU+seQiZejj0COz3RI3hWP4sCv3gZWWLjJTd7rGwcsF5eKZGii0r/hbg==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.com/form-data/-/form-data-3.0.1.tgz}
-    engines: {node: '>= 6'}
-    dependencies:
-      asynckit: 0.4.0
-      combined-stream: 1.0.8
-      mime-types: 2.1.35
     dev: true
 
   /form-data/4.0.0:
