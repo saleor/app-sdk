@@ -72,16 +72,21 @@ export class UpstashAPL implements APL {
       debug("Error during sending the data:", error);
       throw new Error(`UpstashAPL was unable to perform a request ${error}`);
     }
-    if (response.status >= 400 || response.status < 200) {
-      debug("Non 200 response code. Upstash responded with %j", response);
-      throw new Error(`Upstash APL responded with the code ${response.status}`);
-    }
+
     const parsedResponse = (await response.json()) as UpstashResponse;
-    if ("error" in parsedResponse) {
-      debug("Upstash API responded with error: %s", parsedResponse.error);
-      throw new Error("Upstash APL was not able to perform operation");
+    if (!response.ok || "error" in parsedResponse) {
+      debug(`Operation unsuccessful. Upstash API has responded with ${response.status} code`);
+      if ("error" in parsedResponse) {
+        debug("Error message: %s", parsedResponse.error);
+        throw new Error(
+          `Upstash APL was not able to perform operation. Status code: ${response.status}. Error: ${parsedResponse.error}`
+        );
+      }
+      throw new Error(
+        `Upstash APL was not able to perform operation. Status code: ${response.status}`
+      );
     }
-    debug("Register service responded successfully");
+    debug("Upstash service responded successfully");
     return parsedResponse.result;
   }
 
