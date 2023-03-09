@@ -36,5 +36,5 @@ jobs:
           commit: Release to npm
           publish: "pnpm publish:ci"
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
