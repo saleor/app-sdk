@@ -48,13 +48,13 @@ describe("SaleorSyncWebhook", () => {
         ctx.buildResponse({
           lines: [
             {
-              tax_rate: "VAT8",
+              tax_rate: 8,
               total_net_amount: 10,
               total_gross_amount: 1.08,
             },
           ],
           shipping_price_gross_amount: 2,
-          shipping_tax_rate: "VAT8",
+          shipping_tax_rate: 8,
           shipping_price_net_amount: 1,
         })
       );
@@ -66,13 +66,13 @@ describe("SaleorSyncWebhook", () => {
       expect.objectContaining({
         lines: [
           {
-            tax_rate: "VAT8",
+            tax_rate: 8,
             total_net_amount: 10,
             total_gross_amount: 1.08,
           },
         ],
         shipping_price_gross_amount: 2,
-        shipping_tax_rate: "VAT8",
+        shipping_tax_rate: 8,
         shipping_price_net_amount: 1,
       })
     );

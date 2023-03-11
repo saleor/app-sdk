@@ -12,7 +12,7 @@
     "test": "vitest",
     "test:ci": "CI=true vitest --coverage",
     "prepare": "husky install",
-    "lint": "prettier --loglevel warn --write . && eslint --fix .",
+    "lint": "tsc --noEmit && prettier --loglevel warn --write . && eslint --fix .",
     "copy-readme": "cp README.md dist/README.md",
     "publish:ci": "pnpm publish && npx changeset tag && git push --follow-tags"
   },

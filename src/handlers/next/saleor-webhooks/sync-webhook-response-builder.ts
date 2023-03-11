@@ -29,6 +29,44 @@ export type SyncWebhookResponsesMap = {
      */
     maximum_delivery_days?: number;
   }>;
+
+  PAYMENT_GATEWAY_INITIALIZE_SESSION: {
+    data: unknown;
+  };
+  TRANSACTION_INITIALIZE_SESSION: {
+    pspReference?: string;
+    data?: unknown;
+    result:
+      | "CHARGE_SUCCESS"
+      | "CHARGE_FAILURE"
+      | "CHARGE_REQUESTED"
+      | "CHARGE_ACTION_REQUIRED"
+      | "AUTHORIZATION_SUCCESS"
+      | "AUTHORIZATION_FAILURE"
+      | "AUTHORIZATION_REQUESTED"
+      | "AUTHORIZATION_ACTION_REQUIRED";
+    amount: number;
+    time?: string;
+    externalUrl?: string;
+    message?: string;
+  };
+  TRANSACTION_PROCESS_SESSION: {
+    pspReference?: string;
+    data?: unknown;
+    result:
+      | "CHARGE_SUCCESS"
+      | "CHARGE_FAILURE"
+      | "CHARGE_REQUESTED"
+      | "CHARGE_ACTION_REQUIRED"
+      | "AUTHORIZATION_SUCCESS"
+      | "AUTHORIZATION_FAILURE"
+      | "AUTHORIZATION_REQUESTED"
+      | "AUTHORIZATION_ACTION_REQUIRED";
+    amount: number;
+    time?: string;
+    externalUrl?: string;
+    message?: string;
+  };
 };
 
 /**
