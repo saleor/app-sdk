@@ -78,12 +78,29 @@ export class EnvApl implements APL {
     debug("Called set method");
   }
 
-  async get() {
+  async get(saleorApiUrl: string) {
+    if (!this.isAuthDataValid(this.options.env)) {
+      debug("Trying to get AuthData but APL constructor was not filled with proper AuthData");
+      return undefined;
+    }
+
+    if (saleorApiUrl !== this.options.env.saleorApiUrl) {
+      throw new Error(
+        `Requested AuthData for domain "${saleorApiUrl}", however APL is configured for ${this.options.env.saleorApiUrl}. You may trying to install app in invalid Saleor URL `
+      );
+    }
+
     return this.options.env;
   }
 
   async getAll() {
-    return [await this.get()];
+    if (!this.isAuthDataValid(this.options.env)) {
+      return [];
+    }
+
+    const authData = await this.get(this.options.env.saleorApiUrl);
+
+    return authData ? [authData] : [];
   }
 
   async delete() {

@@ -62,7 +62,7 @@ describe("EnvAPL", () => {
       printAuthDataOnRegister: true,
     });
 
-    expect(await apl.get()).toEqual({
+    expect(await apl.get(envVars.SALEOR_API_URL)).toEqual({
       token: envVars.SALEOR_APP_TOKEN,
       appId: envVars.SALEOR_APP_ID,
       saleorApiUrl: envVars.SALEOR_API_URL,
