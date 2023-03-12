@@ -1,0 +1,92 @@
+import { APL, AuthData } from "./apl";
+import { createAPLDebug } from "./apl-debug";
+
+const debug = createAPLDebug("EnvAPL");
+
+type AuthDataRequired = Omit<AuthData, "jwks" | "domain">;
+
+type Options = {
+  env: Record<keyof AuthDataRequired, string>;
+  /**
+   * Enable to log auth data to stdout.
+   * Do it once to save data in ENV and disable it later.
+   */
+  printAuthDataOnRegister?: boolean;
+};
+
+export class EnvApl implements APL {
+  private defaultOptions: Partial<Options> = {
+    printAuthDataOnRegister: false,
+  };
+
+  options: Options;
+
+  constructor(options: Options) {
+    if (!this.isAuthDataValid(options.env)) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        "EnvAPL constructor now filled with valid AuthData config. Try to install the app with \"printAuthDataOnRegister\" enabled and check console logs"
+      );
+    }
+
+    this.options = {
+      ...this.defaultOptions,
+      ...options,
+    };
+  }
+
+  private isAuthDataValid(authData: AuthData): boolean {
+    const keysToValidateAgainst: Array<keyof AuthData> = ["appId", "saleorApiUrl", "token"];
+
+    return keysToValidateAgainst.every(
+      (key) => authData[key] && typeof authData[key] === "string" && authData[key]!.length > 0
+    );
+  }
+
+  async isReady() {
+    return this.isAuthDataValid(this.options.env)
+      ? ({
+          ready: true,
+        } as const)
+      : {
+          ready: false,
+          error: new Error("Auth data not valid, check constructor and pass env variables"),
+        };
+  }
+
+  async isConfigured() {
+    return this.isAuthDataValid(this.options.env)
+      ? ({
+          configured: true,
+        } as const)
+      : ({
+          configured: false,
+          error: new Error("Auth data not valid, check constructor and pass env variables"),
+        } as const);
+  }
+
+  async set(authData: AuthData) {
+    if (this.options.printAuthDataOnRegister) {
+      // eslint-disable-next-line no-console
+      console.log("Displaying registration values for the app. Use them to configure EnvAPL");
+      // eslint-disable-next-line no-console
+      console.table(authData);
+      console.warn(
+        "🛑'printAuthDataOnRegister' option should be turned off once APL is configured, to avoid possible leaks"
+      );
+    }
+    debug("Called set method");
+  }
+
+  async get() {
+    return this.options.env;
+  }
+
+  async getAll() {
+    return [await this.get()];
+  }
+
+  async delete() {
+    debug("Called delete method");
+  }
+}
