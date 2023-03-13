@@ -23,6 +23,15 @@ In Next.js pages create a page, e.g. `pages/api/webhooks/order-created.ts`. We r
 import { SaleorAsyncWebhook } from "@saleor/app-sdk/handlers/next";
 
 /**
+* Default body parser must be turned off - raw body is needed to verify signature
+* /
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
+/**
  * To be type-safe, define payload from API. This should be imported from generated GraphQL code
  */
 type OrderPayload = {
@@ -36,6 +45,15 @@ For `SaleorSyncWebhook` it will be similar. Create e.g. `order-calculate-taxes.t
 
 ```typescript
 import { SaleorSyncWebhook } from "@saleor/app-sdk/handlers/next";
+
+/**
+* Default body parser must be turned off - raw body is needed to verify signature
+* /
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
 
 /**
  * To be type-safe, define payload from API. This should be imported from generated GraphQL code
@@ -109,6 +127,15 @@ type OrderPayload = {
   id: string;
 };
 
+/**
+* Default body parser must be turned off - raw body is needed to verify signature
+* /
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
 export const orderCreatedWebhook = new SaleorAsyncWebhook<OrderPayload>({
   name: "Order Created",
   webhookPath: "api/webhooks/order-created",
@@ -155,6 +182,15 @@ type Payload = {
   taxBase: {
     currency: string;
   };
+};
+
+/**
+* Default body parser must be turned off - raw body is needed to verify signature
+* /
+export const config = {
+  api: {
+    bodyParser: false,
+  },
 };
 
 export const orderCalculateTaxesWebhook = new SaleorAsyncWebhook<Payload>({
