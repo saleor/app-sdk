@@ -157,6 +157,10 @@ export const processSaleorWebhook: ProcessSaleorWebhook = async <T>({
   try {
     debug("Will verify signature with JWKS saved in AuthData");
 
+    if (!authData.jwks) {
+      throw new Error("JWKS not found in AuthData");
+    }
+
     await verifySignatureWithJwks(authData.jwks, signature, rawBody);
   } catch {
     debug("Request signature check failed. Refresh the JWKS cache and check again");

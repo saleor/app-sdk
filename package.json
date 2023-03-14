@@ -10,7 +10,7 @@
     "build": "tsup && clear-package-json package.json -o dist/package.json --fields publishConfig && pnpm copy-readme",
     "clean": "rm -rf ./dist/*",
     "test": "vitest",
-    "test:ci": "CI=true vitest --coverage",
+    "test:ci": "CI=true vitest --coverage --silent",
     "prepare": "husky install",
     "lint": "prettier --loglevel warn --write . && eslint --fix .",
     "copy-readme": "cp README.md dist/README.md",

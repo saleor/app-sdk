@@ -1,9 +1,9 @@
 export interface AuthData {
-  domain: string;
+  domain?: string;
   token: string;
   saleorApiUrl: string;
   appId: string;
-  jwks: string;
+  jwks?: string;
 }
 
 export type AplReadyResult =

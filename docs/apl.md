@@ -184,3 +184,72 @@ const apl = new UpstashAPL({
 ```
 
 Or using environment variables: `UPSTASH_TOKEN`, `UPSTASH_URL`.
+
+### EnvAPL
+
+For very simple, static & single-tenant applications, you may want to just set everything once, usually in env variables and just leave it.
+
+There is a simple APL for this use case - `EnvAPL`
+
+> **Warning**
+> Using this APL is highly discouraged in any production environment.
+> It will break if app token is regenerated, it will not work with any flow related to updates of the app.
+
+#### EnvAPL usage
+
+##### 1. Configure app to use env apl
+
+```tsx
+import { EnvAPL } from "@saleor/app-sdk/APL";
+
+const apl = new EnvAPL({
+  env: {
+    /**
+     * Map your env variables here. You dont have these values yet
+     */
+    token: envVars.SALEOR_APP_TOKEN,
+    appId: envVars.SALEOR_APP_ID,
+    saleorApiUrl: envVars.SALEOR_API_URL,
+  },
+  /**
+   * Set it to "true" - during app registration check you app logs. APL will print values you need
+   */
+  printAuthDataOnRegister: true,
+});
+```
+
+##### 2. Set env variables
+
+After step 1, you should see your logs in similar way:
+
+```
+┌──────────────┬─────────────────────────────────────────────┐
+│   (index)    │                   Values                    │
+├──────────────┼─────────────────────────────────────────────┤
+│ saleorApiUrl │ 'https://my-saleor-instance.cloud/graphql/' │
+│    appId     │                  'app-id'                   │
+│    token     │                'some-token'                 │
+│     jwks     │                    '{}'                     │
+│    domain    │         'my-saleor-instance.cloud'          │
+└──────────────┴─────────────────────────────────────────────┘
+```
+
+You need to se env variables in your provider, eg. in Vercel - you need appId, token and saleorApiUrl.
+Ensure name of variables match your step 1 constructor options
+
+##### 3. Turn off logging and redeploy
+
+After env is set, you should disable printing it for security reasons
+
+Change constructor to include
+
+```
+printAuthDataOnRegister: false
+```
+
+Then, redeploy the app. It should be configured and work for this specific Saleor instance
+
+Keep in mind that
+
+- If you promote environment, you need to update saleorApiUrl
+- If you reinstall the app, you need to repeat the process to receive new token and ID
