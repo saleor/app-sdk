@@ -249,4 +249,18 @@ export interface AppManifest {
   Be aware that subscription queries are required in manifest sections
   */
   webhooks?: WebhookManifest[];
+  /**
+   * Allows app installation for specific Saleor versions, using semver.
+   * https://github.com/npm/node-semver#versions
+   *
+   * If not set, Saleor will allow installation for every version
+   *
+   * In Saleor versions lower than 3.13, this field will be ignored
+   *
+   * Examples:
+   * ">=3.10" - allow for versions 3.10 or newer
+   * ">=3.10 <4" - allow for versions 3.10 and newer, but not 4.0 and newer
+   * ">=3.10 <4 || 4.0.0" - 3.10 and newer, less than 4, but allow exactly 4.0.0
+   */
+  requiredSaleorVersion?: string;
 }
