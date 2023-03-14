@@ -257,7 +257,7 @@ export interface AppManifest {
   webhooks?: WebhookManifest[];
   /**
    * Allows app installation for specific Saleor versions, using semver.
-   * https://www.npmjs.com/package/semver
+   * https://github.com/npm/node-semver#versions
    *
    * If not set, Saleor will allow installation for every version
    *
