@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 0.36.0
+
+### Minor Changes
+
+- 5744aa4: Add requiredSaleorVersion field to AppManifest, so Saleor can validate it during installation
+
 ## 0.35.0
 
 ### Minor Changes
