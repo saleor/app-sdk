@@ -5,11 +5,6 @@
 ### Minor Changes
 
 - 5744aa4: Add requiredSaleorVersion field to AppManifest, so Saleor can validate it during installation
-
-## 0.35.0
-
-### Minor Changes
-
 - dfd632b: Add EnvAPL which is a read-only single-tenant APL implementation. It can print AuthData from registration process, but the developer is responsible to configure ENV and pass data to the constructor.
 - f7d38dc: Added useAuthenticatedFetch hook with can construct decorated window.fetch with pre-defined headers with required AppBridge state. Can be used with createProtectedHandler
 
