@@ -69,7 +69,7 @@ export class EnvAPL implements APL {
       // eslint-disable-next-line no-console
       console.log("Displaying registration values for the app. Use them to configure EnvAPL");
       // eslint-disable-next-line no-console
-      console.table(authData);
+      console.log(JSON.stringify(authData, null, 2));
       console.warn(
         "🛑'printAuthDataOnRegister' option should be turned off once APL is configured, to avoid possible leaks"
       );

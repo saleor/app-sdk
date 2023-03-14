@@ -35,7 +35,9 @@ describe("EnvAPL", () => {
   it("Prints auth data from \"set\" method in stdout if printAuthDataOnRegister set to \"true\"", async () => {
     const envVars = getMockEnvVars();
 
-    vi.spyOn(console, "table");
+    vi.spyOn(console, "log");
+
+    const mockAuthData = getMockAuthData();
 
     await new EnvAPL({
       env: {
@@ -44,10 +46,22 @@ describe("EnvAPL", () => {
         saleorApiUrl: envVars.SALEOR_API_URL,
       },
       printAuthDataOnRegister: true,
-    }).set(getMockAuthData());
+    }).set(mockAuthData);
 
     // eslint-disable-next-line no-console
-    return expect(console.table).toHaveBeenCalledWith(expect.objectContaining(getMockAuthData()));
+    return expect(console.log).toHaveBeenNthCalledWith(
+      2,
+      /**
+       * Assert stringified values for formatting
+       */
+      `{
+  "saleorApiUrl": "https://my-saleor-instance.cloud/graphql/",
+  "appId": "app-id",
+  "token": "some-token",
+  "jwks": "{}",
+  "domain": "my-saleor-instance.cloud"
+}`
+    );
   });
 
   it("Returns authData from constructor in get() and getAll()", async () => {
