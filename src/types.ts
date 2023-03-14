@@ -263,4 +263,10 @@ export interface AppManifest {
    * ">=3.10 <4 || 4.0.0" - 3.10 and newer, less than 4, but allow exactly 4.0.0
    */
   requiredSaleorVersion?: string;
+  /**  
+   * App author name displayed in the dashboard
+   *
+   * In Saleor versions lower than 3.13, this field will be ignored
+   */
+  author?: string;
 }
