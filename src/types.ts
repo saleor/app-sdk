@@ -261,7 +261,7 @@ export interface AppManifest {
    *
    * If not set, Saleor will allow installation for every version
    *
-   * In Saleor versions lower than <TODO>, this field will be ignored
+   * In Saleor versions lower than 3.13, this field will be ignored
    *
    * Examples:
    * ">=3.10" - allow for versions 3.10 or newer
