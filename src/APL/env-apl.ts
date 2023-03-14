@@ -25,7 +25,7 @@ export class EnvAPL implements APL {
     if (!this.isAuthDataValid(options.env)) {
       // eslint-disable-next-line no-console
       console.warn(
-        "EnvAPL constructor now filled with valid AuthData config. Try to install the app with \"printAuthDataOnRegister\" enabled and check console logs"
+        "EnvAPL constructor not filled with valid AuthData config. Try to install the app with \"printAuthDataOnRegister\" enabled and check console logs"
       );
     }
 
@@ -54,15 +54,14 @@ export class EnvAPL implements APL {
         };
   }
 
+  /**
+   * Always return its configured, because otherwise .set() will never be called
+   * so env can't be printed
+   */
   async isConfigured() {
-    return this.isAuthDataValid(this.options.env)
-      ? ({
-          configured: true,
-        } as const)
-      : ({
-          configured: false,
-          error: new Error("Auth data not valid, check constructor and pass env variables"),
-        } as const);
+    return {
+      configured: true,
+    } as const;
   }
 
   async set(authData: AuthData) {
