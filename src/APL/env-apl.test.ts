@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { AuthData } from "./apl";
-import { EnvApl } from "./env-apl";
+import { EnvAPL } from "./env-apl";
 
 const getMockEnvVars = () => ({
   SALEOR_APP_TOKEN: "some-token",
@@ -22,7 +22,7 @@ describe("EnvAPL", () => {
     const envVars = getMockEnvVars();
 
     expect(
-      new EnvApl({
+      new EnvAPL({
         env: {
           token: envVars.SALEOR_APP_TOKEN,
           appId: envVars.SALEOR_APP_ID,
@@ -37,7 +37,7 @@ describe("EnvAPL", () => {
 
     vi.spyOn(console, "table");
 
-    await new EnvApl({
+    await new EnvAPL({
       env: {
         token: envVars.SALEOR_APP_TOKEN,
         appId: envVars.SALEOR_APP_ID,
@@ -53,7 +53,7 @@ describe("EnvAPL", () => {
   it("Returns authData from constructor in get() and getAll()", async () => {
     const envVars = getMockEnvVars();
 
-    const apl = new EnvApl({
+    const apl = new EnvAPL({
       env: {
         token: envVars.SALEOR_APP_TOKEN,
         appId: envVars.SALEOR_APP_ID,

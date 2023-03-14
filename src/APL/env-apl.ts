@@ -14,7 +14,7 @@ type Options = {
   printAuthDataOnRegister?: boolean;
 };
 
-export class EnvApl implements APL {
+export class EnvAPL implements APL {
   private defaultOptions: Partial<Options> = {
     printAuthDataOnRegister: false,
   };
