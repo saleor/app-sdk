@@ -1,12 +1,12 @@
 import { createDebug } from "./debug";
-import { AppPermission } from "./types";
+import { Permission } from "./types";
 import { DashboardTokenPayload } from "./verify-jwt";
 
 const debug = createDebug("checkJwtPermissions");
 
 export const hasPermissionsInJwtToken = (
   tokenData?: Pick<DashboardTokenPayload, "user_permissions">,
-  permissionsToCheckAgainst?: AppPermission[]
+  permissionsToCheckAgainst?: Permission[]
 ) => {
   debug(`Permissions required ${permissionsToCheckAgainst}`);
 

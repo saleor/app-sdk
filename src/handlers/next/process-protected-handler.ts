@@ -4,7 +4,7 @@ import { APL } from "../../APL";
 import { AuthData } from "../../APL/apl";
 import { createDebug } from "../../debug";
 import { getBaseUrl, getSaleorHeaders } from "../../headers";
-import { AppPermission } from "../../types";
+import { Permission } from "../../types";
 import { verifyJWT } from "../../verify-jwt";
 
 const debug = createDebug("processProtectedHandler");
@@ -39,7 +39,7 @@ export type ProtectedHandlerContext = {
 interface ProcessSaleorProtectedHandlerArgs {
   req: NextApiRequest;
   apl: APL;
-  requiredPermissions?: AppPermission[];
+  requiredPermissions?: Permission[];
 }
 
 type ProcessAsyncSaleorProtectedHandler = (
