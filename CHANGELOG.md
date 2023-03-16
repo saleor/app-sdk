@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 0.37.0
+
+### Minor Changes
+
+- 6e748e3: Add author field to AppManifest
+
 ## 0.36.0
 
 ### Minor Changes
