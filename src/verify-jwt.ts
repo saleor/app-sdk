@@ -2,21 +2,21 @@ import * as jose from "jose";
 
 import { createDebug } from "./debug";
 import { hasPermissionsInJwtToken } from "./has-permissions-in-jwt-token";
-import { AppPermission } from "./types";
+import { Permission } from "./types";
 import { getJwksUrlFromSaleorApiUrl } from "./urls";
 
 const debug = createDebug("verify-jwt");
 
 export interface DashboardTokenPayload extends jose.JWTPayload {
   app: string;
-  user_permissions: AppPermission[];
+  user_permissions: Permission[];
 }
 
 export interface verifyJWTArguments {
   appId: string;
   saleorApiUrl: string;
   token: string;
-  requiredPermissions?: AppPermission[];
+  requiredPermissions?: Permission[];
 }
 
 export const verifyJWT = async ({

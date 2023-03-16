@@ -2,7 +2,7 @@ import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
 
 import { APL } from "../../APL";
 import { createDebug } from "../../debug";
-import { AppPermission } from "../../types";
+import { Permission } from "../../types";
 import {
   processSaleorProtectedHandler,
   ProtectedHandlerError,
@@ -37,7 +37,7 @@ export const createProtectedHandler =
   (
     handlerFn: NextProtectedApiHandler,
     apl: APL,
-    requiredPermissions?: AppPermission[]
+    requiredPermissions?: Permission[]
   ): NextApiHandler =>
   (req, res) => {
     debug("Protected handler called");

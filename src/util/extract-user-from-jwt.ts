@@ -1,10 +1,10 @@
 import * as jose from "jose";
 
-import { AppPermission } from "../types";
+import { Permission } from "../types";
 
 type TokenUserPayload = {
   email: string;
-  userPermissions: AppPermission[];
+  userPermissions: Permission[];
 };
 
 export const extractUserFromJwt = (jwtToken: string): TokenUserPayload => {

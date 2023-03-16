@@ -15,7 +15,7 @@ export type AppExtensionMount =
   | "ORDER_OVERVIEW_MORE_ACTIONS";
 
 /**
- * TODO: Extract from Saleor graphQL schema
+ * All permissions that users can have
  * Reference https://docs.saleor.io/docs/3.x/api-reference/enums/permission-enum
  */
 export type Permission =
@@ -40,9 +40,13 @@ export type Permission =
   | "MANAGE_PRODUCT_TYPES_AND_ATTRIBUTES"
   | "MANAGE_SHIPPING"
   | "MANAGE_SETTINGS"
-  | "MANAGE_TRANSLATIONS";
+  | "MANAGE_TRANSLATIONS"
+  | "MANAGE_APPS";
 
-export type AppPermission = Permission;
+/**
+ * All permissions that App can have.
+ */
+export type AppPermission = Exclude<Permission, "MANAGE_APPS">;
 
 /**
  * @see https://github.com/saleor/saleor/blob/main/saleor/graphql/schema.graphql#L1505
