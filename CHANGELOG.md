@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 0.37.1
+
+### Patch Changes
+
+- 96ffb92: Restores MANAGE_APPS to Permissions, but remove it from AppPermissions
+
 ## 0.37.0
 
 ### Minor Changes
