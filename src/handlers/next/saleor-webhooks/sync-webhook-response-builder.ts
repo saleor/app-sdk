@@ -31,69 +31,24 @@ export type SyncWebhookResponsesMap = {
   }>;
   TRANSACTION_CHARGE_REQUESTED: {
     pspReference: string;
-    result:
-      | "AUTHORIZATION_SUCCESS"
-      | "AUTHORIZATION_FAILURE"
-      | "AUTHORIZATION_ADJUSTMENT"
-      | "AUTHORIZATION_REQUEST"
-      | "CHARGE_SUCCESS"
-      | "CHARGE_FAILURE"
-      | "CHARGE_BACK"
-      | "CHARGE_REQUEST"
-      | "REFUND_SUCCESS"
-      | "REFUND_FAILURE"
-      | "REFUND_REVERSE"
-      | "REFUND_REQUEST"
-      | "CANCEL_SUCCESS"
-      | "CANCEL_FAILURE"
-      | "CANCEL_REQUEST";
-    amount: number;
+    result?: "CHARGE_SUCCESS" | "CHARGE_FAILURE";
+    amount?: number;
     time?: string;
     externalUrl?: string;
     message?: string;
   };
   TRANSACTION_REFUND_REQUESTED: {
     pspReference: string;
-    result:
-      | "AUTHORIZATION_SUCCESS"
-      | "AUTHORIZATION_FAILURE"
-      | "AUTHORIZATION_ADJUSTMENT"
-      | "AUTHORIZATION_REQUEST"
-      | "CHARGE_SUCCESS"
-      | "CHARGE_FAILURE"
-      | "CHARGE_BACK"
-      | "CHARGE_REQUEST"
-      | "REFUND_SUCCESS"
-      | "REFUND_FAILURE"
-      | "REFUND_REVERSE"
-      | "REFUND_REQUEST"
-      | "CANCEL_SUCCESS"
-      | "CANCEL_FAILURE"
-      | "CANCEL_REQUEST";
-    amount: number;
+    result?: "REFUND_SUCCESS" | "REFUND_FAILURE";
+    amount?: number;
     time?: string;
     externalUrl?: string;
     message?: string;
   };
   TRANSACTION_CANCELATION_REQUESTED: {
     pspReference: string;
-    result:
-      | "AUTHORIZATION_SUCCESS"
-      | "AUTHORIZATION_FAILURE"
-      | "AUTHORIZATION_ADJUSTMENT"
-      | "AUTHORIZATION_REQUEST"
-      | "CHARGE_SUCCESS"
-      | "CHARGE_FAILURE"
-      | "CHARGE_BACK"
-      | "CHARGE_REQUEST"
-      | "REFUND_SUCCESS"
-      | "REFUND_FAILURE"
-      | "REFUND_REVERSE"
-      | "REFUND_REQUEST"
-      | "CANCEL_SUCCESS"
-      | "CANCEL_FAILURE"
-      | "CANCEL_REQUEST";
-    amount: number;
+    result?: "CANCEL_SUCCESS" | "CANCEL_FAILURE";
+    amount?: number;
     time?: string;
     externalUrl?: string;
     message?: string;
