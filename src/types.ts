@@ -167,14 +167,19 @@ export type AsyncWebhookEventType =
 /**
  * @see https://github.com/saleor/saleor/blob/main/saleor/graphql/schema.graphql#L1995
  *
- * TODO Add Payment events after new API in 3.13
  */
 export type SyncWebhookEventType =
   | "CHECKOUT_CALCULATE_TAXES"
   | "ORDER_CALCULATE_TAXES"
   | "SHIPPING_LIST_METHODS_FOR_CHECKOUT"
   | "CHECKOUT_FILTER_SHIPPING_METHODS"
-  | "ORDER_FILTER_SHIPPING_METHODS";
+  | "ORDER_FILTER_SHIPPING_METHODS"
+  | "TRANSACTION_CHARGE_REQUESTED"
+  | "TRANSACTION_REFUND_REQUESTED"
+  | "TRANSACTION_CANCELATION_REQUESTED"
+  | "PAYMENT_GATEWAY_INITIALIZE_SESSION"
+  | "TRANSACTION_INITIALIZE_SESSION"
+  | "TRANSACTION_PROCESS_SESSION";
 
 export interface AppExtension {
   /** Name which will be displayed in the dashboard */
