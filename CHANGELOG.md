@@ -1,5 +1,18 @@
 # @saleor/app-sdk
 
+## 0.37.2
+
+### Patch Changes
+
+- b108460: Added definitions for new sync events for payments:
+
+  - `TRANSACTION_CHARGE_REQUESTED`
+  - `TRANSACTION_REFUND_REQUESTED`
+  - `TRANSACTION_CANCELATION_REQUESTED`
+  - `PAYMENT_GATEWAY_INITIALIZE_SESSION`
+  - `TRANSACTION_INITIALIZE_SESSION`
+  - `TRANSACTION_PROCESS_SESSION`
+
 ## 0.37.1
 
 ### Patch Changes
