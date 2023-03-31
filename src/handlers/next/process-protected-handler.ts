@@ -37,7 +37,7 @@ export type ProtectedHandlerContext = {
 };
 
 interface ProcessSaleorProtectedHandlerArgs {
-  req: NextApiRequest;
+  req: Pick<NextApiRequest, "headers">;
   apl: APL;
   requiredPermissions?: Permission[];
 }
@@ -49,6 +49,8 @@ type ProcessAsyncSaleorProtectedHandler = (
 /**
  * Perform security checks on given request and return ProtectedHandlerContext object.
  * In case of validation issues, instance of the ProtectedHandlerError will be thrown.
+ *
+ * Can pass entire next request or Headers with saleorApiUrl and token
  */
 export const processSaleorProtectedHandler: ProcessAsyncSaleorProtectedHandler = async ({
   req,
