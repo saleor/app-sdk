@@ -28,5 +28,35 @@ describe("middleware", () => {
       expect(mockRequest.context.baseURL).toBe("https://my-saleor-env.saleor.cloud");
       expect(mockHandlerFn).toHaveBeenCalledOnce();
     });
+
+    it("supports multiple comma-delimited values in x-forwarded-proto", async () => {
+      const mockRequest = {
+        context: {},
+        headers: {
+          host: "my-saleor-env.saleor.cloud",
+          "x-forwarded-proto": "https,http",
+        },
+      } as unknown as Request;
+
+      await withBaseURL(mockHandlerFn)(mockRequest);
+
+      expect(mockRequest.context.baseURL).toBe("https://my-saleor-env.saleor.cloud");
+      expect(mockHandlerFn).toHaveBeenCalledOnce();
+    });
+
+    it("supports multiple x-forwarded-proto headers", async () => {
+      const mockRequest = {
+        context: {},
+        headers: {
+          host: "my-saleor-env.saleor.cloud",
+          "x-forwarded-proto": ["http", "ftp,https"],
+        },
+      } as unknown as Request;
+
+      await withBaseURL(mockHandlerFn)(mockRequest);
+
+      expect(mockRequest.context.baseURL).toBe("https://my-saleor-env.saleor.cloud");
+      expect(mockHandlerFn).toHaveBeenCalledOnce();
+    });
   });
 });
