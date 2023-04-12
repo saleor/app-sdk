@@ -1,7 +1,6 @@
 on:
-  pull-request:
-    branches:
-      - main
+  pull_request:
+    types: [opened, synchronize]
 
 #changeset-release/main
 
