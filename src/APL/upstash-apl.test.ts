@@ -57,8 +57,7 @@ describe("APL", () => {
           "https://example.com",
 
           {
-            // eslint-disable-next-line quotes
-            body: `["SET", "${stubAuthData.saleorApiUrl}", "${JSON.stringify(stubAuthData)}"]`,
+            body: JSON.stringify(["SET", stubAuthData.saleorApiUrl, JSON.stringify(stubAuthData)]),
             headers: {
               "Content-Type": "application/json",
               Authorization: "Bearer token",
