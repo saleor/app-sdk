@@ -5,7 +5,7 @@ on:
 #changeset-release/main
 
 env:
-  BRANCH: GITHUB_REF_NAME
+  BRANCH: ${{ vars.GITHUB_REF_NAME }}
 
 jobs:
   release-rc:
