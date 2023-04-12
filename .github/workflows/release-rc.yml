@@ -4,6 +4,9 @@ on:
 
 #changeset-release/main
 
+env:
+  BRANCH: GITHUB_REF_NAME
+
 jobs:
   release-rc:
     name: Release RC version to npm
@@ -19,4 +22,4 @@ jobs:
       - uses: pnpm/action-setup@v2
         name: Install pnpm
       - run: pnpm install
-      - run: echo "${{env.GITHUB_REF_NAME}}"
+      - run: echo "$BRANCH"
