@@ -54,7 +54,7 @@ export class UpstashAPL implements APL {
     this.restToken = restToken;
   }
 
-  private async upstashRequest(requestBody: string) {
+  private async upstashRequest(request: string[]) {
     debug("Sending request to Upstash");
     if (!this.restURL || !this.restToken) {
       throw new Error(
@@ -66,7 +66,7 @@ export class UpstashAPL implements APL {
       response = await fetch(this.restURL, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${this.restToken}` },
-        body: requestBody,
+        body: JSON.stringify(request),
       });
     } catch (error) {
       debug("Error during sending the data:", error);
@@ -97,17 +97,17 @@ export class UpstashAPL implements APL {
     });
 
     const data = JSON.stringify(authData);
-    await this.upstashRequest(`["SET", "${authData.saleorApiUrl}", "${data}"]`);
+    await this.upstashRequest(["SET", authData.saleorApiUrl, data]);
   }
 
   private async deleteDataFromUpstash(saleorApiUrl: string) {
-    await this.upstashRequest(`["DEL", "${saleorApiUrl}"]`);
+    await this.upstashRequest(["DEL", saleorApiUrl]);
   }
 
   private async fetchDataFromUpstash(saleorApiUrl: string) {
-    const result = await this.upstashRequest(`["GET", "${saleorApiUrl}"]`);
+    const result = await this.upstashRequest(["GET", saleorApiUrl]);
     if (result) {
-      const authData = JSON.parse(result);
+      const authData = JSON.parse(result) as AuthData;
       return authData;
     }
     return undefined;
