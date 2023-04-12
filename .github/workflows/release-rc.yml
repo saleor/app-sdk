@@ -1,15 +1,13 @@
-name: Open release
-
 on:
-  push:
+  pull-request:
     branches:
       - main
 
-concurrency: ${{ github.workflow }}-${{ github.ref }}
+#changeset-release/main
 
 jobs:
-  release:
-    name: Prepare release with Changesets
+  release-rc:
+    name: Release RC version to npm
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
@@ -22,13 +20,4 @@ jobs:
       - uses: pnpm/action-setup@v2
         name: Install pnpm
       - run: pnpm install
-      - name: Create Release Pull Request
-        uses: changesets/action@v1
-        id: changesets
-        with:
-          title: Release to npm
-          commit: Release to npm
-          publish: "pnpm publish:ci"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: echo ${{vars.GITHUB_REF_NAME}}
