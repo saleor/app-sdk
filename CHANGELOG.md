@@ -1,5 +1,15 @@
 # @saleor/app-sdk
 
+## 0.37.3
+
+### Patch Changes
+
+- 5057d34: Support comma-delimited x-forwarded-proto
+- 5a68bec: Fix serialization of the nested values in the UpstashAPL.
+- ab24968: processProtectedHandler no longer requires a full NextApiRequest object as an argument. Now only the `headers` property is required to satisfy the type safety.
+
+  Thanks to that, some requests like HTML <form> with tokens in BODY can be validated. Till now only fetch/ajax calls could have been validated
+
 ## 0.37.2
 
 ### Patch Changes
