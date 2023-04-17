@@ -155,12 +155,15 @@ export const createAppRegisterHandler = ({
     }
 
     if (!validateAllowSaleorUrls(saleorApiUrl, allowedSaleorUrls)) {
-      debug("Validation of URL %s against allowSaleorUrls param resolves to false, throwing");
+      debug(
+        "Validation of URL %s against allowSaleorUrls param resolves to false, throwing",
+        saleorApiUrl
+      );
 
       return Response.Forbidden(
         createRegisterHandlerResponseBody(false, {
           code: "SALEOR_URL_PROHIBITED",
-          message: "This app expects to be installed only in allowed saleor instances",
+          message: "This app expects to be installed only in allowed Saleor instances",
         })
       );
     }
@@ -188,7 +191,7 @@ export const createAppRegisterHandler = ({
         createRegisterHandlerResponseBody(false, {
           code: "UNKNOWN_APP_ID",
           message:
-            "The auth data given during registration request could not be used to fetch app ID.",
+            "The auth data given during registration request could not be used to fetch app ID. This usually means that App could not connect to Saleor during installation",
         }),
         {
           status: 401,
