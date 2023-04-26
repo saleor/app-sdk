@@ -1,11 +1,13 @@
 /**
  * Use .js extension to avoid broken builds with ESM
  */
-import { useRouter } from "next/router.js";
+import * as NextRouter from "next/router.js";
 import { useEffect } from "react";
 
 import { actions } from "../actions";
 import { useAppBridge } from "../app-bridge-provider";
+
+const { useRouter } = NextRouter;
 
 /**
  * Synchronizes app inner state (inside iframe) with dashboard routing, so app's route can be restored after refresh
