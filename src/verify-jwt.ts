@@ -4,6 +4,7 @@ import { createDebug } from "./debug";
 import { hasPermissionsInJwtToken } from "./has-permissions-in-jwt-token";
 import { Permission } from "./types";
 import { getJwksUrlFromSaleorApiUrl } from "./urls";
+import { verifyTokenExpiration } from "./verify-token-expiration";
 
 const debug = createDebug("verify-jwt");
 
@@ -34,6 +35,12 @@ export const verifyJWT = async ({
   } catch (e) {
     debug("Token Claims could not be decoded from JWT, will respond with Bad Request");
     throw new Error(`${ERROR_MESSAGE} Could not decode authorization token.`);
+  }
+
+  try {
+    verifyTokenExpiration(tokenClaims);
+  } catch (e) {
+    throw new Error(`${ERROR_MESSAGE} ${(e as Error).message}`);
   }
 
   if (tokenClaims.app !== appId) {
