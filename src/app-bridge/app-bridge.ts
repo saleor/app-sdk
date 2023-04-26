@@ -8,7 +8,7 @@ import { AppIframeParams } from "./app-iframe-params";
 import { SSR } from "./constants";
 import { Events, EventType, PayloadOfEvent, ThemeType } from "./events";
 
-const DISPATCH_RESPONSE_TIMEOUT = 1000;
+const DEFAULT_DISPATCH_RESPONSE_TIMEOUT = 1000;
 
 type EventCallback<TPayload extends {} = {}> = (data: TPayload) => void;
 type SubscribeMap = {
@@ -223,10 +223,13 @@ export class AppBridge {
   /**
    * Dispatch event to dashboard
    */
-  async dispatch<T extends Actions>(action: T) {
+  async dispatch<T extends Actions>(
+    action: T,
+    dispatchResponseTimeout = DEFAULT_DISPATCH_RESPONSE_TIMEOUT
+  ) {
     debug("dispatch called with action argument: %j", action);
 
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<void | string>((resolve, reject) => {
       if (!window.parent) {
         debug("window.parent doesn't exist, will throw");
 
@@ -246,12 +249,13 @@ export class AppBridge {
 
       let timeoutId: number;
 
-      const unsubscribe = this.subscribe(EventType.response, ({ actionId, ok }) => {
+      const unsubscribe = this.subscribe(EventType.response, ({ actionId, ok, result }) => {
         debug(
-          "Subscribing to %s with action id: %s and status 'ok' is: %s",
+          "Subscribing to %s with action id: %s, status 'ok' is: %s, result is: %s",
           EventType.response,
           actionId,
-          ok
+          ok,
+          result
         );
 
         if (action.payload.actionId === actionId) {
@@ -260,7 +264,7 @@ export class AppBridge {
           clearTimeout(timeoutId);
 
           if (ok) {
-            resolve();
+            resolve(result);
           } else {
             reject(
               new Error(
@@ -274,7 +278,7 @@ export class AppBridge {
       timeoutId = window.setTimeout(() => {
         unsubscribe();
         reject(new Error("Action response timed out."));
-      }, DISPATCH_RESPONSE_TIMEOUT);
+      }, dispatchResponseTimeout);
     });
   }
 

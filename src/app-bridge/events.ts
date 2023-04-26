@@ -13,7 +13,7 @@ export const EventType = {
 
 export type EventType = Values<typeof EventType>;
 
-type Event<Name extends EventType, Payload extends {}> = {
+type Event<Name extends EventType, Payload extends {} = {}> = {
   payload: Payload;
   type: Name;
 };
@@ -31,6 +31,7 @@ export type DispatchResponseEvent = Event<
   {
     actionId: string;
     ok: boolean;
+    result?: string;
   }
 >;
 
@@ -66,8 +67,11 @@ export type Events =
 export type PayloadOfEvent<
   TEventType extends EventType,
   TEvent extends Events = Events
-  // @ts-ignore TODO - why this is not working with this tsconfig? Fixme
-> = TEvent extends Event<TEventType, unknown> ? TEvent["payload"] : never;
+> = TEvent extends Event<TEventType>
+  ? "payload" extends keyof TEvent
+    ? TEvent["payload"]
+    : never
+  : never;
 
 export const DashboardEventFactory = {
   createThemeChangeEvent(theme: ThemeType): ThemeEvent {
@@ -86,12 +90,17 @@ export const DashboardEventFactory = {
       },
     };
   },
-  createDispatchResponseEvent(actionId: string, ok: boolean): DispatchResponseEvent {
+  createDispatchResponseEvent(
+    actionId: string,
+    ok: boolean,
+    result?: string
+  ): DispatchResponseEvent {
     return {
       type: "response",
       payload: {
         actionId,
         ok,
+        result,
       },
     };
   },

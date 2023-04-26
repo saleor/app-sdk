@@ -137,7 +137,7 @@ Actions expose a high-level API to communicate with Saleor Dashboard. They're ex
 
 ### Available methods
 
-**`dispatch(action)`** - dispatches an Action. Returns a promise which resolves when action is successfully completed.
+**`dispatch(action, ?timeout)`** - dispatches an Action. Returns a promise which resolves when action is successfully completed or after the timeout. `timeout` is 1000ms by default.
 
 Example:
 
@@ -165,3 +165,4 @@ handleRedirect();
 |                 | `apiMessage` (string / undefined) - error log from api           |                                          |
 | `NotifyReady`   |                                                                  | Inform Dashboard that AppBridge is ready |
 | `UpdateRouting` | `newRoute` - current path of App to be set in URL                |                                          |
+| `WindowConfirm` | `message` - message for the confirm                              |                                          |

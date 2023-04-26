@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { actions, NotificationPayload, RedirectPayload } from "./actions";
+import { actions, NotificationPayload, RedirectPayload, WindowConfirmPayload } from "./actions";
 
 describe("actions.ts", () => {
   describe("actions.Notification", () => {
@@ -30,6 +30,20 @@ describe("actions.ts", () => {
       const action = actions.Redirect(payload);
 
       expect(action.type).toBe("redirect");
+      expect(action.payload.actionId).toEqual(expect.any(String));
+      expect(action.payload).toEqual(expect.objectContaining(payload));
+    });
+  });
+
+  describe("actions.WindowConfirm", () => {
+    it("Constructs action with \"WindowConfirm\" type, random id and payload", () => {
+      const payload: WindowConfirmPayload = {
+        message: "Test message",
+      };
+
+      const action = actions.WindowConfirm(payload);
+
+      expect(action.type).toBe("windowConfirm");
       expect(action.payload.actionId).toEqual(expect.any(String));
       expect(action.payload).toEqual(expect.objectContaining(payload));
     });

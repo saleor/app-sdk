@@ -50,7 +50,7 @@ const delay = (timeout: number) =>
     setTimeout(res, timeout);
   });
 
-const mockDashboardActionResponse = (actionType: ActionType, actionID: string) => {
+const mockDashboardActionResponse = (actionType: ActionType, actionID: string, result?: string) => {
   function onMessage(event: MessageEvent) {
     if (event.data.type === actionType) {
       fireEvent(
@@ -58,8 +58,8 @@ const mockDashboardActionResponse = (actionType: ActionType, actionID: string) =
         new MessageEvent("message", {
           data: {
             type: "response",
-            payload: { ok: true, actionId: actionID },
-          } as DispatchResponseEvent,
+            payload: { ok: true, actionId: actionID, result },
+          } satisfies DispatchResponseEvent,
           origin,
         })
       );
@@ -201,8 +201,45 @@ describe("AppBridge", () => {
     return expect(appBridge.dispatch(action)).resolves.toBeUndefined();
   });
 
-  it("times out after action response has not been registered", () =>
-    expect(appBridge.dispatch(actions.Redirect({ to: "/test" }))).rejects.toBeInstanceOf(Error));
+  it("dispatches valid action and gets result", () => {
+    const action = actions.WindowConfirm({ message: "Some message" });
+
+    mockDashboardActionResponse(action.type, action.payload.actionId, "Some result");
+
+    return expect(appBridge.dispatch(action)).resolves.toEqual("Some result");
+  });
+
+  it("times out after action response has not been registered", async () => {
+    vi.useFakeTimers();
+
+    let done = false;
+    appBridge.dispatch(actions.Redirect({ to: "/test" })).catch(() => {
+      done = true;
+    });
+
+    await vi.advanceTimersByTimeAsync(100);
+    expect(done).toBe(false);
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(done).toBe(true);
+
+    vi.useRealTimers();
+  });
+
+  it("times out after custom time", async () => {
+    vi.useFakeTimers();
+
+    let done = false;
+    appBridge.dispatch(actions.Redirect({ to: "/test" }), 100000).catch(() => {
+      done = true;
+    });
+
+    await vi.advanceTimersByTimeAsync(5000);
+    expect(done).toBe(false);
+    await vi.advanceTimersByTimeAsync(100000);
+    expect(done).toBe(true);
+
+    vi.useRealTimers();
+  });
 
   it("unsubscribes from all listeners", () => {
     const cb1 = vi.fn();

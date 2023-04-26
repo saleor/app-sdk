@@ -20,6 +20,11 @@ export const ActionType = {
    * Inform Dashboard that AppBridge is ready
    */
   notifyReady: "notifyReady",
+
+  /**
+   * Ask Dashboard to open native window.confirm
+   */
+  windowConfirm: "windowConfirm",
 } as const;
 
 export type ActionType = Values<typeof ActionType>;
@@ -110,11 +115,30 @@ function createNotifyReadyAction(): NotifyReady {
   });
 }
 
-export type Actions = RedirectAction | NotificationAction | UpdateRouting | NotifyReady;
+export type WindowConfirmPayload = {
+  message: string;
+};
+
+export type WindowConfirm = ActionWithId<"windowConfirm", WindowConfirmPayload>;
+
+function createWindowConfirmAction(payload: WindowConfirmPayload): WindowConfirm {
+  return withActionId({
+    type: "windowConfirm",
+    payload,
+  });
+}
+
+export type Actions =
+  | RedirectAction
+  | NotificationAction
+  | UpdateRouting
+  | NotifyReady
+  | WindowConfirm;
 
 export const actions = {
   Redirect: createRedirectAction,
   Notification: createNotificationAction,
   UpdateRouting: createUpdateRoutingAction,
   NotifyReady: createNotifyReadyAction,
+  WindowConfirm: createWindowConfirmAction,
 };

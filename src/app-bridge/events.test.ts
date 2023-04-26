@@ -32,6 +32,17 @@ describe("DashboardEventFactory", () => {
     });
   });
 
+  it("Creates dispatch response event with optional result", () => {
+    expect(DashboardEventFactory.createDispatchResponseEvent("123", true, "some result")).toEqual({
+      payload: {
+        actionId: "123",
+        ok: true,
+        result: "some result",
+      },
+      type: "response",
+    });
+  });
+
   it("Creates theme change event", () => {
     expect(DashboardEventFactory.createThemeChangeEvent("light")).toEqual({
       payload: {
