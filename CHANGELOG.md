@@ -1,5 +1,12 @@
 # @saleor/app-sdk
 
+## 0.37.4
+
+### Patch Changes
+
+- 7c6c164: Improved and fixed debug logs in createAppRegistedHandler
+- 11b793b: Changed import type from next/router, that fixes Next 13.3.1 build
+
 ## 0.37.3
 
 ### Patch Changes
