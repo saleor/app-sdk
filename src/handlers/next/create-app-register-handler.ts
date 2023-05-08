@@ -190,8 +190,8 @@ export const createAppRegisterHandler = ({
       return new Response(
         createRegisterHandlerResponseBody(false, {
           code: "UNKNOWN_APP_ID",
-          message:
-            "The auth data given during registration request could not be used to fetch app ID. This usually means that App could not connect to Saleor during installation",
+          message: `The auth data given during registration request could not be used to fetch app ID. 
+          This usually means that App could not connect to Saleor during installation. Saleor URL that App tried to connect: ${saleorApiUrl}`,
         }),
         {
           status: 401,

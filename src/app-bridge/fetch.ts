@@ -1,3 +1,5 @@
+import { useMemo } from "react";
+
 import {
   SALEOR_API_URL_HEADER,
   SALEOR_AUTHORIZATION_BEARER_HEADER,
@@ -17,6 +19,7 @@ export const createAuthenticatedFetch =
     const { token, domain, saleorApiUrl } = appBridge.getState();
 
     const headers = new Headers(init?.headers);
+
     headers.set(SALEOR_DOMAIN_HEADER, domain);
     headers.set(SALEOR_AUTHORIZATION_BEARER_HEADER, token ?? "");
     headers.set(SALEOR_API_URL_HEADER, saleorApiUrl ?? "");
@@ -39,5 +42,5 @@ export const useAuthenticatedFetch = (fetch = window.fetch): typeof window.fetch
     throw new Error("useAuthenticatedFetch can be used only in browser context");
   }
 
-  return createAuthenticatedFetch(appBridge, fetch);
+  return useMemo(() => createAuthenticatedFetch(appBridge, fetch), [appBridge, fetch]);
 };
