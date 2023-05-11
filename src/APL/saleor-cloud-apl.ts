@@ -10,6 +10,19 @@ export type SaleorCloudAPLConfig = {
   token: string;
 };
 
+type CloudAPLAuthDataShape = {
+  saleor_api_url: string;
+  token: string;
+  jwks: string;
+  saleor_app_id: string;
+  domain: string;
+};
+
+export type GetAllAplResponseShape = {
+  count: number;
+  results: CloudAPLAuthDataShape[];
+};
+
 const validateResponseStatus = (response: Response) => {
   if (response.status === 404) {
     debug("Auth data not found");
@@ -33,8 +46,7 @@ const mapAuthDataToAPIBody = (authData: AuthData) => ({
   token: authData.token,
 });
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const mapAPIResponseToAuthData = (response: any): AuthData => ({
+const mapAPIResponseToAuthData = (response: CloudAPLAuthDataShape): AuthData => ({
   appId: response.saleor_app_id,
   domain: response.domain,
   jwks: response.jwks,
@@ -109,7 +121,7 @@ export class SaleorCloudAPL implements APL {
     const parsedResponse = (await response.json().catch((e) => {
       debug("Failed to parse response: %s", extractErrorMessage(e));
       debug("%O", e);
-    })) as unknown;
+    })) as CloudAPLAuthDataShape;
 
     const authData = authDataFromObject(mapAPIResponseToAuthData(parsedResponse));
 
@@ -173,7 +185,9 @@ export class SaleorCloudAPL implements APL {
 
       debug(`Get all responded with ${response.status} code`);
 
-      return ((await response.json()) as AuthData[]) || [];
+      return ((await response.json()) as GetAllAplResponseShape).results.map(
+        mapAPIResponseToAuthData
+      );
     } catch (error) {
       const errorMessage = extractErrorMessage(error);
 

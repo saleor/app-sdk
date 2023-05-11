@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { AuthData } from "./apl";
-import { SaleorCloudAPL, SaleorCloudAPLConfig } from "./saleor-cloud-apl";
+import { GetAllAplResponseShape, SaleorCloudAPL, SaleorCloudAPLConfig } from "./saleor-cloud-apl";
 
 const fetchMock = vi.fn();
 
@@ -114,6 +114,57 @@ describe("APL", () => {
 
           expect(await apl.get("http://unknown-domain.example.com/graphql/")).toBe(undefined);
         });
+      });
+    });
+
+    describe("getAll", () => {
+      it("Returns mapped APL arrat", async () => {
+        fetchMock.mockResolvedValue({
+          status: 200,
+          ok: true,
+          json: async () => {
+            const mockData: GetAllAplResponseShape = {
+              count: 2,
+              results: [
+                {
+                  domain: "example.com",
+                  jwks: "{}",
+                  token: "token1",
+                  saleor_api_url: "https://example.com/graphql/",
+                  saleor_app_id: "x",
+                },
+                {
+                  domain: "example2.com",
+                  jwks: "{}",
+                  token: "token2",
+                  saleor_api_url: "https://example2.com/graphql/",
+                  saleor_app_id: "y",
+                },
+              ],
+            };
+
+            return mockData;
+          },
+        });
+
+        const apl = new SaleorCloudAPL(aplConfig);
+
+        expect(await apl.getAll()).toStrictEqual([
+          {
+            appId: "x",
+            domain: "example.com",
+            jwks: "{}",
+            saleorApiUrl: "https://example.com/graphql/",
+            token: "token1",
+          },
+          {
+            appId: "y",
+            domain: "example2.com",
+            jwks: "{}",
+            saleorApiUrl: "https://example2.com/graphql/",
+            token: "token2",
+          },
+        ]);
       });
     });
   });
