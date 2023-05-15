@@ -154,6 +154,10 @@ export const createAppRegisterHandler = ({
       }
     }
 
+    if (!saleorApiUrl) {
+      debug("saleorApiUrl doesnt exist in headers");
+    }
+
     if (!validateAllowSaleorUrls(saleorApiUrl, allowedSaleorUrls)) {
       debug(
         "Validation of URL %s against allowSaleorUrls param resolves to false, throwing",
