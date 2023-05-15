@@ -2,7 +2,7 @@ import { AppBridge } from "./app-bridge";
 
 export { AppBridge };
 
-export * from "./actions";
+export * from "./actions/actions";
 export * from "./app-bridge-provider";
 export * from "./app-iframe-params";
 export * from "./events";

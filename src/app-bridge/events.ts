@@ -1,5 +1,5 @@
+import { Values } from "../helpers";
 import { LocaleCode } from "../locales";
-import { Values } from "./helpers";
 
 export type Version = 1;
 
@@ -9,6 +9,7 @@ export const EventType = {
   redirect: "redirect",
   theme: "theme",
   localeChanged: "localeChanged",
+  tokenRefresh: "tokenRefresh",
 } as const;
 
 export type EventType = Values<typeof EventType>;

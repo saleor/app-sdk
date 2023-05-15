@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { actions, NotificationPayload, RedirectPayload } from "./actions";
+import { Action } from "./actions";
+import { NotificationPayload } from "./notification-action";
+import { RedirectPayload } from "./redirect-action";
 
 describe("actions.ts", () => {
   describe("actions.Notification", () => {
@@ -12,7 +14,7 @@ describe("actions.ts", () => {
         title: "test-title",
       };
 
-      const action = actions.Notification(payload);
+      const action = Action.Notification(payload);
 
       expect(action.type).toBe("notification");
       expect(action.payload.actionId).toEqual(expect.any(String));
@@ -27,7 +29,7 @@ describe("actions.ts", () => {
         to: "/foo/bar",
       };
 
-      const action = actions.Redirect(payload);
+      const action = Action.Redirect(payload);
 
       expect(action.type).toBe("redirect");
       expect(action.payload.actionId).toEqual(expect.any(String));

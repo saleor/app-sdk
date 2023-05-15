@@ -4,7 +4,7 @@ import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { LocaleCode } from "../locales";
 // eslint-disable-next-line
 import {
-  actions,
+  Action,
   ActionType,
   AppBridge,
   DispatchResponseEvent,
@@ -194,7 +194,7 @@ describe("AppBridge", () => {
 
   it("dispatches valid action", () => {
     const target = "/test";
-    const action = actions.Redirect({ to: target });
+    const action = Action.Redirect({ to: target });
 
     mockDashboardActionResponse(action.type, action.payload.actionId);
 
@@ -202,7 +202,7 @@ describe("AppBridge", () => {
   });
 
   it("times out after action response has not been registered", () =>
-    expect(appBridge.dispatch(actions.Redirect({ to: "/test" }))).rejects.toBeInstanceOf(Error));
+    expect(appBridge.dispatch(Action.Redirect({ to: "/test" }))).rejects.toBeInstanceOf(Error));
 
   it("unsubscribes from all listeners", () => {
     const cb1 = vi.fn();

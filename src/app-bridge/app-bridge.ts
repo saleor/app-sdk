@@ -2,7 +2,7 @@ import debugPkg from "debug";
 
 import { LocaleCode } from "../locales";
 import { extractUserFromJwt } from "../util/extract-user-from-jwt";
-import { Actions, actions } from "./actions";
+import { Action, Actions } from "./actions/actions";
 import { AppBridgeState, AppBridgeStateContainer } from "./app-bridge-state";
 import { AppIframeParams } from "./app-iframe-params";
 import { SSR } from "./constants";
@@ -288,7 +288,7 @@ export class AppBridge {
   }
 
   sendNotifyReadyAction() {
-    this.dispatch(actions.NotifyReady()).catch((e) => {
+    this.dispatch(Action.NotifyReady()).catch((e) => {
       console.error("notifyReady action failed");
       console.error(e);
     });
