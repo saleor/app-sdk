@@ -1,5 +1,18 @@
 # @saleor/app-sdk
 
+## 0.38.0
+
+### Minor Changes
+
+- da351fa: Added JWT token expire date validation (claims.exp field). If token is expired, error will be thrown and verification will be aborted
+
+### Patch Changes
+
+- 62e4c39: Registed Handler now prints saleorApiUrl in error response, so its available in dashboard toast
+- 62e4c39: Wrapped useAuthenticatedFetch with useMemo to avoid re-renders
+- c777275: Fixed SaleorCloudAPL "getAll" method that was not mapping response from remote with AuthData interface
+- c777275: Added additional debug log if saleorApiUrl doesnt exist in register handler
+
 ## 0.37.4
 
 ### Patch Changes
