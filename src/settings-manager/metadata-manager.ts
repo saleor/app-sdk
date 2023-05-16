@@ -1,13 +1,16 @@
-import { SettingsManager, SettingsValue } from "./settings-manager";
+import { DeleteSettingsValue, SettingsManager, SettingsValue } from "./settings-manager";
 
 export type MetadataEntry = {
   key: string;
   value: string;
 };
 
+/**
+ * TODO Rename "Callback" suffixes, these are not callbacks
+ */
 export type FetchMetadataCallback = () => Promise<MetadataEntry[]>;
-
 export type MutateMetadataCallback = (metadata: MetadataEntry[]) => Promise<MetadataEntry[]>;
+export type DeleteMetadataCallback = (keys: string[]) => Promise<void>;
 
 const deserializeMetadata = ({ key, value }: MetadataEntry): SettingsValue => {
   // domain specific metadata use convention key__domain, e.g. `secret_key__example.com`
@@ -20,6 +23,8 @@ const deserializeMetadata = ({ key, value }: MetadataEntry): SettingsValue => {
   };
 };
 
+const constructDomainSpecificKey = (key: string, domain: string) => [key, domain].join("__");
+
 const serializeSettingsToMetadata = ({ key, value, domain }: SettingsValue): MetadataEntry => {
   // domain specific metadata use convention key__domain, e.g. `secret_key__example.com`
   if (!domain) {
@@ -27,7 +32,7 @@ const serializeSettingsToMetadata = ({ key, value, domain }: SettingsValue): Met
   }
 
   return {
-    key: [key, domain].join("__"),
+    key: constructDomainSpecificKey(key, domain),
     value,
   };
 };
@@ -35,6 +40,11 @@ const serializeSettingsToMetadata = ({ key, value, domain }: SettingsValue): Met
 export interface MetadataManagerConfig {
   fetchMetadata: FetchMetadataCallback;
   mutateMetadata: MutateMetadataCallback;
+  /**
+   * Keep it optional, to avoid breaking changes. If not provided, delete will throw.
+   * TODO: Make it required in next major version
+   */
+  deleteMetadata?: DeleteMetadataCallback;
 }
 
 /**
@@ -51,9 +61,12 @@ export class MetadataManager implements SettingsManager {
 
   private mutateMetadata: MutateMetadataCallback;
 
-  constructor({ fetchMetadata, mutateMetadata }: MetadataManagerConfig) {
+  private deleteMetadata?: DeleteMetadataCallback;
+
+  constructor({ fetchMetadata, mutateMetadata, deleteMetadata }: MetadataManagerConfig) {
     this.fetchMetadata = fetchMetadata;
     this.mutateMetadata = mutateMetadata;
+    this.deleteMetadata = deleteMetadata;
   }
 
   async get(key: string, domain?: string) {
@@ -76,5 +89,29 @@ export class MetadataManager implements SettingsManager {
     // changes should update cache
     const metadata = await this.mutateMetadata(serializedMetadata);
     this.settings = metadata.map(deserializeMetadata);
+  }
+
+  /**
+   * Typescript doesnt properly infer arguments so they have to be rewritten explicitly
+   */
+  async delete(args: DeleteSettingsValue | DeleteSettingsValue[] | string | string[]) {
+    if (!this.deleteMetadata) {
+      throw new Error(
+        "Delete not implemented. Ensure MetadataManager is configured with deleteMetadata param in constructor"
+      );
+    }
+
+    const argsArray = Array.isArray(args) ? args : [args];
+    const keysToDelete = argsArray.map((keyOrDomainPair) => {
+      if (typeof keyOrDomainPair === "string") {
+        return keyOrDomainPair;
+      }
+      const { key, domain } = keyOrDomainPair;
+      return constructDomainSpecificKey(key, domain);
+    });
+
+    await this.deleteMetadata(keysToDelete);
+
+    this.settings = this.settings.filter((setting) => !argsArray.includes(setting.key));
   }
 }

@@ -110,4 +110,8 @@ export class EncryptedMetadataManager implements SettingsManager {
     }));
     return this.metadataManager.set(encryptedSettings);
   }
+
+  async delete() {
+    // todo: implement
+  }
 }

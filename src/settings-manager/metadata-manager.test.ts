@@ -13,6 +13,8 @@ describe("settings-manager", () => {
   describe("metadata-manager", () => {
     const fetchMock = vi.fn(async () => metadata);
     const mutateMock = vi.fn(async (md: MetadataEntry[]) => [...metadata, ...md]);
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    const deleteMetadataMock = vi.fn(async () => {});
 
     beforeEach(() => {
       vi.restoreAllMocks();
@@ -52,6 +54,70 @@ describe("settings-manager", () => {
       expect(mutateMock).toBeCalledTimes(1);
       // Set method should populate cache with updated values, so fetch is never called
       expect(fetchMock).toBeCalledTimes(0);
+    });
+
+    describe("Delete metadata method", () => {
+      /**
+       * Ensure no breaking changes introduced
+       */
+      it("Constructs if deleteMetadata param is not passed", () => {
+        const manager = new MetadataManager({
+          fetchMetadata: fetchMock,
+          mutateMetadata: mutateMock,
+        });
+
+        expect(manager).toBeDefined();
+      });
+
+      it("Throws if \"delete\" method is called, but deleteMetadata was not passed to constructor", async () => {
+        const manager = new MetadataManager({
+          fetchMetadata: fetchMock,
+          mutateMetadata: mutateMock,
+        });
+
+        await expect(manager.delete("test")).rejects.toThrowErrorMatchingInlineSnapshot(
+          "\"Delete not implemented. Ensure MetadataManager is configured with deleteMetadata param in constructor\""
+        );
+      });
+
+      it("Calls deleteMetadata constructor param when \"delete\" method called", async () => {
+        const manager = new MetadataManager({
+          fetchMetadata: fetchMock,
+          mutateMetadata: mutateMock,
+          deleteMetadata: deleteMetadataMock,
+        });
+
+        await manager.delete("single-key");
+        await manager.delete(["multiple-key-1", "multiple-key-2"]);
+
+        expect(deleteMetadataMock).toBeCalledTimes(2);
+        /**
+         * Ensure callback is called with array type, even if single string was passed
+         */
+        expect(deleteMetadataMock).toHaveBeenNthCalledWith(1, ["single-key"]);
+        expect(deleteMetadataMock).toHaveBeenNthCalledWith(2, ["multiple-key-1", "multiple-key-2"]);
+      });
+
+      it("Accepts records with key and domain and constructs scoped suffixes", async () => {
+        const manager = new MetadataManager({
+          fetchMetadata: fetchMock,
+          mutateMetadata: mutateMock,
+          deleteMetadata: deleteMetadataMock,
+        });
+
+        await manager.delete({ key: "test", domain: "https://test.com/graphql/" });
+        await manager.delete([
+          { key: "test1", domain: "https://test.com/graphql/" },
+          { key: "test2", domain: "https://test.com/graphql/" },
+        ]);
+
+        expect(deleteMetadataMock).toBeCalledTimes(2);
+        expect(deleteMetadataMock).toHaveBeenNthCalledWith(1, ["test__https://test.com/graphql/"]);
+        expect(deleteMetadataMock).toHaveBeenNthCalledWith(2, [
+          "test1__https://test.com/graphql/",
+          "test2__https://test.com/graphql/",
+        ]);
+      });
     });
   });
 });
