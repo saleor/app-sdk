@@ -92,7 +92,7 @@ export class MetadataManager implements SettingsManager {
   }
 
   /**
-   * Typescript doesnt properly infer arguments so they have to be rewritten explicitly
+   * Typescript doesn't properly infer arguments, so they have to be rewritten explicitly
    */
   async delete(args: DeleteSettingsValue | DeleteSettingsValue[] | string | string[]) {
     if (!this.deleteMetadata) {

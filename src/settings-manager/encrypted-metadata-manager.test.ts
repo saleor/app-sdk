@@ -62,6 +62,8 @@ describe("settings-manager", () => {
     });
 
     describe("Manager operations", () => {
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      const deleteMetadataMock = vi.fn(async () => {});
       const fetchMock = vi.fn(async () => metadata);
       const mutateMock = vi.fn(async (md: MetadataEntry[]) => [...metadata, ...md]);
       const manager = new EncryptedMetadataManager({
@@ -121,6 +123,48 @@ describe("settings-manager", () => {
         expect(await customManager.get(newEntry.key)).toMatch("new value");
         // Set method should populate cache with updated values, so fetch is never called
         expect(fetchMock).toBeCalledTimes(0);
+      });
+
+      /**
+       * Smoke test operations for "delete" method.
+       * Details tests are in MetadataManager that is under the hood of EncryptedMetadataManager
+       */
+      it("Calls delete metadata mutation when key deleted - all formats", async () => {
+        const managerWithDelete = new EncryptedMetadataManager({
+          fetchMetadata: fetchMock,
+          mutateMetadata: mutateMock,
+          deleteMetadata: deleteMetadataMock,
+          encryptionKey: "key",
+        });
+
+        await managerWithDelete.delete("single-arg-1");
+        await managerWithDelete.delete(["multiple-arg-1", "multiple-arg-2"]);
+        await managerWithDelete.delete({
+          key: "single-arg-1-domain",
+          domain: "https://example.com/graphql/",
+        });
+        await managerWithDelete.delete([
+          {
+            key: "multiple-arg-1-domain",
+            domain: "https://example.com/graphql/",
+          },
+          {
+            key: "multiple-arg-2-domain",
+            domain: "https://example.com/graphql/",
+          },
+        ]);
+
+        expect(deleteMetadataMock).toBeCalledTimes(4);
+
+        expect(deleteMetadataMock).toHaveBeenNthCalledWith(1, ["single-arg-1"]);
+        expect(deleteMetadataMock).toHaveBeenNthCalledWith(2, ["multiple-arg-1", "multiple-arg-2"]);
+        expect(deleteMetadataMock).toHaveBeenNthCalledWith(3, [
+          "single-arg-1-domain__https://example.com/graphql/",
+        ]);
+        expect(deleteMetadataMock).toHaveBeenNthCalledWith(4, [
+          "multiple-arg-1-domain__https://example.com/graphql/",
+          "multiple-arg-2-domain__https://example.com/graphql/",
+        ]);
       });
     });
   });

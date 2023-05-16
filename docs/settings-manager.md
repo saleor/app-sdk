@@ -12,12 +12,28 @@ Entries in the manager are stored using structure:
   domain?: string;
 ```
 
+## `DeleteMetadataArg` interface
+
+Argument that can be used to remove metadata via `manager.delete()` method
+
+It contains key and domain:
+
+```typescript
+type DeleteMetadataArg = {
+  key: string;
+  domain: string;
+};
+```
+
 For values which should not be migrated during environment cloning (as private keys to payment provider), developer should use domain field to bind it to particular store instance.
 
 ## Available methods
 
 - `get: (key: string, domain?: string) => Promise<string | undefined>`
 - `set: (settings: SettingsValue[] | SettingsValue) => Promise<void>`
+- `delete: (args: string | string[] | DeleteMetadataArg | DeleteMetadataArg[]) => Promise<void>`
+
+Warning: delete method can throw, if instance of SettingsManager was not configured with proper mutation in constructor.
 
 # MetadataManager
 
@@ -31,6 +47,7 @@ import {
   FetchAppDetailsDocument,
   FetchAppDetailsQuery,
   UpdateAppMetadataDocument,
+  DeleteMetadataDocument,
 } from "../generated/graphql";
 
 export async function fetchAllMetadata(client: Client): Promise<MetadataEntry[]> {
@@ -56,6 +73,10 @@ export async function mutateMetadata(client: Client, metadata: MetadataEntry[]) 
     })) || []
   );
 }
+
+export async function deleteMetadata(client: Client, keys: string[]) {
+  return client.mutation(DeleteMetadataDocument, { keys }).toPromise();
+}
 ```
 
 And create MetadataManager instance:
@@ -64,6 +85,7 @@ And create MetadataManager instance:
 const settings = new MetadataManager({
   fetchMetadata: () => fetchAllMetadata(client),
   mutateMetadata: (md) => mutateMetadata(client, md),
+  deleteMetadata: (keys) => deleteMetadata(client, keys),
 });
 ```
 
@@ -77,6 +99,7 @@ new EncryptedMetadataManager({
   encryptionKey: process.env.SECRET_KEY, // secrets should be saved in the environment variables, never in the source code
   fetchMetadata: () => fetchAllMetadata(client),
   mutateMetadata: (metadata) => mutateMetadata(client, metadata),
+  deleteMetadata: (keys) => deleteMetadata(client, keys),
 });
 ```
 

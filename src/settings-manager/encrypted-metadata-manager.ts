@@ -1,7 +1,7 @@
 import crypto from "crypto";
 
 import { MetadataManager, MetadataManagerConfig } from "./metadata-manager";
-import { SettingsManager, SettingsValue } from "./settings-manager";
+import { DeleteSettingsValue, SettingsManager, SettingsValue } from "./settings-manager";
 
 export type EncryptCallback = (value: string, secret: string) => string;
 
@@ -66,10 +66,12 @@ export class EncryptedMetadataManager implements SettingsManager {
     encryptionKey,
     encryptionMethod,
     decryptionMethod,
+    deleteMetadata,
   }: EncryptedMetadataManagerConfig) {
     this.metadataManager = new MetadataManager({
       fetchMetadata,
       mutateMetadata,
+      deleteMetadata,
     });
     if (encryptionKey) {
       this.encryptionKey = encryptionKey;
@@ -111,7 +113,7 @@ export class EncryptedMetadataManager implements SettingsManager {
     return this.metadataManager.set(encryptedSettings);
   }
 
-  async delete() {
-    // todo: implement
+  async delete(args: DeleteSettingsValue | DeleteSettingsValue[] | string | string[]) {
+    await this.metadataManager.delete(args);
   }
 }
