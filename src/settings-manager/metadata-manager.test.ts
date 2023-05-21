@@ -105,14 +105,16 @@ describe("settings-manager", () => {
           deleteMetadata: deleteMetadataMock,
         });
 
-        await manager.delete({ key: "test", domain: "https://test.com/graphql/" });
+        await manager.delete({ key: "test", domain: "https://example.com/graphql/" });
         await manager.delete([
           { key: "test1", domain: "https://example.com/graphql/" },
           { key: "test2", domain: "https://example.com/graphql/" },
         ]);
 
         expect(deleteMetadataMock).toBeCalledTimes(2);
-        expect(deleteMetadataMock).toHaveBeenNthCalledWith(1, ["test__https://example.com/graphql/"]);
+        expect(deleteMetadataMock).toHaveBeenNthCalledWith(1, [
+          "test__https://example.com/graphql/",
+        ]);
         expect(deleteMetadataMock).toHaveBeenNthCalledWith(2, [
           "test1__https://example.com/graphql/",
           "test2__https://example.com/graphql/",
