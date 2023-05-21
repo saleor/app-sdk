@@ -6,7 +6,8 @@ import { Action, Actions } from "./actions/actions";
 import { AppBridgeState, AppBridgeStateContainer } from "./app-bridge-state";
 import { AppIframeParams } from "./app-iframe-params";
 import { SSR } from "./constants";
-import { Events, EventType, PayloadOfEvent, ThemeType } from "./events";
+import { Events, EventType, PayloadOfEvent } from "./events/events";
+import { ThemeType } from "./events/theme-event";
 
 const DISPATCH_RESPONSE_TIMEOUT = 1000;
 
@@ -52,6 +53,12 @@ function eventStateReducer(state: AppBridgeState, event: Events) {
         locale: event.payload.locale,
       };
     }
+    case EventType.tokenRefresh: {
+      return {
+        ...state,
+        token: event.payload.token,
+      };
+    }
     case EventType.response: {
       return state;
     }
@@ -72,6 +79,7 @@ const createEmptySubscribeMap = (): SubscribeMap => ({
   redirect: {},
   theme: {},
   localeChanged: {},
+  tokenRefresh: {},
 });
 
 export type AppBridgeOptions = {

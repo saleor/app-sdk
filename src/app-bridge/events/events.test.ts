@@ -49,4 +49,13 @@ describe("DashboardEventFactory", () => {
       type: "localeChanged",
     });
   });
+
+  it("Creates tokenRefresh event", () => {
+    expect(DashboardEventFactory.createTokenRefreshEvent("TOKEN")).toEqual({
+      payload: {
+        token: "TOKEN",
+      },
+      type: "tokenRefresh",
+    });
+  });
 });

@@ -5,7 +5,7 @@ export { AppBridge };
 export * from "./actions/actions";
 export * from "./app-bridge-provider";
 export * from "./app-iframe-params";
-export * from "./events";
+export * from "./events/events";
 export * from "./fetch";
 export * from "./types";
 export * from "./use-dashboard-token";

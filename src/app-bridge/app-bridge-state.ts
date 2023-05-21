@@ -1,6 +1,6 @@
 import { LocaleCode } from "../locales";
 import { Permission } from "../types";
-import { ThemeType } from "./events";
+import { ThemeType } from "./events/theme-event";
 
 export type AppBridgeState = {
   token?: string;

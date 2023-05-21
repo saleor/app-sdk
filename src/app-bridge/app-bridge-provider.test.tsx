@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import { AppBridge } from "./app-bridge";
 import { AppBridgeProvider, useAppBridge } from "./app-bridge-provider";
 import { AppIframeParams } from "./app-iframe-params";
-import { DashboardEventFactory } from "./events";
+import { DashboardEventFactory } from "./events/events";
 
 const origin = "http://example.com";
 const domain = "saleor.domain.host";
