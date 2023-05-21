@@ -3,14 +3,10 @@ import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { LocaleCode } from "../locales";
 // eslint-disable-next-line
-import {
-  Action,
-  ActionType,
-  AppBridge,
-  DispatchResponseEvent,
-  HandshakeEvent,
-  ThemeEvent,
-} from ".";
+import { Action, ActionType, AppBridge } from ".";
+import { HandshakeEvent } from "./events/handshake-event";
+import { DispatchResponseEvent } from "./events/response-event";
+import { ThemeEvent } from "./events/theme-event";
 
 // mock document.referrer
 const origin = "http://example.com";

@@ -4,7 +4,7 @@
 import * as NextRouter from "next/router.js";
 import { useEffect } from "react";
 
-import { actions } from "../actions";
+import { actions } from "../actions/actions";
 import { useAppBridge } from "../app-bridge-provider";
 
 const { useRouter } = NextRouter;
