@@ -7,6 +7,7 @@ import {
   actions,
   ActionType,
   AppBridge,
+  DashboardEventFactory,
   DispatchResponseEvent,
   HandshakeEvent,
   ThemeEvent,
@@ -286,4 +287,30 @@ describe("AppBridge", () => {
 
       appBridge = new AppBridge({ autoNotifyReady: true });
     }));
+
+  it("Overwrites token after tokenRefresh action is triggered", () => {
+    const tokenRefreshEvent = DashboardEventFactory.createTokenRefreshEvent("new-token");
+
+    expect(appBridge.getState().token).toBeUndefined();
+
+    fireEvent(
+      window,
+      new MessageEvent("message", {
+        data: handshakeEvent,
+        origin,
+      })
+    );
+
+    expect(appBridge.getState().token).toEqual(handshakeEvent.payload.token);
+
+    fireEvent(
+      window,
+      new MessageEvent("message", {
+        data: tokenRefreshEvent,
+        origin,
+      })
+    );
+
+    expect(appBridge.getState().token).toEqual(tokenRefreshEvent.payload.token);
+  });
 });
