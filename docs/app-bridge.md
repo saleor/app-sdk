@@ -128,6 +128,7 @@ appBridge.unsubscribeAll();
 | `redirect`      | Fired when Dashboard changes a subpath within the app path                   |
 | `theme`         | Fired when Dashboard changes the theme                                       |
 | `localeChanged` | Fired when Dashboard changes locale (and passes locale code in payload)      |
+| `tokenRefresh`  | Fired when Dashboard receives a new auth token and passes it to the app      |
 
 See [source code for detailed payload](./src/app-bridge/events.ts)
 
