@@ -9,6 +9,7 @@ export const EventType = {
   redirect: "redirect",
   theme: "theme",
   localeChanged: "localeChanged",
+  tokenRefresh: "tokenRefresh",
 } as const;
 
 export type EventType = Values<typeof EventType>;
@@ -56,12 +57,20 @@ export type LocaleChangedEvent = Event<
   }
 >;
 
+export type TokenRefreshEvent = Event<
+  "tokenRefresh",
+  {
+    token: string;
+  }
+>;
+
 export type Events =
   | HandshakeEvent
   | DispatchResponseEvent
   | RedirectEvent
   | ThemeEvent
-  | LocaleChangedEvent;
+  | LocaleChangedEvent
+  | TokenRefreshEvent;
 
 export type PayloadOfEvent<
   TEventType extends EventType,
@@ -109,6 +118,14 @@ export const DashboardEventFactory = {
       type: "localeChanged",
       payload: {
         locale: newLocale,
+      },
+    };
+  },
+  createTokenRefreshEvent(newToken: string): TokenRefreshEvent {
+    return {
+      type: "tokenRefresh",
+      payload: {
+        token: newToken,
       },
     };
   },
