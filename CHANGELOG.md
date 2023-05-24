@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 0.39.1
+
+### Patch Changes
+
+- 1783f47: Improved typings in metadata manager
+
 ## 0.39.0
 
 ### Minor Changes
