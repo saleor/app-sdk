@@ -9,13 +9,8 @@ export type DeleteSettingsValue = {
   domain: string;
 };
 
-type DeleteFnSimple = (keys: string | string[]) => Promise<void>;
-type DeleteFnWithDomain = (
-  keysWithDomain: DeleteSettingsValue | DeleteSettingsValue[]
-) => Promise<void>;
-
 export interface SettingsManager {
   get: (key: string, domain?: string) => Promise<string | undefined>;
   set: (settings: SettingsValue[] | SettingsValue) => Promise<void>;
-  delete: DeleteFnSimple | DeleteFnWithDomain;
+  delete: (args: DeleteSettingsValue | DeleteSettingsValue[] | string | string[]) => Promise<void>;
 }
