@@ -185,6 +185,8 @@ const apl = new UpstashAPL({
 
 Or using environment variables: `UPSTASH_TOKEN`, `UPSTASH_URL`.
 
+Note: Recently Vercel introduced [KV storage](https://vercel.com/docs/storage/vercel-kv) which uses Upstash under the hood. Upstash APL will work with values provided by Vercel KV Storage too.
+
 ### EnvAPL
 
 For very simple, static & single-tenant applications, you may want to just set everything once, usually in env variables and just leave it.
