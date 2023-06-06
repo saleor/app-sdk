@@ -1,5 +1,14 @@
 # @saleor/app-sdk
 
+## 0.39.2
+
+### Patch Changes
+
+- 9056e76: Added definitions for new async events:
+
+  - `CHECKOUT_FULLY_PAID`
+  - `GIFT_CARD_SENT`
+
 ## 0.39.1
 
 ### Patch Changes
