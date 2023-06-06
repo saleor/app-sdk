@@ -49,7 +49,7 @@ export type Permission =
 export type AppPermission = Exclude<Permission, "MANAGE_APPS">;
 
 /**
- * @see https://github.com/saleor/saleor/blob/main/saleor/graphql/schema.graphql#L1505
+ * @see https://docs.saleor.io/docs/3.x/api-reference/webhooks/enums/webhook-event-type-async-enum
  */
 export type AsyncWebhookEventType =
   | "ADDRESS_CREATED"
@@ -75,6 +75,7 @@ export type AsyncWebhookEventType =
   | "GIFT_CARD_CREATED"
   | "GIFT_CARD_UPDATED"
   | "GIFT_CARD_DELETED"
+  | "GIFT_CARD_SENT"
   | "GIFT_CARD_STATUS_CHANGED"
   | "GIFT_CARD_METADATA_UPDATED"
   | "MENU_CREATED"
@@ -127,8 +128,9 @@ export type AsyncWebhookEventType =
   | "PRODUCT_VARIANT_BACK_IN_STOCK"
   | "PRODUCT_VARIANT_STOCK_UPDATED"
   | "CHECKOUT_CREATED"
-  | "CHECKOUT_UPDATED"
+  | "CHECKOUT_FULLY_PAID"
   | "CHECKOUT_METADATA_UPDATED"
+  | "CHECKOUT_UPDATED"
   | "NOTIFY_USER"
   | "PAGE_CREATED"
   | "PAGE_UPDATED"
@@ -272,7 +274,7 @@ export interface AppManifest {
    * ">=3.10 <4 || 4.0.0" - 3.10 and newer, less than 4, but allow exactly 4.0.0
    */
   requiredSaleorVersion?: string;
-  /**  
+  /**
    * App author name displayed in the dashboard
    *
    * In Saleor versions lower than 3.13, this field will be ignored
