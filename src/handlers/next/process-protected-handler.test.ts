@@ -63,6 +63,10 @@ describe("processSaleorProtectedHandler", () => {
         jwks: mockAPL.mockJwks,
       },
       baseUrl: "https://some-saleor-host.cloud",
+      user: expect.objectContaining({
+        email: expect.any(String),
+        userPermissions: expect.any(Array),
+      }),
     });
   });
 
