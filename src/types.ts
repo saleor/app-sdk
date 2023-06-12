@@ -280,4 +280,20 @@ export interface AppManifest {
    * In Saleor versions lower than 3.13, this field will be ignored
    */
   author?: string;
+  /**
+   * Add brand-specific metadata to the app
+   *
+   * Available from Saleor 3.15. In previous versions will be ignored
+   */
+  brand?: {
+    /**
+     * Logo will be displayed in the dashboard
+     */
+    logo: {
+      /**
+       * URL with the public image. File will be copied to Saleor database during installation
+       */
+      default: string;
+    };
+  };
 }
