@@ -2,7 +2,7 @@ import * as jose from "jose";
 
 import { Permission } from "../types";
 
-type TokenUserPayload = {
+export type TokenUserPayload = {
   email: string;
   userPermissions: Permission[];
 };

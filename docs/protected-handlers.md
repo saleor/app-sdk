@@ -15,6 +15,10 @@ First, create handler for your business logic. The only difference from usual Ne
 export type ProtectedHandlerContext = {
   baseUrl: string; // the URL your application is available
   authData: AuthData; // Auth Data which can be used to communicate with the Saleor API
+  user: {
+    email: string;
+    userPermissions: string[];
+  };
 };
 ```
 

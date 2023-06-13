@@ -5,6 +5,7 @@ import { AuthData } from "../../APL/apl";
 import { createDebug } from "../../debug";
 import { getBaseUrl, getSaleorHeaders } from "../../headers";
 import { Permission } from "../../types";
+import { extractUserFromJwt, TokenUserPayload } from "../../util/extract-user-from-jwt";
 import { verifyJWT } from "../../verify-jwt";
 
 const debug = createDebug("processProtectedHandler");
@@ -34,6 +35,7 @@ export class ProtectedHandlerError extends Error {
 export type ProtectedHandlerContext = {
   baseUrl: string;
   authData: AuthData;
+  user: TokenUserPayload;
 };
 
 interface ProcessSaleorProtectedHandlerArgs {
@@ -96,8 +98,11 @@ export const processSaleorProtectedHandler: ProcessAsyncSaleorProtectedHandler =
     throw new ProtectedHandlerError("JWT verification failed: ", "JWT_VERIFICATION_FAILED");
   }
 
+  const userJwtPayload = extractUserFromJwt(token);
+
   return {
     baseUrl,
     authData,
+    user: userJwtPayload,
   };
 };
