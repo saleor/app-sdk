@@ -1,5 +1,12 @@
 # @saleor/app-sdk
 
+## 0.40.0
+
+### Minor Changes
+
+- 1d08329: Added "brand" field to Manifest type, that allows to provide app's logo URL. It will work from Saleor 3.15
+- 390fae2: Extended context argument in createProtectedHandler. Now it contains "user" object with email and permissions
+
 ## 0.39.2
 
 ### Patch Changes
