@@ -1,12 +1,12 @@
 import { NextApiRequest } from "next";
 
 import { APL } from "../../APL";
-import { AuthData } from "../../APL/apl";
 import { createDebug } from "../../debug";
 import { getBaseUrl, getSaleorHeaders } from "../../headers";
 import { Permission } from "../../types";
-import { extractUserFromJwt, TokenUserPayload } from "../../util/extract-user-from-jwt";
+import { extractUserFromJwt } from "../../util/extract-user-from-jwt";
 import { verifyJWT } from "../../verify-jwt";
+import { ProtectedHandlerContext } from "./protected-handler-context";
 
 const debug = createDebug("processProtectedHandler");
 
@@ -31,12 +31,6 @@ export class ProtectedHandlerError extends Error {
     Object.setPrototypeOf(this, ProtectedHandlerError.prototype);
   }
 }
-
-export type ProtectedHandlerContext = {
-  baseUrl: string;
-  authData: AuthData;
-  user: TokenUserPayload;
-};
 
 interface ProcessSaleorProtectedHandlerArgs {
   req: Pick<NextApiRequest, "headers">;
