@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 0.40.1
+
+### Patch Changes
+
+- 9fefd72: Fixed invalid ProtectedHandlerContext that didnt include new user field
+
 ## 0.40.0
 
 ### Minor Changes
