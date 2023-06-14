@@ -137,14 +137,12 @@ Now you can use it for in your view:
 ```ts
 import { SALEOR_API_URL_HEADER } from "@saleor/app-sdk/const";
 import { withRegisteredSaleorDomainHeader } from "@saleor/app-sdk/middleware";
-import type { Handler } from "retes";
-import { toNextHandler } from "retes/adapter";
-import { Response } from "retes/response";
+import { NextApiHandler } from "next";
 
 // import created APL
 import { apl } from "@lib/saleorApp";
 
-const handler: Handler = async (request) => {
+const handler: NextApiHandler = async (request, response) => {
   const saleorApiUrl = request.headers[SALEOR_API_URL_HEADER];
 
   // Get auth data
@@ -152,10 +150,10 @@ const handler: Handler = async (request) => {
 
   // view logic...
 
-  return Response.OK();
+  return response.status(200).end();
 };
 
-export default toNextHandler([withRegisteredSaleorDomainHeader({ apl }), handler]);
+export default handler;
 ```
 
 ## Available APLs
