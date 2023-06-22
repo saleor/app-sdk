@@ -313,4 +313,24 @@ describe("AppBridge", () => {
 
     expect(appBridge.getState().token).toEqual(tokenRefreshEvent.payload.token);
   });
+
+  it("Saves saleorVersion field if provided in the Handshake event", () => {
+    expect(appBridge.getState().saleorVersion).toBeUndefined();
+    expect(appBridge.getState().dashboardVersion).toBeUndefined();
+
+    fireEvent(
+      window,
+      new MessageEvent("message", {
+        data: DashboardEventFactory.createHandshakeEvent(validJwtToken, 1, {
+          core: "3.15.0",
+          dashboard: "3.15.1",
+        }),
+        origin,
+      })
+    );
+
+    expect(appBridge.getState().token).toEqual(validJwtToken);
+    expect(appBridge.getState().saleorVersion).toEqual("3.15.0");
+    expect(appBridge.getState().dashboardVersion).toEqual("3.15.1");
+  });
 });

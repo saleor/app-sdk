@@ -24,6 +24,8 @@ export type HandshakeEvent = Event<
   {
     token: string;
     version: Version;
+    saleorVersion?: string;
+    dashboardVersion?: string;
   }
 >;
 
@@ -104,12 +106,22 @@ export const DashboardEventFactory = {
       },
     };
   },
-  createHandshakeEvent(token: string, version: Version = 1): HandshakeEvent {
+  createHandshakeEvent(
+    token: string,
+    // eslint-disable-next-line default-param-last
+    version: Version = 1,
+    saleorVersions?: {
+      dashboard: string;
+      core: string;
+    }
+  ): HandshakeEvent {
     return {
       type: "handshake",
       payload: {
         token,
         version,
+        saleorVersion: saleorVersions?.core,
+        dashboardVersion: saleorVersions?.dashboard,
       },
     };
   },

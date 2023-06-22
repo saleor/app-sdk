@@ -4,10 +4,17 @@ import { DashboardEventFactory } from "./events";
 
 describe("DashboardEventFactory", () => {
   it("Creates handshake event", () => {
-    expect(DashboardEventFactory.createHandshakeEvent("mock-token")).toEqual({
+    expect(
+      DashboardEventFactory.createHandshakeEvent("mock-token", 1, {
+        dashboard: "3.15.3",
+        core: "3.15.1",
+      })
+    ).toEqual({
       payload: {
         token: "mock-token",
         version: 1,
+        saleorVersion: "3.15.1",
+        dashboardVersion: "3.15.3",
       },
       type: "handshake",
     });

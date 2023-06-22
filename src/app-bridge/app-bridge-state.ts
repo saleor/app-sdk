@@ -11,6 +11,12 @@ export type AppBridgeState = {
   theme: ThemeType;
   locale: LocaleCode;
   saleorApiUrl: string;
+  /**
+   * Versions of Saleor that app is mounted. Passed from the Dashboard.
+   * Works form Saleor 3.15
+   */
+  saleorVersion?: string;
+  dashboardVersion?: string;
   user?: {
     /**
      * Original permissions of the user that is using the app.
