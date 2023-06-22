@@ -1,5 +1,12 @@
 # @saleor/app-sdk
 
+## 0.41.0
+
+### Minor Changes
+
+- 86d963e: Added NextApiRequest to context of createManifestHandler. Now you can read native request to construct more specific manifest based on request params
+- b365c7c: Added saleorVersion and dashboardVersion fields to AppBridge state. They are optional - will be provided from 3.15.
+
 ## 0.40.1
 
 ### Patch Changes
