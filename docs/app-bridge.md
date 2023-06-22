@@ -45,6 +45,11 @@ type AppBridgeState = {
    * Full URL including protocol and path where GraphQL API is available
    **/
   saleorApiUrl: string;
+  /**
+   * Versions of Saleor that app is being installed. Available from 3.15.
+   */
+  saleorVersion?: string;
+  dashboardVersion?: string;
 };
 ```
 

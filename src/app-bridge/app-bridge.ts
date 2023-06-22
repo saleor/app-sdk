@@ -28,6 +28,8 @@ function eventStateReducer(state: AppBridgeState, event: Events) {
         ...state,
         ready: true,
         token: event.payload.token,
+        saleorVersion: event.payload.saleorVersion,
+        dashboardVersion: event.payload.dashboardVersion,
         user: {
           email: userJwtPayload.email,
           permissions: userJwtPayload.userPermissions,
