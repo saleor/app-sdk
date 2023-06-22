@@ -1,12 +1,13 @@
-import { Handler } from "retes";
-import { toNextHandler } from "retes/adapter";
-import { Response } from "retes/response";
+import { NextApiHandler, NextApiRequest } from "next";
 
-import { withBaseURL } from "../../middleware";
+import { getBaseUrl } from "../../headers";
 import { AppManifest } from "../../types";
 
 export type CreateManifestHandlerOptions = {
-  manifestFactory(context: { appBaseUrl: string }): AppManifest | Promise<AppManifest>;
+  manifestFactory(context: {
+    appBaseUrl: string;
+    request: NextApiRequest;
+  }): AppManifest | Promise<AppManifest>;
 };
 
 /**
@@ -14,16 +15,15 @@ export type CreateManifestHandlerOptions = {
  * implementation details if possible
  * In the future this will be extracted to separate sdk/next package
  */
-export const createManifestHandler = (options: CreateManifestHandlerOptions) => {
-  const baseHandler: Handler = async (request) => {
-    const { baseURL } = request.context;
+export const createManifestHandler =
+  (options: CreateManifestHandlerOptions): NextApiHandler =>
+  async (request, response) => {
+    const baseURL = getBaseUrl(request.headers);
 
     const manifest = await options.manifestFactory({
       appBaseUrl: baseURL,
+      request,
     });
 
-    return Response.OK(manifest);
+    return response.status(200).json(manifest);
   };
-
-  return toNextHandler([withBaseURL, baseHandler]);
-};

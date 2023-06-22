@@ -26,11 +26,11 @@ Example usage of manifest handler in Next.js
 import { createManifestHandler } from "@saleor/app-sdk/handlers/next";
 
 export default createManifestHandler({
-  manifestFactory(context) {
+  manifestFactory({ request, appBaseUrl }) {
     return {
       name: "My Saleor App",
-      tokenTargetUrl: `${context.appBaseUrl}/api/register`,
-      appUrl: context.appBaseUrl,
+      tokenTargetUrl: `${appBaseUrl}/api/register`,
+      appUrl: appBaseUrl,
       permissions: [],
       id: "my-saleor-app",
       version: "1",
@@ -43,9 +43,11 @@ Options provided to handler factory
 
 ```typescript
 type CreateManifestHandlerOptions = {
-  manifestFactory(context: { appBaseUrl: string }): AppManifest;
+  manifestFactory(context: { appBaseUrl: string; request: NextApiRequest }): AppManifest;
 };
 ```
+
+You can use NextApiRequest to read additional params from request. For example read Saleor version to enable or disabled some features, depending on their support.
 
 See [source](./src/handlers/next/create-manifest-handler.ts) for more details. See [manifest](../src/types.ts) too.
 

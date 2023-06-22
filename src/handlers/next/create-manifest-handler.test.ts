@@ -5,7 +5,9 @@ import { AppManifest } from "../../types";
 import { createManifestHandler } from "./create-manifest-handler";
 
 describe("createManifestHandler", () => {
-  it("Creates a handler that responds with Manifest", async () => {
+  it("Creates a handler that responds with Manifest. Includes request in context", async () => {
+    expect.assertions(3);
+
     const { res, req } = createMocks({
       headers: {
         host: "some-saleor-host.cloud",
@@ -15,11 +17,14 @@ describe("createManifestHandler", () => {
     });
 
     const handler = createManifestHandler({
-      manifestFactory(context: { appBaseUrl: string }): AppManifest {
+      manifestFactory({ appBaseUrl, request }): AppManifest {
+        expect(request).toBeDefined();
+        expect(request.headers.host).toBe("some-saleor-host.cloud");
+
         return {
           name: "Mock name",
-          tokenTargetUrl: `${context.appBaseUrl}/api/register`,
-          appUrl: context.appBaseUrl,
+          tokenTargetUrl: `${appBaseUrl}/api/register`,
+          appUrl: appBaseUrl,
           permissions: [],
           id: "app-id",
           version: "1",
@@ -29,7 +34,7 @@ describe("createManifestHandler", () => {
 
     await handler(req, res);
 
-    expect(res._getData()).toEqual({
+    expect(res._getJSONData()).toEqual({
       appUrl: "https://some-saleor-host.cloud",
       id: "app-id",
       name: "Mock name",
