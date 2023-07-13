@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 0.41.1
+
+### Patch Changes
+
+- 4b7875a: Updated AsyncWebhookEventType enum.
+
 ## 0.41.0
 
 ### Minor Changes
