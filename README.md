@@ -1,3 +1,9 @@
+<div align="center">
+  
+[![Discord Badge](https://dcbadge.vercel.app/api/server/H52JTZAtSH)](https://discord.gg/H52JTZAtSH)
+
+</div>
+
 # SDK for Saleor Apps
 
 SDK for building great [Saleor Apps](https://github.com/saleor/apps).
