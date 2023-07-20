@@ -121,14 +121,19 @@ export type RequestPermissions = ActionWithId<
   "requestPermissions",
   {
     permissions: AppPermission[];
+    redirectPath: string;
   }
 >;
 
-function createRequestPermissionsAction(permissions: AppPermission[]): RequestPermissions {
+function createRequestPermissionsAction(
+  permissions: AppPermission[],
+  redirectPath: string
+): RequestPermissions {
   return withActionId({
     type: "requestPermissions",
     payload: {
       permissions,
+      redirectPath,
     },
   });
 }
