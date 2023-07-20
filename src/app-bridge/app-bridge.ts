@@ -58,12 +58,6 @@ function eventStateReducer(state: AppBridgeState, event: Events) {
         token: event.payload.token,
       };
     }
-    case EventType.permissionsRequestResult: {
-      return {
-        ...state,
-        // todo - check if updating permissions doesnt require refreshing tokens
-      };
-    }
     case EventType.response: {
       return state;
     }
@@ -85,7 +79,6 @@ const createEmptySubscribeMap = (): SubscribeMap => ({
   theme: {},
   localeChanged: {},
   tokenRefresh: {},
-  permissionsRequestResult: {},
 });
 
 export type AppBridgeOptions = {

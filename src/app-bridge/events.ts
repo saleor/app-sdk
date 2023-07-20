@@ -1,5 +1,4 @@
 import { LocaleCode } from "../locales";
-import { AppPermission } from "../types";
 import { Values } from "./helpers";
 
 export type Version = 1;
@@ -11,7 +10,6 @@ export const EventType = {
   theme: "theme",
   localeChanged: "localeChanged",
   tokenRefresh: "tokenRefresh",
-  permissionsRequestResult: "permissionsRequestResult",
 } as const;
 
 export type EventType = Values<typeof EventType>;
@@ -67,21 +65,6 @@ export type TokenRefreshEvent = Event<
     token: string;
   }
 >;
-export type PermissionsRequestResultEvent = Event<
-  "permissionsRequestResult",
-  {
-    result:
-      | {
-          type: "failure";
-          reason: string; // todo define enums
-          message: string;
-        }
-      | {
-          type: "success";
-          newPermissions: AppPermission[];
-        };
-  }
->;
 
 export type Events =
   | HandshakeEvent
@@ -89,8 +72,7 @@ export type Events =
   | RedirectEvent
   | ThemeEvent
   | LocaleChangedEvent
-  | TokenRefreshEvent
-  | PermissionsRequestResultEvent;
+  | TokenRefreshEvent;
 
 export type PayloadOfEvent<
   TEventType extends EventType,
@@ -156,16 +138,6 @@ export const DashboardEventFactory = {
       type: "tokenRefresh",
       payload: {
         token: newToken,
-      },
-    };
-  },
-  createPermissionsRequestResultEvent(
-    result: PermissionsRequestResultEvent["payload"]["result"]
-  ): PermissionsRequestResultEvent {
-    return {
-      type: "permissionsRequestResult",
-      payload: {
-        result,
       },
     };
   },
