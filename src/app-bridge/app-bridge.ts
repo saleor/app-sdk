@@ -91,12 +91,6 @@ export type AppBridgeOptions = {
    */
   autoNotifyReady?: boolean;
   initialTheme?: ThemeType;
-  /**
-   * Experimental features. Unstable. Dot not use
-   */
-  experimental?: {
-    permissionsEvent?: boolean;
-  };
 };
 
 /**
