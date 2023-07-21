@@ -9,6 +9,9 @@ import {
 const toStringOrUndefined = (value: string | string[] | undefined) =>
   value ? value.toString() : undefined;
 
+/**
+ * Extracts Saleor-specific headers from the response.
+ */
 export const getSaleorHeaders = (headers: { [name: string]: string | string[] | undefined }) => ({
   domain: toStringOrUndefined(headers[SALEOR_DOMAIN_HEADER]),
   authorizationBearer: toStringOrUndefined(headers[SALEOR_AUTHORIZATION_BEARER_HEADER]),
@@ -17,6 +20,9 @@ export const getSaleorHeaders = (headers: { [name: string]: string | string[] | 
   saleorApiUrl: toStringOrUndefined(headers[SALEOR_API_URL_HEADER]),
 });
 
+/**
+ * Extracts the app's url from headers from the response.
+ */
 export const getBaseUrl = (headers: { [name: string]: string | string[] | undefined }): string => {
   const { host, "x-forwarded-proto": xForwardedProto = "http" } = headers;
 

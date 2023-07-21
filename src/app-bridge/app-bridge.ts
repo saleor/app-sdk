@@ -1,6 +1,7 @@
 import debugPkg from "debug";
 
 import { LocaleCode } from "../locales";
+import { extractAppPermissionsFromJwt } from "../util/extract-app-permissions-from-jwt";
 import { extractUserFromJwt } from "../util/extract-user-from-jwt";
 import { Actions, actions } from "./actions";
 import { AppBridgeState, AppBridgeStateContainer } from "./app-bridge-state";
@@ -23,6 +24,7 @@ function eventStateReducer(state: AppBridgeState, event: Events) {
   switch (event.type) {
     case EventType.handshake: {
       const userJwtPayload = extractUserFromJwt(event.payload.token);
+      const appPermissions = extractAppPermissionsFromJwt(event.payload.token);
 
       return {
         ...state,
@@ -34,6 +36,7 @@ function eventStateReducer(state: AppBridgeState, event: Events) {
           email: userJwtPayload.email,
           permissions: userJwtPayload.userPermissions,
         },
+        appPermissions,
       };
     }
     case EventType.redirect: {

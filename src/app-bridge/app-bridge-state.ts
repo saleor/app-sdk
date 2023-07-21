@@ -1,3 +1,4 @@
+import { AppPermission } from "../../dist/types";
 import { LocaleCode } from "../locales";
 import { Permission } from "../types";
 import { ThemeType } from "./events";
@@ -28,6 +29,7 @@ export type AppBridgeState = {
     permissions: Permission[];
     email: string;
   };
+  appPermissions?: AppPermission[];
 };
 
 type Options = {
