@@ -22,9 +22,9 @@ export const ActionType = {
    */
   notifyReady: "notifyReady",
   /**
-   * Experimental.
-   *
    * Request one or more permissions from the Dashboard
+   *
+   * Available from 3.15
    */
   requestPermission: "requestPermissions",
 } as const;
@@ -150,8 +150,5 @@ export const actions = {
   Notification: createNotificationAction,
   UpdateRouting: createUpdateRoutingAction,
   NotifyReady: createNotifyReadyAction,
-  /**
-   * Experimental. Do not use.
-   */
   RequestPermissions: createRequestPermissionsAction,
 };
