@@ -136,6 +136,11 @@
       "types": "./verify-signature.d.ts",
       "import": "./verify-signature.mjs",
       "require": "./verify-signature.js"
+    },
+    "./headers": {
+      "types": "./headers.d.ts",
+      "import": "./headers.mjs",
+      "require": "./headers.js"
     }
   },
   "publishConfig": {
