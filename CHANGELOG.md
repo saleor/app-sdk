@@ -1,5 +1,12 @@
 # @saleor/app-sdk
 
+## 0.42.0
+
+### Minor Changes
+
+- b8935a8: Added "appPermissions" field to AppBridgeState. Now, when app is mounted and handshake is complete, app will automatically extract permissions and save them.
+- b8935a8: Exposed "@saleor/app-sdk/headers" path. It contains helper methods: getSaleorHeaders and getBaseUrl
+
 ## 0.41.1
 
 ### Patch Changes
