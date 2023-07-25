@@ -1,5 +1,17 @@
 # @saleor/app-sdk
 
+## 0.43.0
+
+### Minor Changes
+
+- 1118ea9: Added new actions and events for dynamic permissions request.
+
+  Now App can ask Dashboard to grant more permissions than originally assigned.
+
+  Operation can be approved or rejected by the user.
+
+  This feature is available in Saleor 3.15 and higher
+
 ## 0.42.0
 
 ### Minor Changes
