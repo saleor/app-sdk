@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 
+import { AppPermission } from "../types";
 import { Values } from "./helpers";
 
 // Using constants over Enums, more info: https://fettblog.eu/tidy-typescript-avoid-enums/
@@ -20,6 +21,12 @@ export const ActionType = {
    * Inform Dashboard that AppBridge is ready
    */
   notifyReady: "notifyReady",
+  /**
+   * Request one or more permissions from the Dashboard
+   *
+   * Available from 3.15
+   */
+  requestPermission: "requestPermissions",
 } as const;
 
 export type ActionType = Values<typeof ActionType>;
@@ -110,11 +117,38 @@ function createNotifyReadyAction(): NotifyReady {
   });
 }
 
-export type Actions = RedirectAction | NotificationAction | UpdateRouting | NotifyReady;
+export type RequestPermissions = ActionWithId<
+  "requestPermissions",
+  {
+    permissions: AppPermission[];
+    redirectPath: string;
+  }
+>;
+
+function createRequestPermissionsAction(
+  permissions: AppPermission[],
+  redirectPath: string
+): RequestPermissions {
+  return withActionId({
+    type: "requestPermissions",
+    payload: {
+      permissions,
+      redirectPath,
+    },
+  });
+}
+
+export type Actions =
+  | RedirectAction
+  | NotificationAction
+  | UpdateRouting
+  | NotifyReady
+  | RequestPermissions;
 
 export const actions = {
   Redirect: createRedirectAction,
   Notification: createNotificationAction,
   UpdateRouting: createUpdateRoutingAction,
   NotifyReady: createNotifyReadyAction,
+  RequestPermissions: createRequestPermissionsAction,
 };

@@ -19,8 +19,6 @@ type SubscribeMap = {
 const debug = debugPkg.debug("app-sdk:AppBridge");
 
 function eventStateReducer(state: AppBridgeState, event: Events) {
-  debug("Event reducer received event: %j", event);
-
   switch (event.type) {
     case EventType.handshake: {
       const userJwtPayload = extractUserFromJwt(event.payload.token);
