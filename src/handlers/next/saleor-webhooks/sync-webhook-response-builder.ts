@@ -19,6 +19,14 @@ export type SyncWebhookResponsesMap = {
   };
   ORDER_CALCULATE_TAXES: SyncWebhookResponsesMap["CHECKOUT_CALCULATE_TAXES"];
   ORDER_FILTER_SHIPPING_METHODS: SyncWebhookResponsesMap["CHECKOUT_FILTER_SHIPPING_METHODS"];
+  // TODO: Update types for the payment responses
+  PAYMENT_AUTHORIZE: { data: unknown };
+  PAYMENT_CAPTURE: { data: unknown };
+  PAYMENT_CONFIRM: { data: unknown };
+  PAYMENT_LIST_GATEWAYS: { data: unknown };
+  PAYMENT_PROCESS: { data: unknown };
+  PAYMENT_REFUND: { data: unknown };
+  PAYMENT_VOID: { data: unknown };
   SHIPPING_LIST_METHODS_FOR_CHECKOUT: Array<{
     id: string;
     name?: string;

@@ -14,7 +14,8 @@
     "prepare": "husky install",
     "lint": "tsc --noEmit && prettier --loglevel warn --write . && eslint --fix .",
     "copy-readme": "cp README.md dist/README.md",
-    "publish:ci": "pnpm publish && npx changeset tag && git push --follow-tags"
+    "publish:ci": "pnpm publish && npx changeset tag && git push --follow-tags",
+    "generate": "graphql-codegen"
   },
   "keywords": [],
   "author": "",
@@ -35,6 +36,9 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "@graphql-codegen/add": "^5.0.0",
+    "@graphql-codegen/cli": "^5.0.0",
+    "@graphql-codegen/typescript": "^4.0.1",
     "@testing-library/dom": "^8.17.1",
     "@testing-library/react": "^13.4.0",
     "@types/debug": "^4.1.7",
