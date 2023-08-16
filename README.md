@@ -29,14 +29,7 @@ npm i @saleor/app-sdk
 
 ## Docs
 
-- [AppBridge](./docs/app-bridge.md) - communication layer between Saleor App and Dashboard
-- [Protected Views](./docs/protected-views.md) - protecting access to App outside of Dashboard
-- [APL](./docs/apl.md) - an interface that enabled App communicating between one or more Saleor instances
-- [Debugging](./docs/debugging.md) - how to debug app-sdk behaviour
-- [Next.js API Handlers](./docs/api-handlers.md) - factories for building Next.js API routes
-- [Protected Views](./docs/protected-views.md) - how to ensure a page is visible only in Dashboard context
-- [Building a Webhook](./docs/saleor-webhook.md) - how to build a webhook that reacts on [Saleor async events](https://docs.saleor.io/docs/3.x/developer/extending/apps/asynchronous-webhooks) or [Saleor sync events](https://docs.saleor.io/docs/3.x/developer/extending/apps/synchronous-webhooks/key-concepts)
-- [Settings Manager](./docs/settings-manager.md) - how to save App configuration (tokens, settings) in Saleor, without external database
+Read the docs [here](https://docs.saleor.io/docs/3.x/developer/extending/apps/developing-apps/app-sdk/overview)
 
 ## Development
 
