@@ -110,11 +110,6 @@
       "import": "./app-bridge/next/index.mjs",
       "require": "./app-bridge/next/index.js"
     },
-    "./util": {
-      "types": "./util/index.d.ts",
-      "import": "./util/index.mjs",
-      "require": "./util/index.js"
-    },
     "./handlers/next": {
       "types": "./handlers/next/index.d.ts",
       "import": "./handlers/next/index.mjs",
