@@ -2,8 +2,6 @@
   "name": "@saleor/app-sdk",
   "version": "0.43.0",
   "description": "SDK for building great Saleor Apps",
-  "types": "index.d.ts",
-  "main": "index.js",
   "scripts": {
     "prepublishOnly": "pnpm build",
     "watch": "tsup --watch",
@@ -111,11 +109,6 @@
       "types": "./app-bridge/next/index.d.ts",
       "import": "./app-bridge/next/index.mjs",
       "require": "./app-bridge/next/index.js"
-    },
-    "./util": {
-      "types": "./util/index.d.ts",
-      "import": "./util/index.mjs",
-      "require": "./util/index.js"
     },
     "./handlers/next": {
       "types": "./handlers/next/index.d.ts",
