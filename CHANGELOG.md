@@ -1,5 +1,13 @@
 # @saleor/app-sdk
 
+## 0.43.1
+
+### Patch Changes
+
+- 357557a: Removed unused package.json's index and typing, which were never built and bundled
+- 8db1d56: Updated dependencies
+- 357557a: Removed exported "util" that was never bundled
+
 ## 0.43.0
 
 ### Minor Changes
