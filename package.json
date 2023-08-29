@@ -20,19 +20,19 @@
   "peerDependencies": {
     "next": ">=12",
     "react": ">=17",
-    "react-dom": ">=17"
+    "react-dom": ">=17",
+    "graphql": ">=16.6.0"
   },
   "dependencies": {
-    "@changesets/cli": "^2.26.0",
-    "debug": "^4.3.4",
-    "fast-glob": "^3.2.11",
-    "graphql": "^16.6.0",
-    "jose": "^4.9.2",
-    "raw-body": "^2.5.1",
-    "retes": "^0.33.0",
-    "uuid": "^8.3.2"
+    "debug": "4.3.4",
+    "jose": "4.14.4",
+    "raw-body": "2.5.2",
+    "retes": "0.33.0",
+    "uuid": "9.0.0"
   },
   "devDependencies": {
+    "graphql": "16.8.0",
+    "@changesets/cli": "2.26.2",
     "@testing-library/dom": "^8.17.1",
     "@testing-library/react": "^13.4.0",
     "@types/debug": "^4.1.7",
@@ -148,5 +148,5 @@
     "url": "https://github.com/saleor/saleor-app-sdk/issues"
   },
   "homepage": "https://github.com/saleor/saleor-app-sdk#readme",
-  "packageManager": "pnpm@7.26.2"
+  "packageManager": "pnpm@8.2.0"
 }
