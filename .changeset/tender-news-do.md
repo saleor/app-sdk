@@ -1,5 +1,5 @@
 ---
-"@saleor/app-sdk": patch
+"@saleor/app-sdk": minor
 ---
 
 Changed the "query" field in the AppManifest webhook to be required. Previously, this field was optional.
