@@ -134,6 +134,9 @@
       "types": "./headers.d.ts",
       "import": "./headers.mjs",
       "require": "./headers.js"
+    },
+    "./types": {
+      "types": "./types.d.ts"
     }
   },
   "publishConfig": {
