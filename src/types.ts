@@ -213,8 +213,17 @@ export interface WebhookManifest {
   name: string;
   asyncEvents?: AsyncWebhookEventType[];
   syncEvents?: SyncWebhookEventType[];
-  /** If query is not provided, the default webhook payload will be used */
-  query?: string;
+  /**
+   * Query is required for a subscription.
+   * If you don't need a payload, you can provide empty query like this:
+   *
+   * subscription {
+   *   event {
+   *     __typename
+   *   }
+   * }
+   */
+  query: string;
   /** The full URL of the endpoint where request will be sent */
   targetUrl: string;
   isActive?: boolean;
