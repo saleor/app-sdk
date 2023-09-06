@@ -2,8 +2,10 @@
 "@saleor/app-sdk": patch
 ---
 
-In AppManifest, webhook query field is not required. Saleor rejects empty query, so Manifest was wrong before with with field optional
+Changed the "query" field in the AppManifest webhook to be required. Previously, this field was optional.
 
-This is technically a breaking change, but app without a query specified couldn't be installed in Saleor.
+For subscription events, Saleor rejects webhooks without query, so this field was valid only with legacy non-subscription webhooks.
 
-Now Typescript will early show the error
+Now, the query is obligatory.
+
+Warning: This can be a breaking change for some scenarios where legacy webhooks were used!
