@@ -1,5 +1,22 @@
 # @saleor/app-sdk
 
+## 0.44.0
+
+### Minor Changes
+
+- 3e31b3a: Changed the "query" field in the AppManifest webhook to be required. Previously, this field was optional.
+
+  For subscription events, Saleor rejects webhooks without query, so this field was valid only with legacy non-subscription webhooks.
+
+  Now, the query is obligatory.
+
+  Warning: This can be a breaking change for some scenarios where legacy webhooks were used!
+
+### Patch Changes
+
+- 8ff42af: Added export path "@saleor/app-sdk/types". It was accessible but not correctly marked in package.json. Now its added in "exports" field which should fix some bundles and IDEs
+- e04d6c0: Bumped semver from 5.7.1 to 5.7.2
+
 ## 0.43.1
 
 ### Patch Changes
