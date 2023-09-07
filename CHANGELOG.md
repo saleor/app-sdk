@@ -10,7 +10,7 @@
 
   Now, the query is obligatory.
 
-  Warning: This can be a breaking change for some scenarios where legacy webhooks were used!
+  **Warning: This can be a breaking change for some scenarios where legacy webhooks were used!**
 
 ### Patch Changes
 
