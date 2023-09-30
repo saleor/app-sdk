@@ -14,18 +14,18 @@ const debug = createAPLDebug("UpstashAPL");
 export class RedisAPL implements APL {
   private client;
 
-  private appID;
+  private appApiBaseUrl;
 
-  constructor(redisURL: URL, appID: string) {
+  constructor(redisURL: URL, appApiBaseUrl: string) {
     if (!redisURL) throw new Error("No redis url defined");
-    if (!appID) throw new Error("The RedisAPL requires to know the app ID beforehand");
-    this.appID = appID;
+    if (!appApiBaseUrl) throw new Error("The RedisAPL requires to know the app ID beforehand");
+    this.appApiBaseUrl = appApiBaseUrl;
     this.client = createClient({ url: redisURL.toString() });
     debug("RedisAPL: createClient.url : %j", redisURL.toString());
   }
 
   private prepareKey(saleorApiUrl: string) {
-    return `${this.appID}:${saleorApiUrl}`;
+    return `${this.appApiBaseUrl}:${saleorApiUrl}`;
   }
 
   async get(saleorApiUrl: string): Promise<AuthData | undefined> {
@@ -34,16 +34,15 @@ export class RedisAPL implements APL {
       const res = await this.client.get(this.prepareKey(saleorApiUrl));
       debug("RedisAPL: get - received: %j", res);
       if (res) {
+        await this.client.disconnect();
         return JSON.parse(res) as AuthData;
       }
+      await this.client.disconnect();
       return undefined;
-
     } catch (e) {
       await this.client.disconnect();
       return undefined;
     }
-
-    await this.client.disconnect();
   }
 
   async set(authData: AuthData): Promise<void> {
