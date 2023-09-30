@@ -5,11 +5,6 @@ import { createAPLDebug } from "./apl-debug";
 
 const debug = createAPLDebug("UpstashAPL");
 
-export const UpstashAPLVariables = {
-  UPSTASH_TOKEN: "UPSTASH_TOKEN",
-  UPSTASH_URL: "UPSTASH_URL",
-};
-
 /**
  * Redis APL
  * @param redisUrl - in format redis[s]://[[username][:password]@][host][:port][/db-number],
@@ -40,9 +35,9 @@ export class RedisAPL implements APL {
       debug("RedisAPL: get - received: %j", res);
       if (res) {
         return JSON.parse(res) as AuthData;
-      } 
-        return undefined;
-      
+      }
+      return undefined;
+
     } catch (e) {
       await this.client.disconnect();
       return undefined;
