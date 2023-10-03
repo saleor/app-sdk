@@ -58,7 +58,7 @@ export class UpstashAPL implements APL {
     debug("Sending request to Upstash");
     if (!this.restURL || !this.restToken) {
       throw new Error(
-        "UpstashAPL is not configured. See https://github.com/saleor/saleor-app-sdk/blob/main/docs/apl.md"
+        "UpstashAPL is not configured. See https://docs.saleor.io/docs/3.x/developer/extending/apps/developing-apps/app-sdk/apl"
       );
     }
     let response: Response;
