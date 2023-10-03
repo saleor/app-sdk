@@ -42,7 +42,7 @@ describe("settings-manager", () => {
               encryptionKey: undefined,
             })
         ).toThrowError(
-          "Encryption key for the EncryptedMetadataManager has not been set. Setting it for the production environments is necessary. You can find more in the documentation: https://github.com/saleor/saleor-app-sdk/blob/main/docs/settings-manager.md"
+          "Encryption key for the EncryptedMetadataManager has not been set. Setting it for the production environments is necessary. You can find more in the documentation: https://docs.saleor.io/docs/3.x/developer/extending/apps/developing-apps/app-sdk/settings-manager"
         );
       });
 
