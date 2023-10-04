@@ -6,56 +6,37 @@ import { createAPLDebug } from "./apl-debug";
 const debug = createAPLDebug("RedisAPL");
 
 export type RedisAPLClientArgs = {
-  client: Redis,
-  appApiBaseUrl: string
-}
+  client: Redis;
+  appApiBaseUrl: string;
+};
 export type RedisAPLUrlArgs = {
-  redisUrl: URL
-  appApiBaseUrl: string
-}
+  redisUrl: string;
+  appApiBaseUrl: string;
+};
 /**
  * Redis APL
  * @param redisUrl - in format redis[s]://[[username][:password]@][host][:port][/db-number],
  * so for example redis://alice:foobared@awesome.redis.server:6380
- * For saleor-platform, thats: `redis://redis:6379/1`
+ * For saleor-platform, thats: `redis://redis:6379/2`
  */
 export class RedisAPL implements APL {
   private client;
+
   private appApiBaseUrl;
 
   constructor(args: RedisAPLClientArgs | RedisAPLUrlArgs) {
-    if (!args.appApiBaseUrl) throw new Error("The RedisAPL requires to know the app api url beforehand");
+    if (!args.appApiBaseUrl)
+      throw new Error("The RedisAPL requires to know the app api url beforehand");
     this.appApiBaseUrl = args.appApiBaseUrl;
 
-    if (('client' in args) && args.client) {
-      this.client = args.client
+    if ("client" in args && args.client) {
+      this.client = args.client;
       debug("RedisAPL: created redis client");
-    }
-    else if (('redisUrl' in args) && args.redisUrl) {
-      let redisUrl = args.redisUrl
-      let port, db;
-
-      if (redisUrl.pathname) {
-        const parsed_port = parseInt(redisUrl.pathname)
-        db = typeof parsed_port === "number" ? parsed_port : undefined
-      }
-      if (redisUrl.port) {
-        const parsed_port = parseInt(redisUrl.port)
-        port = typeof parsed_port === "number" ? parsed_port : undefined
-      }
-
-      this.client = new Redis({
-        port: port,
-        host: redisUrl.host,
-        username: redisUrl.username,
-        password: redisUrl.password,
-        db: db,
-        lazyConnect: true
-      });
+    } else if ("redisUrl" in args && args.redisUrl) {
+      this.client = new Redis(args.redisUrl, { lazyConnect: true });
       debug("RedisAPL: created redis client");
-    }
-    else {
-      throw new Error("RedisAPL: No redis url or client defined")
+    } else {
+      throw new Error("RedisAPL: No redis url or client defined");
     }
   }
 
@@ -96,13 +77,13 @@ export class RedisAPL implements APL {
   }
 
   async isReady(): Promise<AplReadyResult> {
-    const ready = await this.client.info() ? true : false
+    const ready = !!(await this.client.info());
     await this.client.quit();
-    return { ready: ready } as AplReadyResult;
+    return { ready } as AplReadyResult;
   }
 
   async isConfigured(): Promise<AplConfiguredResult> {
-    const ready = await this.client.info() ? true : false
+    const ready = !!(await this.client.info());
     await this.client.quit();
     return { configured: ready } as AplConfiguredResult;
   }

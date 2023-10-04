@@ -1,7 +1,7 @@
-#changelog
----
-"app-sdk": minor
----
+## #changelog
+
+## "app-sdk": minor
+
 ### Added
 
 - `src/APL/index.ts`: added redis-apl export
