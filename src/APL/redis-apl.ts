@@ -3,8 +3,6 @@ import Redis from "ioredis";
 import { APL, AplConfiguredResult, AplReadyResult, AuthData } from "./apl";
 import { createAPLDebug } from "./apl-debug";
 
-const debug = createAPLDebug("RedisAPL");
-
 export type RedisAPLClientArgs = {
   client: Redis;
   appApiBaseUrl: string;
@@ -25,19 +23,19 @@ export class RedisAPL implements APL {
   private appApiBaseUrl;
 
   constructor(args: RedisAPLClientArgs | RedisAPLUrlArgs) {
+    console.log(args)
     if (!args.appApiBaseUrl)
       throw new Error("The RedisAPL requires to know the app api url beforehand");
     this.appApiBaseUrl = args.appApiBaseUrl;
 
     if ("client" in args && args.client) {
       this.client = args.client;
-      debug("RedisAPL: created redis client");
     } else if ("redisUrl" in args && args.redisUrl) {
       this.client = new Redis(args.redisUrl, { lazyConnect: true });
-      debug("RedisAPL: created redis client");
     } else {
       throw new Error("RedisAPL: No redis url or client defined");
     }
+    this.isConfigured().then((v) => console.log("REDIS: CONFIGURED TEST: ", v))
   }
 
   private prepareKey(saleorApiUrl: string) {
@@ -47,28 +45,28 @@ export class RedisAPL implements APL {
   async get(saleorApiUrl: string): Promise<AuthData | undefined> {
     try {
       const res = await this.client.get(this.prepareKey(saleorApiUrl));
-      debug("RedisAPL: get - received: %j", res);
+      const exit = this.client.quit();
+      console.log("REDIS: GET: ")
+      console.dir(res, { depth: null })
       if (res) {
-        await this.client.quit();
-        return JSON.parse(res) as AuthData;
+        const data = JSON.parse(res) as AuthData
+        await exit
+        return data;
       }
-      await this.client.quit();
-      return undefined;
     } catch (e) {
-      await this.client.quit();
-      return undefined;
+      this.client.quit()
     }
   }
 
   async set(authData: AuthData): Promise<void> {
-    await this.client.set(this.prepareKey(authData.saleorApiUrl), JSON.stringify(authData));
-    debug("RedisAPL: set - set sucessfully: %j", authData);
+    const res = await this.client.set(this.prepareKey(authData.saleorApiUrl), JSON.stringify(authData));
+    console.log("REDIS: SET: ", res)
     await this.client.quit();
   }
 
   async delete(saleorApiUrl: string): Promise<void> {
     const val = await this.client.getdel(this.prepareKey(saleorApiUrl));
-    debug("RedisAPL: del - deleted successfuly: %j", val);
+    console.log("REDIS: DEL: ", val)
     await this.client.quit();
   }
 
@@ -77,14 +75,18 @@ export class RedisAPL implements APL {
   }
 
   async isReady(): Promise<AplReadyResult> {
-    const ready = !!(await this.client.info());
+    const res = await this.client.info()
+    const ready = !!(res);
+    console.log("REDIS: ISREADY: ", res)
     await this.client.quit();
-    return { ready } as AplReadyResult;
+    return { ready: true } as AplReadyResult;
   }
 
   async isConfigured(): Promise<AplConfiguredResult> {
-    const ready = !!(await this.client.info());
+    const res = await this.client.info()
+    const ready = !!(res);
+    console.log("REDIS: ISCONF: ", res)
     await this.client.quit();
-    return { configured: ready } as AplConfiguredResult;
+    return { configured: true } as AplConfiguredResult;
   }
 }
