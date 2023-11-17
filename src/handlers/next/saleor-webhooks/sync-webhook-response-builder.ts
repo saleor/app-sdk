@@ -90,7 +90,8 @@ export type SyncWebhookResponsesMap = {
     externalUrl?: string;
     message?: string;
   };
-};
+  
+} satisfies Record<SyncWebhookEventType, any>
 
 /**
  * Identity function, but it works on Typescript level to pick right payload based on first param
