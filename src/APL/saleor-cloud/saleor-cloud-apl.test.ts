@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { AuthData } from "./apl";
+import { AuthData } from "../apl";
 import { GetAllAplResponseShape, SaleorCloudAPL, SaleorCloudAPLConfig } from "./saleor-cloud-apl";
+import { SaleorCloudAplError } from "./saleor-cloud-apl-errors";
 
 const fetchMock = vi.fn();
 
@@ -73,6 +74,52 @@ describe("APL", () => {
     });
 
     describe("get", () => {
+      describe("Handles failures on API level", () => {
+        it("Throws error if status is 500", async () => {
+          fetchMock.mockResolvedValueOnce({
+            status: 500,
+            ok: false,
+            async json() {
+              throw new Error();
+            },
+          });
+
+          const apl = new SaleorCloudAPL(aplConfig);
+
+          try {
+            await apl.get(stubAuthData.saleorApiUrl);
+          } catch (e) {
+            const err = e as SaleorCloudAplError;
+
+            expect(err.code).toEqual("FAILED_TO_REACH_API");
+            expect(err).toMatchInlineSnapshot("[SaleorCloudAplError: Api responded with 500]");
+          }
+        });
+
+        it("Throws error if status is 200 but JSON is malformed", async () => {
+          fetchMock.mockResolvedValueOnce({
+            status: 200,
+            ok: true,
+            async json() {
+              throw new Error("json error");
+            },
+          });
+
+          const apl = new SaleorCloudAPL(aplConfig);
+
+          try {
+            await apl.get(stubAuthData.saleorApiUrl);
+          } catch (e) {
+            const err = e as SaleorCloudAplError;
+
+            expect(err.code).toEqual("RESPONSE_BODY_INVALID");
+            expect(err).toMatchInlineSnapshot(
+              "[SaleorCloudAplError: Cant parse response body: json error]"
+            );
+          }
+        });
+      });
+
       describe("Read existing auth data", () => {
         it("Read existing auth data", async () => {
           fetchMock.mockResolvedValue({

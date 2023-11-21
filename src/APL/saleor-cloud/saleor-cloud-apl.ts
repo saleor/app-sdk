@@ -1,7 +1,8 @@
-import { hasProp } from "../has-prop";
-import { APL, AplConfiguredResult, AplReadyResult, AuthData } from "./apl";
-import { createAPLDebug } from "./apl-debug";
-import { authDataFromObject } from "./auth-data-from-object";
+import { hasProp } from "../../has-prop";
+import { APL, AplConfiguredResult, AplReadyResult, AuthData } from "../apl";
+import { createAPLDebug } from "../apl-debug";
+import { authDataFromObject } from "../auth-data-from-object";
+import { SaleorCloudAplError } from "./saleor-cloud-apl-errors";
 
 const debug = createAPLDebug("SaleorCloudAPL");
 
@@ -23,13 +24,12 @@ export type GetAllAplResponseShape = {
   results: CloudAPLAuthDataShape[];
 };
 
-const validateResponseStatus = (response: Response) => {
-  if (response.status === 404) {
-    debug("Auth data not found");
-    debug("%O", response);
+export const CloudAplError = {
+  FAILED_TO_REACH_API: "FAILED_TO_REACH_API",
+  RESPONSE_BODY_INVALID: "RESPONSE_BODY_INVALID",
+};
 
-    throw new Error("Auth data not found");
-  }
+const validateResponseStatus = (response: Response) => {
   if (!response.ok) {
     debug("Response failed with status %s", response.status);
     debug("%O", response);
@@ -102,25 +102,41 @@ export class SaleorCloudAPL implements APL {
       debug("Failed to reach API call:  %s", extractErrorMessage(error));
       debug("%O", error);
 
-      return undefined;
+      throw new SaleorCloudAplError(
+        CloudAplError.FAILED_TO_REACH_API,
+        `${extractErrorMessage(error)}`
+      );
     });
 
     if (!response) {
       debug("No response from the API");
-      return undefined;
+
+      throw new SaleorCloudAplError(
+        CloudAplError.FAILED_TO_REACH_API,
+        "Response couldnt be resolved"
+      );
     }
 
-    try {
-      validateResponseStatus(response);
-      debug("Response status valid");
-    } catch {
-      debug("Response status not valid");
+    if (response.status >= 500) {
+      throw new SaleorCloudAplError(
+        CloudAplError.FAILED_TO_REACH_API,
+        `Api responded with ${response.status}`
+      );
+    }
+
+    if (response.status === 404) {
+      debug("No auth data for given saleorApiUrl");
       return undefined;
     }
 
     const parsedResponse = (await response.json().catch((e) => {
       debug("Failed to parse response: %s", extractErrorMessage(e));
       debug("%O", e);
+
+      throw new SaleorCloudAplError(
+        CloudAplError.RESPONSE_BODY_INVALID,
+        `Cant parse response body: ${extractErrorMessage(e)}`
+      );
     })) as CloudAPLAuthDataShape;
 
     const authData = authDataFromObject(mapAPIResponseToAuthData(parsedResponse));
