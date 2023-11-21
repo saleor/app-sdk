@@ -24,6 +24,11 @@ export type GetAllAplResponseShape = {
   results: CloudAPLAuthDataShape[];
 };
 
+export const CloudAplError = {
+  FAILED_TO_REACH_API: "FAILED_TO_REACH_API",
+  RESPONSE_BODY_INVALID: "RESPONSE_BODY_INVALID",
+};
+
 const validateResponseStatus = (response: Response) => {
   if (!response.ok) {
     debug("Response failed with status %s", response.status);
@@ -97,17 +102,26 @@ export class SaleorCloudAPL implements APL {
       debug("Failed to reach API call:  %s", extractErrorMessage(error));
       debug("%O", error);
 
-      throw new SaleorCloudAplError("FAILED_TO_REACH_API", `${extractErrorMessage(error)}`);
+      throw new SaleorCloudAplError(
+        CloudAplError.FAILED_TO_REACH_API,
+        `${extractErrorMessage(error)}`
+      );
     });
 
     if (!response) {
       debug("No response from the API");
 
-      throw new SaleorCloudAplError("FAILED_TO_REACH_API", "Response couldnt be resolved");
+      throw new SaleorCloudAplError(
+        CloudAplError.FAILED_TO_REACH_API,
+        "Response couldnt be resolved"
+      );
     }
 
     if (response.status >= 500) {
-      throw new SaleorCloudAplError("FAILED_TO_REACH_API", `Api responded with ${response.status}`);
+      throw new SaleorCloudAplError(
+        CloudAplError.FAILED_TO_REACH_API,
+        `Api responded with ${response.status}`
+      );
     }
 
     if (response.status === 404) {
@@ -120,7 +134,7 @@ export class SaleorCloudAPL implements APL {
       debug("%O", e);
 
       throw new SaleorCloudAplError(
-        "RESPONSE_BODY_INVALID",
+        CloudAplError.RESPONSE_BODY_INVALID,
         `Cant parse response body: ${extractErrorMessage(e)}`
       );
     })) as CloudAPLAuthDataShape;
