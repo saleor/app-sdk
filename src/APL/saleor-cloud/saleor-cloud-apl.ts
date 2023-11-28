@@ -69,6 +69,9 @@ const extractErrorMessage = (error: unknown): string => {
   return "Unknown error";
 };
 
+const TRACER_NAME = "app-sdk";
+const APL_SERVICE_NAME = "apps-cloud-apl";
+
 /**
  *
  * Saleor Cloud APL - handle auth data management via REST API.
@@ -91,7 +94,7 @@ export class SaleorCloudAPL implements APL {
       Authorization: `Bearer ${config.token}`,
     };
 
-    this.tracer = opentelemetry.trace.getTracer("app-sdk");
+    this.tracer = opentelemetry.trace.getTracer(TRACER_NAME);
   }
 
   private getUrlForDomain(saleorApiUrl: string) {
@@ -100,32 +103,24 @@ export class SaleorCloudAPL implements APL {
   }
 
   async get(saleorApiUrl: string): Promise<AuthData | undefined> {
-    const span = this.tracer.startSpan("SaleorCloudAPL.get", {
-      kind: SpanKind.CLIENT,
-      attributes: {
-        saleorApiUrl,
-      },
-    });
-
     debug("Will fetch data from SaleorCloudAPL for saleorApiUrl %s", saleorApiUrl);
 
-    const response = await this.tracer.startActiveSpan(
-      "Call SaleorCloudAPL",
+    return this.tracer.startActiveSpan(
+      "Call SaleorCloudAPL GET",
       {
         attributes: {
-          [SemanticAttributes.PEER_SERVICE]: "apps-cloud-apl",
+          saleorApiUrl,
+          [SemanticAttributes.PEER_SERVICE]: APL_SERVICE_NAME,
         },
+        kind: SpanKind.CLIENT,
       },
-      async (fetchSpan) => {
-        const r = await fetch(this.getUrlForDomain(saleorApiUrl), {
+      async (span) => {
+        const response = await fetch(this.getUrlForDomain(saleorApiUrl), {
           method: "GET",
           headers: { "Content-Type": "application/json", ...this.headers },
         }).catch((error) => {
           debug("Failed to reach API call:  %s", extractErrorMessage(error));
           debug("%O", error);
-
-          fetchSpan.recordException("Failed to reach API call");
-          fetchSpan.end();
 
           span.recordException(CloudAplError.FAILED_TO_REACH_API);
           span
@@ -141,116 +136,141 @@ export class SaleorCloudAPL implements APL {
           );
         });
 
-        fetchSpan
+        span
           .setStatus({
             code: SpanStatusCode.OK,
           })
           .end();
 
-        return r;
+        if (!response) {
+          debug("No response from the API");
+
+          span.recordException(CloudAplError.FAILED_TO_REACH_API);
+          span
+            .setStatus({
+              code: SpanStatusCode.ERROR,
+              message: "Response couldn't be resolved",
+            })
+            .end();
+
+          throw new SaleorCloudAplError(
+            CloudAplError.FAILED_TO_REACH_API,
+            "Response couldn't be resolved"
+          );
+        }
+
+        if (response.status >= 500) {
+          const message = `Api responded with ${response.status}`;
+
+          span.recordException(CloudAplError.FAILED_TO_REACH_API);
+          span
+            .setStatus({
+              code: SpanStatusCode.ERROR,
+              message,
+            })
+            .end();
+
+          throw new SaleorCloudAplError(CloudAplError.FAILED_TO_REACH_API, message);
+        }
+
+        if (response.status === 404) {
+          debug("No auth data for given saleorApiUrl");
+
+          span.addEvent("Missing auth data for given saleorApiUrl");
+          span
+            .setStatus({
+              code: SpanStatusCode.OK,
+            })
+            .end();
+
+          return undefined;
+        }
+
+        const parsedResponse = (await response.json().catch((e) => {
+          debug("Failed to parse response: %s", extractErrorMessage(e));
+          debug("%O", e);
+
+          const message = `Cant parse response body: ${extractErrorMessage(e)}`;
+
+          span.recordException(CloudAplError.RESPONSE_BODY_INVALID);
+          span
+            .setStatus({
+              code: SpanStatusCode.ERROR,
+              message,
+            })
+            .end();
+
+          throw new SaleorCloudAplError(CloudAplError.RESPONSE_BODY_INVALID, message);
+        })) as CloudAPLAuthDataShape;
+
+        const authData = authDataFromObject(mapAPIResponseToAuthData(parsedResponse));
+
+        if (!authData) {
+          debug("No auth data for given saleorApiUrl");
+
+          span.addEvent("Missing auth data for given saleorApiUrl");
+          span
+            .setStatus({
+              code: SpanStatusCode.OK,
+            })
+            .end();
+
+          return undefined;
+        }
+
+        span.setAttribute("appId", authData.appId);
+
+        span.end();
+
+        return authData;
       }
     );
-
-    if (!response) {
-      debug("No response from the API");
-
-      span.recordException(CloudAplError.FAILED_TO_REACH_API);
-      span
-        .setStatus({
-          code: SpanStatusCode.ERROR,
-          message: "Response couldn't be resolved",
-        })
-        .end();
-
-      throw new SaleorCloudAplError(
-        CloudAplError.FAILED_TO_REACH_API,
-        "Response couldn't be resolved"
-      );
-    }
-
-    if (response.status >= 500) {
-      const message = `Api responded with ${response.status}`;
-
-      span.recordException(CloudAplError.FAILED_TO_REACH_API);
-      span
-        .setStatus({
-          code: SpanStatusCode.ERROR,
-          message,
-        })
-        .end();
-
-      throw new SaleorCloudAplError(CloudAplError.FAILED_TO_REACH_API, message);
-    }
-
-    if (response.status === 404) {
-      debug("No auth data for given saleorApiUrl");
-
-      span.addEvent("Missing auth data for given saleorApiUrl");
-      span
-        .setStatus({
-          code: SpanStatusCode.OK,
-        })
-        .end();
-
-      return undefined;
-    }
-
-    const parsedResponse = (await response.json().catch((e) => {
-      debug("Failed to parse response: %s", extractErrorMessage(e));
-      debug("%O", e);
-
-      const message = `Cant parse response body: ${extractErrorMessage(e)}`;
-
-      span.recordException(CloudAplError.RESPONSE_BODY_INVALID);
-      span
-        .setStatus({
-          code: SpanStatusCode.ERROR,
-          message,
-        })
-        .end();
-
-      throw new SaleorCloudAplError(CloudAplError.RESPONSE_BODY_INVALID, message);
-    })) as CloudAPLAuthDataShape;
-
-    const authData = authDataFromObject(mapAPIResponseToAuthData(parsedResponse));
-
-    if (!authData) {
-      debug("No auth data for given saleorApiUrl");
-
-      span.addEvent("Missing auth data for given saleorApiUrl");
-      span
-        .setStatus({
-          code: SpanStatusCode.OK,
-        })
-        .end();
-
-      return undefined;
-    }
-
-    span.end();
-
-    return authData;
   }
 
   async set(authData: AuthData) {
     debug("Saving data to SaleorCloudAPL for saleorApiUrl: %s", authData.saleorApiUrl);
 
-    const response = await fetch(this.resourceUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", ...this.headers },
-      body: JSON.stringify(mapAuthDataToAPIBody(authData)),
-    }).catch((e) => {
-      debug("Failed to reach API call:  %s", extractErrorMessage(e));
-      debug("%O", e);
+    return this.tracer.startActiveSpan(
+      "Call SaleorCloudAPL SET",
+      {
+        attributes: {
+          saleorApiUrl: authData.saleorApiUrl,
+          appId: authData.appId,
+          [SemanticAttributes.PEER_SERVICE]: APL_SERVICE_NAME,
+        },
+        kind: SpanKind.CLIENT,
+      },
+      async (span) => {
+        const response = await fetch(this.resourceUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...this.headers },
+          body: JSON.stringify(mapAuthDataToAPIBody(authData)),
+        }).catch((e) => {
+          debug("Failed to reach API call:  %s", extractErrorMessage(e));
+          debug("%O", e);
 
-      throw new Error(`Error during saving the data: ${extractErrorMessage(e)}`);
-    });
+          span.recordException(`Failed to reach API call:  ${extractErrorMessage(e)}`);
+          span
+            .setStatus({
+              code: SpanStatusCode.ERROR,
+            })
+            .end();
 
-    validateResponseStatus(response);
+          throw new Error(`Error during saving the data: ${extractErrorMessage(e)}`);
+        });
 
-    debug("Set command finished successfully for saleorApiUrl: %", authData.saleorApiUrl);
+        validateResponseStatus(response);
 
-    return undefined;
+        debug("Set command finished successfully for saleorApiUrl: %", authData.saleorApiUrl);
+
+        span.setStatus({
+          code: SpanStatusCode.OK,
+        });
+        span.end();
+
+        return undefined;
+      }
+    );
   }
 
   async delete(saleorApiUrl: string) {
