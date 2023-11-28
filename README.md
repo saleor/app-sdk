@@ -6,7 +6,7 @@
 
 # SDK for Saleor Apps
 
-SDK for building great [Saleor Apps](https://github.com/saleor/apps).
+SDK for building [Saleor Apps](https://github.com/saleor/apps).
 
 <div>
 
