@@ -18,12 +18,14 @@
   "author": "",
   "license": "ISC",
   "peerDependencies": {
+    "graphql": ">=16.6.0",
     "next": ">=12",
     "react": ">=17",
-    "react-dom": ">=17",
-    "graphql": ">=16.6.0"
+    "react-dom": ">=17"
   },
   "dependencies": {
+    "@opentelemetry/api": "^1.7.0",
+    "@opentelemetry/semantic-conventions": "^1.18.1",
     "debug": "4.3.4",
     "jose": "4.14.4",
     "raw-body": "2.5.2",
@@ -31,7 +33,6 @@
     "uuid": "9.0.0"
   },
   "devDependencies": {
-    "graphql": "16.8.0",
     "@changesets/cli": "2.26.2",
     "@testing-library/dom": "^8.17.1",
     "@testing-library/react": "^13.4.0",
@@ -54,6 +55,7 @@
     "eslint-plugin-react": "^7.31.6",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-simple-import-sort": "^8.0.0",
+    "graphql": "16.8.0",
     "husky": "^8.0.1",
     "jsdom": "^20.0.3",
     "lint-staged": "^13.0.3",

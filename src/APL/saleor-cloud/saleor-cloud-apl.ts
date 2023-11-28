@@ -1,3 +1,6 @@
+import opentelemetry, { SpanKind, SpanStatusCode, Tracer } from "@opentelemetry/api";
+import { SemanticAttributes } from "@opentelemetry/semantic-conventions";
+
 import { hasProp } from "../../has-prop";
 import { APL, AplConfiguredResult, AplReadyResult, AuthData } from "../apl";
 import { createAPLDebug } from "../apl-debug";
@@ -54,13 +57,13 @@ const mapAPIResponseToAuthData = (response: CloudAPLAuthDataShape): AuthData => 
   token: response.token,
 });
 
-const extractErrorMessage = (error: unknown) => {
+const extractErrorMessage = (error: unknown): string => {
   if (typeof error === "string") {
     return error;
   }
 
   if (hasProp(error, "message")) {
-    return error.message;
+    return error.message as string;
   }
 
   return "Unknown error";
@@ -80,11 +83,15 @@ export class SaleorCloudAPL implements APL {
 
   private headers: Record<string, string>;
 
+  private tracer: Tracer;
+
   constructor(config: SaleorCloudAPLConfig) {
     this.resourceUrl = config.resourceUrl;
     this.headers = {
       Authorization: `Bearer ${config.token}`,
     };
+
+    this.tracer = opentelemetry.trace.getTracer("app-sdk");
   }
 
   private getUrlForDomain(saleorApiUrl: string) {
@@ -93,39 +100,98 @@ export class SaleorCloudAPL implements APL {
   }
 
   async get(saleorApiUrl: string): Promise<AuthData | undefined> {
+    const span = this.tracer.startSpan("SaleorCloudAPL.get", {
+      kind: SpanKind.CLIENT,
+      attributes: {
+        saleorApiUrl,
+      },
+    });
+
     debug("Will fetch data from SaleorCloudAPL for saleorApiUrl %s", saleorApiUrl);
 
-    const response = await fetch(this.getUrlForDomain(saleorApiUrl), {
-      method: "GET",
-      headers: { "Content-Type": "application/json", ...this.headers },
-    }).catch((error) => {
-      debug("Failed to reach API call:  %s", extractErrorMessage(error));
-      debug("%O", error);
+    const response = await this.tracer.startActiveSpan(
+      "Call SaleorCloudAPL",
+      {
+        attributes: {
+          [SemanticAttributes.PEER_SERVICE]: "apps-cloud-apl",
+        },
+      },
+      async (fetchSpan) => {
+        const r = await fetch(this.getUrlForDomain(saleorApiUrl), {
+          method: "GET",
+          headers: { "Content-Type": "application/json", ...this.headers },
+        }).catch((error) => {
+          debug("Failed to reach API call:  %s", extractErrorMessage(error));
+          debug("%O", error);
 
-      throw new SaleorCloudAplError(
-        CloudAplError.FAILED_TO_REACH_API,
-        `${extractErrorMessage(error)}`
-      );
-    });
+          fetchSpan.recordException("Failed to reach API call");
+          fetchSpan.end();
+
+          span.recordException(CloudAplError.FAILED_TO_REACH_API);
+          span
+            .setStatus({
+              code: SpanStatusCode.ERROR,
+              message: extractErrorMessage(error),
+            })
+            .end();
+
+          throw new SaleorCloudAplError(
+            CloudAplError.FAILED_TO_REACH_API,
+            `${extractErrorMessage(error)}`
+          );
+        });
+
+        fetchSpan
+          .setStatus({
+            code: SpanStatusCode.OK,
+          })
+          .end();
+
+        return r;
+      }
+    );
 
     if (!response) {
       debug("No response from the API");
 
+      span.recordException(CloudAplError.FAILED_TO_REACH_API);
+      span
+        .setStatus({
+          code: SpanStatusCode.ERROR,
+          message: "Response couldn't be resolved",
+        })
+        .end();
+
       throw new SaleorCloudAplError(
         CloudAplError.FAILED_TO_REACH_API,
-        "Response couldnt be resolved"
+        "Response couldn't be resolved"
       );
     }
 
     if (response.status >= 500) {
-      throw new SaleorCloudAplError(
-        CloudAplError.FAILED_TO_REACH_API,
-        `Api responded with ${response.status}`
-      );
+      const message = `Api responded with ${response.status}`;
+
+      span.recordException(CloudAplError.FAILED_TO_REACH_API);
+      span
+        .setStatus({
+          code: SpanStatusCode.ERROR,
+          message,
+        })
+        .end();
+
+      throw new SaleorCloudAplError(CloudAplError.FAILED_TO_REACH_API, message);
     }
 
     if (response.status === 404) {
       debug("No auth data for given saleorApiUrl");
+
+      span.addEvent("Missing auth data for given saleorApiUrl");
+      span
+        .setStatus({
+          code: SpanStatusCode.OK,
+        })
+        .end();
+
       return undefined;
     }
 
@@ -133,18 +199,35 @@ export class SaleorCloudAPL implements APL {
       debug("Failed to parse response: %s", extractErrorMessage(e));
       debug("%O", e);
 
-      throw new SaleorCloudAplError(
-        CloudAplError.RESPONSE_BODY_INVALID,
-        `Cant parse response body: ${extractErrorMessage(e)}`
-      );
+      const message = `Cant parse response body: ${extractErrorMessage(e)}`;
+
+      span.recordException(CloudAplError.RESPONSE_BODY_INVALID);
+      span
+        .setStatus({
+          code: SpanStatusCode.ERROR,
+          message,
+        })
+        .end();
+
+      throw new SaleorCloudAplError(CloudAplError.RESPONSE_BODY_INVALID, message);
     })) as CloudAPLAuthDataShape;
 
     const authData = authDataFromObject(mapAPIResponseToAuthData(parsedResponse));
 
     if (!authData) {
       debug("No auth data for given saleorApiUrl");
+
+      span.addEvent("Missing auth data for given saleorApiUrl");
+      span
+        .setStatus({
+          code: SpanStatusCode.OK,
+        })
+        .end();
+
       return undefined;
     }
+
+    span.end();
 
     return authData;
   }
