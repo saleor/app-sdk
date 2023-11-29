@@ -90,6 +90,77 @@ export type SyncWebhookResponsesMap = {
     externalUrl?: string;
     message?: string;
   };
+  PAYMENT_METHOD_PROCESS_TOKENIZATION_SESSION:
+    | {
+        result: "SUCCESSFULLY_TOKENIZED";
+        id: string;
+        data: unknown;
+      }
+    | {
+        result: "ADDITIONAL_ACTION_REQUIRED";
+        id: string;
+        data: unknown;
+      }
+    | {
+        result: "PENDING";
+        data: unknown;
+      }
+    | {
+        result: "FAILED_TO_TOKENIZE";
+        error: string;
+      };
+  PAYMENT_METHOD_INITIALIZE_TOKENIZATION_SESSION:
+    | {
+        result: "SUCCESSFULLY_TOKENIZED";
+        id: string;
+        data: unknown;
+      }
+    | {
+        result: "ADDITIONAL_ACTION_REQUIRED";
+        id: string;
+        data: unknown;
+      }
+    | {
+        result: "PENDING";
+        data: unknown;
+      }
+    | {
+        result: "FAILED_TO_TOKENIZE";
+        error: string;
+      };
+  PAYMENT_GATEWAY_INITIALIZE_TOKENIZATION_SESSION:
+    | {
+        result: "SUCCESSFULLY_INITIALIZED";
+        data: unknown;
+      }
+    | {
+        result: "FAILED_TO_INITIALIZE";
+        error: string;
+      };
+  STORED_PAYMENT_METHOD_DELETE_REQUESTED:
+    | {
+        result: "SUCCESSFULLY_DELETED";
+      }
+    | {
+        result: "FAILED_TO_DELETE";
+        error: string;
+      };
+  LIST_STORED_PAYMENT_METHODS: {
+    paymentMethods: Array<{
+      id: string;
+      supportedPaymentFlows: Array<"INTERACTIVE">;
+      type: string;
+      creditCardInfo?: {
+        brand: string;
+        lastDigits: string;
+        expMonth: string;
+        expYear: string;
+        firstDigits?: string;
+      };
+      name?: string;
+      data?: unknown;
+    }>;
+  };
 };
 
 /**
