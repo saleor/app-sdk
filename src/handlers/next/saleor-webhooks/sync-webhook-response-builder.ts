@@ -148,9 +148,8 @@ export type SyncWebhookResponsesMap = {
   LIST_STORED_PAYMENT_METHODS: {
     paymentMethods: Array<{
       id: string;
-      supportedPaymentFlows: Array<"INTERACTIVE">; // todo confirm
+      supportedPaymentFlows: Array<"INTERACTIVE">;
       type: string;
-      // todo confirm which are optional, also numbers vs strings
       creditCardInfo?: {
         brand: string;
         lastDigits: string;
@@ -162,53 +161,6 @@ export type SyncWebhookResponsesMap = {
       data?: unknown;
     }>;
   };
-  // todo
-  PAYMENT_VOID: {};
-  // todo
-  PAYMENT_REFUND: {};
-  PAYMENT_PROCESS:
-    | {
-        action_required: true;
-        // todo verify
-        action_required_data: {
-          confirmation_url: "https://www.example.com/3ds-confirmation/";
-        };
-        customer_id: string;
-        // todo - confirm if all required
-        payment_method: {
-          brand: string;
-          exp_month: string;
-          exp_year: string;
-          last_4: string;
-          name: string;
-          type: string; // enum?
-        };
-        transaction_id: string;
-      }
-    | {
-        action_required: false;
-        kind: "auth"; // todo enum?
-        customer_id: string;
-        // todo - check if required all fields
-        payment_method: {
-          brand: string;
-          exp_month: string;
-          exp_year: string;
-          last_4: string;
-          name: string;
-          type: string; // enum?
-        };
-        transaction_id: string;
-      };
-  PAYMENT_LIST_GATEWAYS: Array<{
-    id: string;
-    name: string;
-    currencies: string[];
-    config: unknown;
-  }>;
-  PAYMENT_CONFIRM: unknown; // todo
-  PAYMENT_CAPTURE: unknown; // todo
-  PAYMENT_AUTHORIZE: unknown; // todo
 };
 
 /**
