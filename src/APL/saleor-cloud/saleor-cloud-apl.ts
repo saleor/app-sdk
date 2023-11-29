@@ -2,7 +2,7 @@ import { SpanKind, SpanStatusCode, Tracer } from "@opentelemetry/api";
 import { SemanticAttributes } from "@opentelemetry/semantic-conventions";
 
 import { hasProp } from "../../has-prop";
-import { getOtelTracer,OTEL_APL_SERVICE_NAME } from "../../open-telemetry";
+import { getOtelTracer, OTEL_APL_SERVICE_NAME } from "../../open-telemetry";
 import { APL, AplConfiguredResult, AplReadyResult, AuthData } from "../apl";
 import { createAPLDebug } from "../apl-debug";
 import { authDataFromObject } from "../auth-data-from-object";
@@ -31,6 +31,9 @@ export type GetAllAplResponseShape = {
 export const CloudAplError = {
   FAILED_TO_REACH_API: "FAILED_TO_REACH_API",
   RESPONSE_BODY_INVALID: "RESPONSE_BODY_INVALID",
+  RESPONSE_NON_200: "RESPONSE_NON_200",
+  ERROR_SAVING_DATA: "ERROR_SAVING_DATA",
+  ERROR_DELETING_DATA: "ERROR_DELETING_DATA",
 };
 
 const validateResponseStatus = (response: Response) => {
@@ -38,7 +41,10 @@ const validateResponseStatus = (response: Response) => {
     debug("Response failed with status %s", response.status);
     debug("%O", response);
 
-    throw new Error(`Fetch returned with non 200 status code ${response.status}`);
+    throw new SaleorCloudAplError(
+      CloudAplError.RESPONSE_NON_200,
+      `Fetch returned with non 200 status code ${response.status}`
+    );
   }
 };
 
@@ -254,7 +260,10 @@ export class SaleorCloudAPL implements APL {
             })
             .end();
 
-          throw new Error(`Error during saving the data: ${extractErrorMessage(e)}`);
+          throw new SaleorCloudAplError(
+            CloudAplError.ERROR_SAVING_DATA,
+            `Error during saving the data: ${extractErrorMessage(e)}`
+          );
         });
 
         validateResponseStatus(response);
@@ -287,7 +296,10 @@ export class SaleorCloudAPL implements APL {
       debug("Error during deleting the data: %s", errorMessage);
       debug("%O", error);
 
-      throw new Error(`Error during deleting the data: ${errorMessage}`);
+      throw new SaleorCloudAplError(
+        CloudAplError.ERROR_DELETING_DATA,
+        `Error during deleting the data: ${errorMessage}`
+      );
     }
   }
 
