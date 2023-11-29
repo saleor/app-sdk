@@ -1,8 +1,8 @@
 import { SpanKind, SpanStatusCode, Tracer } from "@opentelemetry/api";
 import { SemanticAttributes } from "@opentelemetry/semantic-conventions";
 
-import { getOtelTracer } from "../../get-otel-tracer";
 import { hasProp } from "../../has-prop";
+import { getOtelTracer,OTEL_APL_SERVICE_NAME } from "../../open-telemetry";
 import { APL, AplConfiguredResult, AplReadyResult, AuthData } from "../apl";
 import { createAPLDebug } from "../apl-debug";
 import { authDataFromObject } from "../auth-data-from-object";
@@ -70,8 +70,6 @@ const extractErrorMessage = (error: unknown): string => {
   return "Unknown error";
 };
 
-const APL_SERVICE_NAME = "apps-cloud-apl";
-
 /**
  *
  * Saleor Cloud APL - handle auth data management via REST API.
@@ -110,7 +108,7 @@ export class SaleorCloudAPL implements APL {
       {
         attributes: {
           saleorApiUrl,
-          [SemanticAttributes.PEER_SERVICE]: APL_SERVICE_NAME,
+          [SemanticAttributes.PEER_SERVICE]: OTEL_APL_SERVICE_NAME,
         },
         kind: SpanKind.CLIENT,
       },
@@ -236,7 +234,7 @@ export class SaleorCloudAPL implements APL {
         attributes: {
           saleorApiUrl: authData.saleorApiUrl,
           appId: authData.appId,
-          [SemanticAttributes.PEER_SERVICE]: APL_SERVICE_NAME,
+          [SemanticAttributes.PEER_SERVICE]: OTEL_APL_SERVICE_NAME,
         },
         kind: SpanKind.CLIENT,
       },
