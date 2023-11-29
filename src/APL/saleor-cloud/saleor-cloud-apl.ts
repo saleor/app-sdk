@@ -1,6 +1,7 @@
-import opentelemetry, { SpanKind, SpanStatusCode, Tracer } from "@opentelemetry/api";
+import { SpanKind, SpanStatusCode, Tracer } from "@opentelemetry/api";
 import { SemanticAttributes } from "@opentelemetry/semantic-conventions";
 
+import { getOtelTracer } from "../../get-otel-tracer";
 import { hasProp } from "../../has-prop";
 import { APL, AplConfiguredResult, AplReadyResult, AuthData } from "../apl";
 import { createAPLDebug } from "../apl-debug";
@@ -69,7 +70,6 @@ const extractErrorMessage = (error: unknown): string => {
   return "Unknown error";
 };
 
-const TRACER_NAME = "app-sdk";
 const APL_SERVICE_NAME = "apps-cloud-apl";
 
 /**
@@ -94,7 +94,7 @@ export class SaleorCloudAPL implements APL {
       Authorization: `Bearer ${config.token}`,
     };
 
-    this.tracer = opentelemetry.trace.getTracer(TRACER_NAME);
+    this.tracer = getOtelTracer();
   }
 
   private getUrlForDomain(saleorApiUrl: string) {
