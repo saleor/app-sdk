@@ -1,8 +1,10 @@
+import { SpanKind, SpanStatusCode } from "@opentelemetry/api";
 import { NextApiRequest } from "next";
 
 import { APL } from "../../APL";
 import { createDebug } from "../../debug";
 import { getBaseUrl, getSaleorHeaders } from "../../headers";
+import { getOtelTracer } from "../../open-telemetry";
 import { Permission } from "../../types";
 import { extractUserFromJwt } from "../../util/extract-user-from-jwt";
 import { verifyJWT } from "../../verify-jwt";
@@ -53,50 +55,108 @@ export const processSaleorProtectedHandler: ProcessAsyncSaleorProtectedHandler =
   apl,
   requiredPermissions,
 }: ProcessSaleorProtectedHandlerArgs): Promise<ProtectedHandlerContext> => {
-  debug("Request processing started");
+  const tracer = getOtelTracer();
 
-  const { saleorApiUrl, authorizationBearer: token } = getSaleorHeaders(req.headers);
+  return tracer.startActiveSpan(
+    "processSaleorProtectedHandler",
+    {
+      kind: SpanKind.INTERNAL,
+      attributes: {
+        requiredPermissions,
+      },
+    },
+    async (span) => {
+      debug("Request processing started");
 
-  const baseUrl = getBaseUrl(req.headers);
-  if (!baseUrl) {
-    debug("Missing host header");
-    throw new ProtectedHandlerError("Missing host header", "MISSING_HOST_HEADER");
-  }
+      const { saleorApiUrl, authorizationBearer: token } = getSaleorHeaders(req.headers);
 
-  if (!saleorApiUrl) {
-    debug("Missing saleor-api-url header");
-    throw new ProtectedHandlerError("Missing saleor-api-url header", "MISSING_API_URL_HEADER");
-  }
+      const baseUrl = getBaseUrl(req.headers);
 
-  if (!token) {
-    debug("Missing authorization-bearer header");
-    throw new ProtectedHandlerError(
-      "Missing authorization-bearer header",
-      "MISSING_AUTHORIZATION_BEARER_HEADER"
-    );
-  }
+      span.setAttribute("saleorApiUrl", saleorApiUrl ?? "");
 
-  // Check if API URL has been registered in the APL
-  const authData = await apl.get(saleorApiUrl);
-  if (!authData) {
-    debug("APL didn't found auth data for API URL %s", saleorApiUrl);
-    throw new ProtectedHandlerError(
-      `Can't find auth data for saleorApiUrl ${saleorApiUrl}. Please register the application`,
-      "NOT_REGISTERED"
-    );
-  }
+      if (!baseUrl) {
+        span
+          .setStatus({
+            code: SpanStatusCode.ERROR,
+            message: "Missing host header",
+          })
+          .end();
 
-  try {
-    await verifyJWT({ appId: authData.appId, token, saleorApiUrl, requiredPermissions });
-  } catch (e) {
-    throw new ProtectedHandlerError("JWT verification failed: ", "JWT_VERIFICATION_FAILED");
-  }
+        debug("Missing host header");
 
-  const userJwtPayload = extractUserFromJwt(token);
+        throw new ProtectedHandlerError("Missing host header", "MISSING_HOST_HEADER");
+      }
 
-  return {
-    baseUrl,
-    authData,
-    user: userJwtPayload,
-  };
+      if (!saleorApiUrl) {
+        span
+          .setStatus({
+            code: SpanStatusCode.ERROR,
+            message: "Missing saleor-api-url header",
+          })
+          .end();
+
+        debug("Missing saleor-api-url header");
+
+        throw new ProtectedHandlerError("Missing saleor-api-url header", "MISSING_API_URL_HEADER");
+      }
+
+      if (!token) {
+        span
+          .setStatus({
+            code: SpanStatusCode.ERROR,
+            message: "Missing authorization-bearer header",
+          })
+          .end();
+
+        debug("Missing authorization-bearer header");
+
+        throw new ProtectedHandlerError(
+          "Missing authorization-bearer header",
+          "MISSING_AUTHORIZATION_BEARER_HEADER"
+        );
+      }
+
+      // Check if API URL has been registered in the APL
+      const authData = await apl.get(saleorApiUrl);
+
+      if (!authData) {
+        span
+          .setStatus({
+            code: SpanStatusCode.ERROR,
+            message: "APL didn't found auth data for API URL",
+          })
+          .end();
+
+        debug("APL didn't found auth data for API URL %s", saleorApiUrl);
+
+        throw new ProtectedHandlerError(
+          `Can't find auth data for saleorApiUrl ${saleorApiUrl}. Please register the application`,
+          "NOT_REGISTERED"
+        );
+      }
+
+      try {
+        await verifyJWT({ appId: authData.appId, token, saleorApiUrl, requiredPermissions });
+      } catch (e) {
+        span
+          .setStatus({
+            code: SpanStatusCode.ERROR,
+            message: "JWT verification failed",
+          })
+          .end();
+
+        throw new ProtectedHandlerError("JWT verification failed: ", "JWT_VERIFICATION_FAILED");
+      }
+
+      const userJwtPayload = extractUserFromJwt(token);
+
+      span.end();
+
+      return {
+        baseUrl,
+        authData,
+        user: userJwtPayload,
+      };
+    }
+  );
 };

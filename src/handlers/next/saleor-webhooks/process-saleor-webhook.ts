@@ -1,3 +1,4 @@
+import { SpanKind, SpanStatusCode } from "@opentelemetry/api";
 import { NextApiRequest } from "next";
 import getRawBody from "raw-body";
 
@@ -6,6 +7,7 @@ import { AuthData } from "../../../APL/apl";
 import { createDebug } from "../../../debug";
 import { fetchRemoteJwks } from "../../../fetch-remote-jwks";
 import { getBaseUrl, getSaleorHeaders } from "../../../headers";
+import { getOtelTracer } from "../../../open-telemetry";
 import { verifySignatureWithJwks } from "../../../verify-signature";
 
 const debug = createDebug("processSaleorWebhook");
@@ -66,127 +68,160 @@ export const processSaleorWebhook: ProcessSaleorWebhook = async <T>({
   apl,
   allowedEvent,
 }: ProcessSaleorWebhookArgs): Promise<WebhookContext<T>> => {
-  debug("Request processing started");
+  const tracer = getOtelTracer();
 
-  if (req.method !== "POST") {
-    debug("Wrong HTTP method");
-    throw new WebhookError("Wrong request method, only POST allowed", "WRONG_METHOD");
-  }
+  return tracer.startActiveSpan(
+    "processSaleorWebhook",
+    {
+      kind: SpanKind.INTERNAL,
+      attributes: {
+        allowedEvent,
+      },
+    },
+    async (span) => {
+      try {
+        debug("Request processing started");
 
-  const { event, signature, saleorApiUrl } = getSaleorHeaders(req.headers);
-  const baseUrl = getBaseUrl(req.headers);
+        if (req.method !== "POST") {
+          debug("Wrong HTTP method");
+          throw new WebhookError("Wrong request method, only POST allowed", "WRONG_METHOD");
+        }
 
-  if (!baseUrl) {
-    debug("Missing host header");
-    throw new WebhookError("Missing host header", "MISSING_HOST_HEADER");
-  }
+        const { event, signature, saleorApiUrl } = getSaleorHeaders(req.headers);
+        const baseUrl = getBaseUrl(req.headers);
 
-  if (!saleorApiUrl) {
-    debug("Missing saleor-api-url header");
-    throw new WebhookError("Missing saleor-api-url header", "MISSING_API_URL_HEADER");
-  }
+        if (!baseUrl) {
+          debug("Missing host header");
+          throw new WebhookError("Missing host header", "MISSING_HOST_HEADER");
+        }
 
-  if (!event) {
-    debug("Missing saleor-event header");
-    throw new WebhookError("Missing saleor-event header", "MISSING_EVENT_HEADER");
-  }
+        if (!saleorApiUrl) {
+          debug("Missing saleor-api-url header");
+          throw new WebhookError("Missing saleor-api-url header", "MISSING_API_URL_HEADER");
+        }
 
-  const expected = allowedEvent.toLowerCase();
+        if (!event) {
+          debug("Missing saleor-event header");
+          throw new WebhookError("Missing saleor-event header", "MISSING_EVENT_HEADER");
+        }
 
-  if (event !== expected) {
-    debug(`Wrong incoming request event: ${event}. Expected: ${expected}`);
+        const expected = allowedEvent.toLowerCase();
 
-    throw new WebhookError(
-      `Wrong incoming request event: ${event}. Expected: ${expected}`,
-      "WRONG_EVENT"
-    );
-  }
+        if (event !== expected) {
+          debug(`Wrong incoming request event: ${event}. Expected: ${expected}`);
 
-  if (!signature) {
-    debug("No signature");
+          throw new WebhookError(
+            `Wrong incoming request event: ${event}. Expected: ${expected}`,
+            "WRONG_EVENT"
+          );
+        }
 
-    throw new WebhookError("Missing saleor-signature header", "MISSING_SIGNATURE_HEADER");
-  }
+        if (!signature) {
+          debug("No signature");
 
-  const rawBody = (
-    await getRawBody(req, {
-      length: req.headers["content-length"],
-      limit: "1mb",
-    })
-  ).toString();
-  if (!rawBody) {
-    debug("Missing request body");
+          throw new WebhookError("Missing saleor-signature header", "MISSING_SIGNATURE_HEADER");
+        }
 
-    throw new WebhookError("Missing request body", "MISSING_REQUEST_BODY");
-  }
+        const rawBody = (
+          await getRawBody(req, {
+            length: req.headers["content-length"],
+            limit: "1mb",
+          })
+        ).toString();
+        if (!rawBody) {
+          debug("Missing request body");
 
-  let parsedBody: unknown;
+          throw new WebhookError("Missing request body", "MISSING_REQUEST_BODY");
+        }
 
-  try {
-    parsedBody = JSON.parse(rawBody);
-  } catch {
-    debug("Request body cannot be parsed");
+        let parsedBody: unknown;
 
-    throw new WebhookError("Request body can't be parsed", "CANT_BE_PARSED");
-  }
+        try {
+          parsedBody = JSON.parse(rawBody);
+        } catch {
+          debug("Request body cannot be parsed");
 
-  /**
-   * Verify if the app is properly installed for given Saleor API URL
-   */
-  const authData = await apl.get(saleorApiUrl);
+          throw new WebhookError("Request body can't be parsed", "CANT_BE_PARSED");
+        }
 
-  if (!authData) {
-    debug("APL didn't found auth data for %s", saleorApiUrl);
+        /**
+         * Verify if the app is properly installed for given Saleor API URL
+         */
+        const authData = await apl.get(saleorApiUrl);
 
-    throw new WebhookError(
-      `Can't find auth data for ${saleorApiUrl}. Please register the application`,
-      "NOT_REGISTERED"
-    );
-  }
+        if (!authData) {
+          debug("APL didn't found auth data for %s", saleorApiUrl);
 
-  /**
-   * Verify payload signature
-   *
-   * TODO: Add test for repeat verification scenario
-   */
-  try {
-    debug("Will verify signature with JWKS saved in AuthData");
+          throw new WebhookError(
+            `Can't find auth data for ${saleorApiUrl}. Please register the application`,
+            "NOT_REGISTERED"
+          );
+        }
 
-    if (!authData.jwks) {
-      throw new Error("JWKS not found in AuthData");
+        /**
+         * Verify payload signature
+         *
+         * TODO: Add test for repeat verification scenario
+         */
+        try {
+          debug("Will verify signature with JWKS saved in AuthData");
+
+          if (!authData.jwks) {
+            throw new Error("JWKS not found in AuthData");
+          }
+
+          await verifySignatureWithJwks(authData.jwks, signature, rawBody);
+        } catch {
+          debug("Request signature check failed. Refresh the JWKS cache and check again");
+
+          const newJwks = await fetchRemoteJwks(authData.saleorApiUrl).catch((e) => {
+            debug(e);
+
+            throw new WebhookError("Fetching remote JWKS failed", "SIGNATURE_VERIFICATION_FAILED");
+          });
+
+          debug("Fetched refreshed JWKS");
+
+          try {
+            debug("Second attempt to validate the signature JWKS, using fresh tokens from the API");
+
+            await verifySignatureWithJwks(newJwks, signature, rawBody);
+
+            debug("Verification successful - update JWKS in the AuthData");
+
+            await apl.set({ ...authData, jwks: newJwks });
+          } catch {
+            debug("Second attempt also ended with validation error. Reject the webhook");
+
+            throw new WebhookError(
+              "Request signature check failed",
+              "SIGNATURE_VERIFICATION_FAILED"
+            );
+          }
+        }
+
+        span.setStatus({
+          code: SpanStatusCode.OK,
+        });
+
+        return {
+          baseUrl,
+          event,
+          payload: parsedBody as T,
+          authData,
+        };
+      } catch (err) {
+        const message = (err as Error)?.message ?? "Unknown error";
+
+        span.setStatus({
+          code: SpanStatusCode.ERROR,
+          message,
+        });
+
+        throw err;
+      } finally {
+        span.end();
+      }
     }
-
-    await verifySignatureWithJwks(authData.jwks, signature, rawBody);
-  } catch {
-    debug("Request signature check failed. Refresh the JWKS cache and check again");
-
-    const newJwks = await fetchRemoteJwks(authData.saleorApiUrl).catch((e) => {
-      debug(e);
-
-      throw new WebhookError("Fetching remote JWKS failed", "SIGNATURE_VERIFICATION_FAILED");
-    });
-
-    debug("Fetched refreshed JWKS");
-
-    try {
-      debug("Second attempt to validate the signature JWKS, using fresh tokens from the API");
-
-      await verifySignatureWithJwks(newJwks, signature, rawBody);
-
-      debug("Verification successful - update JWKS in the AuthData");
-
-      await apl.set({ ...authData, jwks: newJwks });
-    } catch {
-      debug("Second attempt also ended with validation error. Reject the webhook");
-
-      throw new WebhookError("Request signature check failed", "SIGNATURE_VERIFICATION_FAILED");
-    }
-  }
-
-  return {
-    baseUrl,
-    event,
-    payload: parsedBody as T,
-    authData,
-  };
+  );
 };
