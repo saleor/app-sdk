@@ -1,5 +1,14 @@
 # @saleor/app-sdk
 
+## 0.46.0
+
+### Minor Changes
+
+- ecef61d: Added OTEL spans around several app-sdk methods, like CloudApl and token verification methods.
+- 3c68c4c: Added definition for payment and transaction events. From now on, sync webhook factory will autocomplete response expected by Saleor
+- 3c68c4c: Added new permission - MANAGE_ORDERS_IMPORT - to Permission type
+- 3c68c4c: Added missing payment transactions sync events
+
 ## 0.45.0
 
 ### Minor Changes
