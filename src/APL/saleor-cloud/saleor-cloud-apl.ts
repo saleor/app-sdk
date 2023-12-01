@@ -106,6 +106,7 @@ export class SaleorCloudAPL implements APL {
     const cachedData = this.cacheManager.get(saleorApiUrl);
 
     if (cachedData) {
+      debug("Returning authData from cache for saleorApiUrl %s", saleorApiUrl)
       return cachedData;
     }
 
