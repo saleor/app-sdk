@@ -161,6 +161,37 @@ describe("APL", () => {
 
           expect(await apl.get("http://unknown-domain.example.com/graphql/")).toBe(undefined);
         });
+
+        it("Uses cache when GET call is called 2nd time", async () => {
+          fetchMock.mockResolvedValue({
+            status: 200,
+            ok: true,
+            json: async () => ({
+              saleor_app_id: stubAuthData.appId,
+              saleor_api_url: stubAuthData.saleorApiUrl,
+              jwks: stubAuthData.jwks,
+              domain: stubAuthData.domain,
+              token: stubAuthData.token,
+            }),
+          });
+
+          const apl = new SaleorCloudAPL(aplConfig);
+
+          expect(await apl.get(stubAuthData.saleorApiUrl)).toStrictEqual(stubAuthData);
+          expect(await apl.get(stubAuthData.saleorApiUrl)).toStrictEqual(stubAuthData);
+
+          expect(fetchMock).toBeCalledTimes(1);
+          expect(fetchMock).toBeCalledWith(
+            "https://example.com/aHR0cHM6Ly9leGFtcGxlLmNvbS9ncmFwaHFsLw", // base64 encoded api url
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer token",
+              },
+              method: "GET",
+            }
+          );
+        });
       });
     });
 
