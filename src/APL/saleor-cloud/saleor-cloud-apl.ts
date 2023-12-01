@@ -6,13 +6,14 @@ import { getOtelTracer, OTEL_APL_SERVICE_NAME } from "../../open-telemetry";
 import { APL, AplConfiguredResult, AplReadyResult, AuthData } from "../apl";
 import { createAPLDebug } from "../apl-debug";
 import { authDataFromObject } from "../auth-data-from-object";
-import { SaleorCloudAplError } from "./saleor-cloud-apl-errors";
+import { CloudAplError, SaleorCloudAplError } from "./saleor-cloud-apl-errors";
 
 const debug = createAPLDebug("SaleorCloudAPL");
 
 export type SaleorCloudAPLConfig = {
   resourceUrl: string;
   token: string;
+  cacheManager?: Map<string, AuthData>;
 };
 
 type CloudAPLAuthDataShape = {
@@ -26,14 +27,6 @@ type CloudAPLAuthDataShape = {
 export type GetAllAplResponseShape = {
   count: number;
   results: CloudAPLAuthDataShape[];
-};
-
-export const CloudAplError = {
-  FAILED_TO_REACH_API: "FAILED_TO_REACH_API",
-  RESPONSE_BODY_INVALID: "RESPONSE_BODY_INVALID",
-  RESPONSE_NON_200: "RESPONSE_NON_200",
-  ERROR_SAVING_DATA: "ERROR_SAVING_DATA",
-  ERROR_DELETING_DATA: "ERROR_DELETING_DATA",
 };
 
 const validateResponseStatus = (response: Response) => {
@@ -92,6 +85,8 @@ export class SaleorCloudAPL implements APL {
 
   private tracer: Tracer;
 
+  private cacheManager: Map<string, AuthData>;
+
   constructor(config: SaleorCloudAPLConfig) {
     this.resourceUrl = config.resourceUrl;
     this.headers = {
@@ -99,6 +94,7 @@ export class SaleorCloudAPL implements APL {
     };
 
     this.tracer = getOtelTracer();
+    this.cacheManager = config.cacheManager ?? new Map<string, AuthData>();
   }
 
   private getUrlForDomain(saleorApiUrl: string) {
@@ -107,6 +103,12 @@ export class SaleorCloudAPL implements APL {
   }
 
   async get(saleorApiUrl: string): Promise<AuthData | undefined> {
+    const cachedData = this.cacheManager.get(saleorApiUrl);
+
+    if (cachedData) {
+      return cachedData;
+    }
+
     debug("Will fetch data from SaleorCloudAPL for saleorApiUrl %s", saleorApiUrl);
 
     return this.tracer.startActiveSpan(
@@ -224,6 +226,8 @@ export class SaleorCloudAPL implements APL {
 
         span.setAttribute("appId", authData.appId);
 
+        this.cacheManager.set(saleorApiUrl, authData);
+
         span.end();
 
         return authData;
@@ -270,6 +274,8 @@ export class SaleorCloudAPL implements APL {
 
         debug("Set command finished successfully for saleorApiUrl: %", authData.saleorApiUrl);
 
+        this.cacheManager.set(authData.saleorApiUrl, authData);
+
         span.setStatus({
           code: SpanStatusCode.OK,
         });
@@ -288,6 +294,8 @@ export class SaleorCloudAPL implements APL {
         method: "DELETE",
         headers: { "Content-Type": "application/json", ...this.headers },
       });
+
+      this.cacheManager.delete(saleorApiUrl);
 
       debug(`Delete responded with ${response.status} code`);
     } catch (error) {
