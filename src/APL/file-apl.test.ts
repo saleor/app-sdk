@@ -45,7 +45,11 @@ describe("APL", () => {
 
         const apl = new FileAPL();
 
-        expect(await apl.get(stubAuthData.saleorApiUrl)).toStrictEqual(stubAuthData);
+        expect(await apl.get(stubAuthData.saleorApiUrl)).toStrictEqual({
+          token: stubAuthData.token,
+          saleorApiUrl: stubAuthData.saleorApiUrl,
+          appId: stubAuthData.appId,
+        });
       });
 
       it("Returns undefined for unknown api url", async () => {
