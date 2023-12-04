@@ -313,6 +313,8 @@ export interface AppManifest {
     logo: {
       /**
        * URL with the public image. File will be copied to Saleor database during installation
+       *
+       * File should be square and at least 256x256px. Format should be image/png.
        */
       default: string;
     };
