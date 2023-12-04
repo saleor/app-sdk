@@ -34,6 +34,24 @@ describe("APL", () => {
         expect(await apl.get(stubAuthData.saleorApiUrl)).toStrictEqual(stubAuthData);
       });
 
+      it("Returns auth data if domain and JWKS are missing", async () => {
+        vi.spyOn(fsPromises, "readFile").mockResolvedValue(
+          JSON.stringify({
+            token: stubAuthData.token,
+            saleorApiUrl: stubAuthData.saleorApiUrl,
+            appId: stubAuthData.appId,
+          })
+        );
+
+        const apl = new FileAPL();
+
+        expect(await apl.get(stubAuthData.saleorApiUrl)).toStrictEqual({
+          token: stubAuthData.token,
+          saleorApiUrl: stubAuthData.saleorApiUrl,
+          appId: stubAuthData.appId,
+        });
+      });
+
       it("Returns undefined for unknown api url", async () => {
         vi.spyOn(fsPromises, "readFile").mockResolvedValue(JSON.stringify(stubAuthData));
 
