@@ -13,7 +13,9 @@ const debug = createAPLDebug("SaleorCloudAPL");
 export type SaleorCloudAPLConfig = {
   resourceUrl: string;
   token: string;
-  cacheManager?: Map<string, AuthData>;
+  experimental?: {
+    cacheManager?: Map<string, AuthData>;
+  };
 };
 
 type CloudAPLAuthDataShape = {
@@ -85,7 +87,7 @@ export class SaleorCloudAPL implements APL {
 
   private tracer: Tracer;
 
-  private cacheManager: Map<string, AuthData>;
+  private cacheManager?: Map<string, AuthData>;
 
   constructor(config: SaleorCloudAPLConfig) {
     this.resourceUrl = config.resourceUrl;
@@ -94,7 +96,7 @@ export class SaleorCloudAPL implements APL {
     };
 
     this.tracer = getOtelTracer();
-    this.cacheManager = config.cacheManager ?? new Map<string, AuthData>();
+    this.cacheManager = config?.experimental?.cacheManager;
   }
 
   private getUrlForDomain(saleorApiUrl: string) {
@@ -102,11 +104,31 @@ export class SaleorCloudAPL implements APL {
     return `${this.resourceUrl}/${Buffer.from(saleorApiUrl).toString("base64url")}`;
   }
 
+  private setToCacheIfExists(saleorApiUrl: string, authData: AuthData) {
+    if (!this.cacheManager) {
+      return;
+    }
+
+    this.cacheManager.set(authData.saleorApiUrl, authData);
+  }
+
+  private deleteFromCacheIfExists(saleorApiUrl: string) {
+    if (!this.cacheManager) {
+      return;
+    }
+
+    this.cacheManager.delete(saleorApiUrl);
+  }
+
+  private getFromCacheIfExists(saleorApiUrl: string) {
+    return this.cacheManager?.get(saleorApiUrl);
+  }
+
   async get(saleorApiUrl: string): Promise<AuthData | undefined> {
-    const cachedData = this.cacheManager.get(saleorApiUrl);
+    const cachedData = this.getFromCacheIfExists(saleorApiUrl);
 
     if (cachedData) {
-      debug("Returning authData from cache for saleorApiUrl %s", saleorApiUrl)
+      debug("Returning authData from cache for saleorApiUrl %s", saleorApiUrl);
       return cachedData;
     }
 
@@ -227,7 +249,7 @@ export class SaleorCloudAPL implements APL {
 
         span.setAttribute("appId", authData.appId);
 
-        this.cacheManager.set(saleorApiUrl, authData);
+        this.setToCacheIfExists(authData.saleorApiUrl, authData);
 
         span.end();
 
@@ -275,7 +297,7 @@ export class SaleorCloudAPL implements APL {
 
         debug("Set command finished successfully for saleorApiUrl: %", authData.saleorApiUrl);
 
-        this.cacheManager.set(authData.saleorApiUrl, authData);
+        this.setToCacheIfExists(authData.saleorApiUrl, authData);
 
         span.setStatus({
           code: SpanStatusCode.OK,
@@ -296,7 +318,7 @@ export class SaleorCloudAPL implements APL {
         headers: { "Content-Type": "application/json", ...this.headers },
       });
 
-      this.cacheManager.delete(saleorApiUrl);
+      this.deleteFromCacheIfExists(saleorApiUrl);
 
       debug(`Delete responded with ${response.status} code`);
     } catch (error) {

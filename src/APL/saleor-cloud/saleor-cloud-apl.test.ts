@@ -162,7 +162,7 @@ describe("APL", () => {
           expect(await apl.get("http://unknown-domain.example.com/graphql/")).toBe(undefined);
         });
 
-        it("Uses cache when GET call is called 2nd time", async () => {
+        it("Uses cache when GET call is called 2nd time and cacheManager is set to Map", async () => {
           fetchMock.mockResolvedValue({
             status: 200,
             ok: true,
@@ -175,7 +175,12 @@ describe("APL", () => {
             }),
           });
 
-          const apl = new SaleorCloudAPL(aplConfig);
+          const apl = new SaleorCloudAPL({
+            ...aplConfig,
+            experimental: {
+              cacheManager: new Map(),
+            },
+          });
 
           expect(await apl.get(stubAuthData.saleorApiUrl)).toStrictEqual(stubAuthData);
           expect(await apl.get(stubAuthData.saleorApiUrl)).toStrictEqual(stubAuthData);
