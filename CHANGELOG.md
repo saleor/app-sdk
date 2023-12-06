@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 0.47.1
+
+### Patch Changes
+
+- d72d21b: Changed export path of VercelKv APL. Now its not exported from shared index file.
+
 ## 0.47.0
 
 ### Minor Changes
