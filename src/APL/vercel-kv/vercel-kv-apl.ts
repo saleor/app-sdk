@@ -13,8 +13,10 @@ export class VercelKvApl implements APL {
   /**
    * Store all items inside hash collection, to enable read ALL items when needed.
    * Otherwise, multiple redis calls will be needed to iterate over every key.
+   *
+   * To allow connecting many apps to single KV storage, we need to use different hash collection key for each app.
    */
-  private hashCollectionKey = "saleor-auth-data";
+  private hashCollectionKey = process.env.KV_STORAGE_NAMESPACE as string;
 
   private KV: VercelKV = kv;
 
@@ -124,6 +126,7 @@ export class VercelKvApl implements APL {
       "KV_REST_API_URL",
       "KV_REST_API_TOKEN",
       "KV_REST_API_READ_ONLY_TOKEN",
+      "KV_STORAGE_NAMESPACE",
     ];
 
     return variables.every((variable) => !!process.env[variable]);
