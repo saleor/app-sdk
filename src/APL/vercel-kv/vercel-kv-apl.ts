@@ -1,4 +1,4 @@
-import { kv } from "@vercel/kv";
+import { VercelKV } from "@vercel/kv";
 
 import { APL, AplConfiguredResult, AplReadyResult, AuthData } from "../apl";
 import { createAPLDebug } from "../apl-debug";
@@ -16,9 +16,14 @@ export class VercelKvApl implements APL {
    */
   private hashCollectionKey = "saleor-auth-data";
 
+  private KV: VercelKV;
+
   constructor(options?: Params) {
-    if (!process.env.VERCEL_TOKEN) {
-      throw new Error("@vercel/kv package not installed. Install it first.");
+    try {
+      // eslint-disable-next-line global-require
+      this.KV = require("@vercel/kv");
+    } catch (err) {
+      throw new Error("KV not installed. Please install @vercel/kv package");
     }
 
     if (!this.envVariablesRequiredByKvExist()) {
@@ -32,7 +37,7 @@ export class VercelKvApl implements APL {
     this.debug("Will call Vercel KV to get auth data for %s", saleorApiUrl);
 
     try {
-      const authData = await kv.hget<string>(this.hashCollectionKey, saleorApiUrl);
+      const authData = await this.KV.hget<string>(this.hashCollectionKey, saleorApiUrl);
 
       return authData ? (JSON.parse(authData) as AuthData) : undefined;
     } catch (e) {
@@ -47,7 +52,7 @@ export class VercelKvApl implements APL {
     this.debug("Will call Vercel KV to set auth data for %s", authData.saleorApiUrl);
 
     try {
-      await kv.hset(this.hashCollectionKey, {
+      await this.KV.hset(this.hashCollectionKey, {
         [authData.saleorApiUrl]: JSON.stringify(authData),
       });
     } catch (e) {
@@ -62,7 +67,7 @@ export class VercelKvApl implements APL {
     this.debug("Will call Vercel KV to delete auth data for %s", saleorApiUrl);
 
     try {
-      await kv.hdel(this.hashCollectionKey, saleorApiUrl);
+      await this.KV.hdel(this.hashCollectionKey, saleorApiUrl);
     } catch (e) {
       this.debug("Failed to delete auth data from Vercel KV");
       this.debug(e);
@@ -72,7 +77,7 @@ export class VercelKvApl implements APL {
   }
 
   async getAll() {
-    const results = await kv.hgetall<Record<string, string>>(this.hashCollectionKey);
+    const results = await this.KV.hgetall<Record<string, string>>(this.hashCollectionKey);
 
     if (results === null) {
       throw new Error("Missing KV collection, data was never written");
