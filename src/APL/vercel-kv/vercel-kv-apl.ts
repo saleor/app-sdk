@@ -1,4 +1,4 @@
-import { kv, VercelKV } from "@vercel/kv";
+import { kv } from "@vercel/kv";
 
 import { APL, AplConfiguredResult, AplReadyResult, AuthData } from "../apl";
 import { createAPLDebug } from "../apl-debug";
@@ -18,18 +18,7 @@ export class VercelKvApl implements APL {
    */
   private hashCollectionKey = process.env.KV_STORAGE_NAMESPACE as string;
 
-  private KV: VercelKV = kv;
-
   constructor(options?: Params) {
-    // todo - it always fails in app template, works locally
-    //
-    // try {
-    //   // eslint-disable-next-line global-require, @typescript-eslint/no-var-requires
-    //   this.KV = require("@vercel/kv").kv as VercelKV;
-    // } catch (err) {
-    //   throw new Error("KV not installed. Please install @vercel/kv package");
-    // }
-
     if (!this.envVariablesRequiredByKvExist()) {
       throw new Error("Missing KV env variables, please link KV storage to your project");
     }
@@ -41,7 +30,7 @@ export class VercelKvApl implements APL {
     this.debug("Will call Vercel KV to get auth data for %s", saleorApiUrl);
 
     try {
-      const authData = await this.KV.hget<string>(this.hashCollectionKey, saleorApiUrl);
+      const authData = await kv.hget<string>(this.hashCollectionKey, saleorApiUrl);
 
       return authData ? (JSON.parse(authData) as AuthData) : undefined;
     } catch (e) {
@@ -56,7 +45,7 @@ export class VercelKvApl implements APL {
     this.debug("Will call Vercel KV to set auth data for %s", authData.saleorApiUrl);
 
     try {
-      await this.KV.hset(this.hashCollectionKey, {
+      await kv.hset(this.hashCollectionKey, {
         [authData.saleorApiUrl]: JSON.stringify(authData),
       });
     } catch (e) {
@@ -71,7 +60,7 @@ export class VercelKvApl implements APL {
     this.debug("Will call Vercel KV to delete auth data for %s", saleorApiUrl);
 
     try {
-      await this.KV.hdel(this.hashCollectionKey, saleorApiUrl);
+      await kv.hdel(this.hashCollectionKey, saleorApiUrl);
     } catch (e) {
       this.debug("Failed to delete auth data from Vercel KV");
       this.debug(e);
@@ -81,7 +70,7 @@ export class VercelKvApl implements APL {
   }
 
   async getAll() {
-    const results = await this.KV.hgetall<Record<string, string>>(this.hashCollectionKey);
+    const results = await kv.hgetall<Record<string, string>>(this.hashCollectionKey);
 
     if (results === null) {
       throw new Error("Missing KV collection, data was never written");
