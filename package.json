@@ -95,6 +95,11 @@
       "import": "./APL/index.mjs",
       "require": "./APL/index.js"
     },
+    "./APL/vercel-kv": {
+      "types": "./APL/vercel-kv/index.d.ts",
+      "import": "./APL/vercel-kv/index.mjs",
+      "require": "./APL/vercel-kv/index.js"
+    },
     "./settings-manager": {
       "types": "./settings-manager/index.d.ts",
       "import": "./settings-manager/index.mjs",
