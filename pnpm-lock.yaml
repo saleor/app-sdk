@@ -58,6 +58,9 @@ devDependencies:
   '@typescript-eslint/parser':
     specifier: ^5.36.1
     version: 5.36.1(eslint@8.23.0)(typescript@4.9.5)
+  '@vercel/kv':
+    specifier: 1.0.0
+    version: 1.0.0
   '@vitejs/plugin-react':
     specifier: ^3.0.1
     version: 3.0.1(vite@4.0.5)
@@ -1327,6 +1330,19 @@ packages:
       eslint-visitor-keys: 3.3.0
     dev: true
 
+  /@upstash/redis@1.24.3:
+    resolution: {integrity: sha512-gw6d4IA1biB4eye5ESaXc0zOlVQI94aptsBvVcTghYWu1kRmOrJFoMFEDCa8p5uzluyYAOFCuY2GWLR6O4ZoIw==}
+    dependencies:
+      crypto-js: 4.2.0
+    dev: true
+
+  /@vercel/kv@1.0.0:
+    resolution: {integrity: sha512-StouXunmEqUfKE+1joSYfELWEEnI1MhTnzUdarHtv6H18RAm3cf5u5g9ElvA1DJNHcrMT6g5yVAhZcYRbk6lvg==}
+    engines: {node: '>=14.6'}
+    dependencies:
+      '@upstash/redis': 1.24.3
+    dev: true
+
   /@vitejs/plugin-react@3.0.1(vite@4.0.5):
     resolution: {integrity: sha512-mx+QvYwIbbpOIJw+hypjnW1lAbKDHtWK5ibkF/V1/oMBu8HU/chb+SnqJDAsLq1+7rGqjktCEomMTM5KShzUKQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
@@ -1942,6 +1958,10 @@ packages:
       path-key: 3.1.1
       shebang-command: 2.0.0
       which: 2.0.2
+    dev: true
+
+  /crypto-js@4.2.0:
+    resolution: {integrity: sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q==}
     dev: true
 
   /cssom@0.3.8:
