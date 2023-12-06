@@ -140,7 +140,6 @@ export class SaleorCloudAPL implements APL {
         attributes: {
           saleorApiUrl,
           [SemanticAttributes.PEER_SERVICE]: OTEL_APL_SERVICE_NAME,
-          [SemanticAttributes.HTTP_METHOD]: "GET",
         },
         kind: SpanKind.CLIENT,
       },
@@ -269,7 +268,6 @@ export class SaleorCloudAPL implements APL {
           saleorApiUrl: authData.saleorApiUrl,
           appId: authData.appId,
           [SemanticAttributes.PEER_SERVICE]: OTEL_APL_SERVICE_NAME,
-          [SemanticAttributes.HTTP_METHOD]: "POST",
         },
         kind: SpanKind.CLIENT,
       },
