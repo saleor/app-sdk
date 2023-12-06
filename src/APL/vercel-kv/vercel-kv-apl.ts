@@ -76,17 +76,17 @@ export class VercelKvApl implements APL {
       throw new Error("Missing KV collection, data was never written");
     }
 
-    return Object.values(results).reduce((collectionOfAuthData, item) => {
+    return Object.values(results).map((item) => {
       const authData = JSON.parse(item) as AuthData;
 
-      return [...collectionOfAuthData, authData];
-    }, [] as AuthData[]);
+      return authData;
+    });
   }
 
   async isReady(): Promise<AplReadyResult> {
-    const configured = this.envVariablesRequiredByKvExist();
+    const ready = this.envVariablesRequiredByKvExist();
 
-    return configured
+    return ready
       ? {
           ready: true,
         }
@@ -97,16 +97,16 @@ export class VercelKvApl implements APL {
   }
 
   async isConfigured(): Promise<AplConfiguredResult> {
-    if (!this.envVariablesRequiredByKvExist()) {
-      return {
-        configured: false,
-        error: new Error("Missing KV env variables, please link KV storage to your project"),
-      };
-    }
+    const configured = this.envVariablesRequiredByKvExist();
 
-    return {
-      configured: true,
-    };
+    return configured
+      ? {
+          configured: true,
+        }
+      : {
+          configured: false,
+          error: new Error("Missing KV env variables, please link KV storage to your project"),
+        };
   }
 
   private envVariablesRequiredByKvExist() {
