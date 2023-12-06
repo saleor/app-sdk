@@ -1,4 +1,4 @@
-import { VercelKV } from "@vercel/kv";
+import { kv, VercelKV } from "@vercel/kv";
 
 import { APL, AplConfiguredResult, AplReadyResult, AuthData } from "../apl";
 import { createAPLDebug } from "../apl-debug";
@@ -16,15 +16,17 @@ export class VercelKvApl implements APL {
    */
   private hashCollectionKey = "saleor-auth-data";
 
-  private KV: VercelKV;
+  private KV: VercelKV = kv;
 
   constructor(options?: Params) {
-    try {
-      // eslint-disable-next-line global-require, @typescript-eslint/no-var-requires
-      this.KV = require("@vercel/kv").kv as VercelKV;
-    } catch (err) {
-      throw new Error("KV not installed. Please install @vercel/kv package");
-    }
+    // todo - it always fails in app template, works locally
+    //
+    // try {
+    //   // eslint-disable-next-line global-require, @typescript-eslint/no-var-requires
+    //   this.KV = require("@vercel/kv").kv as VercelKV;
+    // } catch (err) {
+    //   throw new Error("KV not installed. Please install @vercel/kv package");
+    // }
 
     if (!this.envVariablesRequiredByKvExist()) {
       throw new Error("Missing KV env variables, please link KV storage to your project");
