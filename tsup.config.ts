@@ -10,6 +10,7 @@ export default defineConfig({
     "src/verify-jwt.ts",
     "src/verify-signature.ts",
     "src/APL/index.ts",
+    "src/APL/vercel-kv/index.ts",
     "src/app-bridge/index.ts",
     "src/app-bridge/next/index.ts",
     "src/handlers/next/index.ts",
