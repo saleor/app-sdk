@@ -1,5 +1,31 @@
 # @saleor/app-sdk
 
+## 0.47.0
+
+### Minor Changes
+
+- 09b9185: Added optional, experimental `cacheManager` property to CloudAPL constructor. By default it doesn't change any behavior
+  and it's meant to be used for internal testing.
+- f49c63f: Added VercelKvApl. It will use [Vercel KV Storage](https://vercel.com/docs/storage/vercel-kv) (using Upstash Redis under the hood).
+
+  APL requires following env variables:
+
+  `KV_URL`,`KV_REST_API_URL`,`KV_REST_API_TOKEN`,`KV_REST_API_READ_ONLY_TOKEN` - KV variables that are automatically linked by Vercel when KV is attached to the project.
+
+  `KV_STORAGE_NAMESPACE` - a string identifier that should be unique per app. If more than one app writes with the same `KV_STORAGE_NAMESPACE`, Auth Data will be overwritten and apps can stop working.
+
+  For now experimental - can be imported with:
+
+  ```
+  import { _experimental_VercelKvApl } from "@saleor/app-sdk/apl";
+  ```
+
+### Patch Changes
+
+- 9a5c858: Added missing HTTP.METHOD attribute to APL calls
+- 6ddb7f4: Fixed bug where FileAPL.GET failed to read data when optional fields were not set (jwks, domain).
+- 828490b: Improved JSDoc for AppManifest.brand.logo, now it explains format and size of the image
+
 ## 0.46.0
 
 ### Minor Changes
