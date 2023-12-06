@@ -20,8 +20,8 @@ export class VercelKvApl implements APL {
 
   constructor(options?: Params) {
     try {
-      // eslint-disable-next-line global-require
-      this.KV = require("@vercel/kv");
+      // eslint-disable-next-line global-require, @typescript-eslint/no-var-requires
+      this.KV = require("@vercel/kv").kv as VercelKV;
     } catch (err) {
       throw new Error("KV not installed. Please install @vercel/kv package");
     }
