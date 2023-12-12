@@ -26,8 +26,6 @@ const getMockAuthData = (saleorApiUrl = "https://demo.saleor.io/graphql"): AuthD
   jwks: "{}",
 });
 
-const getMockAuthDataString = () => JSON.stringify(getMockAuthData());
-
 const APP_NAME_NAMESPACE = "test-app";
 
 describe("VercelKvApl", () => {
@@ -51,7 +49,7 @@ describe("VercelKvApl", () => {
 
   describe("get", () => {
     it("returns parsed auth data", async () => {
-      (kv.hget as Mock).mockImplementationOnce(async () => getMockAuthDataString());
+      (kv.hget as Mock).mockImplementationOnce(async () => getMockAuthData());
 
       const apl = new VercelKvApl();
 
@@ -68,7 +66,7 @@ describe("VercelKvApl", () => {
       await apl.set(getMockAuthData());
 
       expect(kv.hset).toHaveBeenCalledWith(APP_NAME_NAMESPACE, {
-        "https://demo.saleor.io/graphql": getMockAuthDataString(),
+        "https://demo.saleor.io/graphql": getMockAuthData(),
       });
     });
   });
