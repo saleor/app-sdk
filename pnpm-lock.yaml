@@ -1,9 +1,5 @@
 lockfileVersion: '6.0'
 
-settings:
-  autoInstallPeers: true
-  excludeLinksFromLockfile: false
-
 dependencies:
   '@opentelemetry/api':
     specifier: ^1.7.0
@@ -77,8 +73,8 @@ devDependencies:
     specifier: ^19.0.4
     version: 19.0.4(eslint-plugin-import@2.26.0)(eslint-plugin-jsx-a11y@6.6.1)(eslint-plugin-react-hooks@4.6.0)(eslint-plugin-react@7.31.6)(eslint@8.23.0)
   eslint-config-prettier:
-    specifier: ^8.5.0
-    version: 8.5.0(eslint@8.23.0)
+    specifier: ^9.1.0
+    version: 9.1.0(eslint@8.23.0)
   eslint-import-resolver-typescript:
     specifier: ^3.5.0
     version: 3.5.0(eslint-plugin-import@2.26.0)(eslint@8.23.0)
@@ -2757,8 +2753,8 @@ packages:
       object.entries: 1.1.5
     dev: true
 
-  /eslint-config-prettier@8.5.0(eslint@8.23.0):
-    resolution: {integrity: sha512-obmWKLUNCnhtQRKc+tmnYuQl0pFU1ibYJQ5BGhTVB08bHe9wC8qUeG7c08dj9XX+AuPj1YSGSQIHl1pnDHZR0Q==}
+  /eslint-config-prettier@9.1.0(eslint@8.23.0):
+    resolution: {integrity: sha512-NSWl5BFQWEPi1j4TjVNItzYV7dZXZ+wP6I6ZhrBGpChQhZRUaElihE9uRRkcbRnNb76UMKDF3r+WTmNcGPKsqw==}
     hasBin: true
     peerDependencies:
       eslint: '>=7.0.0'
@@ -6113,3 +6109,7 @@ packages:
     dev: false
 
 publishDirectory: dist
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
