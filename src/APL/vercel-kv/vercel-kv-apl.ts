@@ -30,9 +30,9 @@ export class VercelKvApl implements APL {
     this.debug("Will call Vercel KV to get auth data for %s", saleorApiUrl);
 
     try {
-      const authData = await kv.hget<string>(this.hashCollectionKey, saleorApiUrl);
+      const authData = await kv.hget<AuthData>(this.hashCollectionKey, saleorApiUrl);
 
-      return authData ? (JSON.parse(authData) as AuthData) : undefined;
+      return authData ?? undefined;
     } catch (e) {
       this.debug("Failed to get auth data from Vercel KV");
       this.debug(e);
@@ -46,7 +46,7 @@ export class VercelKvApl implements APL {
 
     try {
       await kv.hset(this.hashCollectionKey, {
-        [authData.saleorApiUrl]: JSON.stringify(authData),
+        [authData.saleorApiUrl]: authData,
       });
     } catch (e) {
       this.debug("Failed to set auth data in Vercel KV");
@@ -70,17 +70,13 @@ export class VercelKvApl implements APL {
   }
 
   async getAll() {
-    const results = await kv.hgetall<Record<string, string>>(this.hashCollectionKey);
+    const results = await kv.hgetall<Record<string, AuthData>>(this.hashCollectionKey);
 
     if (results === null) {
       throw new Error("Missing KV collection, data was never written");
     }
 
-    return Object.values(results).map((item) => {
-      const authData = JSON.parse(item) as AuthData;
-
-      return authData;
-    });
+    return Object.values(results);
   }
 
   async isReady(): Promise<AplReadyResult> {
