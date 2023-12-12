@@ -1,5 +1,12 @@
 # @saleor/app-sdk
 
+## 0.47.2
+
+### Patch Changes
+
+- c707e10: Removed OTEL attribute http.method. It eventually caused bad mapping in Datadog -> overwriting span name
+- bd48ded: Removed JSON.parse from VercelKVAPL, used raw js objects to read and write them
+
 ## 0.47.1
 
 ### Patch Changes
