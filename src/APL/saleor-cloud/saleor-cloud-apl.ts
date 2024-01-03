@@ -6,6 +6,7 @@ import { getOtelTracer, OTEL_APL_SERVICE_NAME } from "../../open-telemetry";
 import { APL, AplConfiguredResult, AplReadyResult, AuthData } from "../apl";
 import { createAPLDebug } from "../apl-debug";
 import { authDataFromObject } from "../auth-data-from-object";
+import { Paginator } from "./paginator";
 import { CloudAplError, SaleorCloudAplError } from "./saleor-cloud-apl-errors";
 
 const debug = createAPLDebug("SaleorCloudAPL");
@@ -16,6 +17,7 @@ export type SaleorCloudAPLConfig = {
   experimental?: {
     cacheManager?: Map<string, AuthData>;
   };
+  pageLimit?: number;
 };
 
 type CloudAPLAuthDataShape = {
@@ -28,6 +30,8 @@ type CloudAPLAuthDataShape = {
 
 export type GetAllAplResponseShape = {
   count: number;
+  next: string | null;
+  previous: string | null;
   results: CloudAPLAuthDataShape[];
 };
 
@@ -89,6 +93,8 @@ export class SaleorCloudAPL implements APL {
 
   private cacheManager?: Map<string, AuthData>;
 
+  private readonly pageLimit: number;
+
   constructor(config: SaleorCloudAPLConfig) {
     this.resourceUrl = config.resourceUrl;
     this.headers = {
@@ -97,11 +103,16 @@ export class SaleorCloudAPL implements APL {
 
     this.tracer = getOtelTracer();
     this.cacheManager = config?.experimental?.cacheManager;
+    this.pageLimit = config.pageLimit ?? 1000;
   }
 
   private getUrlForDomain(saleorApiUrl: string) {
     // API URL has to be base64url encoded
     return `${this.resourceUrl}/${Buffer.from(saleorApiUrl).toString("base64url")}`;
+  }
+
+  private getUrlWithLimit() {
+    return `${this.resourceUrl}?limit=${this.pageLimit}`;
   }
 
   private setToCacheIfExists(saleorApiUrl: string, authData: AuthData) {
@@ -338,16 +349,12 @@ export class SaleorCloudAPL implements APL {
     debug("Get all data from SaleorCloud");
 
     try {
-      const response = await fetch(this.resourceUrl, {
+      const paginator = new Paginator<CloudAPLAuthDataShape>(this.getUrlWithLimit(), {
         method: "GET",
         headers: { "Content-Type": "application/json", ...this.headers },
       });
-
-      debug(`Get all responded with ${response.status} code`);
-
-      return ((await response.json()) as GetAllAplResponseShape).results.map(
-        mapAPIResponseToAuthData
-      );
+      const responses = await paginator.fetchAll();
+      return responses.results.map(mapAPIResponseToAuthData);
     } catch (error) {
       const errorMessage = extractErrorMessage(error);
 

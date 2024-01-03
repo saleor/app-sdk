@@ -76,6 +76,9 @@ devDependencies:
   eslint-config-airbnb:
     specifier: ^19.0.4
     version: 19.0.4(eslint-plugin-import@2.26.0)(eslint-plugin-jsx-a11y@6.6.1)(eslint-plugin-react-hooks@4.6.0)(eslint-plugin-react@7.31.6)(eslint@8.23.0)
+  eslint-config-airbnb-typescript:
+    specifier: ^17.1.0
+    version: 17.1.0(@typescript-eslint/eslint-plugin@5.36.1)(@typescript-eslint/parser@5.36.1)(eslint-plugin-import@2.26.0)(eslint@8.23.0)
   eslint-config-prettier:
     specifier: ^8.5.0
     version: 8.5.0(eslint@8.23.0)
@@ -2735,6 +2738,21 @@ packages:
       object.assign: 4.1.4
       object.entries: 1.1.5
       semver: 6.3.0
+    dev: true
+
+  /eslint-config-airbnb-typescript@17.1.0(@typescript-eslint/eslint-plugin@5.36.1)(@typescript-eslint/parser@5.36.1)(eslint-plugin-import@2.26.0)(eslint@8.23.0):
+    resolution: {integrity: sha512-GPxI5URre6dDpJ0CtcthSZVBAfI+Uw7un5OYNVxP2EYi3H81Jw701yFP7AU+/vCE7xBtFmjge7kfhhk4+RAiig==}
+    peerDependencies:
+      '@typescript-eslint/eslint-plugin': ^5.13.0 || ^6.0.0
+      '@typescript-eslint/parser': ^5.0.0 || ^6.0.0
+      eslint: ^7.32.0 || ^8.2.0
+      eslint-plugin-import: ^2.25.3
+    dependencies:
+      '@typescript-eslint/eslint-plugin': 5.36.1(@typescript-eslint/parser@5.36.1)(eslint@8.23.0)(typescript@4.9.5)
+      '@typescript-eslint/parser': 5.36.1(eslint@8.23.0)(typescript@4.9.5)
+      eslint: 8.23.0
+      eslint-config-airbnb-base: 15.0.0(eslint-plugin-import@2.26.0)(eslint@8.23.0)
+      eslint-plugin-import: 2.26.0(@typescript-eslint/parser@5.36.1)(eslint-import-resolver-typescript@3.5.0)(eslint@8.23.0)
     dev: true
 
   /eslint-config-airbnb@19.0.4(eslint-plugin-import@2.26.0)(eslint-plugin-jsx-a11y@6.6.1)(eslint-plugin-react-hooks@4.6.0)(eslint-plugin-react@7.31.6)(eslint@8.23.0):
