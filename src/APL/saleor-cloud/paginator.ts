@@ -10,9 +10,9 @@ interface PaginationResponse<ResultType> {
 
 export class Paginator<ResultType> {
   constructor(
-    private url: string,
-    private fetchOptions: RequestInit,
-    private fetchFn = fetch,
+    private readonly url: string,
+    private readonly fetchOptions: RequestInit,
+    private readonly fetchFn = fetch
   ) {}
 
   public async fetchAll() {
