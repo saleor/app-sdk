@@ -7,6 +7,7 @@ import { APL, AplConfiguredResult, AplReadyResult, AuthData } from "../apl";
 import { createAPLDebug } from "../apl-debug";
 import { authDataFromObject } from "../auth-data-from-object";
 import { CloudAplError, SaleorCloudAplError } from "./saleor-cloud-apl-errors";
+import { Paginator } from "./paginator";
 
 const debug = createAPLDebug("SaleorCloudAPL");
 
@@ -16,6 +17,7 @@ export type SaleorCloudAPLConfig = {
   experimental?: {
     cacheManager?: Map<string, AuthData>;
   };
+  pageLimit?: number;
 };
 
 type CloudAPLAuthDataShape = {
@@ -102,6 +104,10 @@ export class SaleorCloudAPL implements APL {
   private getUrlForDomain(saleorApiUrl: string) {
     // API URL has to be base64url encoded
     return `${this.resourceUrl}/${Buffer.from(saleorApiUrl).toString("base64url")}`;
+  }
+
+  private getUrlWithLimit() {
+    return `${this.resourceUrl}?limit=${this.pageLimit ?? 1000}`;
   }
 
   private setToCacheIfExists(saleorApiUrl: string, authData: AuthData) {
@@ -338,16 +344,12 @@ export class SaleorCloudAPL implements APL {
     debug("Get all data from SaleorCloud");
 
     try {
-      const response = await fetch(`${this.resourceUrl}?limit=1000`, {
+      const paginator = new Paginator<CloudAPLAuthDataShape>(this.getUrlWithLimit(), {
         method: "GET",
         headers: { "Content-Type": "application/json", ...this.headers },
       });
-
-      debug(`Get all responded with ${response.status} code`);
-
-      return ((await response.json()) as GetAllAplResponseShape).results.map(
-        mapAPIResponseToAuthData,
-      );
+      const responses = await paginator.fetchAll();
+      return responses.results.map(mapAPIResponseToAuthData);
     } catch (error) {
       const errorMessage = extractErrorMessage(error);
 
