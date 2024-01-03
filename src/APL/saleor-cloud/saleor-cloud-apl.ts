@@ -338,7 +338,7 @@ export class SaleorCloudAPL implements APL {
     debug("Get all data from SaleorCloud");
 
     try {
-      const response = await fetch(this.resourceUrl, {
+      const response = await fetch(`${this.resourceUrl}?limit=1000`, {
         method: "GET",
         headers: { "Content-Type": "application/json", ...this.headers },
       });
