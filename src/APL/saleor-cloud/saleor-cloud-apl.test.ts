@@ -208,6 +208,8 @@ describe("APL", () => {
           json: async () => {
             const mockData: GetAllAplResponseShape = {
               count: 2,
+              next: null,
+              previous: null,
               results: [
                 {
                   domain: "example.com",
