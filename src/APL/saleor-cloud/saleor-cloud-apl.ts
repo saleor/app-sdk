@@ -30,6 +30,8 @@ type CloudAPLAuthDataShape = {
 
 export type GetAllAplResponseShape = {
   count: number;
+  next: string | null;
+  previous: string | null;
   results: CloudAPLAuthDataShape[];
 };
 

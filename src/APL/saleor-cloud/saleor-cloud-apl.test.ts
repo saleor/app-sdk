@@ -249,6 +249,72 @@ describe("APL", () => {
           },
         ]);
       });
+
+      it("Handles paginated response", async () => {
+        fetchMock
+          .mockResolvedValueOnce({
+            status: 200,
+            ok: true,
+            json: async () => {
+              const mockData: GetAllAplResponseShape = {
+                count: 2,
+                next: "https://example.com?page=2",
+                previous: null,
+                results: [
+                  {
+                    domain: "example.com",
+                    jwks: "{}",
+                    token: "token1",
+                    saleor_api_url: "https://example.com/graphql/",
+                    saleor_app_id: "x",
+                  },
+                ],
+              };
+              return mockData;
+            },
+          })
+          .mockResolvedValueOnce({
+            status: 200,
+            ok: true,
+            json: async () => {
+              const mockData: GetAllAplResponseShape = {
+                count: 2,
+                next: null,
+                previous: "https://example.com?page=1",
+                results: [
+                  {
+                    domain: "example2.com",
+                    jwks: "{}",
+                    token: "token2",
+                    saleor_api_url: "https://example2.com/graphql/",
+                    saleor_app_id: "y",
+                  },
+                ],
+              };
+
+              return mockData;
+            },
+          });
+
+        const apl = new SaleorCloudAPL(aplConfig);
+
+        expect(await apl.getAll()).toStrictEqual([
+          {
+            appId: "x",
+            domain: "example.com",
+            jwks: "{}",
+            saleorApiUrl: "https://example.com/graphql/",
+            token: "token1",
+          },
+          {
+            appId: "y",
+            domain: "example2.com",
+            jwks: "{}",
+            saleorApiUrl: "https://example2.com/graphql/",
+            token: "token2",
+          },
+        ]);
+      });
     });
   });
 });
