@@ -60,7 +60,9 @@
     "@typescript-eslint/no-misused-promises": ["error"],
     "@typescript-eslint/no-floating-promises": ["error"],
     "class-methods-use-this": "off",
-    "no-new": "off"
+    "no-new": "off",
+    "@typescript-eslint/no-redeclare": "off",
+    "@typescript-eslint/naming-convention": "off"
   },
   "settings": {
     "import/parsers": {
