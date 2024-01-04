@@ -1,5 +1,8 @@
+import { SpanKind, SpanStatusCode } from "@opentelemetry/api";
+import { SemanticAttributes } from "@opentelemetry/semantic-conventions";
 import { kv } from "@vercel/kv";
 
+import { getOtelTracer, OTEL_APL_SERVICE_NAME } from "../../open-telemetry";
 import { APL, AplConfiguredResult, AplReadyResult, AuthData } from "../apl";
 import { createAPLDebug } from "../apl-debug";
 
@@ -9,6 +12,8 @@ type Params = {
 
 export class VercelKvApl implements APL {
   private debug = createAPLDebug("VercelKvApl");
+
+  private tracer = getOtelTracer();
 
   /**
    * Store all items inside hash collection, to enable read ALL items when needed.
@@ -29,44 +34,133 @@ export class VercelKvApl implements APL {
   async get(saleorApiUrl: string): Promise<AuthData | undefined> {
     this.debug("Will call Vercel KV to get auth data for %s", saleorApiUrl);
 
-    try {
-      const authData = await kv.hget<AuthData>(this.hashCollectionKey, saleorApiUrl);
+    return this.tracer.startActiveSpan(
+      "VercelKvApl.get",
+      {
+        attributes: {
+          saleorApiUrl,
+          [SemanticAttributes.PEER_SERVICE]: OTEL_APL_SERVICE_NAME,
+          [SemanticAttributes.HTTP_METHOD]: "GET",
+        },
+        kind: SpanKind.CLIENT,
+      },
+      async (span) => {
+        try {
+          const authData = await kv.hget<AuthData>(this.hashCollectionKey, saleorApiUrl);
 
-      return authData ?? undefined;
-    } catch (e) {
-      this.debug("Failed to get auth data from Vercel KV");
-      this.debug(e);
+          this.debug("Received response from VercelKV");
 
-      throw e;
-    }
+          if (!authData) {
+            this.debug("AuthData is empty for %s", saleorApiUrl);
+          }
+
+          span
+            .setStatus({
+              code: 200,
+              message: "Received response from VercelKV",
+            })
+            .end();
+
+          return authData ?? undefined;
+        } catch (e) {
+          this.debug("Failed to get auth data from Vercel KV");
+          this.debug(e);
+
+          span.recordException("Failed to get auth data from Vercel KV");
+
+          span
+            .setStatus({
+              code: SpanStatusCode.ERROR,
+              message: "Failed to get auth data from Vercel KV",
+            })
+            .end();
+
+          throw e;
+        }
+      }
+    );
   }
 
   async set(authData: AuthData): Promise<void> {
     this.debug("Will call Vercel KV to set auth data for %s", authData.saleorApiUrl);
 
-    try {
-      await kv.hset(this.hashCollectionKey, {
-        [authData.saleorApiUrl]: authData,
-      });
-    } catch (e) {
-      this.debug("Failed to set auth data in Vercel KV");
-      this.debug(e);
+    return this.tracer.startActiveSpan(
+      "VercelKvApl.set",
+      {
+        attributes: {
+          saleorApiUrl: authData.saleorApiUrl,
+          [SemanticAttributes.PEER_SERVICE]: OTEL_APL_SERVICE_NAME,
+          [SemanticAttributes.HTTP_METHOD]: "POST",
+        },
+        kind: SpanKind.CLIENT,
+      },
+      async (span) => {
+        try {
+          await kv.hset(this.hashCollectionKey, {
+            [authData.saleorApiUrl]: authData,
+          });
 
-      throw e;
-    }
+          span
+            .setStatus({
+              code: 200,
+              message: "Successfully written auth data to VercelKV",
+            })
+            .end();
+        } catch (e) {
+          this.debug("Failed to set auth data in Vercel KV");
+          this.debug(e);
+
+          span.recordException("Failed to set auth data in Vercel KV");
+          span
+            .setStatus({
+              code: SpanStatusCode.ERROR,
+            })
+            .end();
+
+          throw e;
+        }
+      }
+    );
   }
 
   async delete(saleorApiUrl: string) {
     this.debug("Will call Vercel KV to delete auth data for %s", saleorApiUrl);
 
-    try {
-      await kv.hdel(this.hashCollectionKey, saleorApiUrl);
-    } catch (e) {
-      this.debug("Failed to delete auth data from Vercel KV");
-      this.debug(e);
+    return this.tracer.startActiveSpan(
+      "VercelKvApl.delete",
+      {
+        attributes: {
+          saleorApiUrl,
+          [SemanticAttributes.PEER_SERVICE]: OTEL_APL_SERVICE_NAME,
+          [SemanticAttributes.HTTP_METHOD]: "DELETE",
+        },
+        kind: SpanKind.CLIENT,
+      },
+      async (span) => {
+        try {
+          await kv.hdel(this.hashCollectionKey, saleorApiUrl);
 
-      throw e;
-    }
+          span
+            .setStatus({
+              code: 200,
+              message: "Successfully deleted auth data to VercelKV",
+            })
+            .end();
+        } catch (e) {
+          this.debug("Failed to delete auth data from Vercel KV");
+          this.debug(e);
+
+          span.recordException("Failed to delete auth data from Vercel KV");
+          span
+            .setStatus({
+              code: SpanStatusCode.ERROR,
+            })
+            .end();
+
+          throw e;
+        }
+      }
+    );
   }
 
   async getAll() {

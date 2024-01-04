@@ -146,7 +146,7 @@ export class SaleorCloudAPL implements APL {
     debug("Will fetch data from SaleorCloudAPL for saleorApiUrl %s", saleorApiUrl);
 
     return this.tracer.startActiveSpan(
-      "Call SaleorCloudAPL GET",
+      "SaleorCloudAPL.get",
       {
         attributes: {
           saleorApiUrl,
