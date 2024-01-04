@@ -89,6 +89,7 @@ export class VercelKvApl implements APL {
       {
         attributes: {
           saleorApiUrl: authData.saleorApiUrl,
+          appId: authData.appId,
           [SemanticAttributes.PEER_SERVICE]: OTEL_APL_SERVICE_NAME,
           [SemanticAttributes.HTTP_METHOD]: "POST",
         },
