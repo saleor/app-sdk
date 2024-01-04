@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 0.48.1
+
+### Patch Changes
+
+- 7529ab7: Added OTEL for VercelKV APL. This APL is still experimental, so the change is marked as patch
+
 ## 0.48.0
 
 ### Minor Changes
