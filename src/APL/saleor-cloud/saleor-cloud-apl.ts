@@ -273,7 +273,7 @@ export class SaleorCloudAPL implements APL {
     debug("Saving data to SaleorCloudAPL for saleorApiUrl: %s", authData.saleorApiUrl);
 
     return this.tracer.startActiveSpan(
-      "Call SaleorCloudAPL SET",
+      "SaleorCloudAPL.set",
       {
         attributes: {
           saleorApiUrl: authData.saleorApiUrl,
