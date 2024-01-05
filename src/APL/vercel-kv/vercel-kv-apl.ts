@@ -40,7 +40,6 @@ export class VercelKvApl implements APL {
         attributes: {
           saleorApiUrl,
           [SemanticAttributes.PEER_SERVICE]: OTEL_APL_SERVICE_NAME,
-          [SemanticAttributes.HTTP_METHOD]: "GET",
         },
         kind: SpanKind.CLIENT,
       },
@@ -91,7 +90,6 @@ export class VercelKvApl implements APL {
           saleorApiUrl: authData.saleorApiUrl,
           appId: authData.appId,
           [SemanticAttributes.PEER_SERVICE]: OTEL_APL_SERVICE_NAME,
-          [SemanticAttributes.HTTP_METHOD]: "POST",
         },
         kind: SpanKind.CLIENT,
       },
@@ -133,7 +131,6 @@ export class VercelKvApl implements APL {
         attributes: {
           saleorApiUrl,
           [SemanticAttributes.PEER_SERVICE]: OTEL_APL_SERVICE_NAME,
-          [SemanticAttributes.HTTP_METHOD]: "DELETE",
         },
         kind: SpanKind.CLIENT,
       },
