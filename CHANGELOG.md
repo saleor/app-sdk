@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 0.48.2
+
+### Patch Changes
+
+- 5a613ed: Removed HTTP_METHOD OTEL attributes. They broke displaying of resources when other attributes related to HTTP are not set.
+
 ## 0.48.1
 
 ### Patch Changes
