@@ -97,6 +97,7 @@ function createNotificationAction(payload: NotificationPayload): NotificationAct
 
 export type UpdateRoutingPayload = {
   newRoute: string;
+  replace?: boolean;
 };
 
 export type UpdateRouting = ActionWithId<"updateRouting", UpdateRoutingPayload>;
