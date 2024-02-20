@@ -3,11 +3,16 @@ import {
   SALEOR_AUTHORIZATION_BEARER_HEADER,
   SALEOR_DOMAIN_HEADER,
   SALEOR_EVENT_HEADER,
+  SALEOR_SCHEMA_VERSION,
   SALEOR_SIGNATURE_HEADER,
 } from "./const";
 
 const toStringOrUndefined = (value: string | string[] | undefined) =>
   value ? value.toString() : undefined;
+
+// Saleor 3.14 and older didn't send the saleor-schema-version header so fallback to 0
+const toSaleorVersion = (value: string | string[] | undefined) =>
+  value ? parseFloat(value.toString()) : 0;
 
 /**
  * Extracts Saleor-specific headers from the response.
@@ -18,6 +23,7 @@ export const getSaleorHeaders = (headers: { [name: string]: string | string[] | 
   signature: toStringOrUndefined(headers[SALEOR_SIGNATURE_HEADER]),
   event: toStringOrUndefined(headers[SALEOR_EVENT_HEADER]),
   saleorApiUrl: toStringOrUndefined(headers[SALEOR_API_URL_HEADER]),
+  schemaVersion: toSaleorVersion(headers[SALEOR_SCHEMA_VERSION]),
 });
 
 /**

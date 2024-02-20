@@ -45,6 +45,7 @@ export type WebhookContext<T> = {
   event: string;
   payload: T;
   authData: AuthData;
+  schemaVersion: number;
 };
 
 interface ProcessSaleorWebhookArgs {
@@ -87,7 +88,7 @@ export const processSaleorWebhook: ProcessSaleorWebhook = async <T>({
           throw new WebhookError("Wrong request method, only POST allowed", "WRONG_METHOD");
         }
 
-        const { event, signature, saleorApiUrl } = getSaleorHeaders(req.headers);
+        const { event, signature, saleorApiUrl, schemaVersion } = getSaleorHeaders(req.headers);
         const baseUrl = getBaseUrl(req.headers);
 
         if (!baseUrl) {
@@ -103,6 +104,10 @@ export const processSaleorWebhook: ProcessSaleorWebhook = async <T>({
         if (!event) {
           debug("Missing saleor-event header");
           throw new WebhookError("Missing saleor-event header", "MISSING_EVENT_HEADER");
+        }
+
+        if (!schemaVersion) {
+          debug("Missing saleor-schema-version header");
         }
 
         const expected = allowedEvent.toLowerCase();
@@ -209,6 +214,7 @@ export const processSaleorWebhook: ProcessSaleorWebhook = async <T>({
           event,
           payload: parsedBody as T,
           authData,
+          schemaVersion,
         };
       } catch (err) {
         const message = (err as Error)?.message ?? "Unknown error";
