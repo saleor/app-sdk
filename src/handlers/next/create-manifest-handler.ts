@@ -7,7 +7,7 @@ export type CreateManifestHandlerOptions = {
   manifestFactory(context: {
     appBaseUrl: string;
     request: NextApiRequest;
-    schemaVersion: number;
+    schemaVersion: number | null;
   }): AppManifest | Promise<AppManifest>;
 };
 

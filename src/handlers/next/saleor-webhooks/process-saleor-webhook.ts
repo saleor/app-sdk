@@ -45,7 +45,7 @@ export type WebhookContext<T> = {
   event: string;
   payload: T;
   authData: AuthData;
-  schemaVersion: number;
+  schemaVersion: number | null;
 };
 
 interface ProcessSaleorWebhookArgs {

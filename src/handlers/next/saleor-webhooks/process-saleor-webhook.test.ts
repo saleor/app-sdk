@@ -151,7 +151,7 @@ describe("processAsyncSaleorWebhook", () => {
     ).rejects.toThrow("Request signature check failed");
   });
 
-  it("Fallback to 0 if saleor-schema-version header is missing", async () => {
+  it("Fallback to null if saleor-schema-version header is missing", async () => {
     delete mockRequest.headers["saleor-schema-version"];
     await expect(
       processSaleorWebhook({
@@ -170,7 +170,29 @@ describe("processAsyncSaleorWebhook", () => {
       baseUrl: "https://some-saleor-host.cloud",
       event: "product_updated",
       payload: {},
-      schemaVersion: 0,
+      schemaVersion: null,
+    });
+  });
+
+  it("Return schema version if saleor-schema-version header is present", async () => {
+    await expect(
+      processSaleorWebhook({
+        req: mockRequest,
+        apl: mockAPL,
+        allowedEvent: "PRODUCT_UPDATED",
+      })
+    ).resolves.toStrictEqual({
+      authData: {
+        appId: "mock-app-id",
+        domain: "example.com",
+        jwks: "{}",
+        saleorApiUrl: "https://example.com/graphql/",
+        token: "mock-token",
+      },
+      baseUrl: "https://some-saleor-host.cloud",
+      event: "product_updated",
+      payload: {},
+      schemaVersion: 3.19,
     });
   });
 });
