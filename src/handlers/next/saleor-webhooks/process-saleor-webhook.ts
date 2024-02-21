@@ -45,6 +45,7 @@ export type WebhookContext<T> = {
   event: string;
   payload: T;
   authData: AuthData;
+  /** For Saleor < 3.15 it will be null. */
   schemaVersion: number | null;
 };
 

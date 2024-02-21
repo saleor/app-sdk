@@ -7,6 +7,7 @@ export type CreateManifestHandlerOptions = {
   manifestFactory(context: {
     appBaseUrl: string;
     request: NextApiRequest;
+    /** For Saleor < 3.15 it will be null. */
     schemaVersion: number | null;
   }): AppManifest | Promise<AppManifest>;
 };
