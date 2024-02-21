@@ -63,6 +63,7 @@ describe("SaleorAsyncWebhook", () => {
       baseUrl: "example.com",
       event: "product_updated",
       payload: { data: "test_payload" },
+      schemaVersion: 3.19,
       authData: {
         domain: "example.com",
         token: "token",

@@ -1,12 +1,14 @@
 import { NextApiHandler, NextApiRequest } from "next";
 
-import { getBaseUrl } from "../../headers";
+import { getBaseUrl, getSaleorHeaders } from "../../headers";
 import { AppManifest } from "../../types";
 
 export type CreateManifestHandlerOptions = {
   manifestFactory(context: {
     appBaseUrl: string;
     request: NextApiRequest;
+    /** For Saleor < 3.15 it will be null. */
+    schemaVersion: number | null;
   }): AppManifest | Promise<AppManifest>;
 };
 
@@ -18,11 +20,13 @@ export type CreateManifestHandlerOptions = {
 export const createManifestHandler =
   (options: CreateManifestHandlerOptions): NextApiHandler =>
   async (request, response) => {
+    const { schemaVersion } = getSaleorHeaders(request.headers);
     const baseURL = getBaseUrl(request.headers);
 
     const manifest = await options.manifestFactory({
       appBaseUrl: baseURL,
       request,
+      schemaVersion,
     });
 
     return response.status(200).json(manifest);
