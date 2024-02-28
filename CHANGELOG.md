@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 0.49.0
+
+### Minor Changes
+
+- 53b8cdc: Parse the `saleor-schema-version` header and include the parsed version in the contexts of `createHandler` and `webhookFactory`. If the header is absent (Saleor version below 3.15), the version will default to `null`. This parsed version enables supporting multiple schemas in a single app, as outlined in the [RFC](https://github.com/saleor/apps/issues/1213).
+
 ## 0.48.2
 
 ### Patch Changes
