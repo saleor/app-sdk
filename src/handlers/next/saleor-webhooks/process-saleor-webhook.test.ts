@@ -45,7 +45,6 @@ describe("processAsyncSaleorWebhook", () => {
         "saleor-event": "product_updated",
         "saleor-signature": "mocked_signature",
         "content-length": "0", // is ignored by mocked raw-body.
-        "saleor-schema-version": "3.19",
       },
       method: "POST",
       // body can be skipped because we mock it with raw-body
@@ -192,7 +191,7 @@ describe("processAsyncSaleorWebhook", () => {
       baseUrl: "https://some-saleor-host.cloud",
       event: "product_updated",
       payload: {},
-      schemaVersion: 3.19,
+      schemaVersion: null,
     });
   });
 });
