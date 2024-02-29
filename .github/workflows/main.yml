@@ -73,14 +73,13 @@ jobs:
           echo "$HAS_CHANGESETS"
           echo "HAS_CHANGESETS=$HAS_CHANGESETS" >> "$GITHUB_ENV"
       - name: Creating .npmrc
-        if: ${{ github.actor != 'dependabot[bot]' && env.HAS_CHANGESETS }}
+        if: ${{ env.HAS_CHANGESETS }}
         run: |
           cat << EOF > "$HOME/.npmrc"
             //registry.npmjs.org/:_authToken=$NPM_TOKEN
           EOF
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          HAS_CHANGESETS: env.HAS_CHANGESETS
       - name: Release on @dev tag in npm
         if: ${{ github.actor != 'dependabot[bot]' && env.HAS_CHANGESETS != 'true' }}
         run: npx changeset version --snapshot pr && pnpm publish --tag dev --no-git-checks
