@@ -1,0 +1,28 @@
+name: Release @dev tag to npm
+on:
+  push:
+jobs:
+  release:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
+        with:
+          run_install: |
+            - args: [--frozen-lockfile]
+      - run: pnpm build
+      - name: Check for changeset
+        run: |
+          pnpm exec changeset status --since origin/main
+      - name: Create .npmrc
+        run: |
+          cat << EOF > "$HOME/.npmrc"
+            //registry.npmjs.org/:_authToken=$NPM_TOKEN
+          EOF
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Release on @dev tag in npm
+        run: pnpm exec changeset version --snapshot pr && pnpm publish --tag dev --no-git-checks
+      - name: Post if error
+        if: failure()
+        run: echo "::error file=.changeset,line=11,col=11::Missing changeset"

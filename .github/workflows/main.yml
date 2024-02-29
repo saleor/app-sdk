@@ -1,31 +1,16 @@
 name: QA
 on: [pull_request]
 jobs:
-  lint:
+  lint-test:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
-      - uses: actions/setup-node@v4
         with:
-          node-version-file: ".nvmrc"
-          cache: pnpm
-      - name: Install dependencies
-        run: pnpm install
+          run_install: |
+            - args: [--frozen-lockfile]
       - name: Check linters
         run: pnpm lint
-
-  test:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: ".nvmrc"
-          cache: "pnpm"
-      - name: Install dependencies
-        run: pnpm install
       - name: Test
         run: pnpm test:ci
       - name: Generate coverage report
@@ -35,13 +20,12 @@ jobs:
           filename: coverage/cobertura-coverage.xml
           format: markdown
           output: file
-
       - name: Add Coverage PR Comment
         uses: marocchino/sticky-pull-request-comment@331f8f5b4215f0445d3c07b4967662a32a2d3e31 # v2.9.0
         if: ${{ github.event_name == 'pull_request' &&  github.actor != 'dependabot[bot]' }}
         with:
           recreate: true
-          path: code-coverage-results.md
+          path: code-coverage-results.md    
 
   build:
     runs-on: ubuntu-22.04
