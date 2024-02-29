@@ -54,7 +54,7 @@ jobs:
         with:
           node-version-file: ".nvmrc"
           cache: pnpm
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: |
             ${{ github.workspace }}/.next/cache
@@ -67,7 +67,7 @@ jobs:
       - name: Build project
         run: pnpm build
       - name: Check for changeset
-        run: pnpm exec changeset status --since=main
+        run: pnpm exec changeset status --since origin/main
       - name: Creating .npmrc
         if: ${{ github.actor != 'dependabot[bot]' }}
         run: |
