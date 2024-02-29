@@ -73,7 +73,7 @@ jobs:
           echo "$HAS_CHANGESETS"
           echo "HAS_CHANGESETS=$HAS_CHANGESETS" >> "$GITHUB_ENV"
       - name: Creating .npmrc
-        if: ${{ env.HAS_CHANGESETS }}
+        if: env.HAS_CHANGESETS != 'true'
         run: |
           cat << EOF > "$HOME/.npmrc"
             //registry.npmjs.org/:_authToken=$NPM_TOKEN
