@@ -4,13 +4,11 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2.2.4
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
+      - uses: actions/setup-node@v4
         with:
-          version: 8.2.0 
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
+          node-version-file: ".nvmrc"
           cache: pnpm
       - name: Install dependencies
         run: pnpm install
@@ -20,20 +18,18 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2.2.4
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
+      - uses: actions/setup-node@v4
         with:
-          version: 8.2.0
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
+          node-version-file: ".nvmrc"
           cache: "pnpm"
       - name: Install dependencies
         run: pnpm install
       - name: Test
         run: pnpm test:ci
       - name: Generate coverage report
-        uses: irongut/CodeCoverageSummary@v1.3.0
+        uses: irongut/CodeCoverageSummary@51cc3a756ddcd398d447c044c02cb6aa83fdae95 # v1.3.0
         if: ${{ github.actor != 'dependabot[bot]' }}
         with:
           filename: coverage/cobertura-coverage.xml
@@ -41,7 +37,7 @@ jobs:
           output: file
 
       - name: Add Coverage PR Comment
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@331f8f5b4215f0445d3c07b4967662a32a2d3e31 # v2.9.0
         if: ${{ github.event_name == 'pull_request' &&  github.actor != 'dependabot[bot]' }}
         with:
           recreate: true
@@ -50,11 +46,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2.2.4
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version-file: ".nvmrc"
           cache: pnpm
       - uses: actions/cache@v3
         with:
@@ -68,6 +64,8 @@ jobs:
         run: pnpm install
       - name: Build project
         run: pnpm build
+      - name: Check for changeset
+        run: pnpm exec changeset status --since=main
       - name: Creating .npmrc
         if: ${{ github.actor != 'dependabot[bot]' }}
         run: |
