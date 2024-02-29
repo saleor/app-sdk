@@ -172,26 +172,4 @@ describe("processAsyncSaleorWebhook", () => {
       schemaVersion: null,
     });
   });
-
-  it("Return schema version if saleor-schema-version header is present", async () => {
-    await expect(
-      processSaleorWebhook({
-        req: mockRequest,
-        apl: mockAPL,
-        allowedEvent: "PRODUCT_UPDATED",
-      })
-    ).resolves.toStrictEqual({
-      authData: {
-        appId: "mock-app-id",
-        domain: "example.com",
-        jwks: "{}",
-        saleorApiUrl: "https://example.com/graphql/",
-        token: "mock-token",
-      },
-      baseUrl: "https://some-saleor-host.cloud",
-      event: "product_updated",
-      payload: {},
-      schemaVersion: null,
-    });
-  });
 });

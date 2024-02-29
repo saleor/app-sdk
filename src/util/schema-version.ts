@@ -1,9 +1,12 @@
-export const parseSchemaVersion = (versionField: string | undefined | null): number | null => {
-  if (!versionField) {
+export const parseSchemaVersion = (rawVersion: string | undefined | null): number | null => {
+  if (!rawVersion) {
     return null;
   }
 
-  const [major, minor] = versionField.split(".");
+  const [majorString, minorString] = rawVersion.split(".");
+  const major = parseInt(majorString, 10);
+  const minor = parseInt(minorString, 10);
+
   if (major && minor) {
     return parseFloat(`${major}.${minor}`);
   }
