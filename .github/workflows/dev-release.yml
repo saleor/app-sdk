@@ -12,6 +12,17 @@ jobs:
           run_install: |
             - args: [--frozen-lockfile]
       - run: pnpm build
+      - name: Check for changeset
+        run: pnpm exec changeset status --since origin/main
+      - name: Create .npmrc
+        run: |
+          cat << EOF > "$HOME/.npmrc"
+            //registry.npmjs.org/:_authToken=$NPM_TOKEN
+          EOF
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Release on @dev tag in npm
+        run: pnpm exec changeset version --snapshot pr && pnpm publish --tag dev --no-git-checks
       - run: |
           VERSION=$(cat package.json | jq -r '.version')
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
@@ -27,15 +38,3 @@ jobs:
             ```shell
             pnpm add @saleor/app-sdk@${{ env.VERSION }}
             ```
-      - name: Check for changeset
-        run: |
-          pnpm exec changeset status --since origin/main
-      - name: Create .npmrc
-        run: |
-          cat << EOF > "$HOME/.npmrc"
-            //registry.npmjs.org/:_authToken=$NPM_TOKEN
-          EOF
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Release on @dev tag in npm
-        run: pnpm exec changeset version --snapshot pr && pnpm publish --tag dev --no-git-checks
