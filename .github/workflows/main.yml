@@ -67,23 +67,25 @@ jobs:
       - name: Build project
         run: pnpm build
       - name: Check for changeset
-        id: changeset-check
         run: |
           pnpm exec changeset status --since origin/main --output changeset-status.json
           HAS_CHANGESETS=$(cat ./changeset-status.json | jq -r 'if .changesets | length > 0 then true else false end')
           echo "$HAS_CHANGESETS"
           echo "HAS_CHANGESETS=$HAS_CHANGESETS" >> "$GITHUB_ENV"
       - name: Creating .npmrc
-        if: ${{ github.actor != 'dependabot[bot]' }}
+        if: ${{ github.actor != 'dependabot[bot]' && env.HAS_CHANGESETS }}
         run: |
           cat << EOF > "$HOME/.npmrc"
             //registry.npmjs.org/:_authToken=$NPM_TOKEN
           EOF
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          HAS_CHANGESETS: env.HAS_CHANGESETS
       - name: Release on @dev tag in npm
-        if: ${{ github.actor != 'dependabot[bot]' }}
+        if: ${{ github.actor != 'dependabot[bot]' && env.HAS_CHANGESETS }}
         run: npx changeset version --snapshot pr && pnpm publish --tag dev --no-git-checks
+        env:
+          HAS_CHANGESETS: env.HAS_CHANGESETS
       # Store package.json version in env
       - run: echo "PACKAGE_JSON=$(jq -c . < package.json)" >> $GITHUB_ENV
         if: ${{ github.actor != 'dependabot[bot]' }}
