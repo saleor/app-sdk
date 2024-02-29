@@ -67,7 +67,11 @@ jobs:
       - name: Build project
         run: pnpm build
       - name: Check for changeset
-        run: pnpm exec changeset status --since origin/main
+        id: changeset-check
+        run: |
+          HAS_CHANGESETS=$(pnpm exec changeset status --since origin/main)
+          echo "$HAS_CHANGESETS"
+          echo "HAS_CHANGESETS=$HAS_CHANGESETS" >> "$GITHUB_ENV"
       - name: Creating .npmrc
         if: ${{ github.actor != 'dependabot[bot]' }}
         run: |
