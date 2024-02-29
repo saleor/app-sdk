@@ -82,7 +82,7 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           HAS_CHANGESETS: env.HAS_CHANGESETS
       - name: Release on @dev tag in npm
-        if: ${{ github.actor != 'dependabot[bot]' && env.HAS_CHANGESETS != 'false' }}
+        if: ${{ github.actor != 'dependabot[bot]' && env.HAS_CHANGESETS != 'true' }}
         run: npx changeset version --snapshot pr && pnpm publish --tag dev --no-git-checks
         env:
           HAS_CHANGESETS: env.HAS_CHANGESETS
