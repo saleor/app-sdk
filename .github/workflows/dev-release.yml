@@ -7,6 +7,8 @@ jobs:
   release:
     if: ${{ github.event.label.name == 'release dev tag' }}
     runs-on: ubuntu-22.04
+    env:
+      HUSKY: 0
     steps:
       - uses: actions/checkout@v4
         with:
