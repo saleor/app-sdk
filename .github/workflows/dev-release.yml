@@ -5,7 +5,7 @@ on:
 
 jobs:
   release:
-    if: ${{ contains(github.event.pull_request.labels.*.name, 'release dev tag') }}
+    if: ${{ github.event.label.name == 'release dev tag' }}
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4

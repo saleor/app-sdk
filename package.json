@@ -12,7 +12,7 @@
     "prepare": "husky install",
     "lint": "tsc --noEmit && prettier --loglevel warn --write . && eslint --fix .",
     "copy-readme": "cp README.md dist/README.md",
-    "publish:ci": "pnpm publish && npx changeset tag && git push --follow-tags",
+    "publish:ci": "pnpm publish --dry-run && pnpm exec changeset tag && git push --follow-tags",
     "lint-staged": "lint-staged"
   },
   "keywords": [],
