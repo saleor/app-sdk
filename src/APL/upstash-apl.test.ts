@@ -34,10 +34,10 @@ describe("APL", () => {
       process.env[UpstashAPLVariables.UPSTASH_URL] = "environment";
 
       const apl = await new UpstashAPL({ restToken: "option", restURL: "option" });
-      // eslint-disable-next-line dot-notation
-      expect(apl["restToken"]).toBe("option");
-      // eslint-disable-next-line dot-notation
-      expect(apl["restURL"]).toBe("option");
+      // @ts-expect-error - testing private properties
+      expect(apl.restToken).toBe("option");
+      // @ts-expect-error - testing private properties
+      expect(apl.restURL).toBe("option");
     });
 
     describe("set", () => {

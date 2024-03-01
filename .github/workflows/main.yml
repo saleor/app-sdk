@@ -2,98 +2,52 @@ name: QA
 on: [pull_request]
 jobs:
   lint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2.2.4
+      - uses: actions/checkout@v4
+      - name: Setup PNPM
+        uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
         with:
-          version: 8.2.0 
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: pnpm
-      - name: Install dependencies
-        run: pnpm install
-      - name: Check linters
+          run_install: |
+            - args: [--frozen-lockfile]
+      - name: Check linter
         run: pnpm lint
+      - name: Check types
+        run: pnpm check-types
 
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2.2.4
+      - uses: actions/checkout@v4
+      - name: Setup PNPM
+        uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
         with:
-          version: 8.2.0
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: "pnpm"
-      - name: Install dependencies
-        run: pnpm install
-      - name: Test
+          run_install: |
+            - args: [--frozen-lockfile]
+      - name: Run tests
         run: pnpm test:ci
       - name: Generate coverage report
-        uses: irongut/CodeCoverageSummary@v1.3.0
+        uses: irongut/CodeCoverageSummary@51cc3a756ddcd398d447c044c02cb6aa83fdae95 # v1.3.0
         if: ${{ github.actor != 'dependabot[bot]' }}
         with:
           filename: coverage/cobertura-coverage.xml
           format: markdown
           output: file
-
       - name: Add Coverage PR Comment
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@331f8f5b4215f0445d3c07b4967662a32a2d3e31 # v2.9.0
         if: ${{ github.event_name == 'pull_request' &&  github.actor != 'dependabot[bot]' }}
         with:
           recreate: true
           path: code-coverage-results.md
 
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2.2.4
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - name: Setup PNPM
+        uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
         with:
-          node-version: 18
-          cache: pnpm
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ${{ github.workspace }}/.next/cache
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.json') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
-          # If source files changed but packages didn't, rebuild from a prior cache.
-          restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.json') }}-
-      - name: Install dependencies
-        run: pnpm install
-      - name: Build project
+          run_install: |
+            - args: [--frozen-lockfile]
+      - name: Build package
         run: pnpm build
-      - name: Creating .npmrc
-        if: ${{ github.actor != 'dependabot[bot]' }}
-        run: |
-          cat << EOF > "$HOME/.npmrc"
-            //registry.npmjs.org/:_authToken=$NPM_TOKEN
-          EOF
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Release on @dev tag in npm
-        if: ${{ github.actor != 'dependabot[bot]' }}
-        run: npx changeset version --snapshot pr && pnpm publish --tag dev --no-git-checks
-      # Store package.json version in env
-      - run: echo "PACKAGE_JSON=$(jq -c . < package.json)" >> $GITHUB_ENV
-        if: ${{ github.actor != 'dependabot[bot]' }}
-      - run: echo '${{ fromJson(env.PACKAGE_JSON).version }}'
-        if: ${{ github.actor != 'dependabot[bot]' }}
-      # Post a comment with released snapshot
-      - name: Create with released tag
-        if: ${{ github.actor != 'dependabot[bot]' }}
-        uses: peter-evans/create-or-update-comment@v2
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            Released snapshot build with `@dev` tag in npm with version: `${{ fromJson(env.PACKAGE_JSON).version }}`
-
-            Install it with 
-            ```bash
-            pnpm add @saleor/app-sdk@${{ fromJson(env.PACKAGE_JSON).version }}
-            ```
