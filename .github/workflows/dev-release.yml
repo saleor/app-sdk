@@ -18,8 +18,6 @@ jobs:
             - args: [--frozen-lockfile]
       - name: Check for changeset
         run: pnpm exec changeset status --since origin/main
-      - name: Build package
-        run: pnpm build
       - name: Create .npmrc
         run: |
           cat << EOF > "$HOME/.npmrc"
