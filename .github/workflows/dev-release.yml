@@ -1,7 +1,11 @@
 name: Release @dev tag to npm
-on: [pull_request]
+on:
+  pull_request:
+    types: [labeled]
+
 jobs:
   release:
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'release dev tag') }}
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
@@ -26,7 +30,7 @@ jobs:
       - run: |
           VERSION=$(cat package.json | jq -r '.version')
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
-      - uses: peter-evans/create-or-update-comment@v4
+      - uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043 # v4.0.0
         env:
           VERSION: ${{ env.VERSION }}
         with:
