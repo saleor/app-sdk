@@ -1,11 +1,5 @@
 # @saleor/app-sdk
 
-## 0.50.1
-
-### Patch Changes
-
-- c1710c3: Fix process saleor webhook test
-
 ## 0.50.0
 
 ### Minor Changes
