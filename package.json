@@ -1,6 +1,6 @@
 {
   "name": "@saleor/app-sdk",
-  "version": "0.50.1",
+  "version": "0.50.0",
   "description": "SDK for building great Saleor Apps",
   "scripts": {
     "prepublishOnly": "pnpm build",
@@ -13,8 +13,8 @@
     "check-types": "tsc --noEmit",
     "lint": "prettier --loglevel warn --write . && eslint --fix .",
     "copy-readme": "cp README.md dist/README.md",
-    "publish:ci-prod": "pnpm publish --dry-run",
-    "publish:ci-dev": "pnpm publish --dry-run --tag dev --no-git-checks",
+    "publish:ci-prod": "pnpm publish && pnpm exec changeset tag && git push --follow-tags",
+    "publish:ci-dev": "pnpm exec changeset version --snapshot pr && pnpm publish --tag dev --no-git-checks",
     "lint-staged": "lint-staged"
   },
   "keywords": [],
