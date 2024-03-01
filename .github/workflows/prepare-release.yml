@@ -13,8 +13,6 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.PAT }}
       - name: Setup PNPM
         uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
         with:
@@ -27,6 +25,5 @@ jobs:
           commit: Release to npm
           publish: "pnpm publish:ci"
         env:
-          # Use private access token so Github can trigger another workflow from this one
-          GITHUB_TOKEN: ${{ secrets.PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -10,9 +10,11 @@
     "test": "vitest",
     "test:ci": "CI=true vitest --coverage --silent",
     "prepare": "husky install",
-    "lint": "tsc --noEmit && prettier --loglevel warn --write . && eslint --fix .",
+    "check-types": "tsc --noEmit",
+    "lint": "prettier --loglevel warn --write . && eslint --fix .",
     "copy-readme": "cp README.md dist/README.md",
-    "publish:ci": "pnpm publish --dry-run && pnpm exec changeset tag && git push --follow-tags",
+    "publish:ci-prod": "pnpm publish --dry-run",
+    "publish:ci-dev": "pnpm publish --dry-run --tag dev",
     "lint-staged": "lint-staged"
   },
   "keywords": [],

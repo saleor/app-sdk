@@ -28,7 +28,7 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Release on @dev tag in npm
-        run: pnpm exec changeset version --snapshot pr && pnpm publish --tag dev --no-git-checks
+        run: pnpm publish:ci-dev
       - name: Get new package version
         run: |
           VERSION=$(cat package.json | jq -r '.version')
