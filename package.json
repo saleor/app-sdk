@@ -14,7 +14,7 @@
     "lint": "prettier --loglevel warn --write . && eslint --fix .",
     "copy-readme": "cp README.md dist/README.md",
     "publish:ci-prod": "pnpm publish --dry-run",
-    "publish:ci-dev": "pnpm publish --dry-run --tag dev",
+    "publish:ci-dev": "pnpm publish --dry-run --tag dev --no-git-checks",
     "lint-staged": "lint-staged"
   },
   "keywords": [],
