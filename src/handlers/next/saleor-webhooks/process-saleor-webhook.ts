@@ -8,6 +8,7 @@ import { createDebug } from "../../../debug";
 import { fetchRemoteJwks } from "../../../fetch-remote-jwks";
 import { getBaseUrl, getSaleorHeaders } from "../../../headers";
 import { getOtelTracer } from "../../../open-telemetry";
+import { parseSchemaVersion } from "../../../util";
 import { verifySignatureWithJwks } from "../../../verify-signature";
 
 const debug = createDebug("processSaleorWebhook");
@@ -89,7 +90,7 @@ export const processSaleorWebhook: ProcessSaleorWebhook = async <T>({
           throw new WebhookError("Wrong request method, only POST allowed", "WRONG_METHOD");
         }
 
-        const { event, signature, saleorApiUrl, schemaVersion } = getSaleorHeaders(req.headers);
+        const { event, signature, saleorApiUrl } = getSaleorHeaders(req.headers);
         const baseUrl = getBaseUrl(req.headers);
 
         if (!baseUrl) {
@@ -105,10 +106,6 @@ export const processSaleorWebhook: ProcessSaleorWebhook = async <T>({
         if (!event) {
           debug("Missing saleor-event header");
           throw new WebhookError("Missing saleor-event header", "MISSING_EVENT_HEADER");
-        }
-
-        if (!schemaVersion) {
-          debug("Missing saleor-schema-version header");
         }
 
         const expected = allowedEvent.toLowerCase();
@@ -140,7 +137,7 @@ export const processSaleorWebhook: ProcessSaleorWebhook = async <T>({
           throw new WebhookError("Missing request body", "MISSING_REQUEST_BODY");
         }
 
-        let parsedBody: unknown;
+        let parsedBody: unknown & { version?: string | null };
 
         try {
           parsedBody = JSON.parse(rawBody);
@@ -148,6 +145,14 @@ export const processSaleorWebhook: ProcessSaleorWebhook = async <T>({
           debug("Request body cannot be parsed");
 
           throw new WebhookError("Request body can't be parsed", "CANT_BE_PARSED");
+        }
+
+        let parsedSchemaVersion: number | null = null;
+
+        try {
+          parsedSchemaVersion = parseSchemaVersion(parsedBody.version);
+        } catch {
+          debug("Schema version cannot be parsed");
         }
 
         /**
@@ -215,7 +220,7 @@ export const processSaleorWebhook: ProcessSaleorWebhook = async <T>({
           event,
           payload: parsedBody as T,
           authData,
-          schemaVersion,
+          schemaVersion: parsedSchemaVersion,
         };
       } catch (err) {
         const message = (err as Error)?.message ?? "Unknown error";
