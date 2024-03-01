@@ -117,6 +117,3 @@ dist
 
 .idea/
 .vscode/
-
-# changeset status
-changeset-status.json
