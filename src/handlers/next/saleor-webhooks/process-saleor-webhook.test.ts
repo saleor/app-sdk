@@ -150,8 +150,7 @@ describe("processAsyncSaleorWebhook", () => {
     ).rejects.toThrow("Request signature check failed");
   });
 
-  it("Fallback to null if saleor-schema-version header is missing", async () => {
-    delete mockRequest.headers["saleor-schema-version"];
+  it("Fallback to null if version is missing on payload", async () => {
     await expect(
       processSaleorWebhook({
         req: mockRequest,
