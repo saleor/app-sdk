@@ -23,6 +23,9 @@ export const verifySignatureFromApiUrl = async (
     protected: header,
     payload: rawBody,
     signature: jwsSignature,
+    header: {
+      b64: true,
+    },
   };
 
   const remoteJwks = jose.createRemoteJWKSet(
@@ -52,6 +55,9 @@ export const verifySignatureWithJwks = async (jwks: string, signature: string, r
     protected: header,
     payload: rawBody,
     signature: jwsSignature,
+    header: {
+      b64: true,
+    },
   };
 
   let localJwks: jose.FlattenedVerifyGetKey;
