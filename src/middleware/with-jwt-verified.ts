@@ -95,7 +95,11 @@ export const withJWTVerified =
 
       const JWKS = jose.createRemoteJWKSet(new URL(getJwksUrlFromSaleorApiUrl(saleorApiUrl)));
       debug("Trying to compare JWKS with token");
-      await jose.jwtVerify(token, JWKS);
+      await jose.jwtVerify(token, JWKS, {
+        crit: {
+          b64: true,
+        },
+      });
     } catch (e) {
       debug("Failure: %s", e);
       debug("Will return with Bad Request");
