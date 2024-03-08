@@ -133,6 +133,11 @@
       "import": "./handlers/next/index.mjs",
       "require": "./handlers/next/index.js"
     },
+    "./handlers/next-edge": {
+      "types": "./handlers/next-edge/index.d.ts",
+      "import": "./handlers/next-edge/index.mjs",
+      "require": "./handlers/next-edge/index.js"
+    },
     "./saleor-app": {
       "types": "./saleor-app.d.ts",
       "import": "./saleor-app.mjs",
