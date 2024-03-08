@@ -15,6 +15,7 @@ export default defineConfig({
     "src/app-bridge/next/index.ts",
     "src/handlers/next/index.ts",
     "src/handlers/next-edge/index.ts",
+    "src/fetch-middleware/index.ts",
     "src/middleware/index.ts",
     "src/settings-manager/index.ts",
   ],

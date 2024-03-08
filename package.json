@@ -108,6 +108,11 @@
       "import": "./settings-manager/index.mjs",
       "require": "./settings-manager/index.js"
     },
+    "./fetch-middleware": {
+      "types": "./fetch-middleware/index.d.ts",
+      "import": "./fetch-middleware/index.mjs",
+      "require": "./fetch-middleware/index.js"
+    },
     "./middleware": {
       "types": "./middleware/index.d.ts",
       "import": "./middleware/index.mjs",
