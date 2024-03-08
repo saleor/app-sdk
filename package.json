@@ -46,7 +46,7 @@
     "@types/react-dom": "^18.0.5",
     "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.36.1",
-    "@typescript-eslint/parser": "^5.36.1",
+    "@typescript-eslint/parser": "^7.1.1",
     "@vercel/kv": "1.0.0",
     "@vitejs/plugin-react": "^3.0.1",
     "@vitest/coverage-c8": "^0.27.2",
