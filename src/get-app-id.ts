@@ -2,6 +2,7 @@ import { createDebug } from "./debug";
 
 const debug = createDebug("getAppId");
 
+
 type GetIdResponseType = {
   data?: {
     app?: {
