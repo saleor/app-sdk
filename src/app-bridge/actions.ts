@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { AppPermission } from "../types";
 import { Values } from "./helpers";
+import { RoutingUpdateMethod } from "./next";
 
 // Using constants over Enums, more info: https://fettblog.eu/tidy-typescript-avoid-enums/
 export const ActionType = {
@@ -97,7 +98,7 @@ function createNotificationAction(payload: NotificationPayload): NotificationAct
 
 export type UpdateRoutingPayload = {
   newRoute: string;
-  replace?: boolean;
+  method?: RoutingUpdateMethod;
 };
 
 export type UpdateRouting = ActionWithId<"updateRouting", UpdateRoutingPayload>;
