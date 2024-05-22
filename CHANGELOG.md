@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 0.50.1
+
+### Patch Changes
+
+- d24c734: Added additional debug logs for createManifestHandler utility. Now app with DEBUG env variable will print extra messagess helpful with broken app installations
+
 ## 0.50.0
 
 ### Minor Changes
