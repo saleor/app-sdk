@@ -10,7 +10,7 @@ import { fetchRemoteJwks } from "../../fetch-remote-jwks";
 import { getAppId } from "../../get-app-id";
 import { withAuthTokenRequired, withSaleorDomainPresent } from "../../middleware";
 import { HasAPL } from "../../saleor-app";
-import { validateAllowSaleorUrls } from "./validate-allow-saleor-urls";
+import { validateAllowSaleorUrls } from "../validate-allow-saleor-urls";
 
 const debug = createDebug("createAppRegisterHandler");
 

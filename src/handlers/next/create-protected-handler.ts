@@ -3,12 +3,12 @@ import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
 import { APL } from "../../APL";
 import { createDebug } from "../../debug";
 import { Permission } from "../../types";
+import { ProtectedHandlerContext } from "../protected-handler-context";
 import {
   processSaleorProtectedHandler,
   ProtectedHandlerError,
   SaleorProtectedHandlerError,
 } from "./process-protected-handler";
-import { ProtectedHandlerContext } from "./protected-handler-context";
 
 const debug = createDebug("ProtectedHandler");
 
