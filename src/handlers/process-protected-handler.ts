@@ -1,14 +1,15 @@
 import { SpanKind, SpanStatusCode } from "@opentelemetry/api";
 import { NextApiRequest } from "next";
 
-import { APL } from "../../APL";
-import { createDebug } from "../../debug";
-import { getBaseUrl, getSaleorHeaders } from "../../headers";
-import { getOtelTracer } from "../../open-telemetry";
-import { Permission } from "../../types";
-import { extractUserFromJwt } from "../../util/extract-user-from-jwt";
-import { verifyJWT } from "../../verify-jwt";
-import { ProtectedHandlerContext } from "../protected-handler-context";
+import { APL } from "../APL";
+import { createDebug } from "../debug";
+import { getBaseUrl, getSaleorHeaders } from "../headers";
+import { getOtelTracer } from "../open-telemetry";
+import { Permission } from "../types";
+import { extractUserFromJwt } from "../util/extract-user-from-jwt";
+import { verifyJWT } from "../verify-jwt";
+import { ProtectedHandlerContext } from "./protected-handler-context";
+import { NextRequest } from "next/server";
 
 const debug = createDebug("processProtectedHandler");
 
@@ -35,7 +36,7 @@ export class ProtectedHandlerError extends Error {
 }
 
 interface ProcessSaleorProtectedHandlerArgs {
-  req: Pick<NextApiRequest, "headers">;
+  req: Pick<NextApiRequest, "headers"> | Pick<NextRequest,"headers">;
   apl: APL;
   requiredPermissions?: Permission[];
 }

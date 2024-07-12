@@ -1,4 +1,3 @@
-import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
 
 import { APL } from "../../APL";
 import { createDebug } from "../../debug";
@@ -8,7 +7,8 @@ import {
   processSaleorProtectedHandler,
   ProtectedHandlerError,
   SaleorProtectedHandlerError,
-} from "./process-protected-handler";
+} from "../process-protected-handler";
+import { NextRequest, NextResponse } from "next/server";
 
 const debug = createDebug("ProtectedHandler");
 
@@ -23,23 +23,18 @@ export const ProtectedHandlerErrorCodeMap: Record<SaleorProtectedHandlerError, n
   MISSING_AUTHORIZATION_BEARER_HEADER: 400,
 };
 
-export type NextProtectedApiHandler<TResp = unknown> = (
-  req: NextApiRequest,
-  res: NextApiResponse<TResp>,
+export type NextAppRouterProtectedApiHandler = (
+  req: NextRequest,
   ctx: ProtectedHandlerContext
-) => unknown | Promise<unknown>;
+) => Promise<Response>;
 
 /**
  * Wraps provided function, to ensure incoming request comes from Saleor Dashboard.
  * Also provides additional `context` object containing request properties.
  */
 export const createProtectedHandler =
-  (
-    handlerFn: NextProtectedApiHandler,
-    apl: APL,
-    requiredPermissions?: Permission[]
-  ): NextApiHandler =>
-  (req, res) => {
+  (handlerFn: NextAppRouterProtectedApiHandler, apl: APL, requiredPermissions?: Permission[]) =>
+  (req: NextRequest) => {
     debug("Protected handler called");
     processSaleorProtectedHandler({
       req,
@@ -48,17 +43,28 @@ export const createProtectedHandler =
     })
       .then(async (context) => {
         debug("Incoming request validated. Call handlerFn");
-        return handlerFn(req, res, context);
+        return handlerFn(req, context);
       })
       .catch((e) => {
         debug("Unexpected error during processing the request");
 
         if (e instanceof ProtectedHandlerError) {
           debug(`Validation error: ${e.message}`);
-          res.status(ProtectedHandlerErrorCodeMap[e.errorType] || 400).end();
-          return;
+          return NextResponse.json(
+            {
+              message: "Validation error",
+            },
+            { status: ProtectedHandlerErrorCodeMap[e.errorType] || 400 }
+          );
         }
         debug("Unexpected error: %O", e);
-        res.status(500).end();
+        debug(`Validation error: ${e.message}`);
+
+        return NextResponse.json(
+          {
+            message: "Unexpected error",
+          },
+          { status: 500 }
+        );
       });
   };

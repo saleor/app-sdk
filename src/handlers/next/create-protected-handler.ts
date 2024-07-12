@@ -8,7 +8,7 @@ import {
   processSaleorProtectedHandler,
   ProtectedHandlerError,
   SaleorProtectedHandlerError,
-} from "./process-protected-handler";
+} from "../process-protected-handler";
 
 const debug = createDebug("ProtectedHandler");
 

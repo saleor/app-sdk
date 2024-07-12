@@ -1,15 +1,19 @@
-{
-  "parser": "@typescript-eslint/parser",
-  "parserOptions": {
-    "tsconfigRootDir": "./",
-    "project": ["./tsconfig.json"]
+module.exports = {
+
+  languageOptions: {
+    "parser": "@typescript-eslint/parser",
+
+    "parserOptions": {
+      "tsconfigRootDir": "./",
+      "project": ["./tsconfig.json"]
+    },
   },
-  "extends": [
-    "airbnb",
-    "airbnb-typescript",
-    "plugin:@typescript-eslint/recommended",
-    "prettier" // prettier *has* to be the last one, to avoid conflicting rules
-  ],
+  // "extends": [
+  //   "airbnb",
+  //   "airbnb-typescript",
+  //   "plugin:@typescript-eslint/recommended",
+  //   "prettier" // prettier *has* to be the last one, to avoid conflicting rules
+  // ],
   "ignorePatterns": ["pnpm-lock.yaml", "dist", "coverage"],
   "plugins": ["simple-import-sort", "@typescript-eslint"],
   "rules": {
