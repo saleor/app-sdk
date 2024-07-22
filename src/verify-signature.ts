@@ -70,7 +70,7 @@ export const verifySignatureWithJwks = async (jwks: string, signature: string, r
     await jose.flattenedVerify(jws, localJwks);
     debug("JWKS verified");
   } catch (error) {
-    debug("JWKS verification failed with error", error);
+    debug("JWKS verification failed with error", localJwks, jws);
     throw new Error("JWKS verification failed");
   }
 };
