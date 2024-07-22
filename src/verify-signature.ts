@@ -47,6 +47,9 @@ export const verifySignatureFromApiUrl = async (
  * TODO: Add test
  */
 export const verifySignatureWithJwks = async (jwks: string, signature: string, rawBody: string) => {
+  // eslint-disable-next-line no-console
+  console.log("verifySignatureWithJwks", jwks, signature, rawBody);
+
   const [header, , jwsSignature] = signature.split(".");
   const jws: jose.FlattenedJWSInput = {
     protected: header,
@@ -70,7 +73,7 @@ export const verifySignatureWithJwks = async (jwks: string, signature: string, r
     await jose.flattenedVerify(jws, localJwks);
     debug("JWKS verified");
   } catch (error) {
-    debug("JWKS verification failed with error", localJwks, jws);
+    debug("JWKS verification failed with error");
     throw new Error("JWKS verification failed");
   }
 };
