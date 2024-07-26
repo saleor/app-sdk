@@ -1,38 +1,39 @@
 /**
  * Use .js extension to avoid broken builds with ESM
  */
-import * as NextRouter from "next/router.js";
+import * as NextRouter from "next/navigation.js";
 import { useEffect } from "react";
 
 import { actions } from "../actions";
 import { useAppBridge } from "../app-bridge-provider";
 
-const { useRouter } = NextRouter;
+const { usePathname, useSearchParams } = NextRouter;
 
 /**
  * Synchronizes app inner state (inside iframe) with dashboard routing, so app's route can be restored after refresh
  */
 export const useRoutePropagator = () => {
   const { appBridge, appBridgeState } = useAppBridge();
-  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     if (!appBridgeState?.ready ?? !appBridge) {
       return;
     }
 
-    router.events.on("routeChangeComplete", (url) => {
-      appBridge
-        ?.dispatch(
-          actions.UpdateRouting({
-            newRoute: url,
-          })
-        )
-        .catch(() => {
-          console.error("Error dispatching action");
-        });
-    });
-  }, [appBridgeState, appBridge]);
+    const url = `${pathname}?${searchParams}`;
+
+    appBridge
+      ?.dispatch(
+        actions.UpdateRouting({
+          newRoute: url,
+        })
+      )
+      .catch(() => {
+        console.error("Error dispatching action");
+      });
+  }, [appBridgeState, appBridge, pathname, searchParams]);
 };
 
 /**
