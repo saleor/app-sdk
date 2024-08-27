@@ -88,6 +88,34 @@ describe("create-app-register-handler", () => {
     expect(res._getData().success).toBe(false);
   });
 
+  it("Return 409 if APL already contains auth data", async () => {
+    const { res, req } = createMocks({
+      /**
+       * Use body, instead of params, otherwise - for some reason - param is not accessible in mock request
+       * Maybe this is a bug https://github.com/howardabrams/node-mocks-http/blob/master/lib/mockRequest.js
+       */
+      body: {
+        auth_token: "mock-auth-token",
+      },
+      headers: {
+        host: "some-saleor-host.cloud",
+        "x-forwarded-proto": "https",
+        "saleor-api-url": "https://example.com/graphql/",
+        "saleor-domain": "https://example.com/",
+      },
+      method: "POST",
+    });
+
+    const handler = createAppRegisterHandler({
+      apl: mockApl,
+    });
+
+    await handler(req, res);
+
+    expect(mockApl.set).not.toHaveBeenCalled();
+    expect(res._getStatusCode()).toBe(409);
+  });
+
   describe("Callback hooks", () => {
     it("Runs callback hooks - successful saving to APL scenario", async () => {
       const mockOnRequestStart = vi.fn();

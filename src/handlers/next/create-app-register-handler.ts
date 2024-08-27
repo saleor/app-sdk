@@ -241,6 +241,26 @@ export const createAppRegisterHandler = ({
     }
 
     try {
+      const checkApl = await apl.get(saleorApiUrl);
+
+      if (checkApl !== undefined) {
+        debug("APL already exists for this Saleor instance");
+
+        return new Response(
+          createRegisterHandlerResponseBody(false, {
+            code: "APL_ALREADY_EXISTS",
+            message: "APL already exists for this Saleor instance",
+          }),
+          {
+            status: 409,
+          }
+        );
+      }
+    } catch (error) {
+      handleHookError(error);
+    }
+
+    try {
       await apl.set(authData);
 
       if (onAuthAplSaved) {
