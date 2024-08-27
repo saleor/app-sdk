@@ -7,34 +7,28 @@ on:
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
-#
-# TODO
-# - Add tags for each app (e.g. search@3.0.1) for easier parsing
-# - Print versions name to commit, for easier Vercel deployments
-#
 jobs:
   release:
     name: Prepare release with Changesets
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
+    env:
+      HUSKY: 0
     steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2.2.4 # Use version from package.json
-      - name: Setup Node.js 16 # It was default for Changesets action, check if it can be bumped to v18
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
         with:
-          node-version: 16
-      - uses: pnpm/action-setup@v2
-        name: Install pnpm
-      - run: pnpm install
-        # TODO -> publish to npm as pre-release https://github.com/changesets/changesets/blob/8447c677a37d1d23858059e0ce2b5cd98f4c24ae/docs/snapshot-releases.md
+          token: ${{ secrets.PAT }}
+      - name: Setup PNPM
+        uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
+        with:
+          run_install: |
+            - args: [--frozen-lockfile]
       - name: Create Release Pull Request
-        uses: changesets/action@v1
-        id: changesets
+        uses: changesets/action@e2f8e964d080ae97c874b19e27b12e0a8620fb6c # v1.4.6
         with:
           title: Release to npm
           commit: Release to npm
-          publish: "pnpm publish:ci"
+          publish: "pnpm publish:ci-prod"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Use private access token so Github can trigger another workflow from this one
+          GITHUB_TOKEN: ${{ secrets.PAT }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
