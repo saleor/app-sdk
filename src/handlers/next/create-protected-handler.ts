@@ -21,6 +21,7 @@ export const ProtectedHandlerErrorCodeMap: Record<SaleorProtectedHandlerError, n
   JWT_VERIFICATION_FAILED: 401,
   NO_APP_ID: 401,
   MISSING_AUTHORIZATION_BEARER_HEADER: 400,
+  INVALID_APP_TOKEN: 400,
 };
 
 export type NextProtectedApiHandler<TResp = unknown> = (

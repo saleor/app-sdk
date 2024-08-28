@@ -4,6 +4,7 @@ import rawBody from "raw-body";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { MockAPL } from "../../../test-utils/mock-apl";
+import { verifyAppToken } from "../../../verify-app-token";
 import { processSaleorWebhook } from "./process-saleor-webhook";
 
 vi.mock("../../../verify-signature", () => ({
@@ -29,6 +30,11 @@ vi.mock("../../../verify-signature", () => ({
 vi.mock("raw-body", () => ({
   default: vi.fn().mockResolvedValue("{}"),
 }));
+
+vi.mock("../../../verify-app-token", () => ({
+  verifyAppToken: vi.fn(async () => true),
+}));
+
 describe("processAsyncSaleorWebhook", () => {
   let mockRequest: NextApiRequest;
 
@@ -148,5 +154,31 @@ describe("processAsyncSaleorWebhook", () => {
         allowedEvent: "PRODUCT_UPDATED",
       })
     ).rejects.toThrow("Request signature check failed");
+  });
+
+  it("Throw error on missing app token", async () => {
+    mockAPL.mockToken = "";
+
+    return expect(
+      processSaleorWebhook({
+        req: mockRequest,
+        apl: mockAPL,
+        allowedEvent: "PRODUCT_UPDATED",
+      })
+    ).rejects.toThrow("App token is missing");
+  });
+
+  it("Throw error on invalid app token", async () => {
+    mockAPL.mockToken = "asdasd";
+
+    vi.mocked(verifyAppToken).mockImplementationOnce(async () => false);
+
+    return expect(
+      processSaleorWebhook({
+        req: mockRequest,
+        apl: mockAPL,
+        allowedEvent: "PRODUCT_UPDATED",
+      })
+    ).rejects.toThrow("App token is invalid");
   });
 });

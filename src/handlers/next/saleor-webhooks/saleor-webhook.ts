@@ -51,6 +51,8 @@ export const WebhookErrorCodeMap: Record<SaleorWebhookError, number> = {
   WRONG_METHOD: 405,
   CANT_BE_PARSED: 400,
   CONFIGURATION_ERROR: 500,
+  INVALID_APP_TOKEN: 400,
+  MISSING_APP_TOKEN: 400,
 };
 
 export type NextWebhookApiHandler<TPayload = unknown, TExtras = {}> = (

@@ -8,6 +8,7 @@ import { createDebug } from "../../../debug";
 import { fetchRemoteJwks } from "../../../fetch-remote-jwks";
 import { getBaseUrl, getSaleorHeaders } from "../../../headers";
 import { getOtelTracer } from "../../../open-telemetry";
+import { verifyAppToken } from "../../../verify-app-token";
 import { verifySignatureWithJwks } from "../../../verify-signature";
 
 const debug = createDebug("processSaleorWebhook");
@@ -26,7 +27,9 @@ export type SaleorWebhookError =
   | "SIGNATURE_VERIFICATION_FAILED"
   | "WRONG_METHOD"
   | "CANT_BE_PARSED"
-  | "CONFIGURATION_ERROR";
+  | "CONFIGURATION_ERROR"
+  | "INVALID_APP_TOKEN"
+  | "MISSING_APP_TOKEN";
 
 export class WebhookError extends Error {
   errorType: SaleorWebhookError = "OTHER";
@@ -156,6 +159,19 @@ export const processSaleorWebhook: ProcessSaleorWebhook = async <T>({
             `Can't find auth data for ${saleorApiUrl}. Please register the application`,
             "NOT_REGISTERED"
           );
+        }
+
+        if (!authData.token) {
+          debug("App token is missing");
+
+          throw new WebhookError("App token is missing", "MISSING_APP_TOKEN");
+        }
+
+        const isAppTokenValid = await verifyAppToken({ saleorApiUrl, token: authData.token });
+        if (!isAppTokenValid) {
+          debug("App token is invalid");
+
+          throw new WebhookError("App token is invalid", "INVALID_APP_TOKEN");
         }
 
         /**

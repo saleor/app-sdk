@@ -7,6 +7,7 @@ import { getBaseUrl, getSaleorHeaders } from "../../headers";
 import { getOtelTracer } from "../../open-telemetry";
 import { Permission } from "../../types";
 import { extractUserFromJwt } from "../../util/extract-user-from-jwt";
+import { verifyAppToken } from "../../verify-app-token";
 import { verifyJWT } from "../../verify-jwt";
 import { ProtectedHandlerContext } from "./protected-handler-context";
 
@@ -20,7 +21,9 @@ export type SaleorProtectedHandlerError =
   | "MISSING_AUTHORIZATION_BEARER_HEADER"
   | "NOT_REGISTERED"
   | "JWT_VERIFICATION_FAILED"
-  | "NO_APP_ID";
+  | "NO_APP_ID"
+  | "INVALID_APP_TOKEN"
+  | "MISSING_APP_TOKEN";
 
 export class ProtectedHandlerError extends Error {
   errorType: SaleorProtectedHandlerError = "OTHER";
@@ -132,6 +135,39 @@ export const processSaleorProtectedHandler: ProcessAsyncSaleorProtectedHandler =
         throw new ProtectedHandlerError(
           `Can't find auth data for saleorApiUrl ${saleorApiUrl}. Please register the application`,
           "NOT_REGISTERED"
+        );
+      }
+
+      if (!authData.token) {
+        span
+          .setStatus({
+            code: SpanStatusCode.ERROR,
+            message: "App token is missing",
+          })
+          .end();
+
+        debug("App token is missing for API URL %s", saleorApiUrl);
+
+        throw new ProtectedHandlerError(
+          `App token is missing for saleorApiUrl ${saleorApiUrl}. Please reinstall the application`,
+          "MISSING_APP_TOKEN"
+        );
+      }
+
+      const isAppTokenValid = await verifyAppToken({ saleorApiUrl, token: authData.token });
+      if (!isAppTokenValid) {
+        span
+          .setStatus({
+            code: SpanStatusCode.ERROR,
+            message: "App token is invalid",
+          })
+          .end();
+
+        debug("App token is invalid for API URL %s", saleorApiUrl);
+
+        throw new ProtectedHandlerError(
+          `App token is invalid for saleorApiUrl ${saleorApiUrl}. Please reinstall the application`,
+          "INVALID_APP_TOKEN"
         );
       }
 

@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { getAppId } from "../../get-app-id";
 import { MockAPL } from "../../test-utils/mock-apl";
+import { verifyAppToken } from "../../verify-app-token";
 import { verifyJWT } from "../../verify-jwt";
 import { processSaleorProtectedHandler } from "./process-protected-handler";
 
@@ -20,6 +21,11 @@ vi.mock("./../../get-app-id", () => ({
 vi.mock("./../../verify-jwt", () => ({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   verifyJWT: vi.fn(),
+}));
+
+vi.mock("../../verify-app-token", () => ({
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  verifyAppToken: vi.fn(async () => true),
 }));
 
 describe("processSaleorProtectedHandler", () => {
@@ -106,9 +112,26 @@ describe("processSaleorProtectedHandler", () => {
   it("Throw error when token verification fails", async () => {
     vi.mocked(getAppId).mockResolvedValue(validAppId);
     vi.mocked(verifyJWT).mockRejectedValue("Verification error");
+    vi.mocked(verifyAppToken).mockImplementationOnce(async () => true);
 
     await expect(processSaleorProtectedHandler({ apl: mockAPL, req: mockRequest })).rejects.toThrow(
       "JWT verification failed: "
+    );
+  });
+
+  it("Throw error when app token is missing", async () => {
+    mockAPL.mockToken = "";
+
+    await expect(processSaleorProtectedHandler({ apl: mockAPL, req: mockRequest })).rejects.toThrow(
+      "App token is missing"
+    );
+  });
+
+  it("Throw error when app token is invalid", async () => {
+    vi.mocked(verifyAppToken).mockImplementationOnce(async () => false);
+
+    await expect(processSaleorProtectedHandler({ apl: mockAPL, req: mockRequest })).rejects.toThrow(
+      "App token is invalid"
     );
   });
 });
