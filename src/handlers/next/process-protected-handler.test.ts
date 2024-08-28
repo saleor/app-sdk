@@ -24,7 +24,6 @@ vi.mock("./../../verify-jwt", () => ({
 }));
 
 vi.mock("../../verify-app-token", () => ({
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   verifyAppToken: vi.fn(async () => true),
 }));
 
