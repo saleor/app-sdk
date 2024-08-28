@@ -8,6 +8,7 @@ import { createDebug } from "../../../debug";
 import { fetchRemoteJwks } from "../../../fetch-remote-jwks";
 import { getBaseUrl, getSaleorHeaders } from "../../../headers";
 import { getOtelTracer } from "../../../open-telemetry";
+import { parseSchemaVersion } from "../../../util";
 import { verifyAppToken } from "../../../verify-app-token";
 import { verifySignatureWithJwks } from "../../../verify-signature";
 
@@ -48,6 +49,8 @@ export type WebhookContext<T> = {
   event: string;
   payload: T;
   authData: AuthData;
+  /** For Saleor < 3.15 it will be null. */
+  schemaVersion: number | null;
 };
 
 interface ProcessSaleorWebhookArgs {
@@ -137,7 +140,7 @@ export const processSaleorWebhook: ProcessSaleorWebhook = async <T>({
           throw new WebhookError("Missing request body", "MISSING_REQUEST_BODY");
         }
 
-        let parsedBody: unknown;
+        let parsedBody: unknown & { version?: string | null };
 
         try {
           parsedBody = JSON.parse(rawBody);
@@ -145,6 +148,14 @@ export const processSaleorWebhook: ProcessSaleorWebhook = async <T>({
           debug("Request body cannot be parsed");
 
           throw new WebhookError("Request body can't be parsed", "CANT_BE_PARSED");
+        }
+
+        let parsedSchemaVersion: number | null = null;
+
+        try {
+          parsedSchemaVersion = parseSchemaVersion(parsedBody.version);
+        } catch {
+          debug("Schema version cannot be parsed");
         }
 
         /**
@@ -225,6 +236,7 @@ export const processSaleorWebhook: ProcessSaleorWebhook = async <T>({
           event,
           payload: parsedBody as T,
           authData,
+          schemaVersion: parsedSchemaVersion,
         };
       } catch (err) {
         const message = (err as Error)?.message ?? "Unknown error";

@@ -1,6 +1,6 @@
 {
   "name": "@saleor/app-sdk",
-  "version": "0.48.2",
+  "version": "0.50.1",
   "description": "SDK for building great Saleor Apps",
   "scripts": {
     "prepublishOnly": "pnpm build",
@@ -10,9 +10,11 @@
     "test": "vitest",
     "test:ci": "CI=true vitest --coverage --silent",
     "prepare": "husky install",
-    "lint": "tsc --noEmit && prettier --loglevel warn --write . && eslint --fix .",
+    "check-types": "tsc --noEmit",
+    "lint": "prettier --loglevel warn --write . && eslint --fix .",
     "copy-readme": "cp README.md dist/README.md",
-    "publish:ci": "pnpm publish && npx changeset tag && git push --follow-tags",
+    "publish:ci-prod": "pnpm publish && pnpm exec changeset tag && git push --follow-tags",
+    "publish:ci-dev": "pnpm exec changeset version --snapshot pr && pnpm publish --tag dev --no-git-checks",
     "lint-staged": "lint-staged"
   },
   "keywords": [],
@@ -35,7 +37,7 @@
     "uuid": "9.0.0"
   },
   "devDependencies": {
-    "@changesets/cli": "2.26.2",
+    "@changesets/cli": "2.27.1",
     "@testing-library/dom": "^8.17.1",
     "@testing-library/react": "^13.4.0",
     "@types/debug": "^4.1.7",

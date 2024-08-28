@@ -38,7 +38,7 @@ vi.mock("../../../verify-app-token", () => ({
 describe("processAsyncSaleorWebhook", () => {
   let mockRequest: NextApiRequest;
 
-  const mockAPL = new MockAPL();
+  let mockAPL = new MockAPL();
 
   beforeEach(() => {
     // Create request method which passes all the tests
@@ -50,12 +50,13 @@ describe("processAsyncSaleorWebhook", () => {
         "saleor-api-url": mockAPL.workingSaleorApiUrl,
         "saleor-event": "product_updated",
         "saleor-signature": "mocked_signature",
-        "content-length": "0", // is ignored by mocked raw-body
+        "content-length": "0", // is ignored by mocked raw-body.
       },
       method: "POST",
       // body can be skipped because we mock it with raw-body
     });
     mockRequest = req;
+    mockAPL = new MockAPL();
   });
 
   it("Process valid request", async () =>
@@ -180,5 +181,27 @@ describe("processAsyncSaleorWebhook", () => {
         allowedEvent: "PRODUCT_UPDATED",
       })
     ).rejects.toThrow("App token is invalid");
+  });
+
+  it("Fallback to null if version is missing on payload", async () => {
+    await expect(
+      processSaleorWebhook({
+        req: mockRequest,
+        apl: mockAPL,
+        allowedEvent: "PRODUCT_UPDATED",
+      })
+    ).resolves.toStrictEqual({
+      authData: {
+        appId: "mock-app-id",
+        domain: "example.com",
+        jwks: "{}",
+        saleorApiUrl: "https://example.com/graphql/",
+        token: "mock-token",
+      },
+      baseUrl: "https://some-saleor-host.cloud",
+      event: "product_updated",
+      payload: {},
+      schemaVersion: null,
+    });
   });
 });
