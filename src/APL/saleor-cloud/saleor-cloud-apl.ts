@@ -176,12 +176,6 @@ export class SaleorCloudAPL implements APL {
           );
         });
 
-        span
-          .setStatus({
-            code: SpanStatusCode.OK,
-          })
-          .end();
-
         if (!response) {
           debug("No response from the API");
 
@@ -262,7 +256,11 @@ export class SaleorCloudAPL implements APL {
 
         this.setToCacheIfExists(authData.saleorApiUrl, authData);
 
-        span.end();
+        span
+          .setStatus({
+            code: SpanStatusCode.OK,
+          })
+          .end();
 
         return authData;
       }
