@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 0.50.2
+
+### Patch Changes
+
+- 0749a6e: Fixed duplicated span.end() called on CloudAPL. This was incorrect invocation - span can be ended just once.
+
 ## 0.50.1
 
 ### Patch Changes
