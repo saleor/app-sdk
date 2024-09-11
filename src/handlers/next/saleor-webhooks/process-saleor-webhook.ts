@@ -128,7 +128,6 @@ export const processSaleorWebhook: ProcessSaleorWebhook = async <T>({
         const rawBody = (
           await getRawBody(req, {
             length: req.headers["content-length"],
-            limit: "1mb",
           })
         ).toString();
         if (!rawBody) {
