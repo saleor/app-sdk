@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 0.50.3
+
+### Patch Changes
+
+- ac4e4a2: Now, the fixed body size limit was removed, this means there is no restriction for size of the webhook payload, sent by Saleor.
+
 ## 0.50.2
 
 ### Patch Changes
