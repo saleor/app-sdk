@@ -62,3 +62,18 @@ the command:
 ```bash
 pnpm lint
 ```
+
+## Examples
+
+You can find examples of using the SDK in the [examples](./examples) directory.
+
+The examples are based on the [Saleor App Template](https://www.github.com/saleor/saleor-app-template).
+
+The `examples` directory contains:
+
+- `async-webhook-handler` - an exemplary implemention of ProductUpdated webhook handler. See: `src/pages/api/webhooks/saleor/product-updated.ts`.
+- `dashboard-extensions` - an example of implementing a dashboard extension. See: `src/pages/api/manifest.ts`.
+- `external-webhook` - an example implementation of an app receiving webhooks from an external service. See: `src/pages/api/giftcard-service/new-giftcard.ts`.
+- `metadata-manager` - an example of implementing a [metadata manager](https://docs.saleor.io/docs/3.x/developer/extending/apps/developing-apps/apps-patterns/persistence-with-metadata-manager). See: `src/pages/api/settings.ts`.
+- `protected-route` - an example usage of `createProtectedHandler` function to make sure that only the authorized app can access the page. See: `src/pages/api/protected.ts`.
+- `trpc` - an example of implementing an app that uses [tRPC](https://trpc.io/).
