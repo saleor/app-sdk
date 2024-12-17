@@ -1,6 +1,12 @@
+import { VercelKvApl } from "./vercel-kv-apl";
+
 /**
  * @deprecated - use VercelKvApl
  */
-// eslint-disable-next-line camelcase
-export { VercelKvApl as _experimental_VercelKvApl } from "./vercel-kv-apl";
-export { VercelKvApl } from "./vercel-kv-apl";
+const _experimental_VercelKvApl = VercelKvApl;
+
+export {
+  // TODO Remove in next minor
+  _experimental_VercelKvApl,
+  VercelKvApl,
+};
