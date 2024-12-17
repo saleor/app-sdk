@@ -203,6 +203,7 @@ export class VercelKvApl implements APL {
       "KV_REST_API_TOKEN",
       "KV_REST_API_READ_ONLY_TOKEN",
       "KV_STORAGE_NAMESPACE",
+      "KV_URL",
     ];
 
     return variables.every((variable) => !!process.env[variable]);
