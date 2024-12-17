@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 0.51.0
+
+### Minor Changes
+
+- 7e9b259: Added VercelKV APL. It provides out-of-the-box integration. See [docs](https://docs.saleor.io/developer/extending/apps/developing-apps/app-sdk/apl#vercelkvapl)
+
 ## 0.50.3
 
 ### Patch Changes
