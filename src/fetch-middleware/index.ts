@@ -1,4 +1,4 @@
-export * from "./to-next-edge-handler";
+export * from "./to-request-handler";
 export * from "./with-auth-token-required";
 export * from "./with-method";
 export * from "./with-registered-saleor-domain-header";

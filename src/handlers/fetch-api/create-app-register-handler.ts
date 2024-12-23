@@ -1,22 +1,20 @@
-import { AuthData } from "../../APL";
 import { SALEOR_API_URL_HEADER, SALEOR_DOMAIN_HEADER } from "../../const";
 import { createDebug } from "../../debug";
-import { toNextEdgeHandler } from "../../fetch-middleware/to-next-edge-handler";
+import { toRequestHandler } from "../../fetch-middleware/to-request-handler";
 import { FetchHandler } from "../../fetch-middleware/types";
 import { withAuthTokenRequired } from "../../fetch-middleware/with-auth-token-required";
 import { withMethod } from "../../fetch-middleware/with-method";
 import { withSaleorDomainPresent } from "../../fetch-middleware/with-saleor-domain-present";
 import { fetchRemoteJwks } from "../../fetch-remote-jwks";
 import { getAppId } from "../../get-app-id";
-import { HasAPL } from "../../saleor-app";
+import {
+  CallbackErrorHandler,
+  GenericCreateAppRegisterHandlerOptions,
+  HookCallbackErrorParams,
+} from "../shared/create-app-register-handler-types";
 import { validateAllowSaleorUrls } from "../shared/validate-allow-saleor-urls";
 
 const debug = createDebug("createAppRegisterHandler");
-
-type HookCallbackErrorParams = {
-  status?: number;
-  message?: string;
-};
 
 class RegisterCallbackError extends Error {
   public status = 500;
@@ -30,7 +28,7 @@ class RegisterCallbackError extends Error {
   }
 }
 
-const createCallbackError = (params: HookCallbackErrorParams) => {
+const createCallbackError: CallbackErrorHandler = (params: HookCallbackErrorParams) => {
   throw new RegisterCallbackError(params);
 };
 
@@ -63,59 +61,8 @@ const handleHookError = (e: RegisterCallbackError | unknown) => {
   return new Response("Error during app installation", { status: 500 });
 };
 
-export type CreateAppRegisterHandlerOptions = HasAPL & {
-  /**
-   * Protect app from being registered in Saleor other than specific.
-   * By default, allow everything.
-   *
-   * Provide array of  either a full Saleor API URL (eg. my-shop.saleor.cloud/graphql/)
-   * or a function that receives a full Saleor API URL ad returns true/false.
-   */
-  allowedSaleorUrls?: Array<string | ((saleorApiUrl: string) => boolean)>;
-  /**
-   * Run right after Saleor calls this endpoint
-   */
-  onRequestStart?(
-    request: Request,
-    context: {
-      authToken?: string;
-      saleorDomain?: string;
-      saleorApiUrl?: string;
-      respondWithError: typeof createCallbackError;
-    }
-  ): Promise<void>;
-  /**
-   * Run after all security checks
-   */
-  onRequestVerified?(
-    request: Request,
-    context: {
-      authData: AuthData;
-      respondWithError: typeof createCallbackError;
-    }
-  ): Promise<void>;
-  /**
-   * Run after APL successfully AuthData, assuming that APL.set will reject a Promise in case of error
-   */
-  onAuthAplSaved?(
-    request: Request,
-    context: {
-      authData: AuthData;
-      respondWithError: typeof createCallbackError;
-    }
-  ): Promise<void>;
-  /**
-   * Run after APL fails to set AuthData
-   */
-  onAplSetFailed?(
-    request: Request,
-    context: {
-      authData: AuthData;
-      error: unknown;
-      respondWithError: typeof createCallbackError;
-    }
-  ): Promise<void>;
-};
+// Request type is from Web API
+export type CreateAppRegisterHandlerOptions = GenericCreateAppRegisterHandlerOptions<Request>;
 
 /**
  * Creates API handler for Next.js. Creates handler called by Saleor that registers app.
@@ -157,7 +104,7 @@ export const createAppRegisterHandler = ({
     }
 
     if (!saleorApiUrl) {
-      debug("saleorApiUrl doesnt exist in headers");
+      debug("saleorApiUrl doesn't exist in headers");
     }
 
     if (!validateAllowSaleorUrls(saleorApiUrl, allowedSaleorUrls)) {
@@ -292,7 +239,7 @@ export const createAppRegisterHandler = ({
     return Response.json(createRegisterHandlerResponseBody(true));
   };
 
-  return toNextEdgeHandler([
+  return toRequestHandler([
     withMethod("POST"),
     withSaleorDomainPresent,
     withAuthTokenRequired,

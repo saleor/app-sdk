@@ -13,7 +13,7 @@ const preparePipeline = (pipeline: FetchPipeline): FetchHandler => {
   return compose(...middleware)(action);
 };
 
-export const toNextEdgeHandler = (flow: FetchHandler | FetchPipeline): FetchHandler => {
+export const toRequestHandler = (flow: FetchHandler | FetchPipeline): FetchHandler => {
   const handler = isPipeline(flow) ? preparePipeline(flow) : flow;
 
   return async (request: Request) => handler(request);

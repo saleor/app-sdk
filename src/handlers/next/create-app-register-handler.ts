@@ -3,14 +3,13 @@ import { toNextHandler } from "retes/adapter";
 import { withMethod } from "retes/middleware";
 import { Response } from "retes/response";
 
-import { AuthData } from "../../APL";
 import { SALEOR_API_URL_HEADER, SALEOR_DOMAIN_HEADER } from "../../const";
 import { createDebug } from "../../debug";
 import { fetchRemoteJwks } from "../../fetch-remote-jwks";
 import { getAppId } from "../../get-app-id";
 import { withAuthTokenRequired, withSaleorDomainPresent } from "../../middleware";
-import { HasAPL } from "../../saleor-app";
-import { validateAllowSaleorUrls } from "./validate-allow-saleor-urls";
+import { GenericCreateAppRegisterHandlerOptions } from "../shared/create-app-register-handler-types";
+import { validateAllowSaleorUrls } from "../shared/validate-allow-saleor-urls";
 
 const debug = createDebug("createAppRegisterHandler");
 
@@ -63,59 +62,8 @@ const handleHookError = (e: RegisterCallbackError | unknown) => {
   return Response.InternalServerError("Error during app installation");
 };
 
-export type CreateAppRegisterHandlerOptions = HasAPL & {
-  /**
-   * Protect app from being registered in Saleor other than specific.
-   * By default, allow everything.
-   *
-   * Provide array of  either a full Saleor API URL (eg. my-shop.saleor.cloud/graphql/)
-   * or a function that receives a full Saleor API URL ad returns true/false.
-   */
-  allowedSaleorUrls?: Array<string | ((saleorApiUrl: string) => boolean)>;
-  /**
-   * Run right after Saleor calls this endpoint
-   */
-  onRequestStart?(
-    request: Request,
-    context: {
-      authToken?: string;
-      saleorDomain?: string;
-      saleorApiUrl?: string;
-      respondWithError: typeof createCallbackError;
-    }
-  ): Promise<void>;
-  /**
-   * Run after all security checks
-   */
-  onRequestVerified?(
-    request: Request,
-    context: {
-      authData: AuthData;
-      respondWithError: typeof createCallbackError;
-    }
-  ): Promise<void>;
-  /**
-   * Run after APL successfully AuthData, assuming that APL.set will reject a Promise in case of error
-   */
-  onAuthAplSaved?(
-    request: Request,
-    context: {
-      authData: AuthData;
-      respondWithError: typeof createCallbackError;
-    }
-  ): Promise<void>;
-  /**
-   * Run after APL fails to set AuthData
-   */
-  onAplSetFailed?(
-    request: Request,
-    context: {
-      authData: AuthData;
-      error: unknown;
-      respondWithError: typeof createCallbackError;
-    }
-  ): Promise<void>;
-};
+// Request type is from retest (Next.js interface)
+export type CreateAppRegisterHandlerOptions = GenericCreateAppRegisterHandlerOptions<Request>;
 
 /**
  * Creates API handler for Next.js. Creates handler called by Saleor that registers app.
@@ -155,7 +103,7 @@ export const createAppRegisterHandler = ({
     }
 
     if (!saleorApiUrl) {
-      debug("saleorApiUrl doesnt exist in headers");
+      debug("saleorApiUrl doesn't exist in headers");
     }
 
     if (!validateAllowSaleorUrls(saleorApiUrl, allowedSaleorUrls)) {
