@@ -9,7 +9,7 @@ import { withSaleorDomainPresent } from "../../fetch-middleware/with-saleor-doma
 import { fetchRemoteJwks } from "../../fetch-remote-jwks";
 import { getAppId } from "../../get-app-id";
 import { HasAPL } from "../../saleor-app";
-import { validateAllowSaleorUrls } from "../next/validate-allow-saleor-urls";
+import { validateAllowSaleorUrls } from "../shared/validate-allow-saleor-urls";
 
 const debug = createDebug("createAppRegisterHandler");
 
