@@ -3,25 +3,11 @@ import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
 import { APL } from "../../APL";
 import { createDebug } from "../../debug";
 import { Permission } from "../../types";
-import {
-  processSaleorProtectedHandler,
-  ProtectedHandlerError,
-  SaleorProtectedHandlerError,
-} from "./process-protected-handler";
-import { ProtectedHandlerContext } from "./protected-handler-context";
+import { ProtectedHandlerErrorCodeMap } from "../shared/protected-handler";
+import { ProtectedHandlerContext } from "../shared/protected-handler-context";
+import { processSaleorProtectedHandler, ProtectedHandlerError } from "./process-protected-handler";
 
 const debug = createDebug("ProtectedHandler");
-
-export const ProtectedHandlerErrorCodeMap: Record<SaleorProtectedHandlerError, number> = {
-  OTHER: 500,
-  MISSING_HOST_HEADER: 400,
-  MISSING_DOMAIN_HEADER: 400,
-  MISSING_API_URL_HEADER: 400,
-  NOT_REGISTERED: 401,
-  JWT_VERIFICATION_FAILED: 401,
-  NO_APP_ID: 401,
-  MISSING_AUTHORIZATION_BEARER_HEADER: 400,
-};
 
 export type NextProtectedApiHandler<TResp = unknown> = (
   req: NextApiRequest,

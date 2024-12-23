@@ -14,7 +14,7 @@ import {
 } from "../shared/create-app-register-handler-types";
 import { validateAllowSaleorUrls } from "../shared/validate-allow-saleor-urls";
 
-const debug = createDebug("createAppRegisterHandler");
+const debug = createDebug("WebApi:createAppRegisterHandler");
 
 class RegisterCallbackError extends Error {
   public status = 500;
