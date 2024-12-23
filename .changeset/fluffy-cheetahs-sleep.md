@@ -2,4 +2,4 @@
 "@saleor/app-sdk": minor
 ---
 
-Experimental: Added `handlers/next-edge` which adds support for Next.js Edge Runtime
+Added `handlers/fetch-api` which adds support for frameworks that use [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)
