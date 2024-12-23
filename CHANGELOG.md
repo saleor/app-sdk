@@ -1,5 +1,29 @@
 # @saleor/app-sdk
 
+## 0.51.0
+
+### Minor Changes
+
+- 7e9b259: Added VercelKV APL. It provides out-of-the-box integration. See [docs](https://docs.saleor.io/developer/extending/apps/developing-apps/app-sdk/apl#vercelkvapl)
+
+## 0.50.3
+
+### Patch Changes
+
+- ac4e4a2: Now, the fixed body size limit was removed, this means there is no restriction for size of the webhook payload, sent by Saleor.
+
+## 0.50.2
+
+### Patch Changes
+
+- 0749a6e: Fixed duplicated span.end() called on CloudAPL. This was incorrect invocation - span can be ended just once.
+
+## 0.50.1
+
+### Patch Changes
+
+- d24c734: Added additional debug logs for createManifestHandler utility. Now app with DEBUG env variable will print extra messagess helpful with broken app installations
+
 ## 0.50.0
 
 ### Minor Changes
