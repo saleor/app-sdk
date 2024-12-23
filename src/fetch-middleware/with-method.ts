@@ -16,7 +16,10 @@ export const withMethod =
   (handler) =>
   async (request) => {
     if (!methods.includes(request.method as HTTPMethod)) {
-      return new Response("Method not allowed", { status: 405 });
+      return new Response("Method not allowed", {
+        status: 405,
+        headers: { Allow: methods.join(", ") },
+      });
     }
 
     const response = await handler(request);
