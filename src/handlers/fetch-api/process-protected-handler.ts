@@ -1,9 +1,8 @@
 import { SpanKind, SpanStatusCode } from "@opentelemetry/api";
-import { NextApiRequest } from "next";
 
 import { APL } from "../../APL";
 import { createDebug } from "../../debug";
-import { getBaseUrl, getSaleorHeaders } from "../../headers";
+import { getBaseUrlFetchAPI, getSaleorHeadersFetchAPI } from "../../headers";
 import { getOtelTracer } from "../../open-telemetry";
 import { Permission } from "../../types";
 import { extractUserFromJwt } from "../../util/extract-user-from-jwt";
@@ -35,7 +34,7 @@ export class ProtectedHandlerError extends Error {
 }
 
 interface ProcessSaleorProtectedHandlerArgs {
-  req: Pick<NextApiRequest, "headers">;
+  request: Pick<Request, "headers">;
   apl: APL;
   requiredPermissions?: Permission[];
 }
@@ -51,7 +50,7 @@ type ProcessAsyncSaleorProtectedHandler = (
  * Can pass entire next request or Headers with saleorApiUrl and token
  */
 export const processSaleorProtectedHandler: ProcessAsyncSaleorProtectedHandler = async ({
-  req,
+  request,
   apl,
   requiredPermissions,
 }: ProcessSaleorProtectedHandlerArgs): Promise<ProtectedHandlerContext> => {
@@ -68,9 +67,11 @@ export const processSaleorProtectedHandler: ProcessAsyncSaleorProtectedHandler =
     async (span) => {
       debug("Request processing started");
 
-      const { saleorApiUrl, authorizationBearer: token } = getSaleorHeaders(req.headers);
+      const { saleorApiUrl, authorizationBearer: token } = getSaleorHeadersFetchAPI(
+        request.headers
+      );
 
-      const baseUrl = getBaseUrl(req.headers);
+      const baseUrl = getBaseUrlFetchAPI(request.headers);
 
       span.setAttribute("saleorApiUrl", saleorApiUrl ?? "");
 

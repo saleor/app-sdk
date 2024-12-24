@@ -1,22 +1,20 @@
-import type { Handler, Request } from "retes";
-import { toNextHandler } from "retes/adapter";
-import { withMethod } from "retes/middleware";
-import { Response } from "retes/response";
-
 import { SALEOR_API_URL_HEADER, SALEOR_DOMAIN_HEADER } from "../../const";
 import { createDebug } from "../../debug";
+import { toRequestHandler } from "../../fetch-middleware/to-request-handler";
+import { FetchHandler } from "../../fetch-middleware/types";
+import { withAuthTokenRequired } from "../../fetch-middleware/with-auth-token-required";
+import { withMethod } from "../../fetch-middleware/with-method";
+import { withSaleorDomainPresent } from "../../fetch-middleware/with-saleor-domain-present";
 import { fetchRemoteJwks } from "../../fetch-remote-jwks";
 import { getAppId } from "../../get-app-id";
-import { withAuthTokenRequired, withSaleorDomainPresent } from "../../middleware";
-import { GenericCreateAppRegisterHandlerOptions } from "../shared/create-app-register-handler-types";
+import {
+  CallbackErrorHandler,
+  GenericCreateAppRegisterHandlerOptions,
+  HookCallbackErrorParams,
+} from "../shared/create-app-register-handler-types";
 import { validateAllowSaleorUrls } from "../shared/validate-allow-saleor-urls";
 
-const debug = createDebug("createAppRegisterHandler");
-
-type HookCallbackErrorParams = {
-  status?: number;
-  message?: string;
-};
+const debug = createDebug("WebApi:createAppRegisterHandler");
 
 class RegisterCallbackError extends Error {
   public status = 500;
@@ -30,7 +28,7 @@ class RegisterCallbackError extends Error {
   }
 }
 
-const createCallbackError = (params: HookCallbackErrorParams) => {
+const createCallbackError: CallbackErrorHandler = (params: HookCallbackErrorParams) => {
   throw new RegisterCallbackError(params);
 };
 
@@ -41,6 +39,7 @@ export type RegisterHandlerResponseBody = {
     message?: string;
   };
 };
+
 export const createRegisterHandlerResponseBody = (
   success: boolean,
   error?: RegisterHandlerResponseBody["error"]
@@ -51,7 +50,7 @@ export const createRegisterHandlerResponseBody = (
 
 const handleHookError = (e: RegisterCallbackError | unknown) => {
   if (e instanceof RegisterCallbackError) {
-    return new Response(
+    return Response.json(
       createRegisterHandlerResponseBody(false, {
         code: "REGISTER_HANDLER_HOOK_ERROR",
         message: e.message,
@@ -59,10 +58,10 @@ const handleHookError = (e: RegisterCallbackError | unknown) => {
       { status: e.status }
     );
   }
-  return Response.InternalServerError("Error during app installation");
+  return new Response("Error during app installation", { status: 500 });
 };
 
-// Request type is from retest (Next.js interface)
+// Request type is from Web API
 export type CreateAppRegisterHandlerOptions = GenericCreateAppRegisterHandlerOptions<Request>;
 
 /**
@@ -78,12 +77,14 @@ export const createAppRegisterHandler = ({
   onRequestVerified,
   onRequestStart,
 }: CreateAppRegisterHandlerOptions) => {
-  const baseHandler: Handler = async (request) => {
+  const baseHandler: FetchHandler = async (inputRequest) => {
     debug("Request received");
 
-    const authToken = request.params.auth_token;
-    const saleorDomain = request.headers[SALEOR_DOMAIN_HEADER] as string;
-    const saleorApiUrl = request.headers[SALEOR_API_URL_HEADER] as string;
+    const request = inputRequest.clone();
+    const json = await request.json();
+    const authToken = json.auth_token;
+    const saleorDomain = request.headers.get(SALEOR_DOMAIN_HEADER) as string;
+    const saleorApiUrl = request.headers.get(SALEOR_API_URL_HEADER) as string;
 
     if (onRequestStart) {
       debug("Calling \"onRequestStart\" hook");
@@ -112,11 +113,12 @@ export const createAppRegisterHandler = ({
         saleorApiUrl
       );
 
-      return Response.Forbidden(
+      return Response.json(
         createRegisterHandlerResponseBody(false, {
           code: "SALEOR_URL_PROHIBITED",
           message: "This app expects to be installed only in allowed Saleor instances",
-        })
+        }),
+        { status: 403 }
       );
     }
 
@@ -125,7 +127,7 @@ export const createAppRegisterHandler = ({
     if (!aplConfigured) {
       debug("The APL has not been configured");
 
-      return new Response(
+      return Response.json(
         createRegisterHandlerResponseBody(false, {
           code: "APL_NOT_CONFIGURED",
           message: "APL_NOT_CONFIGURED. App is configured properly. Check APL docs for help.",
@@ -139,7 +141,7 @@ export const createAppRegisterHandler = ({
     // Try to get App ID from the API, to confirm that communication can be established
     const appId = await getAppId({ saleorApiUrl, token: authToken });
     if (!appId) {
-      return new Response(
+      return Response.json(
         createRegisterHandlerResponseBody(false, {
           code: "UNKNOWN_APP_ID",
           message: `The auth data given during registration request could not be used to fetch app ID. 
@@ -154,7 +156,7 @@ export const createAppRegisterHandler = ({
     // Fetch the JWKS which will be used during webhook validation
     const jwks = await fetchRemoteJwks(saleorApiUrl);
     if (!jwks) {
-      return new Response(
+      return Response.json(
         createRegisterHandlerResponseBody(false, {
           code: "JWKS_NOT_AVAILABLE",
           message: "Can't fetch the remote JWKS.",
@@ -224,19 +226,20 @@ export const createAppRegisterHandler = ({
         }
       }
 
-      return Response.InternalServerError(
+      return Response.json(
         createRegisterHandlerResponseBody(false, {
           message: "Registration failed: could not save the auth data.",
-        })
+        }),
+        { status: 500 }
       );
     }
 
     debug("Register  complete");
 
-    return Response.OK(createRegisterHandlerResponseBody(true));
+    return Response.json(createRegisterHandlerResponseBody(true));
   };
 
-  return toNextHandler([
+  return toRequestHandler([
     withMethod("POST"),
     withSaleorDomainPresent,
     withAuthTokenRequired,
