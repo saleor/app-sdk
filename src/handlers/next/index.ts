@@ -1,3 +1,4 @@
+// Re-export to avoid breaking changes
 export * from "../shared/protected-handler-context";
 export * from "./create-app-register-handler";
 export * from "./create-manifest-handler";
