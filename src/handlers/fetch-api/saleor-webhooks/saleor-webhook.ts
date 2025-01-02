@@ -1,5 +1,4 @@
 import { ASTNode } from "graphql";
-import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
 
 import { APL } from "../../../APL";
 import { createDebug } from "../../../debug";
@@ -17,14 +16,13 @@ export interface WebhookConfig<Event = AsyncWebhookEventType | SyncWebhookEventT
   event: Event;
   isActive?: boolean;
   apl: APL;
-  onError?(error: WebhookError | Error, req: NextApiRequest, res: NextApiResponse): void;
+  onError?(error: WebhookError | Error, request: Request): void;
   formatErrorResponse?(
     error: WebhookError | Error,
-    req: NextApiRequest,
-    res: NextApiResponse
+    request: Request
   ): Promise<{
     code: number;
-    body: object | string;
+    body: string;
   }>;
   query: string | ASTNode;
   /**
@@ -33,13 +31,12 @@ export interface WebhookConfig<Event = AsyncWebhookEventType | SyncWebhookEventT
   subscriptionQueryAst?: ASTNode;
 }
 
-export type NextWebhookApiHandler<TPayload = unknown, TExtras = {}> = (
-  req: NextApiRequest,
-  res: NextApiResponse,
+export type WebApiWebhookHandler<TPayload = unknown, TExtras = {}> = (
+  req: Request,
   ctx: WebhookContext<TPayload> & TExtras
 ) => unknown | Promise<unknown>;
 
-export abstract class SaleorWebhook<
+export abstract class SaleorWebApiWebhook<
   TPayload = unknown,
   TExtras extends Record<string, unknown> = {}
 > {
@@ -128,8 +125,8 @@ export abstract class SaleorWebhook<
    * Wraps provided function, to ensure incoming request comes from registered Saleor instance.
    * Also provides additional `context` object containing typed payload and request properties.
    */
-  createHandler(handlerFn: NextWebhookApiHandler<TPayload, TExtras>): NextApiHandler {
-    return async (req, res) => {
+  createHandler(handlerFn: WebApiWebhookHandler<TPayload, TExtras>): WebApiWebhookHandler {
+    return async (req) => {
       debug(`Handler for webhook ${this.name} called`);
 
       await processSaleorWebhook<TPayload>({
@@ -140,7 +137,7 @@ export abstract class SaleorWebhook<
         .then(async (context) => {
           debug("Incoming request validated. Call handlerFn");
 
-          return handlerFn(req, res, { ...(this.extraContext ?? ({} as TExtras)), ...context });
+          return handlerFn(req, { ...(this.extraContext ?? ({} as TExtras)), ...context });
         })
         .catch(async (e) => {
           debug(`Unexpected error during processing the webhook ${this.name}`);
@@ -149,40 +146,38 @@ export abstract class SaleorWebhook<
             debug(`Validation error: ${e.message}`);
 
             if (this.onError) {
-              this.onError(e, req, res);
+              this.onError(e, req);
             }
 
             if (this.formatErrorResponse) {
-              const { code, body } = await this.formatErrorResponse(e, req, res);
+              const { code, body } = await this.formatErrorResponse(e, req);
 
-              res.status(code).send(body);
-
-              return;
+              return new Response(body, { status: code });
             }
 
-            res.status(WebhookErrorCodeMap[e.errorType] || 400).send({
-              error: {
-                type: e.errorType,
-                message: e.message,
-              },
-            });
-            return;
+            return new Response(
+              JSON.stringify({
+                error: {
+                  type: e.errorType,
+                  message: e.message,
+                },
+              }),
+              { status: WebhookErrorCodeMap[e.errorType] || 400 }
+            );
           }
           debug("Unexpected error: %O", e);
 
           if (this.onError) {
-            this.onError(e, req, res);
+            this.onError(e, req);
           }
 
           if (this.formatErrorResponse) {
-            const { code, body } = await this.formatErrorResponse(e, req, res);
+            const { code, body } = await this.formatErrorResponse(e, req);
 
-            res.status(code).send(body);
-
-            return;
+            return new Response(body, { status: code });
           }
 
-          res.status(500).end();
+          return new Response("Unexpected error while handling request", { status: 500 });
         });
     };
   }

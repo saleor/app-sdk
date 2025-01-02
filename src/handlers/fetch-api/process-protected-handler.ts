@@ -9,7 +9,7 @@ import { extractUserFromJwt } from "../../util/extract-user-from-jwt";
 import { verifyJWT } from "../../verify-jwt";
 import { ProtectedHandlerContext } from "../shared/protected-handler-context";
 
-const debug = createDebug("processProtectedHandler");
+const debug = createDebug("WebAPI:processProtectedHandler");
 
 export type SaleorProtectedHandlerError =
   | "OTHER"
