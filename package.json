@@ -138,10 +138,15 @@
       "import": "./handlers/next/index.mjs",
       "require": "./handlers/next/index.js"
     },
-    "./handlers/next-edge": {
-      "types": "./handlers/next-edge/index.d.ts",
-      "import": "./handlers/next-edge/index.mjs",
-      "require": "./handlers/next-edge/index.js"
+    "./handlers/fetch-api": {
+      "types": "./handlers/fetch-api/index.d.ts",
+      "import": "./handlers/fetch-api/index.mjs",
+      "require": "./handlers/fetch-api/index.js"
+    },
+    "./handlers/shared": {
+      "types": "./handlers/shared/index.d.ts",
+      "import": "./handlers/shared/index.mjs",
+      "require": "./handlers/shared/index.js"
     },
     "./saleor-app": {
       "types": "./saleor-app.d.ts",
