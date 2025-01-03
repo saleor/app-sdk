@@ -46,7 +46,7 @@
     "@types/react-dom": "^18.0.5",
     "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.36.1",
-    "@typescript-eslint/parser": "^5.36.1",
+    "@typescript-eslint/parser": "^7.1.1",
     "@vercel/kv": "1.0.0",
     "@vitejs/plugin-react": "^3.0.1",
     "@vitest/coverage-c8": "^0.27.2",
@@ -72,7 +72,7 @@
     "react-dom": "18.2.0",
     "tsm": "^2.2.2",
     "tsup": "^6.2.3",
-    "typescript": "4.9.5",
+    "typescript": "5.4.2",
     "vi-fetch": "^0.8.0",
     "vite": "^4.0.4",
     "vitest": "^0.28.1"
@@ -108,6 +108,11 @@
       "import": "./settings-manager/index.mjs",
       "require": "./settings-manager/index.js"
     },
+    "./fetch-middleware": {
+      "types": "./fetch-middleware/index.d.ts",
+      "import": "./fetch-middleware/index.mjs",
+      "require": "./fetch-middleware/index.js"
+    },
     "./middleware": {
       "types": "./middleware/index.d.ts",
       "import": "./middleware/index.mjs",
@@ -132,6 +137,16 @@
       "types": "./handlers/next/index.d.ts",
       "import": "./handlers/next/index.mjs",
       "require": "./handlers/next/index.js"
+    },
+    "./handlers/fetch-api": {
+      "types": "./handlers/fetch-api/index.d.ts",
+      "import": "./handlers/fetch-api/index.mjs",
+      "require": "./handlers/fetch-api/index.js"
+    },
+    "./handlers/shared": {
+      "types": "./handlers/shared/index.d.ts",
+      "import": "./handlers/shared/index.mjs",
+      "require": "./handlers/shared/index.js"
     },
     "./saleor-app": {
       "types": "./saleor-app.d.ts",

@@ -1,5 +1,3 @@
-import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
-
 import { APL } from "../../APL";
 import { createDebug } from "../../debug";
 import { Permission } from "../../types";
@@ -7,44 +5,36 @@ import { ProtectedHandlerErrorCodeMap } from "../shared/protected-handler";
 import { ProtectedHandlerContext } from "../shared/protected-handler-context";
 import { processSaleorProtectedHandler, ProtectedHandlerError } from "./process-protected-handler";
 
-const debug = createDebug("ProtectedHandler");
+const debug = createDebug("WebAPI:ProtectedHandler");
 
-export type NextProtectedApiHandler<TResp = unknown> = (
-  req: NextApiRequest,
-  res: NextApiResponse<TResp>,
+export type WebApiProtectedHandler = (
+  request: Request,
   ctx: ProtectedHandlerContext
-) => unknown | Promise<unknown>;
+) => Response | Promise<Response>;
 
-/**
- * Wraps provided function, to ensure incoming request comes from Saleor Dashboard.
- * Also provides additional `context` object containing request properties.
- */
 export const createProtectedHandler =
   (
-    handlerFn: NextProtectedApiHandler,
+    handlerFn: WebApiProtectedHandler,
     apl: APL,
     requiredPermissions?: Permission[]
-  ): NextApiHandler =>
-  (req, res) => {
+  ): WebApiProtectedHandler =>
+  (request) => {
     debug("Protected handler called");
-    processSaleorProtectedHandler({
-      req,
-      apl,
-      requiredPermissions,
-    })
-      .then(async (context) => {
+    return processSaleorProtectedHandler({ request, apl, requiredPermissions })
+      .then(async (ctx) => {
         debug("Incoming request validated. Call handlerFn");
-        return handlerFn(req, res, context);
+        return handlerFn(request, ctx);
       })
       .catch((e) => {
         debug("Unexpected error during processing the request");
 
         if (e instanceof ProtectedHandlerError) {
           debug(`Validation error: ${e.message}`);
-          res.status(ProtectedHandlerErrorCodeMap[e.errorType] || 400).end();
-          return;
+          return new Response("Invalid request", {
+            status: ProtectedHandlerErrorCodeMap[e.errorType] || 400,
+          });
         }
         debug("Unexpected error: %O", e);
-        res.status(500).end();
+        return new Response("Unexpected error while handling request", { status: 500 });
       });
   };

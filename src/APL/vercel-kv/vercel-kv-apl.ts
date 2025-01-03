@@ -55,7 +55,7 @@ export class VercelKvApl implements APL {
 
           span
             .setStatus({
-              code: 200,
+              code: SpanStatusCode.OK,
               message: "Received response from VercelKV",
             })
             .end();
@@ -101,7 +101,7 @@ export class VercelKvApl implements APL {
 
           span
             .setStatus({
-              code: 200,
+              code: SpanStatusCode.OK,
               message: "Successfully written auth data to VercelKV",
             })
             .end();
@@ -140,7 +140,7 @@ export class VercelKvApl implements APL {
 
           span
             .setStatus({
-              code: 200,
+              code: SpanStatusCode.OK,
               message: "Successfully deleted auth data to VercelKV",
             })
             .end();
