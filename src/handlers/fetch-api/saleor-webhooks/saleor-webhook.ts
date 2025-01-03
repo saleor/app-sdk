@@ -129,7 +129,7 @@ export abstract class SaleorWebApiWebhook<
     return async (req) => {
       debug(`Handler for webhook ${this.name} called`);
 
-      await processSaleorWebhook<TPayload>({
+      return processSaleorWebhook<TPayload>({
         req,
         apl: this.apl,
         allowedEvent: this.event,
