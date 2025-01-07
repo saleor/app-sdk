@@ -25,7 +25,8 @@
     "graphql": ">=16.6.0",
     "next": ">=12",
     "react": ">=17",
-    "react-dom": ">=17"
+    "react-dom": ">=17",
+    "redis": "^4.6.12"
   },
   "dependencies": {
     "@opentelemetry/api": "^1.7.0",
@@ -79,6 +80,9 @@
   },
   "peerDependenciesMeta": {
     "@vercel/kv": {
+      "optional": true
+    },
+    "redis": {
       "optional": true
     }
   },
@@ -169,5 +173,5 @@
     "url": "https://github.com/saleor/saleor-app-sdk/issues"
   },
   "homepage": "https://github.com/saleor/saleor-app-sdk#readme",
-  "packageManager": "pnpm@8.2.0"
+  "packageManager": "pnpm@9.12.0"
 }
