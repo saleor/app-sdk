@@ -1,6 +1,11 @@
 import { SyncWebhookEventType } from "../../../types";
 import { buildSyncWebhookResponsePayload } from "../../shared/sync-webhook-response-builder";
-import { SaleorWebApiWebhook, WebApiWebhookHandler, WebhookConfig } from "./saleor-webhook";
+import {
+  SaleorWebApiWebhook,
+  SaleorWebhookHandler,
+  WebApiRouteHandler,
+  WebhookConfig,
+} from "./saleor-webhook";
 
 type InjectedContext<TEvent extends SyncWebhookEventType> = {
   buildResponse: typeof buildSyncWebhookResponsePayload<TEvent>;
@@ -24,13 +29,13 @@ export class SaleorSyncWebhook<
   }
 
   createHandler(
-    handlerFn: WebApiWebhookHandler<
+    handlerFn: SaleorWebhookHandler<
       TPayload,
       {
         buildResponse: typeof buildSyncWebhookResponsePayload<TEvent>;
       }
     >
-  ): WebApiWebhookHandler {
+  ): WebApiRouteHandler {
     return super.createHandler(handlerFn);
   }
 }

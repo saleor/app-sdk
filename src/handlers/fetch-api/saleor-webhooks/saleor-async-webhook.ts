@@ -1,7 +1,12 @@
 import { ASTNode } from "graphql";
 
 import { AsyncWebhookEventType } from "../../../types";
-import { SaleorWebApiWebhook, WebApiWebhookHandler, WebhookConfig } from "./saleor-webhook";
+import {
+  SaleorWebApiWebhook,
+  SaleorWebhookHandler,
+  WebApiRouteHandler,
+  WebhookConfig,
+} from "./saleor-webhook";
 
 export class SaleorAsyncWebhook<TPayload = unknown> extends SaleorWebApiWebhook<TPayload> {
   readonly event: AsyncWebhookEventType;
@@ -42,7 +47,7 @@ export class SaleorAsyncWebhook<TPayload = unknown> extends SaleorWebApiWebhook<
     this.query = configuration.query! ?? configuration.subscriptionQueryAst!;
   }
 
-  createHandler(handlerFn: WebApiWebhookHandler<TPayload>): WebApiWebhookHandler {
+  createHandler(handlerFn: SaleorWebhookHandler<TPayload>): WebApiRouteHandler {
     return super.createHandler(handlerFn);
   }
 }

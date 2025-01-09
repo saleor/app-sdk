@@ -31,10 +31,14 @@ export interface WebhookConfig<Event = AsyncWebhookEventType | SyncWebhookEventT
   subscriptionQueryAst?: ASTNode;
 }
 
-export type WebApiWebhookHandler<TPayload = unknown, TExtras = {}> = (
+/** Generic Web API route handler */
+export type WebApiRouteHandler = (request: Request) => Response | Promise<Response>;
+
+/** Function type provided by consumer in `SaleorWebApiWebhook.createHandler` */
+export type SaleorWebhookHandler<TPayload = unknown, TExtras = {}> = (
   req: Request,
   ctx: WebhookContext<TPayload> & TExtras
-) => unknown | Promise<unknown>;
+) => Response | Promise<Response>;
 
 export abstract class SaleorWebApiWebhook<
   TPayload = unknown,
@@ -125,7 +129,7 @@ export abstract class SaleorWebApiWebhook<
    * Wraps provided function, to ensure incoming request comes from registered Saleor instance.
    * Also provides additional `context` object containing typed payload and request properties.
    */
-  createHandler(handlerFn: WebApiWebhookHandler<TPayload, TExtras>): WebApiWebhookHandler {
+  createHandler(handlerFn: SaleorWebhookHandler<TPayload, TExtras>): WebApiRouteHandler {
     return async (req) => {
       debug(`Handler for webhook ${this.name} called`);
 
