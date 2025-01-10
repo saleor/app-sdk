@@ -6,16 +6,47 @@ import { getOtelTracer, OTEL_APL_SERVICE_NAME } from "../../open-telemetry";
 import { APL, AplConfiguredResult, AplReadyResult, AuthData } from "../apl";
 import { createAPLDebug } from "../apl-debug";
 
+/**
+ * Configuration options for RedisAPL
+ */
 type RedisAPLConfig = {
-  url?: string;
+  /** Redis client instance to use for storage */
+  client: ReturnType<typeof createClient>;
+  /** Optional key to use for the hash collection. Defaults to "saleor_app_auth" */
   hashCollectionKey?: string;
 };
 
 const RedisAPLVariables = {
-  REDIS_URL: "REDIS_URL",
   REDIS_HASH_KEY: "REDIS_HASH_KEY",
 } as const;
 
+/**
+ * Redis implementation of the Auth Persistence Layer (APL).
+ * This class provides Redis-based storage for Saleor App authentication data.
+ *
+ * @example
+ * ```typescript
+ * // Create and configure Redis client
+ * const client = createClient({
+ *   url: "redis://localhost:6379",
+ *   // Add any additional Redis configuration options
+ * });
+ *
+ * // Connect to Redis
+ * await client.connect();
+ *
+ * // Initialize RedisAPL with the client
+ * const apl = new RedisAPL({
+ *   client,
+ *   // Optional: customize the hash collection key
+ *   hashCollectionKey: "my_custom_auth_key"
+ * });
+ *
+ * // Use the APL in your app
+ * await apl.set("app-id", { token: "auth-token" });
+ * const authData = await apl.get("app-id");
+ * ```
+ */
 export class RedisAPL implements APL {
   private debug = createAPLDebug("RedisAPL");
 
@@ -25,25 +56,14 @@ export class RedisAPL implements APL {
 
   private hashCollectionKey: string;
 
-  constructor(config?: RedisAPLConfig) {
-    const redisUrl = config?.url || process.env[RedisAPLVariables.REDIS_URL];
+  constructor(config: RedisAPLConfig) {
+    this.client = config.client;
     this.hashCollectionKey =
-      config?.hashCollectionKey ||
+      config.hashCollectionKey ||
       process.env[RedisAPLVariables.REDIS_HASH_KEY] ||
       "saleor_app_auth";
 
-    if (!redisUrl) {
-      throw new Error(
-        `Missing Redis configuration. Please provide Redis URL either through constructor or ${RedisAPLVariables.REDIS_URL} environment variable.`
-      );
-    }
-
-    this.client = createClient({
-      url: redisUrl,
-    });
-
-    // Don't connect in constructor - we'll connect lazily when needed
-    this.debug("Redis client created with URL %s", redisUrl);
+    this.debug("Redis APL initialized");
   }
 
   private async ensureConnection(): Promise<void> {
