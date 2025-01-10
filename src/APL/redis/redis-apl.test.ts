@@ -1,26 +1,48 @@
-import { createClient } from "redis";
+import { RedisClientType } from "redis";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AuthData } from "../apl";
 import { RedisAPL } from "./redis-apl";
 
-// Mock Redis client
+// Create a variable to control the connection state
+let isRedisOpen = false;
+
+// Create properly typed mock functions
+const mockHGet = vi.fn().mockResolvedValue(undefined);
+const mockHSet = vi.fn().mockResolvedValue(1);
+const mockHDel = vi.fn().mockResolvedValue(1);
+const mockHGetAll = vi.fn().mockResolvedValue({});
+const mockPing = vi.fn().mockResolvedValue("PONG");
+const mockConnect = vi.fn().mockResolvedValue(undefined);
+const mockDisconnect = vi.fn().mockResolvedValue(undefined);
+
 const mockRedisClient = {
-  connect: vi.fn().mockResolvedValue(undefined),
-  ping: vi.fn().mockResolvedValue("PONG"),
-  hGet: vi.fn(),
-  hSet: vi.fn(),
-  hDel: vi.fn(),
-  hGetAll: vi.fn(),
-  isOpen: false,
-};
+  connect: mockConnect,
+  ping: mockPing,
+  hGet: mockHGet,
+  hSet: mockHSet,
+  hDel: mockHDel,
+  hGetAll: mockHGetAll,
+  get isOpen() {
+    return isRedisOpen;
+  },
+  disconnect: mockDisconnect,
+  isReady: false,
+  commandOptions: vi.fn(),
+  options: {},
+  duplicate: vi.fn(),
+  multi: vi.fn(),
+  isPubSubActive: false,
+  quit: vi.fn().mockResolvedValue(undefined),
+  sendCommand: vi.fn(),
+  executeIsolated: vi.fn(),
+} as unknown as RedisClientType;
 
 vi.mock("redis", () => ({
   createClient: vi.fn(() => mockRedisClient),
 }));
 
 describe("RedisAPL", () => {
-  const mockRedisUrl = "redis://localhost:6379";
   const mockHashKey = "test_hash_key";
   const mockAuthData: AuthData = {
     token: "test-token",
@@ -31,58 +53,60 @@ describe("RedisAPL", () => {
   let apl: RedisAPL;
 
   beforeEach(() => {
-    process.env.REDIS_URL = mockRedisUrl;
     process.env.REDIS_HASH_KEY = mockHashKey;
-    apl = new RedisAPL();
+    apl = new RedisAPL({ client: mockRedisClient });
     vi.clearAllMocks();
-    mockRedisClient.isOpen = false;
+    isRedisOpen = false;
   });
 
-  afterEach(() => {
-    delete process.env.REDIS_URL;
+  afterEach(async () => {
     delete process.env.REDIS_HASH_KEY;
+    if (mockRedisClient.isOpen) {
+      await mockRedisClient.disconnect();
+    }
+    vi.clearAllMocks();
   });
 
   describe("constructor", () => {
-    it("throws error when Redis URL is not provided", () => {
-      delete process.env.REDIS_URL;
-      expect(() => new RedisAPL()).toThrow("Missing Redis configuration");
-    });
-
-    it("uses provided config over environment variables", () => {
-      const customUrl = "redis://custom:6379";
+    it("uses provided hash key over environment variable", async () => {
       const customHashKey = "custom_hash";
-      new RedisAPL({ url: customUrl, hashCollectionKey: customHashKey });
-      expect(createClient).toHaveBeenCalledWith({ url: customUrl });
+      const customApl = new RedisAPL({
+        client: mockRedisClient,
+        hashCollectionKey: customHashKey,
+      });
+
+      // Test the hash key by making a call that uses it
+      await customApl.get(mockAuthData.saleorApiUrl);
+      expect(mockRedisClient.hGet).toHaveBeenCalledWith(customHashKey, mockAuthData.saleorApiUrl);
     });
   });
 
   describe("get", () => {
     it("returns undefined when no data found", async () => {
-      mockRedisClient.hGet.mockResolvedValueOnce(null);
+      mockHGet.mockResolvedValueOnce(null);
       const result = await apl.get(mockAuthData.saleorApiUrl);
       expect(result).toBeUndefined();
-      expect(mockRedisClient.connect).toHaveBeenCalled();
+      expect(mockConnect).toHaveBeenCalled();
     });
 
     it("returns parsed auth data when found", async () => {
-      mockRedisClient.hGet.mockResolvedValueOnce(JSON.stringify(mockAuthData));
+      mockHGet.mockResolvedValueOnce(JSON.stringify(mockAuthData));
       const result = await apl.get(mockAuthData.saleorApiUrl);
       expect(result).toEqual(mockAuthData);
-      expect(mockRedisClient.hGet).toHaveBeenCalledWith(mockHashKey, mockAuthData.saleorApiUrl);
+      expect(mockHGet).toHaveBeenCalledWith(mockHashKey, mockAuthData.saleorApiUrl);
     });
 
     it("throws error when Redis operation fails", async () => {
-      mockRedisClient.hGet.mockRejectedValueOnce(new Error("Redis error"));
+      mockHGet.mockRejectedValueOnce(new Error("Redis error"));
       await expect(apl.get(mockAuthData.saleorApiUrl)).rejects.toThrow("Redis error");
     });
   });
 
   describe("set", () => {
     it("successfully sets auth data", async () => {
-      mockRedisClient.hSet.mockResolvedValueOnce(1);
+      mockHSet.mockResolvedValueOnce(1);
       await apl.set(mockAuthData);
-      expect(mockRedisClient.hSet).toHaveBeenCalledWith(
+      expect(mockHSet).toHaveBeenCalledWith(
         mockHashKey,
         mockAuthData.saleorApiUrl,
         JSON.stringify(mockAuthData)
@@ -90,20 +114,20 @@ describe("RedisAPL", () => {
     });
 
     it("throws error when Redis operation fails", async () => {
-      mockRedisClient.hSet.mockRejectedValueOnce(new Error("Redis error"));
+      mockHSet.mockRejectedValueOnce(new Error("Redis error"));
       await expect(apl.set(mockAuthData)).rejects.toThrow("Redis error");
     });
   });
 
   describe("delete", () => {
     it("successfully deletes auth data", async () => {
-      mockRedisClient.hDel.mockResolvedValueOnce(1);
+      mockHDel.mockResolvedValueOnce(1);
       await apl.delete(mockAuthData.saleorApiUrl);
-      expect(mockRedisClient.hDel).toHaveBeenCalledWith(mockHashKey, mockAuthData.saleorApiUrl);
+      expect(mockHDel).toHaveBeenCalledWith(mockHashKey, mockAuthData.saleorApiUrl);
     });
 
     it("throws error when Redis operation fails", async () => {
-      mockRedisClient.hDel.mockRejectedValueOnce(new Error("Redis error"));
+      mockHDel.mockRejectedValueOnce(new Error("Redis error"));
       await expect(apl.delete(mockAuthData.saleorApiUrl)).rejects.toThrow("Redis error");
     });
   });
@@ -113,26 +137,26 @@ describe("RedisAPL", () => {
       const mockAllData = {
         [mockAuthData.saleorApiUrl]: JSON.stringify(mockAuthData),
       };
-      mockRedisClient.hGetAll.mockResolvedValueOnce(mockAllData);
+      mockHGetAll.mockResolvedValueOnce(mockAllData);
       const result = await apl.getAll();
       expect(result).toEqual([mockAuthData]);
     });
 
     it("throws error when Redis operation fails", async () => {
-      mockRedisClient.hGetAll.mockRejectedValueOnce(new Error("Redis error"));
+      mockHGetAll.mockRejectedValueOnce(new Error("Redis error"));
       await expect(apl.getAll()).rejects.toThrow("Redis error");
     });
   });
 
   describe("isReady", () => {
     it("returns ready true when Redis is connected", async () => {
-      mockRedisClient.ping.mockResolvedValueOnce("PONG");
+      mockPing.mockResolvedValueOnce("PONG");
       const result = await apl.isReady();
       expect(result).toEqual({ ready: true });
     });
 
     it("returns ready false with error when Redis is not connected", async () => {
-      mockRedisClient.ping.mockRejectedValueOnce(new Error("Connection failed"));
+      mockPing.mockRejectedValueOnce(new Error("Connection failed"));
       const result = await apl.isReady();
       expect(result).toEqual({ ready: false, error: new Error("Connection failed") });
     });
@@ -140,13 +164,13 @@ describe("RedisAPL", () => {
 
   describe("isConfigured", () => {
     it("returns configured true when Redis is connected", async () => {
-      mockRedisClient.ping.mockResolvedValueOnce("PONG");
+      mockPing.mockResolvedValueOnce("PONG");
       const result = await apl.isConfigured();
       expect(result).toEqual({ configured: true });
     });
 
     it("returns configured false with error when Redis is not connected", async () => {
-      mockRedisClient.ping.mockRejectedValueOnce(new Error("Connection failed"));
+      mockPing.mockRejectedValueOnce(new Error("Connection failed"));
       const result = await apl.isConfigured();
       expect(result).toEqual({ configured: false, error: new Error("Connection failed") });
     });
