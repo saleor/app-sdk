@@ -50,12 +50,29 @@ export const getBaseUrl = (headers: { [name: string]: string | string[] | undefi
   return `${protocol}://${host}`;
 };
 
-export const getBaseUrlFetchAPI = (headers: Headers) => {
-  const host = headers.get("host");
-  const xForwardedProto = headers.get("x-forwarded-proto") || "http";
+export const getBaseUrlFetchAPI = (request: Request) => {
+  let url: URL | undefined;
+  try {
+    url = new URL(request.url);
+  } catch (e) {
+    // no-op
+  }
 
-  const protocols = xForwardedProto.split(",").map((value) => value.trimStart());
-  const protocol = protocols.find((el) => el === "https") || protocols[0];
+  const host = request.headers.get("host");
+  const xForwardedProto = request.headers.get("x-forwarded-proto");
+
+  let protocol: string;
+  if (xForwardedProto) {
+    const xForwardedForProtocols = xForwardedProto.split(",").map((value) => value.trimStart());
+    protocol = xForwardedForProtocols.find((el) => el === "https") || xForwardedForProtocols[0];
+  } else if (url) {
+    // Some providers (e.g. Deno Deploy)
+    // do not set x-forwarded-for header when handling request
+    // try to get it from URL
+    protocol = url.protocol.replace(":", "");
+  } else {
+    protocol = "http";
+  }
 
   return `${protocol}://${host}`;
 };

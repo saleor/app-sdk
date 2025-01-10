@@ -30,7 +30,7 @@ export const processSaleorWebhook = async <T>({
     }
 
     const { event, signature, saleorApiUrl } = getSaleorHeadersFetchAPI(req.headers);
-    const baseUrl = getBaseUrlFetchAPI(req.headers);
+    const baseUrl = getBaseUrlFetchAPI(req);
 
     if (!baseUrl) {
       debug("Missing host header");

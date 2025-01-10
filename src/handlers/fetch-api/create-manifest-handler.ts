@@ -13,7 +13,7 @@ export type CreateManifestHandlerOptions = {
 export const createManifestHandler =
   (options: CreateManifestHandlerOptions) => async (request: Request) => {
     const { schemaVersion } = getSaleorHeadersFetchAPI(request.headers);
-    const baseURL = getBaseUrlFetchAPI(request.headers);
+    const baseURL = getBaseUrlFetchAPI(request);
 
     const manifest = await options.manifestFactory({
       appBaseUrl: baseURL,

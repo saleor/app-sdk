@@ -34,7 +34,7 @@ export class ProtectedHandlerError extends Error {
 }
 
 interface ProcessSaleorProtectedHandlerArgs {
-  request: Pick<Request, "headers">;
+  request: Request;
   apl: APL;
   requiredPermissions?: Permission[];
 }
@@ -71,7 +71,7 @@ export const processSaleorProtectedHandler: ProcessAsyncSaleorProtectedHandler =
         request.headers
       );
 
-      const baseUrl = getBaseUrlFetchAPI(request.headers);
+      const baseUrl = getBaseUrlFetchAPI(request);
 
       span.setAttribute("saleorApiUrl", saleorApiUrl ?? "");
 
