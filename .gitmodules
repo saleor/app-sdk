@@ -1,0 +1,18 @@
+[submodule "examples/dashboard-extensions"]
+	path = examples/dashboard-extensions
+	url = https://github.com/saleor/saleor-app-template
+[submodule "examples/metadata-manager"]
+	path = examples/metadata-manager
+	url = https://github.com/saleor/saleor-app-template
+[submodule "examples/external-webhook"]
+	path = examples/external-webhook
+	url = https://github.com/saleor/saleor-app-template
+[submodule "examples/async-webhook-handler"]
+	path = examples/async-webhook-handler
+	url = https://github.com/saleor/saleor-app-template
+[submodule "examples/protected-route"]
+	path = examples/protected-route
+	url = https://github.com/saleor/saleor-app-template
+[submodule "examples/trpc"]
+	path = examples/trpc
+	url = https://github.com/saleor/saleor-app-template
