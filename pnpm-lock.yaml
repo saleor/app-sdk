@@ -23,9 +23,6 @@ importers:
       raw-body:
         specifier: 2.5.2
         version: 2.5.2
-      redis:
-        specifier: '>=4'
-        version: 4.7.0
       retes:
         specifier: 0.33.0
         version: 0.33.0
@@ -132,6 +129,9 @@ importers:
       react-dom:
         specifier: 18.2.0
         version: 18.2.0(react@18.2.0)
+      redis:
+        specifier: ^4.7.0
+        version: 4.7.0
       tsm:
         specifier: ^2.2.2
         version: 2.2.2
