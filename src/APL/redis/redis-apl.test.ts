@@ -1,4 +1,4 @@
-import { RedisClientType } from "redis";
+import { createClient, RedisClientType } from "redis";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AuthData } from "../apl";
@@ -181,6 +181,17 @@ describe("RedisAPL", () => {
       mockPing.mockRejectedValueOnce(new Error("Connection failed"));
       const result = await apl.isConfigured();
       expect(result).toEqual({ configured: false, error: new Error("Connection failed") });
+    });
+  });
+
+  /**
+   * Type compatibility test with real Redis client
+   */
+  describe("RedisAPL type compatibility", () => {
+    it("should accept Redis client type", () => {
+      const client = createClient();
+      // This test is just for TypeScript to verify the types
+      expect(() => new RedisAPL({ client, hashCollectionKey: "test" })).not.toThrow();
     });
   });
 });
