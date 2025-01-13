@@ -13,8 +13,12 @@ const mockHSet = vi.fn().mockResolvedValue(1);
 const mockHDel = vi.fn().mockResolvedValue(1);
 const mockHGetAll = vi.fn().mockResolvedValue({});
 const mockPing = vi.fn().mockResolvedValue("PONG");
-const mockConnect = vi.fn().mockResolvedValue(undefined);
-const mockDisconnect = vi.fn().mockResolvedValue(undefined);
+const mockConnect = vi.fn().mockImplementation(async () => {
+  isRedisOpen = true;
+});
+const mockDisconnect = vi.fn().mockImplementation(async () => {
+  isRedisOpen = false;
+});
 
 const mockRedisClient = {
   connect: mockConnect,
