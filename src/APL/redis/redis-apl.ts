@@ -32,9 +32,6 @@ const RedisAPLVariables = {
  *   // Add any additional Redis configuration options
  * });
  *
- * // Connect to Redis
- * await client.connect();
- *
  * // Initialize RedisAPL with the client
  * const apl = new RedisAPL({
  *   client,
@@ -43,8 +40,8 @@ const RedisAPLVariables = {
  * });
  *
  * // Use the APL in your app
- * await apl.set("app-id", { token: "auth-token" });
- * const authData = await apl.get("app-id");
+ * await apl.set("saleorApiUrl", { token: "auth-token", saleorApiUrl: "https://saleor-api.com/graphql/", appId: "app-id" });
+ * const authData = await apl.get("saleorApiUrl");
  * ```
  */
 export class RedisAPL implements APL {
