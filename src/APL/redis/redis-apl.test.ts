@@ -49,14 +49,15 @@ describe("RedisAPL", () => {
   let apl: RedisAPL;
 
   beforeEach(() => {
-    process.env.REDIS_HASH_KEY = mockHashKey;
-    apl = new RedisAPL({ client: mockRedisClient });
+    apl = new RedisAPL({
+      client: mockRedisClient,
+      hashCollectionKey: mockHashKey,
+    });
     vi.clearAllMocks();
     isRedisOpen = false;
   });
 
   afterEach(async () => {
-    delete process.env.REDIS_HASH_KEY;
     if (mockRedisClient.isOpen) {
       await mockRedisClient.disconnect();
     }
@@ -64,16 +65,27 @@ describe("RedisAPL", () => {
   });
 
   describe("constructor", () => {
-    it("uses provided hash key over environment variable", async () => {
+    it("uses provided hash key", async () => {
       const customHashKey = "custom_hash";
       const customApl = new RedisAPL({
         client: mockRedisClient,
         hashCollectionKey: customHashKey,
       });
 
-      // Test the hash key by making a call that uses it
       await customApl.get(mockAuthData.saleorApiUrl);
       expect(mockRedisClient.hGet).toHaveBeenCalledWith(customHashKey, mockAuthData.saleorApiUrl);
+    });
+
+    it("uses default hash key when not provided", async () => {
+      const defaultApl = new RedisAPL({
+        client: mockRedisClient,
+      });
+
+      await defaultApl.get(mockAuthData.saleorApiUrl);
+      expect(mockRedisClient.hGet).toHaveBeenCalledWith(
+        "saleor_app_auth",
+        mockAuthData.saleorApiUrl
+      );
     });
   });
 

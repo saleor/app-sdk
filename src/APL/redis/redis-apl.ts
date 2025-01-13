@@ -16,10 +16,6 @@ type RedisAPLConfig = {
   hashCollectionKey?: string;
 };
 
-const RedisAPLVariables = {
-  REDIS_HASH_KEY: "REDIS_HASH_KEY",
-} as const;
-
 /**
  * Redis implementation of the Auth Persistence Layer (APL).
  * This class provides Redis-based storage for Saleor App authentication data.
@@ -55,10 +51,7 @@ export class RedisAPL implements APL {
 
   constructor(config: RedisAPLConfig) {
     this.client = config.client;
-    this.hashCollectionKey =
-      config.hashCollectionKey ||
-      process.env[RedisAPLVariables.REDIS_HASH_KEY] ||
-      "saleor_app_auth";
+    this.hashCollectionKey = config.hashCollectionKey || "saleor_app_auth";
 
     this.debug("Redis APL initialized");
   }
