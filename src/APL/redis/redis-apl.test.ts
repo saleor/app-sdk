@@ -28,14 +28,6 @@ const mockRedisClient = {
   },
   disconnect: mockDisconnect,
   isReady: false,
-  commandOptions: vi.fn(),
-  options: {},
-  duplicate: vi.fn(),
-  multi: vi.fn(),
-  isPubSubActive: false,
-  quit: vi.fn().mockResolvedValue(undefined),
-  sendCommand: vi.fn(),
-  executeIsolated: vi.fn(),
 } as unknown as RedisClientType;
 
 vi.mock("redis", () => ({
