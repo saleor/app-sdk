@@ -20,7 +20,7 @@ const debug = createDebug("createAppRegisterHandler");
 // TODO: Make this private methods?
 // Copy pasted from existing manifest handler
 class RegisterCallbackError extends Error {
-  public status = 500;
+  public status: ResultStatusCodes = 500;
 
   constructor(errorParams: HookCallbackErrorParams) {
     super(errorParams.message);
@@ -44,7 +44,7 @@ export const createRegisterHandlerResponseBody = (
   error?: RegisterHandlerResponseBody["error"],
   statusCode?: ResultStatusCodes
 ): HandlerUseCaseResult<RegisterHandlerResponseBody> => ({
-  status: statusCode ?? success ? 200 : 500,
+  status: statusCode ?? (success ? 200 : 500),
   body: {
     success,
     error,
@@ -71,7 +71,7 @@ const createCallbackError: CallbackErrorHandler = (params: HookCallbackErrorPara
 };
 
 export type HookCallbackErrorParams = {
-  status?: number;
+  status?: ResultStatusCodes;
   message?: string;
 };
 

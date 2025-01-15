@@ -2,6 +2,7 @@ import type { APIGatewayProxyEventV2, APIGatewayProxyResultV2, Context } from "a
 
 import {
   HandlerUseCaseResult,
+  HTTPMethod,
   PlatformAdapterInterface,
 } from "../shared/generic-adapter-use-case-types";
 
@@ -30,8 +31,8 @@ export class AwsLambdaAdapter implements PlatformAdapterInterface<AwsLambdaHandl
     }
   }
 
-  get method(): string {
-    return this.event.requestContext.http.method;
+  get method(): HTTPMethod {
+    return this.event.requestContext.http.method as HTTPMethod;
   }
 
   async send(result: HandlerUseCaseResult): Promise<APIGatewayProxyResultV2> {

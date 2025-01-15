@@ -85,7 +85,7 @@ describe("create-app-register-handler", () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(403);
-    expect(res._getData().success).toBe(false);
+    expect(res._getJSONData().success).toBe(false);
   });
 
   describe("Callback hooks", () => {
@@ -246,7 +246,7 @@ describe("create-app-register-handler", () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(401);
-      expect(res._getData()).toEqual({
+      expect(res._getJSONData()).toEqual({
         success: false,
         error: {
           code: "REGISTER_HANDLER_HOOK_ERROR",
