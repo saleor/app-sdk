@@ -54,10 +54,14 @@ export const createRegisterHandlerResponseBody = (
 
 const handleHookError = (e: RegisterCallbackError | unknown): HandlerUseCaseResult => {
   if (e instanceof RegisterCallbackError) {
-    return createRegisterHandlerResponseBody(false, {
-      code: "REGISTER_HANDLER_HOOK_ERROR",
-      message: e.message,
-    });
+    return createRegisterHandlerResponseBody(
+      false,
+      {
+        code: "REGISTER_HANDLER_HOOK_ERROR",
+        message: e.message,
+      },
+      e.status
+    );
   }
   return {
     status: 500,
