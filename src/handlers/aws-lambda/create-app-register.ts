@@ -1,16 +1,8 @@
 import { APIGatewayProxyEventV2, Context } from "aws-lambda";
 
 import { GenericCreateAppRegisterHandlerOptions } from "../shared/create-app-register-handler-types";
-import { ManifestUseCase } from "../shared/manifest-use-case";
-import { AwsLambdaAdapter, AWSLambdaHandler, WebApiHandlerInput } from "./platform-adapter";
-
-export type RegisterHandlerResponseBody = {
-  success: boolean;
-  error?: {
-    code?: string;
-    message?: string;
-  };
-};
+import { ManifestUseCase, RegisterHandlerResponseBody } from "../shared/manifest-use-case";
+import { AwsLambdaAdapter, AWSLambdaHandler, AwsLambdaHandlerInput } from "./platform-adapter";
 
 export const createRegisterHandlerResponseBody = (
   success: boolean,
@@ -21,7 +13,7 @@ export const createRegisterHandlerResponseBody = (
 });
 
 export type CreateAppRegisterHandlerOptions =
-  GenericCreateAppRegisterHandlerOptions<WebApiHandlerInput>;
+  GenericCreateAppRegisterHandlerOptions<AwsLambdaHandlerInput>;
 
 export const createAppRegisterHandler =
   (config: CreateAppRegisterHandlerOptions): AWSLambdaHandler =>

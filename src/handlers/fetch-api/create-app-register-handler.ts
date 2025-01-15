@@ -1,14 +1,6 @@
 import { GenericCreateAppRegisterHandlerOptions } from "../shared/create-app-register-handler-types";
-import { ManifestUseCase } from "../shared/manifest-use-case";
+import { ManifestUseCase, RegisterHandlerResponseBody } from "../shared/manifest-use-case";
 import { WebApiAdapter, WebApiHandler, WebApiHandlerInput } from "./platform-adapter";
-
-export type RegisterHandlerResponseBody = {
-  success: boolean;
-  error?: {
-    code?: string;
-    message?: string;
-  };
-};
 
 export const createRegisterHandlerResponseBody = (
   success: boolean,

@@ -1,16 +1,13 @@
 import { NextApiRequest, NextApiResponse } from "next";
 
 import { GenericCreateAppRegisterHandlerOptions } from "../shared/create-app-register-handler-types";
-import { ManifestUseCase } from "../shared/manifest-use-case";
+import { ManifestUseCase, RegisterHandlerResponseBody } from "../shared/manifest-use-case";
 import { NextJsAdapter, NextJsHandlerInput } from "./platform-adapter";
 
-export type RegisterHandlerResponseBody = {
-  success: boolean;
-  error?: {
-    code?: string;
-    message?: string;
-  };
-};
+// Re-export types for backwards compatibility
+
+export type { RegisterHandlerResponseBody };
+
 export const createRegisterHandlerResponseBody = (
   success: boolean,
   error?: RegisterHandlerResponseBody["error"]
