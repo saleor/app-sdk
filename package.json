@@ -21,7 +21,9 @@
   "author": "",
   "license": "ISC",
   "peerDependencies": {
+    "@types/aws-lambda": "8.10.147",
     "@vercel/kv": "^1.0.0",
+    "aws-lambda": "1.0.7",
     "graphql": ">=16.6.0",
     "next": ">=12",
     "react": ">=17",
@@ -40,6 +42,7 @@
     "@changesets/cli": "2.27.1",
     "@testing-library/dom": "^8.17.1",
     "@testing-library/react": "^13.4.0",
+    "@types/aws-lambda": "8.10.147",
     "@types/debug": "^4.1.7",
     "@types/node": "^18.7.15",
     "@types/react": "18.0.21",
@@ -50,6 +53,7 @@
     "@vercel/kv": "1.0.0",
     "@vitejs/plugin-react": "^3.0.1",
     "@vitest/coverage-c8": "^0.27.2",
+    "aws-lambda": "1.0.7",
     "clean-publish": "^4.0.1",
     "eslint": "8.23.0",
     "eslint-config-airbnb": "^19.0.4",
@@ -79,6 +83,9 @@
   },
   "peerDependenciesMeta": {
     "@vercel/kv": {
+      "optional": true
+    },
+    "aws-lambda": {
       "optional": true
     }
   },

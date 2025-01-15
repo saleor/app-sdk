@@ -26,22 +26,14 @@ export class WebApiAdapter implements PlatformAdapterInterface<WebApiHandlerInpu
     return this.request.method as "POST" | "GET";
   }
 
-  send(result: HandlerUseCaseResult): Promise<Response> {
-    let body: string;
+  async send(result: HandlerUseCaseResult): Promise<Response> {
+    const body = result.bodyType === "json" ? JSON.stringify(result.body) : result.body;
 
-    if (result.bodyType === "json") {
-      body = JSON.stringify(result.body);
-    } else {
-      body = result.body;
-    }
-
-    return Promise.resolve(
-      new Response(body, {
-        status: result.status,
-        headers: {
-          "Content-Type": result.bodyType === "json" ? "application/json" : "text/plain",
-        },
-      })
-    );
+    return new Response(body, {
+      status: result.status,
+      headers: {
+        "Content-Type": result.bodyType === "json" ? "application/json" : "text/plain",
+      },
+    });
   }
 }

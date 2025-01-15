@@ -1,3 +1,4 @@
+import { AwsLambdaHandlerInput } from "../aws-lambda/platform-adapter";
 import { WebApiHandlerInput } from "../fetch-api/platform-adapter";
 import { NextJsHandlerInput } from "../next/platform-adapter";
 
@@ -27,7 +28,7 @@ export interface PlatformAdapterInterface<T extends HandlerInput> {
   send(result: HandlerUseCaseResult): unknown;
   getHeader(name: string): string | null;
   getBody(): Promise<unknown>;
-  method: "POST" | "GET";
+  method: string;
   request: T;
 }
 
@@ -37,4 +38,4 @@ export interface HandlerUseCaseInterface {
   getResult(): Promise<HandlerUseCaseResult>;
 }
 
-export type HandlerInput = NextJsHandlerInput | WebApiHandlerInput;
+export type HandlerInput = NextJsHandlerInput | WebApiHandlerInput | AwsLambdaHandlerInput;
