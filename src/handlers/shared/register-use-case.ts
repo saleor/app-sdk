@@ -5,6 +5,7 @@ import { createDebug } from "../../debug";
 import { fetchRemoteJwks } from "../../fetch-remote-jwks";
 import { getAppId } from "../../get-app-id";
 import { HasAPL } from "../../saleor-app";
+import { PlatformAdapterMiddleware } from "./adapter-middleware";
 import {
   HandlerInput,
   HandlerUseCaseInterface,
@@ -130,8 +131,10 @@ export type GenericCreateAppRegisterHandlerOptions<Request = HandlerInput> = Has
   ): Promise<void>;
 };
 
-export class ManifestUseCase<I extends HandlerInput> implements HandlerUseCaseInterface {
+export class RegisterUseCase<I extends HandlerInput> implements HandlerUseCaseInterface {
   private adapter: PlatformAdapterInterface<I>;
+
+  private adapterMiddleware: PlatformAdapterMiddleware;
 
   public config: GenericCreateAppRegisterHandlerOptions<I>;
 
@@ -143,7 +146,23 @@ export class ManifestUseCase<I extends HandlerInput> implements HandlerUseCaseIn
     config: GenericCreateAppRegisterHandlerOptions<I>;
   }) {
     this.adapter = adapter;
+    this.adapterMiddleware = new PlatformAdapterMiddleware(adapter);
     this.config = config;
+  }
+
+  private runPreChecks(): HandlerUseCaseResult | null {
+    const checksToRun = [
+      this.adapterMiddleware.withMethod(["POST"]),
+      this.adapterMiddleware.withSaleorDomainPresent(),
+    ];
+
+    for (const check of checksToRun) {
+      if (check) {
+        return check;
+      }
+    }
+
+    return null;
   }
 
   /** TODO: Add missing retes methods:
@@ -154,6 +173,11 @@ export class ManifestUseCase<I extends HandlerInput> implements HandlerUseCaseIn
    * */
   async getResult(): Promise<HandlerUseCaseResult> {
     debug("Request received");
+
+    const precheckResult = this.runPreChecks();
+    if (precheckResult) {
+      return precheckResult;
+    }
 
     const saleorDomain = this.adapter.getHeader(SALEOR_DOMAIN_HEADER) as string;
     const saleorApiUrl = this.adapter.getHeader(SALEOR_API_URL_HEADER) as string;
@@ -167,6 +191,16 @@ export class ManifestUseCase<I extends HandlerInput> implements HandlerUseCaseIn
     }
 
     const authToken = body.auth_token;
+
+    if (!authToken) {
+      debug("Found missing authToken param");
+
+      return {
+        status: 400,
+        body: "Missing auth token.",
+        bodyType: "string",
+      };
+    }
 
     if (this.config.onRequestStart) {
       debug("Calling \"onRequestStart\" hook");

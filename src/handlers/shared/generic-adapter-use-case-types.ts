@@ -2,9 +2,20 @@ import { AwsLambdaHandlerInput } from "../aws-lambda/platform-adapter";
 import { WebApiHandlerInput } from "../fetch-api/platform-adapter";
 import { NextJsHandlerInput } from "../next/platform-adapter";
 
+export const HTTPMethod = {
+  GET: "GET",
+  POST: "POST",
+  PUT: "PUT",
+  PATH: "PATCH",
+  HEAD: "HEAD",
+  OPTIONS: "OPTIONS",
+  DELETE: "DELETE",
+} as const;
+export type HTTPMethod = typeof HTTPMethod[keyof typeof HTTPMethod];
+
 /** Status code of the result, for most platforms it's mapped to HTTP status code
  * however when request is not HTTP it can be mapped to something else */
-export type ResultStatusCodes = 200 | 201 | 400 | 401 | 403 | 404 | 500 | 503;
+export type ResultStatusCodes = 200 | 201 | 400 | 401 | 403 | 404 | 405 | 500 | 503;
 
 /** Shape of result that should be returned from use case
  * that is then translated by adapter to a valid platform response */
@@ -24,11 +35,11 @@ export type HandlerUseCaseResult<Body = unknown> =
  * Interface for adapters that translate specific platform objects (e.g. Web API, Next.js)
  * into a common interface that can be used in each handler use case
  * */
-export interface PlatformAdapterInterface<T extends HandlerInput> {
+export interface PlatformAdapterInterface<T extends HandlerInput = HandlerInput> {
   send(result: HandlerUseCaseResult): unknown;
   getHeader(name: string): string | null;
   getBody(): Promise<unknown>;
-  method: string;
+  method: HTTPMethod;
   request: T;
 }
 

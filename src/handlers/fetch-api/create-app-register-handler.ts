@@ -1,5 +1,5 @@
 import { GenericCreateAppRegisterHandlerOptions } from "../shared/create-app-register-handler-types";
-import { ManifestUseCase, RegisterHandlerResponseBody } from "../shared/manifest-use-case";
+import { RegisterHandlerResponseBody, RegisterUseCase } from "../shared/register-use-case";
 import { WebApiAdapter, WebApiHandler, WebApiHandlerInput } from "./platform-adapter";
 
 export const createRegisterHandlerResponseBody = (
@@ -17,7 +17,7 @@ export const createAppRegisterHandler =
   (config: CreateAppRegisterHandlerOptions): WebApiHandler =>
   async (req: Request) => {
     const adapter = new WebApiAdapter(req);
-    const useCase = new ManifestUseCase({ adapter, config });
+    const useCase = new RegisterUseCase({ adapter, config });
     const result = await useCase.getResult();
     return adapter.send(result);
   };
