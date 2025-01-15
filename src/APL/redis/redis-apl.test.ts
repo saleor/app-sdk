@@ -1,4 +1,4 @@
-import { createClient, RedisClientType } from "redis";
+import { createClient } from "redis";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AuthData } from "../apl";
@@ -32,7 +32,7 @@ const mockRedisClient = {
   },
   disconnect: mockDisconnect,
   isReady: false,
-} as unknown as RedisClientType;
+};
 
 vi.mock("redis", () => ({
   createClient: vi.fn(() => mockRedisClient),

@@ -6,12 +6,17 @@ import { getOtelTracer, OTEL_APL_SERVICE_NAME } from "../../open-telemetry";
 import { APL, AplConfiguredResult, AplReadyResult, AuthData } from "../apl";
 import { createAPLDebug } from "../apl-debug";
 
+type RedisClient = Pick<
+  ReturnType<typeof createClient>,
+  "connect" | "isOpen" | "hGet" | "hSet" | "hDel" | "hGetAll" | "ping"
+>;
+
 /**
  * Configuration options for RedisAPL
  */
 type RedisAPLConfig = {
   /** Redis client instance to use for storage */
-  client: ReturnType<typeof createClient>;
+  client: RedisClient;
   /** Optional key to use for the hash collection. Defaults to "saleor_app_auth" */
   hashCollectionKey?: string;
 };
@@ -45,7 +50,7 @@ export class RedisAPL implements APL {
 
   private tracer = getOtelTracer();
 
-  private client: ReturnType<typeof createClient>;
+  private client: RedisClient;
 
   private hashCollectionKey: string;
 
