@@ -38,7 +38,7 @@ devDependencies:
     specifier: ^13.4.0
     version: 13.4.0(react-dom@18.2.0)(react@18.2.0)
   '@types/aws-lambda':
-    specifier: 8.10.147
+    specifier: ^8.10.147
     version: 8.10.147
   '@types/debug':
     specifier: ^4.1.7
