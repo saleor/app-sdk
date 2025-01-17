@@ -297,7 +297,6 @@ export class RegisterActionHandler<I extends HandlerInput> implements ActionHand
       }
     }
 
-    // If everything is fine we can proceed handling action
     return null;
   }
 
@@ -481,6 +480,8 @@ export class RegisterActionHandler<I extends HandlerInput> implements ActionHand
     return createRegisterHandlerResponseBody(true);
   }
 
+  /** Callbacks declared by users in configuration can throw an error
+   * It is caught here and converted into a response */
   private handleHookError(e: RegisterCallbackError | unknown): ActionHandlerResult {
     if (e instanceof RegisterCallbackError) {
       return createRegisterHandlerResponseBody(
