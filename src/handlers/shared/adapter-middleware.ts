@@ -5,8 +5,9 @@ import {
   SALEOR_EVENT_HEADER,
   SALEOR_SCHEMA_VERSION,
   SALEOR_SIGNATURE_HEADER,
-} from "../../const";
-import { createMiddlewareDebug } from "../../middleware/middleware-debug";
+} from "@/const";
+import { createMiddlewareDebug } from "@/middleware/middleware-debug";
+
 import {
   ActionHandlerResult,
   HTTPMethod,

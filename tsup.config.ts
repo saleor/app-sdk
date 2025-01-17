@@ -13,15 +13,19 @@ export default defineConfig({
     "APL/vercel-kv/index": "src/APL/vercel-kv/index.ts",
     "app-bridge/index": "src/app-bridge/index.ts",
     "app-bridge/next/index": "src/app-bridge/next/index.ts",
-    "handlers/next/index": "src/handlers/next/index.ts",
-    "handlers/fetch-api/index": "src/handlers/fetch-api/index.ts",
-    "handlers/shared/index": "src/handlers/shared/index.ts",
     "fetch-middleware/index": "src/fetch-middleware/index.ts",
     "middleware/index": "src/middleware/index.ts",
     "settings-manager/index": "src/settings-manager/index.ts",
 
+    // Mapped exports
+    "handlers/next/index": "src/handlers/platforms/next/index.ts",
+    "handlers/fetch-api/index": "src/handlers/platforms/fetch-api/index.ts",
+    "handlers/aws-lambda/index": "src/handlers/platforms/fetch-api/index.ts",
+    "handlers/shared/index": "src/handlers/shared/index.ts",
+    "handlers/actions/index": "src/handlers/actions/index.ts",
+
     // Virtual export
-    "handlers/next-app-router/index": "src/handlers/fetch-api/index.ts",
+    "handlers/next-app-router/index": "src/handlers/platforms/fetch-api/index.ts",
   },
   dts: true,
   clean: true,
