@@ -19,7 +19,7 @@ export type ResultStatusCodes = 200 | 201 | 400 | 401 | 403 | 404 | 405 | 500 | 
 
 /** Shape of result that should be returned from use case
  * that is then translated by adapter to a valid platform response */
-export type HandlerUseCaseResult<Body = unknown> =
+export type ActionHandlerResult<Body = unknown> =
   | {
       status: ResultStatusCodes;
       body: Body;
@@ -35,8 +35,8 @@ export type HandlerUseCaseResult<Body = unknown> =
  * Interface for adapters that translate specific platform objects (e.g. Web API, Next.js)
  * into a common interface that can be used in each handler use case
  * */
-export interface PlatformAdapterInterface<T extends HandlerInput = HandlerInput> {
-  send(result: HandlerUseCaseResult): unknown;
+export interface PlatformAdapterInterface<T> {
+  send(result: ActionHandlerResult): unknown;
   getHeader(name: string): string | null;
   getBody(): Promise<unknown>;
   method: HTTPMethod;
@@ -45,8 +45,9 @@ export interface PlatformAdapterInterface<T extends HandlerInput = HandlerInput>
 
 /** Interfaces for use case handlers that encapsulate business logic
  * (e.g. validating headers, checking HTTP method, etc. ) */
-export interface HandlerUseCaseInterface {
-  getResult(): Promise<HandlerUseCaseResult>;
+export interface ActionHandlerInterface {
+  handleAction(...params: any): Promise<ActionHandlerResult>;
 }
 
+// TODO: remove
 export type HandlerInput = NextJsHandlerInput | WebApiHandlerInput | AwsLambdaHandlerInput;

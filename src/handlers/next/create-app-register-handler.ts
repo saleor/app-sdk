@@ -1,7 +1,10 @@
 import { NextApiRequest, NextApiResponse } from "next";
 
 import { GenericCreateAppRegisterHandlerOptions } from "../shared/create-app-register-handler-types";
-import { RegisterHandlerResponseBody, RegisterUseCase } from "../shared/register-use-case";
+import {
+  RegisterActionHandler,
+  RegisterHandlerResponseBody,
+} from "../shared/register-action-handler";
 import { NextJsAdapter, NextJsHandlerInput } from "./platform-adapter";
 
 // Re-export types for backwards compatibility
@@ -24,7 +27,7 @@ export const createAppRegisterHandler =
   (config: CreateAppRegisterHandlerOptions) =>
   async (req: NextApiRequest, res: NextApiResponse) => {
     const adapter = new NextJsAdapter(req, res);
-    const useCase = new RegisterUseCase({ adapter, config });
-    const result = await useCase.getResult();
+    const useCase = new RegisterActionHandler(adapter);
+    const result = await useCase.handleAction(config);
     return adapter.send(result);
   };

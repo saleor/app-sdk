@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 
 import {
-  HandlerUseCaseResult,
+  ActionHandlerResult,
   PlatformAdapterInterface,
 } from "../shared/generic-adapter-use-case-types";
 
@@ -9,7 +9,7 @@ export type NextJsHandlerInput = NextApiRequest;
 export type NextJsHandler = (
   req: NextApiRequest,
   res: NextApiResponse
-) => Promise<HandlerUseCaseResult>;
+) => Promise<ActionHandlerResult>;
 
 export class NextJsAdapter implements PlatformAdapterInterface<NextJsHandlerInput> {
   readonly type = "next" as const;
@@ -29,7 +29,7 @@ export class NextJsAdapter implements PlatformAdapterInterface<NextJsHandlerInpu
     return this.request.method as "POST" | "GET";
   }
 
-  async send(result: HandlerUseCaseResult): Promise<void> {
+  async send(result: ActionHandlerResult): Promise<void> {
     if (result.bodyType === "json") {
       this.res.status(result.status).json(result.body);
     } else {

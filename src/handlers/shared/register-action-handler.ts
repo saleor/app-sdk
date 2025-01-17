@@ -1,5 +1,5 @@
 /* eslint-disable max-classes-per-file */
-import { AuthData } from "../../APL";
+import { APL, AuthData } from "../../APL";
 import { SALEOR_API_URL_HEADER, SALEOR_DOMAIN_HEADER } from "../../const";
 import { createDebug } from "../../debug";
 import { fetchRemoteJwks } from "../../fetch-remote-jwks";
@@ -7,9 +7,9 @@ import { getAppId } from "../../get-app-id";
 import { HasAPL } from "../../saleor-app";
 import { PlatformAdapterMiddleware } from "./adapter-middleware";
 import {
+  ActionHandlerInterface,
+  ActionHandlerResult,
   HandlerInput,
-  HandlerUseCaseInterface,
-  HandlerUseCaseResult,
   PlatformAdapterInterface,
   ResultStatusCodes,
 } from "./generic-adapter-use-case-types";
@@ -43,7 +43,7 @@ export const createRegisterHandlerResponseBody = (
   success: boolean,
   error?: RegisterHandlerResponseBody["error"],
   statusCode?: ResultStatusCodes
-): HandlerUseCaseResult<RegisterHandlerResponseBody> => ({
+): ActionHandlerResult<RegisterHandlerResponseBody> => ({
   status: statusCode ?? (success ? 200 : 500),
   body: {
     success,
@@ -52,7 +52,7 @@ export const createRegisterHandlerResponseBody = (
   bodyType: "json",
 });
 
-const handleHookError = (e: RegisterCallbackError | unknown): HandlerUseCaseResult => {
+const handleHookError = (e: RegisterCallbackError | unknown): ActionHandlerResult => {
   if (e instanceof RegisterCallbackError) {
     return createRegisterHandlerResponseBody(
       false,
@@ -81,7 +81,7 @@ export type HookCallbackErrorParams = {
 
 export type CallbackErrorHandler = (params: HookCallbackErrorParams) => never;
 
-export type GenericCreateAppRegisterHandlerOptions<Request = HandlerInput> = HasAPL & {
+export type AppRegisterHandlerOptions<Request = HandlerInput> = HasAPL & {
   /**
    * Protect app from being registered in Saleor other than specific.
    * By default, allow everything.
@@ -135,26 +135,12 @@ export type GenericCreateAppRegisterHandlerOptions<Request = HandlerInput> = Has
   ): Promise<void>;
 };
 
-export class RegisterUseCase<I extends HandlerInput> implements HandlerUseCaseInterface {
-  private adapter: PlatformAdapterInterface<I>;
+export class RegisterActionHandler<I extends HandlerInput> implements ActionHandlerInterface {
+  private adapterMiddleware = new PlatformAdapterMiddleware(this.adapter);
 
-  private adapterMiddleware: PlatformAdapterMiddleware;
+  constructor(private adapter: PlatformAdapterInterface<I>) {}
 
-  public config: GenericCreateAppRegisterHandlerOptions<I>;
-
-  constructor({
-    adapter,
-    config,
-  }: {
-    adapter: PlatformAdapterInterface<I>;
-    config: GenericCreateAppRegisterHandlerOptions<I>;
-  }) {
-    this.adapter = adapter;
-    this.adapterMiddleware = new PlatformAdapterMiddleware(adapter);
-    this.config = config;
-  }
-
-  private runPreChecks(): HandlerUseCaseResult | null {
+  private runPreChecks(): ActionHandlerResult | null {
     const checksToRun = [
       this.adapterMiddleware.withMethod(["POST"]),
       this.adapterMiddleware.withSaleorDomainPresent(),
@@ -169,13 +155,7 @@ export class RegisterUseCase<I extends HandlerInput> implements HandlerUseCaseIn
     return null;
   }
 
-  /** TODO: Add missing retes methods:
-   * withMethod("POST"),
-   * withSaleorDomainPresent,
-   * withAuthTokenRequired,
-   * baseHandler,
-   * */
-  async getResult(): Promise<HandlerUseCaseResult> {
+  async handleAction(config: AppRegisterHandlerOptions<I>): Promise<ActionHandlerResult> {
     debug("Request received");
 
     const precheckResult = this.runPreChecks();
@@ -186,31 +166,147 @@ export class RegisterUseCase<I extends HandlerInput> implements HandlerUseCaseIn
     const saleorDomain = this.adapter.getHeader(SALEOR_DOMAIN_HEADER) as string;
     const saleorApiUrl = this.adapter.getHeader(SALEOR_API_URL_HEADER) as string;
 
+    const authTokenResult = await this.parseRequestBody();
+
+    if (!authTokenResult.success) {
+      return authTokenResult.response;
+    }
+
+    const { authToken } = authTokenResult;
+
+    const handleOnRequestResult = await this.handleOnRequestStartCallback(config.onRequestStart, {
+      authToken,
+      saleorApiUrl,
+      saleorDomain,
+    });
+
+    if (handleOnRequestResult) {
+      return handleOnRequestResult;
+    }
+
+    if (!saleorApiUrl) {
+      // TODO: We should strictly require `saleorApiUrl` instead of
+      // relying on `saleor-domain` that is deprecated
+      debug("saleorApiUrl doesn't exist in headers");
+    }
+
+    const saleorApiUrlValidationResult = this.handleSaleorApiUrlValidation({
+      saleorApiUrl,
+      allowedSaleorUrls: config.allowedSaleorUrls,
+    });
+
+    if (saleorApiUrlValidationResult) {
+      return saleorApiUrlValidationResult;
+    }
+
+    const aplCheckResult = await this.checkAplIsConfigured(config.apl);
+
+    if (aplCheckResult) {
+      return aplCheckResult;
+    }
+
+    const getAppIdResult = await this.getAppIdAndHandleMissingAppId({
+      saleorApiUrl,
+      token: authToken,
+    });
+
+    if (!getAppIdResult.success) {
+      return getAppIdResult.responseBody;
+    }
+
+    const { appId } = getAppIdResult;
+
+    const getJwksResult = await this.getJwksAndHandleMissingJwks({ saleorApiUrl });
+
+    if (!getJwksResult.success) {
+      return getJwksResult.responseBody;
+    }
+
+    const { jwks } = getJwksResult;
+
+    const authData = {
+      domain: saleorDomain,
+      token: authToken,
+      saleorApiUrl,
+      appId,
+      jwks,
+    };
+
+    const onRequestVerifiedErrorResponse = await this.handleOnRequestVerifiedCallback(
+      config.onRequestVerified,
+      authData
+    );
+
+    if (onRequestVerifiedErrorResponse) {
+      return onRequestVerifiedErrorResponse;
+    }
+
+    const aplSaveResponse = await this.saveAplAuthData({
+      apl: config.apl,
+      authData,
+      onAplSetFailed: config.onAplSetFailed,
+      onAuthAplSaved: config.onAuthAplSaved,
+    });
+
+    return aplSaveResponse;
+  }
+
+  private async parseRequestBody(): Promise<
+    | { success: false; response: ActionHandlerResult; authToken?: never }
+    | {
+        success: true;
+        authToken: string;
+        response?: never;
+      }
+  > {
     let body: { auth_token: string };
     try {
       body = (await this.adapter.getBody()) as { auth_token: string };
     } catch (err) {
-      // TODO: Handle error
-      throw new Error("Cannot parse body");
+      return {
+        success: false,
+        response: {
+          status: 400,
+          body: "Invalid request json.",
+          bodyType: "string",
+        },
+      };
     }
 
-    const authToken = body.auth_token;
+    const authToken = body?.auth_token;
 
     if (!authToken) {
       debug("Found missing authToken param");
 
       return {
-        status: 400,
-        body: "Missing auth token.",
-        bodyType: "string",
+        success: false,
+        response: {
+          status: 400,
+          body: "Missing auth token.",
+          bodyType: "string",
+        },
       };
     }
 
-    if (this.config.onRequestStart) {
+    return {
+      success: true,
+      authToken,
+    };
+  }
+
+  private async handleOnRequestStartCallback(
+    onRequestStart: AppRegisterHandlerOptions<I>["onRequestStart"],
+    {
+      authToken,
+      saleorApiUrl,
+      saleorDomain,
+    }: { authToken: string; saleorApiUrl: string; saleorDomain: string }
+  ) {
+    if (onRequestStart) {
       debug("Calling \"onRequestStart\" hook");
 
       try {
-        await this.config.onRequestStart(this.adapter.request, {
+        await onRequestStart(this.adapter.request, {
           authToken,
           saleorApiUrl,
           saleorDomain,
@@ -223,11 +319,18 @@ export class RegisterUseCase<I extends HandlerInput> implements HandlerUseCaseIn
       }
     }
 
-    if (!saleorApiUrl) {
-      debug("saleorApiUrl doesn't exist in headers");
-    }
+    // If everything is fine we can proceed handling action
+    return null;
+  }
 
-    if (!validateAllowSaleorUrls(saleorApiUrl, this.config.allowedSaleorUrls)) {
+  private handleSaleorApiUrlValidation({
+    saleorApiUrl,
+    allowedSaleorUrls,
+  }: {
+    saleorApiUrl: string;
+    allowedSaleorUrls: AppRegisterHandlerOptions<I>["allowedSaleorUrls"];
+  }) {
+    if (!validateAllowSaleorUrls(saleorApiUrl, allowedSaleorUrls)) {
       debug(
         "Validation of URL %s against allowSaleorUrls param resolves to false, throwing",
         saleorApiUrl
@@ -243,7 +346,11 @@ export class RegisterUseCase<I extends HandlerInput> implements HandlerUseCaseIn
       );
     }
 
-    const { configured: aplConfigured } = await this.config.apl.isConfigured();
+    return null;
+  }
+
+  private async checkAplIsConfigured(apl: AppRegisterHandlerOptions<I>["apl"]) {
+    const { configured: aplConfigured } = await apl.isConfigured();
 
     if (!aplConfigured) {
       debug("The APL has not been configured");
@@ -258,10 +365,27 @@ export class RegisterUseCase<I extends HandlerInput> implements HandlerUseCaseIn
       );
     }
 
+    return null;
+  }
+
+  private async getAppIdAndHandleMissingAppId({
+    saleorApiUrl,
+    token,
+  }: {
+    saleorApiUrl: string;
+    token: string;
+  }): Promise<
+    | {
+        success: false;
+        responseBody: ActionHandlerResult<RegisterHandlerResponseBody>;
+      }
+    | { success: true; appId: string }
+  > {
     // Try to get App ID from the API, to confirm that communication can be established
-    const appId = await getAppId({ saleorApiUrl, token: authToken });
+    const appId = await getAppId({ saleorApiUrl, token });
+
     if (!appId) {
-      return createRegisterHandlerResponseBody(
+      const responseBody = createRegisterHandlerResponseBody(
         false,
         {
           code: "UNKNOWN_APP_ID",
@@ -270,12 +394,24 @@ export class RegisterUseCase<I extends HandlerInput> implements HandlerUseCaseIn
         },
         401
       );
+
+      return { success: false, responseBody };
     }
 
+    return { success: true, appId };
+  }
+
+  private async getJwksAndHandleMissingJwks({ saleorApiUrl }: { saleorApiUrl: string }): Promise<
+    | {
+        success: false;
+        responseBody: ActionHandlerResult<RegisterHandlerResponseBody>;
+      }
+    | { success: true; jwks: string }
+  > {
     // Fetch the JWKS which will be used during webhook validation
     const jwks = await fetchRemoteJwks(saleorApiUrl);
     if (!jwks) {
-      return createRegisterHandlerResponseBody(
+      const responseBody = createRegisterHandlerResponseBody(
         false,
         {
           code: "JWKS_NOT_AVAILABLE",
@@ -283,21 +419,21 @@ export class RegisterUseCase<I extends HandlerInput> implements HandlerUseCaseIn
         },
         401
       );
+
+      return { success: false, responseBody };
     }
+    return { success: true, jwks };
+  }
 
-    const authData = {
-      domain: saleorDomain,
-      token: authToken,
-      saleorApiUrl,
-      appId,
-      jwks,
-    };
-
-    if (this.config.onRequestVerified) {
+  private async handleOnRequestVerifiedCallback(
+    onRequestVerified: AppRegisterHandlerOptions<I>["onRequestVerified"],
+    authData: AuthData
+  ) {
+    if (onRequestVerified) {
       debug("Calling \"onRequestVerified\" hook");
 
       try {
-        await this.config.onRequestVerified(this.adapter.request, {
+        await onRequestVerified(this.adapter.request, {
           authData,
           respondWithError: createCallbackError,
         });
@@ -308,14 +444,28 @@ export class RegisterUseCase<I extends HandlerInput> implements HandlerUseCaseIn
       }
     }
 
-    try {
-      await this.config.apl.set(authData);
+    return null;
+  }
 
-      if (this.config.onAuthAplSaved) {
+  private async saveAplAuthData({
+    apl,
+    onAplSetFailed,
+    onAuthAplSaved,
+    authData,
+  }: {
+    apl: APL;
+    onAplSetFailed: AppRegisterHandlerOptions<I>["onAplSetFailed"];
+    onAuthAplSaved: AppRegisterHandlerOptions<I>["onAuthAplSaved"];
+    authData: AuthData;
+  }) {
+    try {
+      await apl.set(authData);
+
+      if (onAuthAplSaved) {
         debug("Calling \"onAuthAplSaved\" hook");
 
         try {
-          await this.config.onAuthAplSaved(this.adapter.request, {
+          await onAuthAplSaved(this.adapter.request, {
             authData,
             respondWithError: createCallbackError,
           });
@@ -328,11 +478,11 @@ export class RegisterUseCase<I extends HandlerInput> implements HandlerUseCaseIn
     } catch (aplError: unknown) {
       debug("There was an error during saving the auth data");
 
-      if (this.config.onAplSetFailed) {
+      if (onAplSetFailed) {
         debug("Calling \"onAuthAplFailed\" hook");
 
         try {
-          await this.config.onAplSetFailed(this.adapter.request, {
+          await onAplSetFailed(this.adapter.request, {
             authData,
             error: aplError,
             respondWithError: createCallbackError,
@@ -350,7 +500,6 @@ export class RegisterUseCase<I extends HandlerInput> implements HandlerUseCaseIn
     }
 
     debug("Register  complete");
-
     return createRegisterHandlerResponseBody(true);
   }
 }

@@ -8,7 +8,7 @@ import {
 } from "../../const";
 import { createMiddlewareDebug } from "../../middleware/middleware-debug";
 import {
-  HandlerUseCaseResult,
+  ActionHandlerResult,
   HTTPMethod,
   PlatformAdapterInterface,
 } from "./generic-adapter-use-case-types";
@@ -18,7 +18,7 @@ const debug = createMiddlewareDebug("PlatformAdapterMiddleware");
 export class PlatformAdapterMiddleware {
   constructor(private adapter: PlatformAdapterInterface) {}
 
-  withMethod(methods: HTTPMethod[]): HandlerUseCaseResult | null {
+  withMethod(methods: HTTPMethod[]): ActionHandlerResult | null {
     if (!methods.includes(this.adapter.method)) {
       return {
         body: "Method not allowed",
@@ -30,7 +30,7 @@ export class PlatformAdapterMiddleware {
     return null;
   }
 
-  withSaleorDomainPresent(): HandlerUseCaseResult | null {
+  withSaleorDomainPresent(): ActionHandlerResult | null {
     const { domain } = this.getSaleorHeaders();
     debug("withSaleorDomainPresent middleware called with domain in header: %s", domain);
 

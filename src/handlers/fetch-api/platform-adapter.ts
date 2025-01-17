@@ -1,5 +1,5 @@
 import {
-  HandlerUseCaseResult,
+  ActionHandlerResult,
   PlatformAdapterInterface,
 } from "../shared/generic-adapter-use-case-types";
 
@@ -26,7 +26,7 @@ export class WebApiAdapter implements PlatformAdapterInterface<WebApiHandlerInpu
     return this.request.method as "POST" | "GET";
   }
 
-  async send(result: HandlerUseCaseResult): Promise<Response> {
+  async send(result: ActionHandlerResult): Promise<Response> {
     const body = result.bodyType === "json" ? JSON.stringify(result.body) : result.body;
 
     return new Response(body, {

@@ -1,7 +1,7 @@
 import type { APIGatewayProxyEventV2, APIGatewayProxyResultV2, Context } from "aws-lambda";
 
 import {
-  HandlerUseCaseResult,
+  ActionHandlerResult,
   HTTPMethod,
   PlatformAdapterInterface,
 } from "../shared/generic-adapter-use-case-types";
@@ -35,7 +35,7 @@ export class AwsLambdaAdapter implements PlatformAdapterInterface<AwsLambdaHandl
     return this.event.requestContext.http.method as HTTPMethod;
   }
 
-  async send(result: HandlerUseCaseResult): Promise<APIGatewayProxyResultV2> {
+  async send(result: ActionHandlerResult): Promise<APIGatewayProxyResultV2> {
     const body = result.bodyType === "json" ? JSON.stringify(result.body) : result.body;
 
     return {
