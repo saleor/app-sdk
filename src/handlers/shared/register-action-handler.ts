@@ -114,9 +114,9 @@ export type AppRegisterHandlerOptions<Request = HandlerInput> = HasAPL & {
 };
 
 export class RegisterActionHandler<I extends HandlerInput> implements ActionHandlerInterface {
-  private adapterMiddleware = new PlatformAdapterMiddleware(this.adapter);
-
   constructor(private adapter: PlatformAdapterInterface<I>) {}
+
+  private adapterMiddleware = new PlatformAdapterMiddleware(this.adapter);
 
   private runPreChecks(): ActionHandlerResult | null {
     const checksToRun = [

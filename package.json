@@ -149,6 +149,11 @@
       "import": "./handlers/fetch-api/index.mjs",
       "require": "./handlers/fetch-api/index.js"
     },
+    "./handlers/next-app-router": {
+      "types": "./handlers/fetch-api/index.d.ts",
+      "import": "./handlers/fetch-api/index.mjs",
+      "require": "./handlers/fetch-api/index.js"
+    },
     "./handlers/shared": {
       "types": "./handlers/shared/index.d.ts",
       "import": "./handlers/shared/index.mjs",
