@@ -19,10 +19,22 @@ export const createRegisterHandlerResponseBody = (
   error,
 });
 
-// Request type is from retest (Next.js interface)
 export type CreateAppRegisterHandlerOptions =
   GenericCreateAppRegisterHandlerOptions<NextJsHandlerInput>;
 
+/**
+ * Returns API route handler for **Next.js pages router**
+ * for register endpoint that is called by Saleor when installing the app
+ *
+ * It verifies the request and stores `app_token` from Saleor
+ * in APL and along with all required AuthData fields (jwks, saleorApiUrl, ...)
+ *
+ * **Recommended path**: `/api/register`
+ * (configured in manifest handler)
+ *
+ * To learn more check Saleor docs
+ * @see {@link https://docs.saleor.io/developer/extending/apps/architecture/app-requirements#register-url}
+ * */
 export const createAppRegisterHandler =
   (config: CreateAppRegisterHandlerOptions) =>
   async (req: NextApiRequest, res: NextApiResponse) => {
