@@ -42,5 +42,5 @@ export interface PlatformAdapterInterface<T> {
 /** Interfaces for use case handlers that encapsulate business logic
  * (e.g. validating headers, checking HTTP method, etc. ) */
 export interface ActionHandlerInterface {
-  handleAction(...params: any): Promise<ActionHandlerResult>;
+  handleAction(...params: [unknown]): Promise<ActionHandlerResult>;
 }
