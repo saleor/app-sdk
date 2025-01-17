@@ -17,8 +17,8 @@ import { validateAllowSaleorUrls } from "./validate-allow-saleor-urls";
 
 const debug = createDebug("createAppRegisterHandler");
 
-// TODO: Make this private methods?
-// Copy pasted from existing manifest handler
+/** Error raised by async handlers passed by
+ * users in config to Register handler */
 class RegisterCallbackError extends Error {
   public status: ResultStatusCodes = 500;
 
@@ -51,28 +51,6 @@ export const createRegisterHandlerResponseBody = (
   },
   bodyType: "json",
 });
-
-const handleHookError = (e: RegisterCallbackError | unknown): ActionHandlerResult => {
-  if (e instanceof RegisterCallbackError) {
-    return createRegisterHandlerResponseBody(
-      false,
-      {
-        code: "REGISTER_HANDLER_HOOK_ERROR",
-        message: e.message,
-      },
-      e.status
-    );
-  }
-  return {
-    status: 500,
-    body: "Error during app installation",
-    bodyType: "string",
-  };
-};
-
-const createCallbackError: CallbackErrorHandler = (params: HookCallbackErrorParams) => {
-  throw new RegisterCallbackError(params);
-};
 
 export type HookCallbackErrorParams = {
   status?: ResultStatusCodes;
@@ -310,12 +288,12 @@ export class RegisterActionHandler<I extends HandlerInput> implements ActionHand
           authToken,
           saleorApiUrl,
           saleorDomain,
-          respondWithError: createCallbackError,
+          respondWithError: this.createCallbackError,
         });
       } catch (e: RegisterCallbackError | unknown) {
         debug("\"onRequestStart\" hook thrown error: %o", e);
 
-        return handleHookError(e);
+        return this.handleHookError(e);
       }
     }
 
@@ -435,12 +413,12 @@ export class RegisterActionHandler<I extends HandlerInput> implements ActionHand
       try {
         await onRequestVerified(this.adapter.request, {
           authData,
-          respondWithError: createCallbackError,
+          respondWithError: this.createCallbackError,
         });
       } catch (e: RegisterCallbackError | unknown) {
         debug("\"onRequestVerified\" hook thrown error: %o", e);
 
-        return handleHookError(e);
+        return this.handleHookError(e);
       }
     }
 
@@ -467,12 +445,12 @@ export class RegisterActionHandler<I extends HandlerInput> implements ActionHand
         try {
           await onAuthAplSaved(this.adapter.request, {
             authData,
-            respondWithError: createCallbackError,
+            respondWithError: this.createCallbackError,
           });
         } catch (e: RegisterCallbackError | unknown) {
           debug("\"onAuthAplSaved\" hook thrown error: %o", e);
 
-          return handleHookError(e);
+          return this.handleHookError(e);
         }
       }
     } catch (aplError: unknown) {
@@ -485,12 +463,12 @@ export class RegisterActionHandler<I extends HandlerInput> implements ActionHand
           await onAplSetFailed(this.adapter.request, {
             authData,
             error: aplError,
-            respondWithError: createCallbackError,
+            respondWithError: this.createCallbackError,
           });
         } catch (hookError: RegisterCallbackError | unknown) {
           debug("\"onAuthAplFailed\" hook thrown error: %o", hookError);
 
-          return handleHookError(hookError);
+          return this.handleHookError(hookError);
         }
       }
 
@@ -502,4 +480,26 @@ export class RegisterActionHandler<I extends HandlerInput> implements ActionHand
     debug("Register  complete");
     return createRegisterHandlerResponseBody(true);
   }
+
+  private handleHookError(e: RegisterCallbackError | unknown): ActionHandlerResult {
+    if (e instanceof RegisterCallbackError) {
+      return createRegisterHandlerResponseBody(
+        false,
+        {
+          code: "REGISTER_HANDLER_HOOK_ERROR",
+          message: e.message,
+        },
+        e.status
+      );
+    }
+    return {
+      status: 500,
+      body: "Error during app installation",
+      bodyType: "string",
+    };
+  }
+
+  private createCallbackError: CallbackErrorHandler = (params: HookCallbackErrorParams) => {
+    throw new RegisterCallbackError(params);
+  };
 }
