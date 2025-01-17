@@ -1,6 +1,6 @@
 import { SpanKind, SpanStatusCode } from "@opentelemetry/api";
 import { SemanticAttributes } from "@opentelemetry/semantic-conventions";
-import { createClient } from "redis";
+import type { createClient } from "redis";
 
 import { getOtelTracer, OTEL_APL_SERVICE_NAME } from "../../open-telemetry";
 import { APL, AplConfiguredResult, AplReadyResult, AuthData } from "../apl";

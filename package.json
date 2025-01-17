@@ -103,6 +103,11 @@
       "import": "./APL/index.mjs",
       "require": "./APL/index.js"
     },
+    "./APL/redis": {
+      "types": "./APL/redis/index.d.ts",
+      "import": "./APL/redis/index.mjs",
+      "require": "./APL/redis/index.js"
+    },
     "./APL/vercel-kv": {
       "types": "./APL/vercel-kv/index.d.ts",
       "import": "./APL/vercel-kv/index.mjs",
