@@ -31,6 +31,29 @@ export class AwsLambdaAdapter implements PlatformAdapterInterface<AwsLambdaHandl
     }
   }
 
+  getBaseUrl(): string {
+    const xForwardedProto = this.getHeader("X-Forwarded-Proto") || "https";
+    const host = this.getHeader("Host");
+
+    const xForwardedProtos = Array.isArray(xForwardedProto)
+      ? xForwardedProto.join(",")
+      : xForwardedProto;
+    const protocols = xForwardedProtos.split(",");
+    // prefer https over other protocols
+    const protocol = protocols.find((el) => el === "https") || protocols[0];
+
+    // API Gateway splits deployment into multiple stages which are
+    // included in the API url (e.g. /dev or /prod)
+    // More details: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
+    const { stage } = this.event.requestContext;
+
+    if (stage) {
+      return `${protocol}://${host}/${stage}`;
+    }
+
+    return `${protocol}://${host}`;
+  }
+
   get method(): HTTPMethod {
     return this.event.requestContext.http.method as HTTPMethod;
   }
