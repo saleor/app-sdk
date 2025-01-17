@@ -1,5 +1,3 @@
-import { APIGatewayProxyEventV2, Context } from "aws-lambda";
-
 import {
   RegisterActionHandler,
   RegisterHandlerResponseBody,
@@ -38,7 +36,7 @@ export type CreateAppRegisterHandlerOptions =
  * */
 export const createAppRegisterHandler =
   (config: CreateAppRegisterHandlerOptions): AWSLambdaHandler =>
-  async (event: APIGatewayProxyEventV2, context: Context) => {
+  async (event, context) => {
     const adapter = new AwsLambdaAdapter(event, context);
     const useCase = new RegisterActionHandler(adapter);
     const result = await useCase.handleAction(config);

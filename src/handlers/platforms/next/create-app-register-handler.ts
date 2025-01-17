@@ -1,12 +1,10 @@
-import { NextApiRequest, NextApiResponse } from "next";
-
 import {
   RegisterActionHandler,
   RegisterHandlerResponseBody,
 } from "@/handlers/actions/register-action-handler";
 import { GenericCreateAppRegisterHandlerOptions } from "@/handlers/shared/create-app-register-handler-types";
 
-import { NextJsAdapter, NextJsHandlerInput } from "./platform-adapter";
+import { NextJsAdapter, NextJsHandler, NextJsHandlerInput } from "./platform-adapter";
 
 // Re-export types for backwards compatibility
 
@@ -37,10 +35,10 @@ export type CreateAppRegisterHandlerOptions =
  * @see {@link https://docs.saleor.io/developer/extending/apps/architecture/app-requirements#register-url}
  * */
 export const createAppRegisterHandler =
-  (config: CreateAppRegisterHandlerOptions) =>
-  async (req: NextApiRequest, res: NextApiResponse) => {
+  (config: CreateAppRegisterHandlerOptions): NextJsHandler =>
+  async (req, res) => {
     const adapter = new NextJsAdapter(req, res);
-    const useCase = new RegisterActionHandler(adapter);
-    const result = await useCase.handleAction(config);
+    const actionHandler = new RegisterActionHandler(adapter);
+    const result = await actionHandler.handleAction(config);
     return adapter.send(result);
   };

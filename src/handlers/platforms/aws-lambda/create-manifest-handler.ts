@@ -3,14 +3,14 @@ import {
   ManifestActionHandler,
 } from "@/handlers/actions/manifest-action-handler";
 
-import { WebApiAdapter, WebApiHandler, WebApiHandlerInput } from "./platform-adapter";
+import { AwsLambdaAdapter, AWSLambdaHandler, AwsLambdaHandlerInput } from "./platform-adapter";
 
-export type CreateManifestHandlerOptions = GenericHandlerOptions<WebApiHandlerInput>;
+export type CreateManifestHandlerOptions = GenericHandlerOptions<AwsLambdaHandlerInput>;
 
 export const createManifestHandler =
-  (config: CreateManifestHandlerOptions): WebApiHandler =>
-  async (request: Request) => {
-    const adapter = new WebApiAdapter(request);
+  (config: CreateManifestHandlerOptions): AWSLambdaHandler =>
+  async (event, context) => {
+    const adapter = new AwsLambdaAdapter(event, context);
     const actionHandler = new ManifestActionHandler(adapter);
     const result = await actionHandler.handleAction(config);
     return adapter.send(result);

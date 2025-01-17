@@ -6,10 +6,7 @@ import {
 } from "@/handlers/shared/generic-adapter-use-case-types";
 
 export type NextJsHandlerInput = NextApiRequest;
-export type NextJsHandler = (
-  req: NextApiRequest,
-  res: NextApiResponse
-) => Promise<ActionHandlerResult>;
+export type NextJsHandler = (req: NextApiRequest, res: NextApiResponse) => Promise<void>;
 
 export class NextJsAdapter implements PlatformAdapterInterface<NextJsHandlerInput> {
   readonly type = "next" as const;
@@ -26,7 +23,7 @@ export class NextJsAdapter implements PlatformAdapterInterface<NextJsHandlerInpu
   }
 
   getBaseUrl(): string {
-    const { host, "x-forwarded-proto": xForwardedProto = "http" } = headers;
+    const { host, "x-forwarded-proto": xForwardedProto = "http" } = this.request.headers;
 
     const xForwardedProtos = Array.isArray(xForwardedProto)
       ? xForwardedProto.join(",")
