@@ -15,7 +15,8 @@
     "copy-readme": "cp README.md dist/README.md",
     "publish:ci-prod": "pnpm publish && pnpm exec changeset tag && git push --follow-tags",
     "publish:ci-dev": "pnpm exec changeset version --snapshot pr && pnpm publish --tag dev --no-git-checks",
-    "lint-staged": "lint-staged"
+    "lint-staged": "lint-staged",
+    "test:integration": "INTEGRATION=1 vitest run test/integration"
   },
   "keywords": [],
   "author": "",
