@@ -1,7 +1,7 @@
 import { createClient } from "redis";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import { RedisAPL } from "../../dist/APL/redis";
+import { RedisAPL } from "../../src/APL/redis";
 
 // These tests require a running Redis instance
 // Run with: INTEGRATION=1 pnpm test
