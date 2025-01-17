@@ -1,7 +1,3 @@
-import { AwsLambdaHandlerInput } from "../aws-lambda/platform-adapter";
-import { WebApiHandlerInput } from "../fetch-api/platform-adapter";
-import { NextJsHandlerInput } from "../next/platform-adapter";
-
 export const HTTPMethod = {
   GET: "GET",
   POST: "POST",
@@ -48,6 +44,3 @@ export interface PlatformAdapterInterface<T> {
 export interface ActionHandlerInterface {
   handleAction(...params: any): Promise<ActionHandlerResult>;
 }
-
-// TODO: remove
-export type HandlerInput = NextJsHandlerInput | WebApiHandlerInput | AwsLambdaHandlerInput;

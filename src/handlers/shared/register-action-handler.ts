@@ -9,7 +9,6 @@ import { PlatformAdapterMiddleware } from "./adapter-middleware";
 import {
   ActionHandlerInterface,
   ActionHandlerResult,
-  HandlerInput,
   PlatformAdapterInterface,
   ResultStatusCodes,
 } from "./generic-adapter-use-case-types";
@@ -59,7 +58,7 @@ export type HookCallbackErrorParams = {
 
 export type CallbackErrorHandler = (params: HookCallbackErrorParams) => never;
 
-export type AppRegisterHandlerOptions<Request = HandlerInput> = HasAPL & {
+export type AppRegisterHandlerOptions<Request> = HasAPL & {
   /**
    * Protect app from being registered in Saleor other than specific.
    * By default, allow everything.
@@ -113,7 +112,7 @@ export type AppRegisterHandlerOptions<Request = HandlerInput> = HasAPL & {
   ): Promise<void>;
 };
 
-export class RegisterActionHandler<I extends HandlerInput> implements ActionHandlerInterface {
+export class RegisterActionHandler<I> implements ActionHandlerInterface {
   constructor(private adapter: PlatformAdapterInterface<I>) {}
 
   private adapterMiddleware = new PlatformAdapterMiddleware(this.adapter);

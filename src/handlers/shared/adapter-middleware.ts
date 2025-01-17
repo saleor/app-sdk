@@ -15,8 +15,8 @@ import {
 
 const debug = createMiddlewareDebug("PlatformAdapterMiddleware");
 
-export class PlatformAdapterMiddleware {
-  constructor(private adapter: PlatformAdapterInterface) {}
+export class PlatformAdapterMiddleware<T> {
+  constructor(private adapter: PlatformAdapterInterface<T>) {}
 
   withMethod(methods: HTTPMethod[]): ActionHandlerResult | null {
     if (!methods.includes(this.adapter.method)) {
