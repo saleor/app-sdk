@@ -15,7 +15,8 @@
     "copy-readme": "cp README.md dist/README.md",
     "publish:ci-prod": "pnpm publish && pnpm exec changeset tag && git push --follow-tags",
     "publish:ci-dev": "pnpm exec changeset version --snapshot pr && pnpm publish --tag dev --no-git-checks",
-    "lint-staged": "lint-staged"
+    "lint-staged": "lint-staged",
+    "test:integration": "INTEGRATION=1 vitest run test/integration"
   },
   "keywords": [],
   "author": "",
@@ -25,7 +26,8 @@
     "graphql": ">=16.6.0",
     "next": ">=12",
     "react": ">=17",
-    "react-dom": ">=17"
+    "react-dom": ">=17",
+    "redis": ">=4"
   },
   "dependencies": {
     "@opentelemetry/api": "^1.7.0",
@@ -70,6 +72,7 @@
     "prettier": "2.7.1",
     "react": "^18.2.0",
     "react-dom": "18.2.0",
+    "redis": "^4.7.0",
     "tsm": "^2.2.2",
     "tsup": "^6.2.3",
     "typescript": "4.9.5",
@@ -79,6 +82,9 @@
   },
   "peerDependenciesMeta": {
     "@vercel/kv": {
+      "optional": true
+    },
+    "redis": {
       "optional": true
     }
   },
@@ -97,6 +103,11 @@
       "types": "./APL/index.d.ts",
       "import": "./APL/index.mjs",
       "require": "./APL/index.js"
+    },
+    "./APL/redis": {
+      "types": "./APL/redis/index.d.ts",
+      "import": "./APL/redis/index.mjs",
+      "require": "./APL/redis/index.js"
     },
     "./APL/vercel-kv": {
       "types": "./APL/vercel-kv/index.d.ts",
