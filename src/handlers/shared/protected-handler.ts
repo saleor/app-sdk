@@ -1,4 +1,12 @@
-import { SaleorProtectedHandlerError } from "../next";
+export type SaleorProtectedHandlerError =
+  | "OTHER"
+  | "MISSING_HOST_HEADER"
+  | "MISSING_DOMAIN_HEADER"
+  | "MISSING_API_URL_HEADER"
+  | "MISSING_AUTHORIZATION_BEARER_HEADER"
+  | "NOT_REGISTERED"
+  | "JWT_VERIFICATION_FAILED"
+  | "NO_APP_ID";
 
 export const ProtectedHandlerErrorCodeMap: Record<SaleorProtectedHandlerError, number> = {
   OTHER: 500,
