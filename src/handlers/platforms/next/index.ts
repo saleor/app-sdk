@@ -1,5 +1,5 @@
 // Re-export to avoid breaking changes
-export * from "../../shared/protected-handler-context";
+export * from "../../shared/protected-action-validator";
 export * from "../../shared/sync-webhook-response-builder";
 export * from "./create-app-register-handler";
 export * from "./create-manifest-handler";

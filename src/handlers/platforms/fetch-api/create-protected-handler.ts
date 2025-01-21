@@ -1,12 +1,11 @@
 import { APL } from "@/APL";
-import { createDebug } from "@/debug";
-import { ProtectedHandlerErrorCodeMap } from "@/handlers/shared/protected-handler";
-import { ProtectedHandlerContext } from "@/handlers/shared/protected-handler-context";
+import {
+  ProtectedActionValidator,
+  ProtectedHandlerContext,
+} from "@/handlers/shared/protected-action-validator";
 import { Permission } from "@/types";
 
-import { processSaleorProtectedHandler, ProtectedHandlerError } from "./process-protected-handler";
-
-const debug = createDebug("WebAPI:ProtectedHandler");
+import { WebApiAdapter } from "./platform-adapter";
 
 export type WebApiProtectedHandler = (
   request: Request,
@@ -19,23 +18,22 @@ export const createProtectedHandler =
     apl: APL,
     requiredPermissions?: Permission[]
   ): WebApiProtectedHandler =>
-  (request) => {
-    debug("Protected handler called");
-    return processSaleorProtectedHandler({ request, apl, requiredPermissions })
-      .then(async (ctx) => {
-        debug("Incoming request validated. Call handlerFn");
-        return handlerFn(request, ctx);
-      })
-      .catch((e) => {
-        debug("Unexpected error during processing the request");
+  async (request) => {
+    const adapter = new WebApiAdapter(request);
+    const actionValidator = new ProtectedActionValidator(adapter);
+    const validationResult = await actionValidator.validateRequest({
+      apl,
+      requiredPermissions,
+    });
 
-        if (e instanceof ProtectedHandlerError) {
-          debug(`Validation error: ${e.message}`);
-          return new Response("Invalid request", {
-            status: ProtectedHandlerErrorCodeMap[e.errorType] || 400,
-          });
-        }
-        debug("Unexpected error: %O", e);
-        return new Response("Unexpected error while handling request", { status: 500 });
-      });
+    if (validationResult.result === "failure") {
+      return adapter.send(validationResult.value);
+    }
+
+    const context = validationResult.value;
+    try {
+      return await handlerFn(request, context);
+    } catch (err) {
+      return new Response("Unexpected server error", { status: 500 });
+    }
   };
