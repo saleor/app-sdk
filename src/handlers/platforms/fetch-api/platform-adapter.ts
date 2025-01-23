@@ -22,6 +22,11 @@ export class WebApiAdapter implements PlatformAdapterInterface<WebApiHandlerInpu
     }
   }
 
+  async getRawBody() {
+    const request = this.request.clone();
+    return request.text();
+  }
+
   getBaseUrl(): string {
     let url: URL | undefined;
     try {

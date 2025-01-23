@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import getRawBody from "raw-body";
 
 import {
   ActionHandlerResult,
@@ -20,6 +21,14 @@ export class NextJsAdapter implements PlatformAdapterInterface<NextJsHandlerInpu
 
   getBody(): Promise<unknown> {
     return Promise.resolve(this.request.body);
+  }
+
+  async getRawBody(): Promise<string> {
+    return (
+      await getRawBody(this.request, {
+        length: this.request.headers["content-length"],
+      })
+    ).toString();
   }
 
   getBaseUrl(): string {

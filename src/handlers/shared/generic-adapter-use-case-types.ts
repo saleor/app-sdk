@@ -35,6 +35,7 @@ export interface PlatformAdapterInterface<T> {
   send(result: ActionHandlerResult): unknown;
   getHeader(name: string): string | null;
   getBody(): Promise<unknown>;
+  getRawBody(): Promise<string | null>;
   getBaseUrl(): string;
   method: HTTPMethod;
   request: T;
