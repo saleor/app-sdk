@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 0.52.0
+
+### Minor Changes
+
+- 7b51201: Adding REDIS as APL provider
+
 ## 0.51.0
 
 ### Minor Changes
