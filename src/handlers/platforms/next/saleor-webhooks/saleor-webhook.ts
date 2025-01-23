@@ -6,9 +6,10 @@ import { createDebug } from "@/debug";
 import { gqlAstToString } from "@/gql-ast-to-string";
 import { WebhookContext, WebhookError } from "@/handlers/shared/process-saleor-webhook";
 import { WebhookErrorCodeMap } from "@/handlers/shared/saleor-webhook";
+import { SaleorWebhookValidator } from "@/handlers/shared/saleor-webhook-validator";
 import { AsyncWebhookEventType, SyncWebhookEventType, WebhookManifest } from "@/types";
 
-import { processSaleorWebhook } from "./process-saleor-webhook";
+import { NextJsAdapter } from "../platform-adapter";
 
 const debug = createDebug("SaleorWebhook");
 
@@ -131,60 +132,62 @@ export abstract class SaleorWebhook<
    */
   createHandler(handlerFn: NextWebhookApiHandler<TPayload, TExtras>): NextApiHandler {
     return async (req, res) => {
+      const adapter = new NextJsAdapter(req, res);
+      const webhookValidator = new SaleorWebhookValidator(adapter);
+
       debug(`Handler for webhook ${this.name} called`);
+      const validationResult = await webhookValidator.validateRequest<TPayload>({ allowedEvent: this.event, apl: this.apl });
 
-      await processSaleorWebhook<TPayload>({
-        req,
-        apl: this.apl,
-        allowedEvent: this.event,
-      })
-        .then(async (context) => {
-          debug("Incoming request validated. Call handlerFn");
+      if (validationResult.result === "ok") {
+        debug("Incoming request validated. Call handlerFn");
 
-          return handlerFn(req, res, { ...(this.extraContext ?? ({} as TExtras)), ...context });
-        })
-        .catch(async (e) => {
-          debug(`Unexpected error during processing the webhook ${this.name}`);
+        return handlerFn(req, res, { ...(this.extraContext ?? ({} as TExtras)), ...validationResult.context });
+      }
 
-          if (e instanceof WebhookError) {
-            debug(`Validation error: ${e.message}`);
+      debug(`Unexpected error during processing the webhook ${this.name}`);
+      const e = validationResult.error;
 
-            if (this.onError) {
-              this.onError(e, req, res);
-            }
+      if (e instanceof WebhookError) {
+        debug(`Validation error: ${e.message}`);
 
-            if (this.formatErrorResponse) {
-              const { code, body } = await this.formatErrorResponse(e, req, res);
+        if (this.onError) {
+          this.onError(e, req, res);
+        }
 
-              res.status(code).send(body);
+        if (this.formatErrorResponse) {
+          const { code, body } = await this.formatErrorResponse(e, req, res);
 
-              return;
-            }
+          res.status(code).send(body);
 
-            res.status(WebhookErrorCodeMap[e.errorType] || 400).send({
-              error: {
-                type: e.errorType,
-                message: e.message,
-              },
-            });
-            return;
-          }
-          debug("Unexpected error: %O", e);
+          return;
+        }
 
-          if (this.onError) {
-            this.onError(e, req, res);
-          }
-
-          if (this.formatErrorResponse) {
-            const { code, body } = await this.formatErrorResponse(e, req, res);
-
-            res.status(code).send(body);
-
-            return;
-          }
-
-          res.status(500).end();
+        res.status(WebhookErrorCodeMap[e.errorType] || 400).send({
+          error: {
+            type: e.errorType,
+            message: e.message,
+          },
         });
+        return;
+      }
+      debug("Unexpected error: %O", e);
+
+      if (this.onError) {
+        this.onError(e, req, res);
+      }
+
+      if (this.formatErrorResponse) {
+        const { code, body } = await this.formatErrorResponse(e, req, res);
+
+        res.status(code).send(body);
+
+        return;
+      }
+
+      res.status(500).end();
+
+
+
     };
   }
 }
