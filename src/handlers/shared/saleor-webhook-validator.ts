@@ -11,28 +11,23 @@ import { PlatformAdapterMiddleware } from "./adapter-middleware";
 import { PlatformAdapterInterface } from "./generic-adapter-use-case-types";
 import { WebhookContext, WebhookError } from "./process-saleor-webhook";
 
-type WebhookValidationResult<T> =
-  | { result: "ok"; context: WebhookContext<T> }
+type WebhookValidationResult<TPayload> =
+  | { result: "ok"; context: WebhookContext<TPayload> }
   | { result: "failure"; error: WebhookError };
 
-export class SaleorWebhookValidator<I> {
+export class SaleorWebhookValidator {
   private debug = createDebug("processProtectedHandler");
 
   private tracer = getOtelTracer();
 
-  constructor(private adapter: PlatformAdapterInterface<I>) {}
-
-  private adapterMiddleware = new PlatformAdapterMiddleware(this.adapter);
-
-  async validateRequest<T>({
-    allowedEvent,
-    apl,
-  }: {
+  async validateRequest<TPayload, TRequestType>(config: {
     allowedEvent: string;
     apl: APL;
-  }): Promise<WebhookValidationResult<T>> {
+    adapter: PlatformAdapterInterface<TRequestType>;
+    adapterMiddleware: PlatformAdapterMiddleware<TRequestType>;
+  }): Promise<WebhookValidationResult<TPayload>> {
     try {
-      const context = await this.validateRequestOrThrowError<T>({ allowedEvent, apl });
+      const context = await this.validateRequestOrThrowError<TPayload, TRequestType>(config);
 
       return {
         result: "ok",
@@ -46,13 +41,17 @@ export class SaleorWebhookValidator<I> {
     }
   }
 
-  private async validateRequestOrThrowError<T>({
+  private async validateRequestOrThrowError<TPayload, TRequestType>({
     allowedEvent,
     apl,
+    adapter,
+    adapterMiddleware,
   }: {
     allowedEvent: string;
     apl: APL;
-  }): Promise<WebhookContext<T>> {
+    adapter: PlatformAdapterInterface<TRequestType>;
+    adapterMiddleware: PlatformAdapterMiddleware<TRequestType>;
+  }): Promise<WebhookContext<TPayload>> {
     return this.tracer.startActiveSpan(
       "processSaleorWebhook",
       {
@@ -65,13 +64,13 @@ export class SaleorWebhookValidator<I> {
         try {
           this.debug("Request processing started");
 
-          if (this.adapter.method !== "POST") {
+          if (adapter.method !== "POST") {
             this.debug("Wrong HTTP method");
             throw new WebhookError("Wrong request method, only POST allowed", "WRONG_METHOD");
           }
 
-          const { event, signature, saleorApiUrl } = this.adapterMiddleware.getSaleorHeaders();
-          const baseUrl = this.adapter.getBaseUrl();
+          const { event, signature, saleorApiUrl } = adapterMiddleware.getSaleorHeaders();
+          const baseUrl = adapter.getBaseUrl();
 
           if (!baseUrl) {
             this.debug("Missing host header");
@@ -105,7 +104,7 @@ export class SaleorWebhookValidator<I> {
             throw new WebhookError("Missing saleor-signature header", "MISSING_SIGNATURE_HEADER");
           }
 
-          const rawBody = await this.adapter.getRawBody();
+          const rawBody = await adapter.getRawBody();
           if (!rawBody) {
             this.debug("Missing request body");
 
@@ -198,7 +197,7 @@ export class SaleorWebhookValidator<I> {
           return {
             baseUrl,
             event,
-            payload: parsedBody as T,
+            payload: parsedBody as TPayload,
             authData,
             schemaVersion: parsedSchemaVersion,
           };

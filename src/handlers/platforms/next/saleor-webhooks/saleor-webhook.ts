@@ -6,7 +6,6 @@ import {
   GenericWebhookConfig,
 } from "@/handlers/shared/generic-saleor-webhook";
 import { WebhookContext } from "@/handlers/shared/process-saleor-webhook";
-import { SaleorWebhookValidator } from "@/handlers/shared/saleor-webhook-validator";
 import { AsyncWebhookEventType, SyncWebhookEventType } from "@/types";
 
 import { NextJsAdapter } from "../platform-adapter";
@@ -33,11 +32,7 @@ export abstract class SaleorWebhook<
   createHandler(handlerFn: NextWebhookApiHandler<TPayload, TExtras>): NextApiHandler {
     return async (req, res) => {
       const adapter = new NextJsAdapter(req, res);
-      const validator = new SaleorWebhookValidator(adapter);
-      const prepareRequestResult = await super.prepareRequest<NextJsAdapter>({
-        adapter,
-        validator,
-      });
+      const prepareRequestResult = await super.prepareRequest<NextJsAdapter>(adapter);
 
       if (prepareRequestResult.result === "sendResponse") {
         return prepareRequestResult.response;

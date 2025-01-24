@@ -3,7 +3,7 @@ import { ASTNode } from "graphql";
 import { APL } from "@/APL";
 import { createDebug } from "@/debug";
 import { gqlAstToString } from "@/gql-ast-to-string";
-import { PlatformAdapterInterface } from "@/handlers/shared";
+import { PlatformAdapterInterface, PlatformAdapterMiddleware } from "@/handlers/shared";
 import { WebhookContext, WebhookError } from "@/handlers/shared/process-saleor-webhook";
 import { WebhookErrorCodeMap } from "@/handlers/shared/saleor-webhook";
 import { SaleorWebhookValidator } from "@/handlers/shared/saleor-webhook-validator";
@@ -36,10 +36,12 @@ export interface GenericWebhookConfig<
 }
 
 export abstract class GenericSaleorWebhook<
-  RequestType,
+  TRequestType,
   TPayload = unknown,
   TExtras extends Record<string, unknown> = {}
 > {
+  private webhookValidator = new SaleorWebhookValidator();
+
   protected abstract eventType: "async" | "sync";
 
   protected extraContext?: TExtras;
@@ -56,11 +58,11 @@ export abstract class GenericSaleorWebhook<
 
   apl: APL;
 
-  onError: GenericWebhookConfig<RequestType>["onError"];
+  onError: GenericWebhookConfig<TRequestType>["onError"];
 
-  formatErrorResponse: GenericWebhookConfig<RequestType>["formatErrorResponse"];
+  formatErrorResponse: GenericWebhookConfig<TRequestType>["formatErrorResponse"];
 
-  protected constructor(configuration: GenericWebhookConfig<RequestType>) {
+  protected constructor(configuration: GenericWebhookConfig<TRequestType>) {
     const {
       name,
       webhookPath,
@@ -121,19 +123,18 @@ export abstract class GenericSaleorWebhook<
     }
   }
 
-  protected async prepareRequest<Adapter extends PlatformAdapterInterface<RequestType>>({
-    adapter,
-    validator,
-  }: {
-    adapter: Adapter;
-    validator: SaleorWebhookValidator<Adapter["request"]>;
-  }): Promise<
+  protected async prepareRequest<Adapter extends PlatformAdapterInterface<TRequestType>>(
+    adapter: Adapter
+  ): Promise<
     | { result: "callHandler"; context: WebhookContext<TPayload> }
     | { result: "sendResponse"; response: ReturnType<Adapter["send"]> }
   > {
-    const validationResult = await validator.validateRequest<TPayload>({
+    const adapterMiddleware = new PlatformAdapterMiddleware<TRequestType>(adapter);
+    const validationResult = await this.webhookValidator.validateRequest<TPayload, TRequestType>({
       allowedEvent: this.event,
       apl: this.apl,
+      adapter,
+      adapterMiddleware,
     });
 
     if (validationResult.result === "ok") {
@@ -206,4 +207,6 @@ export abstract class GenericSaleorWebhook<
       }) as ReturnType<Adapter["send"]>,
     };
   }
+
+  abstract createHandler(handlerFn: unknown): unknown;
 }

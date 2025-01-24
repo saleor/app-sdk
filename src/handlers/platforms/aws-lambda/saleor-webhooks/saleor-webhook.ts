@@ -6,7 +6,6 @@ import {
   GenericWebhookConfig,
 } from "@/handlers/shared/generic-saleor-webhook";
 import { WebhookContext } from "@/handlers/shared/process-saleor-webhook";
-import { SaleorWebhookValidator } from "@/handlers/shared/saleor-webhook-validator";
 import { AsyncWebhookEventType, SyncWebhookEventType } from "@/types";
 
 import { AwsLambdaAdapter, AWSLambdaHandler, AwsLambdaHandlerInput } from "../platform-adapter";
@@ -34,11 +33,7 @@ export abstract class SaleorWebApiWebhook<
   createHandler(handlerFn: SaleorWebhookHandler<TPayload, TExtras>): AWSLambdaHandler {
     return async (event, context) => {
       const adapter = new AwsLambdaAdapter(event, context);
-      const validator = new SaleorWebhookValidator(adapter);
-      const prepareRequestResult = await super.prepareRequest<AwsLambdaAdapter>({
-        adapter,
-        validator,
-      });
+      const prepareRequestResult = await super.prepareRequest<AwsLambdaAdapter>(adapter);
 
       if (prepareRequestResult.result === "sendResponse") {
         return prepareRequestResult.response;

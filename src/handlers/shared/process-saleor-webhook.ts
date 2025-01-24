@@ -28,10 +28,10 @@ export class WebhookError extends Error {
   }
 }
 
-export type WebhookContext<T> = {
+export type WebhookContext<TPayload> = {
   baseUrl: string;
   event: string;
-  payload: T;
+  payload: TPayload;
   authData: AuthData;
   /** For Saleor < 3.15 it will be null. */
   schemaVersion: number | null;
