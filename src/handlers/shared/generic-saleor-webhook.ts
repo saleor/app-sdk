@@ -11,7 +11,10 @@ import { AsyncWebhookEventType, SyncWebhookEventType, WebhookManifest } from "@/
 
 const debug = createDebug("SaleorWebhook");
 
-export interface WebhookConfig<RequestType, Event = AsyncWebhookEventType | SyncWebhookEventType> {
+export interface GenericWebhookConfig<
+  RequestType,
+  Event = AsyncWebhookEventType | SyncWebhookEventType
+> {
   name?: string;
   webhookPath: string;
   event: Event;
@@ -32,7 +35,7 @@ export interface WebhookConfig<RequestType, Event = AsyncWebhookEventType | Sync
   subscriptionQueryAst?: ASTNode;
 }
 
-export abstract class GenericSaleorWebApiWebhook<
+export abstract class GenericSaleorWebhook<
   RequestType,
   TPayload = unknown,
   TExtras extends Record<string, unknown> = {}
@@ -53,11 +56,11 @@ export abstract class GenericSaleorWebApiWebhook<
 
   apl: APL;
 
-  onError: WebhookConfig<RequestType>["onError"];
+  onError: GenericWebhookConfig<RequestType>["onError"];
 
-  formatErrorResponse: WebhookConfig<RequestType>["formatErrorResponse"];
+  formatErrorResponse: GenericWebhookConfig<RequestType>["formatErrorResponse"];
 
-  protected constructor(configuration: WebhookConfig<RequestType>) {
+  protected constructor(configuration: GenericWebhookConfig<RequestType>) {
     const {
       name,
       webhookPath,
@@ -118,16 +121,15 @@ export abstract class GenericSaleorWebApiWebhook<
     }
   }
 
-  protected async prepareRequest<A extends PlatformAdapterInterface<RequestType>>({
+  protected async prepareRequest<Adapter extends PlatformAdapterInterface<RequestType>>({
     adapter,
     validator,
   }: {
-    adapter: A;
-    validator: SaleorWebhookValidator<TPayload>;
-    callback: (adapter: A, context: WebhookContext<TPayload>) => unknown;
+    adapter: Adapter;
+    validator: SaleorWebhookValidator<Adapter["request"]>;
   }): Promise<
     | { result: "callHandler"; context: WebhookContext<TPayload> }
-    | { result: "sendResponse"; response: unknown }
+    | { result: "sendResponse"; response: ReturnType<Adapter["send"]> }
   > {
     const validationResult = await validator.validateRequest<TPayload>({
       allowedEvent: this.event,
@@ -158,7 +160,7 @@ export abstract class GenericSaleorWebApiWebhook<
             status: code,
             body,
             bodyType: "string",
-          }),
+          }) as ReturnType<Adapter["send"]>,
         };
       }
 
@@ -173,7 +175,7 @@ export abstract class GenericSaleorWebApiWebhook<
             },
           },
           status: WebhookErrorCodeMap[error.errorType] || 400,
-        }),
+        }) as ReturnType<Adapter["send"]>,
       };
     }
     debug("Unexpected error: %O", error);
@@ -191,7 +193,7 @@ export abstract class GenericSaleorWebApiWebhook<
           status: code,
           body,
           bodyType: "string",
-        }),
+        }) as ReturnType<Adapter["send"]>,
       };
     }
 
@@ -201,7 +203,7 @@ export abstract class GenericSaleorWebApiWebhook<
         status: 500,
         body: "Unexpected error while handling request",
         bodyType: "string",
-      }),
+      }) as ReturnType<Adapter["send"]>,
     };
   }
 }

@@ -2,12 +2,8 @@ import { ASTNode } from "graphql";
 
 import { AsyncWebhookEventType } from "@/types";
 
-import {
-  SaleorWebApiWebhook,
-  SaleorWebhookHandler,
-  WebApiRouteHandler,
-  WebhookConfig,
-} from "./saleor-webhook";
+import { WebApiHandler } from "../platform-adapter";
+import { SaleorWebApiWebhook, SaleorWebhookHandler, WebhookConfig } from "./saleor-webhook";
 
 export class SaleorAsyncWebhook<TPayload = unknown> extends SaleorWebApiWebhook<TPayload> {
   readonly event: AsyncWebhookEventType;
@@ -26,7 +22,7 @@ export class SaleorAsyncWebhook<TPayload = unknown> extends SaleorWebApiWebhook<
       asyncEvent?: AsyncWebhookEventType;
       event?: AsyncWebhookEventType;
       query?: string | ASTNode;
-    },
+    }
   ) {
     if (!configuration.event && !configuration.asyncEvent) {
       throw new Error("event or asyncEvent must be provided. asyncEvent is deprecated");
@@ -34,7 +30,7 @@ export class SaleorAsyncWebhook<TPayload = unknown> extends SaleorWebApiWebhook<
 
     if (!configuration.query && !configuration.subscriptionQueryAst) {
       throw new Error(
-        "query or subscriptionQueryAst must be provided. subscriptionQueryAst is deprecated",
+        "query or subscriptionQueryAst must be provided. subscriptionQueryAst is deprecated"
       );
     }
 
@@ -48,7 +44,7 @@ export class SaleorAsyncWebhook<TPayload = unknown> extends SaleorWebApiWebhook<
     this.query = configuration.query! ?? configuration.subscriptionQueryAst!;
   }
 
-  createHandler(handlerFn: SaleorWebhookHandler<TPayload>): WebApiRouteHandler {
+  createHandler(handlerFn: SaleorWebhookHandler<TPayload>): WebApiHandler {
     return super.createHandler(handlerFn);
   }
 }

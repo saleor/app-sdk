@@ -1,37 +1,18 @@
-import { ASTNode } from "graphql";
-
-import { APL } from "@/APL";
 import { createDebug } from "@/debug";
-import { gqlAstToString } from "@/gql-ast-to-string";
-import { WebhookContext, WebhookError } from "@/handlers/shared/process-saleor-webhook";
-import { WebhookErrorCodeMap } from "@/handlers/shared/saleor-webhook";
+import {
+  GenericSaleorWebhook,
+  GenericWebhookConfig,
+} from "@/handlers/shared/generic-saleor-webhook";
+import { WebhookContext } from "@/handlers/shared/process-saleor-webhook";
 import { SaleorWebhookValidator } from "@/handlers/shared/saleor-webhook-validator";
-import { AsyncWebhookEventType, SyncWebhookEventType, WebhookManifest } from "@/types";
+import { AsyncWebhookEventType, SyncWebhookEventType } from "@/types";
 
-import { WebApiAdapter, WebApiHandler } from "../platform-adapter";
+import { WebApiAdapter, WebApiHandler, WebApiHandlerInput } from "../platform-adapter";
 
 const debug = createDebug("SaleorWebhook");
 
-export interface WebhookConfig<Event = AsyncWebhookEventType | SyncWebhookEventType> {
-  name?: string;
-  webhookPath: string;
-  event: Event;
-  isActive?: boolean;
-  apl: APL;
-  onError?(error: WebhookError | Error, request: Request): void;
-  formatErrorResponse?(
-    error: WebhookError | Error,
-    request: Request
-  ): Promise<{
-    code: number;
-    body: string;
-  }>;
-  query: string | ASTNode;
-  /**
-   * @deprecated will be removed in 0.35.0, use query field instead
-   */
-  subscriptionQueryAst?: ASTNode;
-}
+export type WebhookConfig<Event = AsyncWebhookEventType | SyncWebhookEventType> =
+  GenericWebhookConfig<WebApiHandlerInput, Event>;
 
 /** Function type provided by consumer in `SaleorWebApiWebhook.createHandler` */
 export type SaleorWebhookHandler<TPayload = unknown, TExtras = {}> = (
@@ -42,152 +23,25 @@ export type SaleorWebhookHandler<TPayload = unknown, TExtras = {}> = (
 export abstract class SaleorWebApiWebhook<
   TPayload = unknown,
   TExtras extends Record<string, unknown> = {}
-> {
-  protected abstract eventType: "async" | "sync";
-
-  protected extraContext?: TExtras;
-
-  name: string;
-
-  webhookPath: string;
-
-  query: string | ASTNode;
-
-  event: AsyncWebhookEventType | SyncWebhookEventType;
-
-  isActive?: boolean;
-
-  apl: APL;
-
-  onError: WebhookConfig["onError"];
-
-  formatErrorResponse: WebhookConfig["formatErrorResponse"];
-
-  protected constructor(configuration: WebhookConfig) {
-    const {
-      name,
-      webhookPath,
-      event,
-      query,
-      apl,
-      isActive = true,
-      subscriptionQueryAst,
-    } = configuration;
-
-    this.name = name || `${event} webhook`;
-    /**
-     * Fallback subscriptionQueryAst to avoid breaking changes
-     *
-     * TODO Remove in 0.35.0
-     */
-    this.query = query ?? subscriptionQueryAst;
-    this.webhookPath = webhookPath;
-    this.event = event;
-    this.isActive = isActive;
-    this.apl = apl;
-    this.onError = configuration.onError;
-    this.formatErrorResponse = configuration.formatErrorResponse;
-  }
-
-  private getTargetUrl(baseUrl: string) {
-    return new URL(this.webhookPath, baseUrl).href;
-  }
-
-  /**
-   * Returns synchronous event manifest for this webhook.
-   *
-   * @param baseUrl Base URL used by your application
-   * @returns WebhookManifest
-   */
-  getWebhookManifest(baseUrl: string): WebhookManifest {
-    const manifestBase: Omit<WebhookManifest, "asyncEvents" | "syncEvents"> = {
-      query: typeof this.query === "string" ? this.query : gqlAstToString(this.query),
-      name: this.name,
-      targetUrl: this.getTargetUrl(baseUrl),
-      isActive: this.isActive,
-    };
-
-    switch (this.eventType) {
-      case "async":
-        return {
-          ...manifestBase,
-          asyncEvents: [this.event as AsyncWebhookEventType],
-        };
-      case "sync":
-        return {
-          ...manifestBase,
-          syncEvents: [this.event as SyncWebhookEventType],
-        };
-      default: {
-        throw new Error("Class extended incorrectly");
-      }
-    }
-  }
-
-  /**
-   * Wraps provided function, to ensure incoming request comes from registered Saleor instance.
-   * Also provides additional `context` object containing typed payload and request properties.
-   */
+> extends GenericSaleorWebhook<WebApiHandlerInput, TPayload, TExtras> {
   createHandler(handlerFn: SaleorWebhookHandler<TPayload, TExtras>): WebApiHandler {
     return async (req) => {
-      debug(`Handler for webhook ${this.name} called`);
       const adapter = new WebApiAdapter(req);
-      const webhookValidator = new SaleorWebhookValidator(adapter);
-
-      const validationResult = await webhookValidator.validateRequest<TPayload>({
-        allowedEvent: this.event,
-        apl: this.apl,
+      const validator = new SaleorWebhookValidator(adapter);
+      const prepareRequestResult = await super.prepareRequest<WebApiAdapter>({
+        adapter,
+        validator,
       });
 
-      if (validationResult.result === "ok") {
-        debug("Incoming request validated. Call handlerFn");
-
-        return handlerFn(req, {
-          ...(this.extraContext ?? ({} as TExtras)),
-          ...validationResult.context,
-        });
+      if (prepareRequestResult.result === "sendResponse") {
+        return prepareRequestResult.response;
       }
 
-      const { error } = validationResult;
-
-      debug(`Unexpected error during processing the webhook ${this.name}`);
-
-      if (error instanceof WebhookError) {
-        debug(`Validation error: ${error.message}`);
-
-        if (this.onError) {
-          this.onError(error, req);
-        }
-
-        if (this.formatErrorResponse) {
-          const { code, body } = await this.formatErrorResponse(error, req);
-
-          return new Response(body, { status: code });
-        }
-
-        return new Response(
-          JSON.stringify({
-            error: {
-              type: error.errorType,
-              message: error.message,
-            },
-          }),
-          { status: WebhookErrorCodeMap[error.errorType] || 400 }
-        );
-      }
-      debug("Unexpected error: %O", error);
-
-      if (this.onError) {
-        this.onError(error, req);
-      }
-
-      if (this.formatErrorResponse) {
-        const { code, body } = await this.formatErrorResponse(error, req);
-
-        return new Response(body, { status: code });
-      }
-
-      return new Response("Unexpected error while handling request", { status: 500 });
+      debug("Incoming request validated. Call handlerFn");
+      return handlerFn(req, {
+        ...(this.extraContext ?? ({} as TExtras)),
+        ...prepareRequestResult.context,
+      });
     };
   }
 }
