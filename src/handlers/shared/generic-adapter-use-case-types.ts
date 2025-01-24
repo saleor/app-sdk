@@ -11,7 +11,7 @@ export type HTTPMethod = typeof HTTPMethod[keyof typeof HTTPMethod];
 
 /** Status code of the result, for most platforms it's mapped to HTTP status code
  * however when request is not HTTP it can be mapped to something else */
-export type ResultStatusCodes = 200 | 201 | 400 | 401 | 403 | 404 | 405 | 500 | 503;
+export type ResultStatusCodes = number;
 
 /** Shape of result that should be returned from use case
  * that is then translated by adapter to a valid platform response */
