@@ -20,12 +20,14 @@ interface ProcessSaleorWebhookArgs {
 }
 
 type ProcessSaleorWebhook = <T = unknown>(
-  props: ProcessSaleorWebhookArgs
+  props: ProcessSaleorWebhookArgs,
 ) => Promise<WebhookContext<T>>;
 
 /**
  * Perform security checks on given request and return WebhookContext object.
  * In case of validation issues, instance of the WebhookError will be thrown.
+ *
+ * @deprecated
  *
  * @returns WebhookContext
  */
@@ -78,7 +80,7 @@ export const processSaleorWebhook: ProcessSaleorWebhook = async <T>({
 
           throw new WebhookError(
             `Wrong incoming request event: ${event}. Expected: ${expected}`,
-            "WRONG_EVENT"
+            "WRONG_EVENT",
           );
         }
 
@@ -127,7 +129,7 @@ export const processSaleorWebhook: ProcessSaleorWebhook = async <T>({
 
           throw new WebhookError(
             `Can't find auth data for ${saleorApiUrl}. Please register the application`,
-            "NOT_REGISTERED"
+            "NOT_REGISTERED",
           );
         }
 
@@ -168,7 +170,7 @@ export const processSaleorWebhook: ProcessSaleorWebhook = async <T>({
 
             throw new WebhookError(
               "Request signature check failed",
-              "SIGNATURE_VERIFICATION_FAILED"
+              "SIGNATURE_VERIFICATION_FAILED",
             );
           }
         }
@@ -196,6 +198,6 @@ export const processSaleorWebhook: ProcessSaleorWebhook = async <T>({
       } finally {
         span.end();
       }
-    }
+    },
   );
 };

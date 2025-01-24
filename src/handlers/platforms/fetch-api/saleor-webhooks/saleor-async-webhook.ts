@@ -26,7 +26,7 @@ export class SaleorAsyncWebhook<TPayload = unknown> extends SaleorWebApiWebhook<
       asyncEvent?: AsyncWebhookEventType;
       event?: AsyncWebhookEventType;
       query?: string | ASTNode;
-    }
+    },
   ) {
     if (!configuration.event && !configuration.asyncEvent) {
       throw new Error("event or asyncEvent must be provided. asyncEvent is deprecated");
@@ -34,7 +34,7 @@ export class SaleorAsyncWebhook<TPayload = unknown> extends SaleorWebApiWebhook<
 
     if (!configuration.query && !configuration.subscriptionQueryAst) {
       throw new Error(
-        "query or subscriptionQueryAst must be provided. subscriptionQueryAst is deprecated"
+        "query or subscriptionQueryAst must be provided. subscriptionQueryAst is deprecated",
       );
     }
 

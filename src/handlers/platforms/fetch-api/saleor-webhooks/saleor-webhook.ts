@@ -5,9 +5,10 @@ import { createDebug } from "@/debug";
 import { gqlAstToString } from "@/gql-ast-to-string";
 import { WebhookContext, WebhookError } from "@/handlers/shared/process-saleor-webhook";
 import { WebhookErrorCodeMap } from "@/handlers/shared/saleor-webhook";
+import { SaleorWebhookValidator } from "@/handlers/shared/saleor-webhook-validator";
 import { AsyncWebhookEventType, SyncWebhookEventType, WebhookManifest } from "@/types";
 
-import { processSaleorWebhook } from "./process-saleor-webhook";
+import { WebApiAdapter } from "../platform-adapter";
 
 const debug = createDebug("SaleorWebhook");
 
@@ -20,7 +21,7 @@ export interface WebhookConfig<Event = AsyncWebhookEventType | SyncWebhookEventT
   onError?(error: WebhookError | Error, request: Request): void;
   formatErrorResponse?(
     error: WebhookError | Error,
-    request: Request
+    request: Request,
   ): Promise<{
     code: number;
     body: string;
@@ -38,12 +39,12 @@ export type WebApiRouteHandler = (request: Request) => Response | Promise<Respon
 /** Function type provided by consumer in `SaleorWebApiWebhook.createHandler` */
 export type SaleorWebhookHandler<TPayload = unknown, TExtras = {}> = (
   req: Request,
-  ctx: WebhookContext<TPayload> & TExtras
+  ctx: WebhookContext<TPayload> & TExtras,
 ) => Response | Promise<Response>;
 
 export abstract class SaleorWebApiWebhook<
   TPayload = unknown,
-  TExtras extends Record<string, unknown> = {}
+  TExtras extends Record<string, unknown> = {},
 > {
   protected abstract eventType: "async" | "sync";
 
@@ -133,57 +134,60 @@ export abstract class SaleorWebApiWebhook<
   createHandler(handlerFn: SaleorWebhookHandler<TPayload, TExtras>): WebApiRouteHandler {
     return async (req) => {
       debug(`Handler for webhook ${this.name} called`);
+      const adapter = new WebApiAdapter(req);
+      const webhookValidator = new SaleorWebhookValidator(adapter);
 
-      return processSaleorWebhook<TPayload>({
-        req,
-        apl: this.apl,
-        allowedEvent: this.event,
-      })
-        .then(async (context) => {
-          debug("Incoming request validated. Call handlerFn");
+      const validationResult = await webhookValidator.validateRequest<TPayload>({ allowedEvent: this.event, apl: this.apl });
 
-          return handlerFn(req, { ...(this.extraContext ?? ({} as TExtras)), ...context });
-        })
-        .catch(async (e) => {
-          debug(`Unexpected error during processing the webhook ${this.name}`);
+      if (validationResult.result === "ok") {
+        debug("Incoming request validated. Call handlerFn");
 
-          if (e instanceof WebhookError) {
-            debug(`Validation error: ${e.message}`);
-
-            if (this.onError) {
-              this.onError(e, req);
-            }
-
-            if (this.formatErrorResponse) {
-              const { code, body } = await this.formatErrorResponse(e, req);
-
-              return new Response(body, { status: code });
-            }
-
-            return new Response(
-              JSON.stringify({
-                error: {
-                  type: e.errorType,
-                  message: e.message,
-                },
-              }),
-              { status: WebhookErrorCodeMap[e.errorType] || 400 }
-            );
-          }
-          debug("Unexpected error: %O", e);
-
-          if (this.onError) {
-            this.onError(e, req);
-          }
-
-          if (this.formatErrorResponse) {
-            const { code, body } = await this.formatErrorResponse(e, req);
-
-            return new Response(body, { status: code });
-          }
-
-          return new Response("Unexpected error while handling request", { status: 500 });
+        return handlerFn(req, {
+          ...(this.extraContext ?? ({} as TExtras)),
+          ...validationResult.context,
         });
+      }
+
+      const { error } = validationResult;
+
+      debug(`Unexpected error during processing the webhook ${this.name}`);
+
+      if (error instanceof WebhookError) {
+        debug(`Validation error: ${error.message}`);
+
+        if (this.onError) {
+          this.onError(error, req);
+        }
+
+        if (this.formatErrorResponse) {
+          const { code, body } = await this.formatErrorResponse(error, req);
+
+          return new Response(body, { status: code });
+        }
+
+        return new Response(
+          JSON.stringify({
+            error: {
+              type: error.errorType,
+              message: error.message,
+            },
+          }),
+          { status: WebhookErrorCodeMap[error.errorType] || 400 },
+        );
+      }
+      debug("Unexpected error: %O", error);
+
+      if (this.onError) {
+        this.onError(error, req);
+      }
+
+      if (this.formatErrorResponse) {
+        const { code, body } = await this.formatErrorResponse(error, req);
+
+        return new Response(body, { status: code });
+      }
+
+      return new Response("Unexpected error while handling request", { status: 500 });
     };
   }
 }

@@ -13,7 +13,7 @@ type InjectedContext<TEvent extends SyncWebhookEventType> = {
 };
 export class SaleorSyncWebhook<
   TPayload = unknown,
-  TEvent extends SyncWebhookEventType = SyncWebhookEventType
+  TEvent extends SyncWebhookEventType = SyncWebhookEventType,
 > extends SaleorWebApiWebhook<TPayload, InjectedContext<TEvent>> {
   readonly event: TEvent;
 
@@ -35,7 +35,7 @@ export class SaleorSyncWebhook<
       {
         buildResponse: typeof buildSyncWebhookResponsePayload<TEvent>;
       }
-    >
+    >,
   ): WebApiRouteHandler {
     return super.createHandler(handlerFn);
   }
