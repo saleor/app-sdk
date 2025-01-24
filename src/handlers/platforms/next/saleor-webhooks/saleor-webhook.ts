@@ -23,7 +23,7 @@ export interface WebhookConfig<Event = AsyncWebhookEventType | SyncWebhookEventT
   formatErrorResponse?(
     error: WebhookError | Error,
     req: NextApiRequest,
-    res: NextApiResponse
+    res: NextApiResponse,
   ): Promise<{
     code: number;
     body: object | string;
@@ -38,12 +38,12 @@ export interface WebhookConfig<Event = AsyncWebhookEventType | SyncWebhookEventT
 export type NextWebhookApiHandler<TPayload = unknown, TExtras = {}> = (
   req: NextApiRequest,
   res: NextApiResponse,
-  ctx: WebhookContext<TPayload> & TExtras
+  ctx: WebhookContext<TPayload> & TExtras,
 ) => unknown | Promise<unknown>;
 
 export abstract class SaleorWebhook<
   TPayload = unknown,
-  TExtras extends Record<string, unknown> = {}
+  TExtras extends Record<string, unknown> = {},
 > {
   protected abstract eventType: "async" | "sync";
 
@@ -136,12 +136,18 @@ export abstract class SaleorWebhook<
       const webhookValidator = new SaleorWebhookValidator(adapter);
 
       debug(`Handler for webhook ${this.name} called`);
-      const validationResult = await webhookValidator.validateRequest<TPayload>({ allowedEvent: this.event, apl: this.apl });
+      const validationResult = await webhookValidator.validateRequest<TPayload>({
+        allowedEvent: this.event,
+        apl: this.apl,
+      });
 
       if (validationResult.result === "ok") {
         debug("Incoming request validated. Call handlerFn");
 
-        return handlerFn(req, res, { ...(this.extraContext ?? ({} as TExtras)), ...validationResult.context });
+        return handlerFn(req, res, {
+          ...(this.extraContext ?? ({} as TExtras)),
+          ...validationResult.context,
+        });
       }
 
       debug(`Unexpected error during processing the webhook ${this.name}`);
@@ -157,18 +163,15 @@ export abstract class SaleorWebhook<
         if (this.formatErrorResponse) {
           const { code, body } = await this.formatErrorResponse(e, req, res);
 
-          res.status(code).send(body);
-
-          return;
+          return res.status(code).send(body);
         }
 
-        res.status(WebhookErrorCodeMap[e.errorType] || 400).send({
+        return res.status(WebhookErrorCodeMap[e.errorType] || 400).send({
           error: {
             type: e.errorType,
             message: e.message,
           },
         });
-        return;
       }
       debug("Unexpected error: %O", e);
 
@@ -179,15 +182,10 @@ export abstract class SaleorWebhook<
       if (this.formatErrorResponse) {
         const { code, body } = await this.formatErrorResponse(e, req, res);
 
-        res.status(code).send(body);
-
-        return;
+        return res.status(code).send(body);
       }
 
-      res.status(500).end();
-
-
-
+      return res.status(500).end();
     };
   }
 }

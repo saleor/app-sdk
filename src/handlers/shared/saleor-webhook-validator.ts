@@ -1,7 +1,7 @@
 import { SpanKind, SpanStatusCode } from "@opentelemetry/api";
 
 import { APL } from "@/APL";
-import { createDebug, } from "@/debug";
+import { createDebug } from "@/debug";
 import { fetchRemoteJwks } from "@/fetch-remote-jwks";
 import { getOtelTracer } from "@/open-telemetry";
 import { parseSchemaVersion } from "@/util";
@@ -11,18 +11,26 @@ import { PlatformAdapterMiddleware } from "./adapter-middleware";
 import { PlatformAdapterInterface } from "./generic-adapter-use-case-types";
 import { WebhookContext, WebhookError } from "./process-saleor-webhook";
 
-type WebhookValidationResult<T> = { result: "ok", context: WebhookContext<T> } | { result: "failure", error: WebhookError };
+type WebhookValidationResult<T> =
+  | { result: "ok"; context: WebhookContext<T> }
+  | { result: "failure"; error: WebhookError };
 
 export class SaleorWebhookValidator<I> {
   private debug = createDebug("processProtectedHandler");
 
   private tracer = getOtelTracer();
 
-  constructor(private adapter: PlatformAdapterInterface<I>) { }
+  constructor(private adapter: PlatformAdapterInterface<I>) {}
 
   private adapterMiddleware = new PlatformAdapterMiddleware(this.adapter);
 
-  async validateRequest<T>({ allowedEvent, apl }: { allowedEvent: string, apl: APL }): Promise<WebhookValidationResult<T>> {
+  async validateRequest<T>({
+    allowedEvent,
+    apl,
+  }: {
+    allowedEvent: string;
+    apl: APL;
+  }): Promise<WebhookValidationResult<T>> {
     try {
       const context = await this.validateRequestOrThrowError<T>({ allowedEvent, apl });
 
@@ -38,7 +46,13 @@ export class SaleorWebhookValidator<I> {
     }
   }
 
-  private async validateRequestOrThrowError<T>({ allowedEvent, apl }: { allowedEvent: string, apl: APL }): Promise<WebhookContext<T>> {
+  private async validateRequestOrThrowError<T>({
+    allowedEvent,
+    apl,
+  }: {
+    allowedEvent: string;
+    apl: APL;
+  }): Promise<WebhookContext<T>> {
     return this.tracer.startActiveSpan(
       "processSaleorWebhook",
       {
@@ -81,7 +95,7 @@ export class SaleorWebhookValidator<I> {
 
             throw new WebhookError(
               `Wrong incoming request event: ${event}. Expected: ${expected}`,
-              "WRONG_EVENT"
+              "WRONG_EVENT",
             );
           }
 
@@ -91,7 +105,7 @@ export class SaleorWebhookValidator<I> {
             throw new WebhookError("Missing saleor-signature header", "MISSING_SIGNATURE_HEADER");
           }
 
-          const rawBody = await this.adapter.getRawBody()
+          const rawBody = await this.adapter.getRawBody();
           if (!rawBody) {
             this.debug("Missing request body");
 
@@ -126,7 +140,7 @@ export class SaleorWebhookValidator<I> {
 
             throw new WebhookError(
               `Can't find auth data for ${saleorApiUrl}. Please register the application`,
-              "NOT_REGISTERED"
+              "NOT_REGISTERED",
             );
           }
 
@@ -149,13 +163,18 @@ export class SaleorWebhookValidator<I> {
             const newJwks = await fetchRemoteJwks(authData.saleorApiUrl).catch((e) => {
               this.debug(e);
 
-              throw new WebhookError("Fetching remote JWKS failed", "SIGNATURE_VERIFICATION_FAILED");
+              throw new WebhookError(
+                "Fetching remote JWKS failed",
+                "SIGNATURE_VERIFICATION_FAILED",
+              );
             });
 
             this.debug("Fetched refreshed JWKS");
 
             try {
-              this.debug("Second attempt to validate the signature JWKS, using fresh tokens from the API");
+              this.debug(
+                "Second attempt to validate the signature JWKS, using fresh tokens from the API",
+              );
 
               await verifySignatureWithJwks(newJwks, signature, rawBody);
 
@@ -167,7 +186,7 @@ export class SaleorWebhookValidator<I> {
 
               throw new WebhookError(
                 "Request signature check failed",
-                "SIGNATURE_VERIFICATION_FAILED"
+                "SIGNATURE_VERIFICATION_FAILED",
               );
             }
           }
@@ -195,7 +214,7 @@ export class SaleorWebhookValidator<I> {
         } finally {
           span.end();
         }
-      }
+      },
     );
   }
 }
