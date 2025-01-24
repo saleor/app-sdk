@@ -8,7 +8,7 @@ import { WebhookErrorCodeMap } from "@/handlers/shared/saleor-webhook";
 import { SaleorWebhookValidator } from "@/handlers/shared/saleor-webhook-validator";
 import { AsyncWebhookEventType, SyncWebhookEventType, WebhookManifest } from "@/types";
 
-import { WebApiAdapter } from "../platform-adapter";
+import { WebApiAdapter, WebApiHandler } from "../platform-adapter";
 
 const debug = createDebug("SaleorWebhook");
 
@@ -21,7 +21,7 @@ export interface WebhookConfig<Event = AsyncWebhookEventType | SyncWebhookEventT
   onError?(error: WebhookError | Error, request: Request): void;
   formatErrorResponse?(
     error: WebhookError | Error,
-    request: Request,
+    request: Request
   ): Promise<{
     code: number;
     body: string;
@@ -33,18 +33,15 @@ export interface WebhookConfig<Event = AsyncWebhookEventType | SyncWebhookEventT
   subscriptionQueryAst?: ASTNode;
 }
 
-/** Generic Web API route handler */
-export type WebApiRouteHandler = (request: Request) => Response | Promise<Response>;
-
 /** Function type provided by consumer in `SaleorWebApiWebhook.createHandler` */
 export type SaleorWebhookHandler<TPayload = unknown, TExtras = {}> = (
   req: Request,
-  ctx: WebhookContext<TPayload> & TExtras,
+  ctx: WebhookContext<TPayload> & TExtras
 ) => Response | Promise<Response>;
 
 export abstract class SaleorWebApiWebhook<
   TPayload = unknown,
-  TExtras extends Record<string, unknown> = {},
+  TExtras extends Record<string, unknown> = {}
 > {
   protected abstract eventType: "async" | "sync";
 
@@ -131,13 +128,16 @@ export abstract class SaleorWebApiWebhook<
    * Wraps provided function, to ensure incoming request comes from registered Saleor instance.
    * Also provides additional `context` object containing typed payload and request properties.
    */
-  createHandler(handlerFn: SaleorWebhookHandler<TPayload, TExtras>): WebApiRouteHandler {
+  createHandler(handlerFn: SaleorWebhookHandler<TPayload, TExtras>): WebApiHandler {
     return async (req) => {
       debug(`Handler for webhook ${this.name} called`);
       const adapter = new WebApiAdapter(req);
       const webhookValidator = new SaleorWebhookValidator(adapter);
 
-      const validationResult = await webhookValidator.validateRequest<TPayload>({ allowedEvent: this.event, apl: this.apl });
+      const validationResult = await webhookValidator.validateRequest<TPayload>({
+        allowedEvent: this.event,
+        apl: this.apl,
+      });
 
       if (validationResult.result === "ok") {
         debug("Incoming request validated. Call handlerFn");
@@ -172,7 +172,7 @@ export abstract class SaleorWebApiWebhook<
               message: error.message,
             },
           }),
-          { status: WebhookErrorCodeMap[error.errorType] || 400 },
+          { status: WebhookErrorCodeMap[error.errorType] || 400 }
         );
       }
       debug("Unexpected error: %O", error);

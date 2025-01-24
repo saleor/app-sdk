@@ -95,7 +95,7 @@ export class SaleorWebhookValidator<I> {
 
             throw new WebhookError(
               `Wrong incoming request event: ${event}. Expected: ${expected}`,
-              "WRONG_EVENT",
+              "WRONG_EVENT"
             );
           }
 
@@ -140,7 +140,7 @@ export class SaleorWebhookValidator<I> {
 
             throw new WebhookError(
               `Can't find auth data for ${saleorApiUrl}. Please register the application`,
-              "NOT_REGISTERED",
+              "NOT_REGISTERED"
             );
           }
 
@@ -165,7 +165,7 @@ export class SaleorWebhookValidator<I> {
 
               throw new WebhookError(
                 "Fetching remote JWKS failed",
-                "SIGNATURE_VERIFICATION_FAILED",
+                "SIGNATURE_VERIFICATION_FAILED"
               );
             });
 
@@ -173,7 +173,7 @@ export class SaleorWebhookValidator<I> {
 
             try {
               this.debug(
-                "Second attempt to validate the signature JWKS, using fresh tokens from the API",
+                "Second attempt to validate the signature JWKS, using fresh tokens from the API"
               );
 
               await verifySignatureWithJwks(newJwks, signature, rawBody);
@@ -186,7 +186,7 @@ export class SaleorWebhookValidator<I> {
 
               throw new WebhookError(
                 "Request signature check failed",
-                "SIGNATURE_VERIFICATION_FAILED",
+                "SIGNATURE_VERIFICATION_FAILED"
               );
             }
           }
@@ -214,7 +214,7 @@ export class SaleorWebhookValidator<I> {
         } finally {
           span.end();
         }
-      },
+      }
     );
   }
 }

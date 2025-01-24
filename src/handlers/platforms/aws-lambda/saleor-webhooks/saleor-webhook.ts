@@ -1,5 +1,5 @@
+import { Context } from "aws-lambda";
 import { ASTNode } from "graphql";
-import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
 
 import { APL } from "@/APL";
 import { createDebug } from "@/debug";
@@ -9,7 +9,7 @@ import { WebhookErrorCodeMap } from "@/handlers/shared/saleor-webhook";
 import { SaleorWebhookValidator } from "@/handlers/shared/saleor-webhook-validator";
 import { AsyncWebhookEventType, SyncWebhookEventType, WebhookManifest } from "@/types";
 
-import { NextJsAdapter } from "../platform-adapter";
+import { AwsLambdaAdapter, AWSLambdaHandler, AwsLambdaHandlerInput } from "../platform-adapter";
 
 const debug = createDebug("SaleorWebhook");
 
@@ -19,14 +19,13 @@ export interface WebhookConfig<Event = AsyncWebhookEventType | SyncWebhookEventT
   event: Event;
   isActive?: boolean;
   apl: APL;
-  onError?(error: WebhookError | Error, req: NextApiRequest, res: NextApiResponse): void;
+  onError?(error: WebhookError | Error, event: AwsLambdaHandlerInput): void;
   formatErrorResponse?(
     error: WebhookError | Error,
-    req: NextApiRequest,
-    res: NextApiResponse
+    event: AwsLambdaHandlerInput
   ): Promise<{
     code: number;
-    body: object | string;
+    body: string;
   }>;
   query: string | ASTNode;
   /**
@@ -35,13 +34,14 @@ export interface WebhookConfig<Event = AsyncWebhookEventType | SyncWebhookEventT
   subscriptionQueryAst?: ASTNode;
 }
 
-export type NextWebhookApiHandler<TPayload = unknown, TExtras = {}> = (
-  req: NextApiRequest,
-  res: NextApiResponse,
+/** Function type provided by consumer in `SaleorWebApiWebhook.createHandler` */
+export type SaleorWebhookHandler<TPayload = unknown, TExtras = {}> = (
+  event: AwsLambdaHandlerInput,
+  context: Context,
   ctx: WebhookContext<TPayload> & TExtras
-) => unknown | Promise<unknown>;
+) => Response | Promise<Response>;
 
-export abstract class SaleorWebhook<
+export abstract class SaleorWebApiWebhook<
   TPayload = unknown,
   TExtras extends Record<string, unknown> = {}
 > {
@@ -130,12 +130,12 @@ export abstract class SaleorWebhook<
    * Wraps provided function, to ensure incoming request comes from registered Saleor instance.
    * Also provides additional `context` object containing typed payload and request properties.
    */
-  createHandler(handlerFn: NextWebhookApiHandler<TPayload, TExtras>): NextApiHandler {
-    return async (req, res) => {
-      const adapter = new NextJsAdapter(req, res);
+  createHandler(handlerFn: SaleorWebhookHandler<TPayload, TExtras>): AWSLambdaHandler {
+    return async (event, context) => {
+      debug(`Handler for webhook ${this.name} called`);
+      const adapter = new AwsLambdaAdapter(event, context);
       const webhookValidator = new SaleorWebhookValidator(adapter);
 
-      debug(`Handler for webhook ${this.name} called`);
       const validationResult = await webhookValidator.validateRequest<TPayload>({
         allowedEvent: this.event,
         apl: this.apl,
@@ -144,48 +144,52 @@ export abstract class SaleorWebhook<
       if (validationResult.result === "ok") {
         debug("Incoming request validated. Call handlerFn");
 
-        return handlerFn(req, res, {
+        return handlerFn(event, context, {
           ...(this.extraContext ?? ({} as TExtras)),
           ...validationResult.context,
         });
       }
 
-      debug(`Unexpected error during processing the webhook ${this.name}`);
-      const e = validationResult.error;
+      const { error } = validationResult;
 
-      if (e instanceof WebhookError) {
-        debug(`Validation error: ${e.message}`);
+      debug(`Unexpected error during processing the webhook ${this.name}`);
+
+      if (error instanceof WebhookError) {
+        debug(`Validation error: ${error.message}`);
 
         if (this.onError) {
-          this.onError(e, req, res);
+          this.onError(error, event);
         }
 
         if (this.formatErrorResponse) {
-          const { code, body } = await this.formatErrorResponse(e, req, res);
+          const { code, body } = await this.formatErrorResponse(error, event);
 
-          return res.status(code).send(body);
+          return new Response(body, { status: code });
         }
 
-        return res.status(WebhookErrorCodeMap[e.errorType] || 400).send({
-          error: {
-            type: e.errorType,
-            message: e.message,
-          },
-        });
+        return new Response(
+          JSON.stringify({
+            error: {
+              type: error.errorType,
+              message: error.message,
+            },
+          }),
+          { status: WebhookErrorCodeMap[error.errorType] || 400 }
+        );
       }
-      debug("Unexpected error: %O", e);
+      debug("Unexpected error: %O", error);
 
       if (this.onError) {
-        this.onError(e, req, res);
+        this.onError(error, event);
       }
 
       if (this.formatErrorResponse) {
-        const { code, body } = await this.formatErrorResponse(e, req, res);
+        const { code, body } = await this.formatErrorResponse(error, event);
 
-        return res.status(code).send(body);
+        return new Response(body, { status: code });
       }
 
-      return res.status(500).end();
+      return new Response("Unexpected error while handling request", { status: 500 });
     };
   }
 }
