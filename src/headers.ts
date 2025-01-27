@@ -17,6 +17,9 @@ const toFloatOrNull = (value: string | string[] | undefined) =>
  * Extracts Saleor-specific headers from the response.
  */
 export const getSaleorHeaders = (headers: { [name: string]: string | string[] | undefined }) => ({
+  /**
+   * @deprecated - use saleorApiUrl
+   */
   domain: toStringOrUndefined(headers[SALEOR_DOMAIN_HEADER]),
   authorizationBearer: toStringOrUndefined(headers[SALEOR_AUTHORIZATION_BEARER_HEADER]),
   signature: toStringOrUndefined(headers[SALEOR_SIGNATURE_HEADER]),
