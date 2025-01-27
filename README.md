@@ -62,3 +62,32 @@ the command:
 ```bash
 pnpm lint
 ```
+
+### Running Integration Tests
+
+To run the integration tests (e.g., Redis APL tests), follow these steps:
+
+1. Start a Redis container:
+
+```bash
+docker run --name saleor-app-sdk-redis -p 6379:6379 -d redis:7-alpine
+```
+
+2. Run the integration tests:
+
+```bash
+pnpm test:integration
+```
+
+3. (Optional) Clean up the Redis container:
+
+```bash
+docker stop saleor-app-sdk-redis
+docker rm saleor-app-sdk-redis
+```
+
+Note: If your Redis instance is running on a different host or port, you can set the `REDIS_URL` environment variable:
+
+```bash
+REDIS_URL=redis://custom-host:6379 pnpm test:integration
+```
