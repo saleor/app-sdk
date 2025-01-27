@@ -2,4 +2,4 @@
 "@saleor/app-sdk": patch
 ---
 
-test
+Marked domain header as deprecated
