@@ -12,11 +12,10 @@ export const authDataFromObject = (parsed: unknown): AuthData | undefined => {
     debug("Given object did not contained AuthData");
     return undefined;
   }
-  const { saleorApiUrl, appId, domain, token, jwks } = parsed as AuthData;
+  const { saleorApiUrl, appId, token, jwks } = parsed as AuthData;
   return {
     saleorApiUrl,
     appId,
-    domain,
     token,
     jwks,
   };

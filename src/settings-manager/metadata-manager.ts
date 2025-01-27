@@ -23,7 +23,8 @@ const deserializeMetadata = ({ key, value }: MetadataEntry): SettingsValue => {
   };
 };
 
-const constructDomainSpecificKey = (key: string, domain: string) => [key, domain].join("__");
+const constructDomainSpecificKey = (key: string, saleorApiUrl: string) =>
+  [key, saleorApiUrl].join("__");
 
 const serializeSettingsToMetadata = ({ key, value, domain }: SettingsValue): MetadataEntry => {
   // domain specific metadata use convention key__domain, e.g. `secret_key__example.com`

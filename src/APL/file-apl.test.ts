@@ -5,7 +5,6 @@ import { AuthData } from "./apl";
 import { FileAPL } from "./file-apl";
 
 const stubAuthData: AuthData = {
-  domain: "example.com",
   token: "example-token",
   saleorApiUrl: "https://example.com/graphql/",
   appId: "42",
