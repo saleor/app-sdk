@@ -12,7 +12,11 @@ import {
 import { ProtectedHandlerContext } from "./protected-handler-context";
 
 // Re-export for backwards-compatibility
-export { ProtectedHandlerErrorCodeMap };
+export {
+  /**
+   * @deprecated import directly from @saleor/app-sdk/handlers/shared */
+  ProtectedHandlerErrorCodeMap
+};
 
 const debug = createDebug("ProtectedHandler");
 
