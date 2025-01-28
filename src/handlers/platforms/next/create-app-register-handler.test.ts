@@ -2,6 +2,8 @@ import { createMocks } from "node-mocks-http";
 import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
 
 import { APL, AuthData } from "@/APL";
+import * as fetchRemoteJwksModule from "@/fetch-remote-jwks";
+import * as getAppIdModule from "@/get-app-id";
 import { MockAPL } from "@/test-utils/mock-apl";
 
 import { createAppRegisterHandler } from "./create-app-register-handler";
@@ -9,13 +11,10 @@ import { createAppRegisterHandler } from "./create-app-register-handler";
 const mockJwksValue = "{}";
 const mockAppId = "42";
 
-vi.mock("@/get-app-id", () => ({
-  getAppId: vi.fn().mockResolvedValue("42"), // can't use var reference, due to hoisting
-}));
-
-vi.mock("@/fetch-remote-jwks", () => ({
-  fetchRemoteJwks: vi.fn().mockResolvedValue("{}"), // can't use var reference, due to hoisting
-}));
+// Cannot use vi.mock on module, due to issues with alias resolution
+// in vitest vs TypeScript: https://github.com/vitest-dev/vitest/issues/3105
+vi.spyOn(fetchRemoteJwksModule, "fetchRemoteJwks").mockResolvedValue("{}");
+vi.spyOn(getAppIdModule, "getAppId").mockResolvedValue("42");
 
 describe("create-app-register-handler", () => {
   let mockApl: APL;
