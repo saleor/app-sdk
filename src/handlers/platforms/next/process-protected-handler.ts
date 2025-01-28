@@ -3,6 +3,7 @@ import { NextApiRequest } from "next";
 
 import { APL } from "@/APL";
 import { createDebug } from "@/debug";
+import { SaleorProtectedHandlerError } from "@/handlers/shared/protected-handler";
 import { getBaseUrl, getSaleorHeaders } from "@/headers";
 import { getOtelTracer } from "@/open-telemetry";
 import { Permission } from "@/types";
@@ -13,15 +14,8 @@ import { ProtectedHandlerContext } from "./protected-handler-context";
 
 const debug = createDebug("processProtectedHandler");
 
-export type SaleorProtectedHandlerError =
-  | "OTHER"
-  | "MISSING_HOST_HEADER"
-  | "MISSING_DOMAIN_HEADER"
-  | "MISSING_API_URL_HEADER"
-  | "MISSING_AUTHORIZATION_BEARER_HEADER"
-  | "NOT_REGISTERED"
-  | "JWT_VERIFICATION_FAILED"
-  | "NO_APP_ID";
+// Re-export for backwards-compatibility
+export { SaleorProtectedHandlerError };
 
 export class ProtectedHandlerError extends Error {
   errorType: SaleorProtectedHandlerError = "OTHER";
