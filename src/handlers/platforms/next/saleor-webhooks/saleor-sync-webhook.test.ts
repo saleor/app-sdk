@@ -1,7 +1,8 @@
 import { createMocks } from "node-mocks-http";
 import { describe, expect, it, vi } from "vitest";
 
-import { MockAPL } from "../../../test-utils/mock-apl";
+import { MockAPL } from "@/test-utils/mock-apl";
+
 import { processSaleorWebhook } from "./process-saleor-webhook";
 import { SaleorSyncWebhook } from "./saleor-sync-webhook";
 

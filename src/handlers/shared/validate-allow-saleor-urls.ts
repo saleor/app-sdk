@@ -1,4 +1,4 @@
-import { CreateAppRegisterHandlerOptions } from "./create-app-register-handler";
+import { CreateAppRegisterHandlerOptions } from "../platforms/next/create-app-register-handler";
 
 export const validateAllowSaleorUrls = (
   saleorApiUrl: string,
