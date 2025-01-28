@@ -9,7 +9,7 @@ import { verifySignatureWithJwks } from "@/verify-signature";
 
 import { PlatformAdapterMiddleware } from "./adapter-middleware";
 import { PlatformAdapterInterface } from "./generic-adapter-use-case-types";
-import { WebhookContext, WebhookError } from "./process-saleor-webhook";
+import { WebhookContext, WebhookError } from "./saleor-webhook";
 
 type WebhookValidationResult<TPayload> =
   | { result: "ok"; context: WebhookContext<TPayload> }

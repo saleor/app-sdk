@@ -3,11 +3,12 @@ import { ASTNode } from "graphql";
 import { APL } from "@/APL";
 import { createDebug } from "@/debug";
 import { gqlAstToString } from "@/gql-ast-to-string";
-import { PlatformAdapterInterface, PlatformAdapterMiddleware } from "@/handlers/shared";
-import { WebhookContext, WebhookError } from "@/handlers/shared/process-saleor-webhook";
-import { WebhookErrorCodeMap } from "@/handlers/shared/saleor-webhook";
+import { WebhookContext, WebhookError, WebhookErrorCodeMap } from "@/handlers/shared/saleor-webhook";
 import { SaleorWebhookValidator } from "@/handlers/shared/saleor-webhook-validator";
 import { AsyncWebhookEventType, SyncWebhookEventType, WebhookManifest } from "@/types";
+
+import { PlatformAdapterMiddleware } from "./adapter-middleware";
+import { PlatformAdapterInterface } from "./generic-adapter-use-case-types";
 
 const debug = createDebug("SaleorWebhook");
 
