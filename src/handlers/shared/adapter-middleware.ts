@@ -31,18 +31,15 @@ export class PlatformAdapterMiddleware<T> {
   }
 
   withSaleorApiUrlPresent(): ActionHandlerResult | null {
+    const { saleorApiUrl } = this.getSaleorHeaders();
 
-  }
 
-  withSaleorDomainPresent(): ActionHandlerResult | null {
-    const { domain } = this.getSaleorHeaders();
-    debug("withSaleorDomainPresent middleware called with domain in header: %s", domain);
-
-    if (!domain) {
-      debug("Domain not found in header, will respond with Bad Request");
+    debug("withSaleorApiUrl middleware called with value in header: %s", saleorApiUrl);
+    if (!saleorApiUrl) {
+      debug("saleroApiUrl not found in header, will respond with Bad Request");
 
       return {
-        body: "Missing Saleor domain header.",
+        body: "Missing saleorApiUrl header.",
         bodyType: "string",
         status: 400,
       };
@@ -59,7 +56,6 @@ export class PlatformAdapterMiddleware<T> {
 
   getSaleorHeaders() {
     return {
-      domain: this.toStringOrUndefined(this.adapter.getHeader(SALEOR_DOMAIN_HEADER)),
       authorizationBearer: this.toStringOrUndefined(
         this.adapter.getHeader(SALEOR_AUTHORIZATION_BEARER_HEADER)
       ),
