@@ -18,9 +18,6 @@ export default defineConfig({
     "handlers/shared/index": "src/handlers/shared/index.ts",
     "handlers/actions/index": "src/handlers/actions/index.ts",
 
-    // Deprecated
-    "middleware/index": "src/middleware/index.ts",
-
     // Mapped exports
     "handlers/next/index": "src/handlers/platforms/next/index.ts",
   },
