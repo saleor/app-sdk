@@ -1,7 +1,6 @@
-import { ResultStatusCodes } from "./generic-adapter-use-case-types";
 import { SaleorWebhookError } from "./process-saleor-webhook";
 
-export const WebhookErrorCodeMap: Record<SaleorWebhookError, ResultStatusCodes> = {
+export const WebhookErrorCodeMap: Record<SaleorWebhookError, number> = {
   OTHER: 500,
   MISSING_HOST_HEADER: 400,
   MISSING_DOMAIN_HEADER: 400,
