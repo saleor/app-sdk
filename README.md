@@ -21,6 +21,21 @@ App SDK is in the early stage at the moment. Every API below 1.x.x release is li
 
 Feel free to play with SDK and move its code directly to your app.
 
+## Release flow
+
+- The `main` branch is a current, latest branch.
+- Branches matching `v[0-9]+.x` (like `v1.x`, v0.x`) are release branches
+- PRs should be opened to `main` branch and contain changesets (run `npx changeset`). Once changeset is merged to main, the release PR is opened. After the release PR is merged, the version is being pushed to NPM and changesets are pruned
+- To patch older version, commit from `main` (including changeset) should be also ported to release branch (e.g. v0.x). Release branch will also detect changes and open release PR
+- To release new major version (e.g. start working on `v2.x` from `v1.x`):
+  - Create a legacy release branch (e.g. `v1.x` branch)
+  - Mark changeset to `main` with `major` change, which will start counting next `main` releases as `2.x.x`
+  - Do not merge release PR until it's ready to be merged
+ 
+### Deploying test snapshots
+
+PRs can be pushed to NPM by adding label to PR `release dev tag`. Workflow will run and print version that has been released.
+
 ## Installing
 
 ```bash
