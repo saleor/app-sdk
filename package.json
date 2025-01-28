@@ -18,9 +18,15 @@
     "lint-staged": "lint-staged",
     "test:integration": "INTEGRATION=1 vitest run test/integration"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "saleor",
+    "ecommerce",
+    "sdk",
+    "app",
+    "webhook"
+  ],
+  "author": "Saleor Commerce",
+  "license": "BSD-3-Clause",
   "peerDependencies": {
     "@vercel/kv": "^1.0.0",
     "graphql": ">=16.6.0",
