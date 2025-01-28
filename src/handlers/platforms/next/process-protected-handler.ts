@@ -14,13 +14,6 @@ import { ProtectedHandlerContext } from "./protected-handler-context";
 
 const debug = createDebug("processProtectedHandler");
 
-// Re-export for backwards-compatibility
-export {
-  /**
-   * @deprecated import directly from @saleor/app-sdk/handlers/shared */
-  SaleorProtectedHandlerError
-};
-
 export class ProtectedHandlerError extends Error {
   errorType: SaleorProtectedHandlerError = "OTHER";
 

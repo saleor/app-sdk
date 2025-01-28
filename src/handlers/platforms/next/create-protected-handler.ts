@@ -11,13 +11,6 @@ import {
 } from "./process-protected-handler";
 import { ProtectedHandlerContext } from "./protected-handler-context";
 
-// Re-export for backwards-compatibility
-export {
-  /**
-   * @deprecated import directly from @saleor/app-sdk/handlers/shared */
-  ProtectedHandlerErrorCodeMap
-};
-
 const debug = createDebug("ProtectedHandler");
 
 export type NextProtectedApiHandler<TResp = unknown> = (
