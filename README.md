@@ -8,18 +8,14 @@
 
 SDK for building [Saleor Apps](https://github.com/saleor/apps).
 
+Supports Saleor version 3.20+
+
 <div>
 
 [![npm version badge](https://img.shields.io/npm/v/@saleor/app-sdk)](https://www.npmjs.com/package/@saleor/app-sdk)
 [![npm downloads count](https://img.shields.io/npm/dt/@saleor/app-sdk)](https://www.npmjs.com/package/@saleor/app-sdk)
 
 </div>
-
-## 🚨 Alpha phase
-
-App SDK is in the early stage at the moment. Every API below 1.x.x release is likely to change.
-
-Feel free to play with SDK and move its code directly to your app.
 
 ## Release flow
 

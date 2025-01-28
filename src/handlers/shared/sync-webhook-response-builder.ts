@@ -1,4 +1,4 @@
-import { SyncWebhookEventType } from "../../../types";
+import { SyncWebhookEventType } from "../../types";
 
 export type SyncWebhookResponsesMap = {
   CHECKOUT_CALCULATE_TAXES: {

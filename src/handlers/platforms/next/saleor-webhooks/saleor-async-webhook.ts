@@ -1,7 +1,8 @@
 import { ASTNode } from "graphql/index";
 import { NextApiHandler } from "next";
 
-import { AsyncWebhookEventType } from "../../../types";
+import { AsyncWebhookEventType } from "@/types";
+
 import { NextWebhookApiHandler, SaleorWebhook, WebhookConfig } from "./saleor-webhook";
 
 export class SaleorAsyncWebhook<TPayload = unknown> extends SaleorWebhook<TPayload> {
