@@ -145,6 +145,11 @@
       "import": "./handlers/next/index.mjs",
       "require": "./handlers/next/index.js"
     },
+    "./handlers/shared": {
+      "types": "./handlers/shared/index.d.ts",
+      "import": "./handlers/shared/index.mjs",
+      "require": "./handlers/shared/index.js"
+    },
     "./saleor-app": {
       "types": "./saleor-app.d.ts",
       "import": "./saleor-app.mjs",
