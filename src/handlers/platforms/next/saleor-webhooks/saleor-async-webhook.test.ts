@@ -66,7 +66,6 @@ describe("Next.js SaleorAsyncWebhook", () => {
         payload: { data: "test_payload" },
         schemaVersion: 3.19,
         authData: {
-          domain: "example.com",
           token: "token",
           jwks: "",
           saleorApiUrl: "https://example.com/graphql/",

@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
 import { APL, AuthData } from "@/APL";
-import { SALEOR_API_URL_HEADER, SALEOR_DOMAIN_HEADER } from "@/const";
+import { SALEOR_API_URL_HEADER } from "@/const";
 import { createDebug } from "@/debug";
 import { fetchRemoteJwks } from "@/fetch-remote-jwks";
 import { getAppId } from "@/get-app-id";
@@ -75,7 +75,6 @@ export type AppRegisterHandlerOptions<Request> = HasAPL & {
     request: Request,
     context: {
       authToken?: string;
-      saleorDomain?: string;
       saleorApiUrl?: string;
       respondWithError: CallbackErrorHandler;
     }
@@ -114,14 +113,14 @@ export type AppRegisterHandlerOptions<Request> = HasAPL & {
 };
 
 export class RegisterActionHandler<I> implements ActionHandlerInterface {
-  constructor(private adapter: PlatformAdapterInterface<I>) {}
+  constructor(private adapter: PlatformAdapterInterface<I>) { }
 
   private adapterMiddleware = new PlatformAdapterMiddleware(this.adapter);
 
   private runPreChecks(): ActionHandlerResult | null {
     const checksToRun = [
       this.adapterMiddleware.withMethod(["POST"]),
-      this.adapterMiddleware.withSaleorDomainPresent(),
+      this.adapterMiddleware.withSaleorApiUrlPresent(),
     ];
 
     for (const check of checksToRun) {
@@ -141,7 +140,6 @@ export class RegisterActionHandler<I> implements ActionHandlerInterface {
       return precheckResult;
     }
 
-    const saleorDomain = this.adapter.getHeader(SALEOR_DOMAIN_HEADER) as string;
     const saleorApiUrl = this.adapter.getHeader(SALEOR_API_URL_HEADER) as string;
 
     const authTokenResult = await this.parseRequestBody();
@@ -155,7 +153,6 @@ export class RegisterActionHandler<I> implements ActionHandlerInterface {
     const handleOnRequestResult = await this.handleOnRequestStartCallback(config.onRequestStart, {
       authToken,
       saleorApiUrl,
-      saleorDomain,
     });
 
     if (handleOnRequestResult) {
@@ -203,7 +200,6 @@ export class RegisterActionHandler<I> implements ActionHandlerInterface {
     const { jwks } = getJwksResult;
 
     const authData = {
-      domain: saleorDomain,
       token: authToken,
       saleorApiUrl,
       appId,
@@ -232,10 +228,10 @@ export class RegisterActionHandler<I> implements ActionHandlerInterface {
   private async parseRequestBody(): Promise<
     | { success: false; response: ActionHandlerResult; authToken?: never }
     | {
-        success: true;
-        authToken: string;
-        response?: never;
-      }
+      success: true;
+      authToken: string;
+      response?: never;
+    }
   > {
     let body: { auth_token: string };
     try {
@@ -277,8 +273,7 @@ export class RegisterActionHandler<I> implements ActionHandlerInterface {
     {
       authToken,
       saleorApiUrl,
-      saleorDomain,
-    }: { authToken: string; saleorApiUrl: string; saleorDomain: string }
+    }: { authToken: string; saleorApiUrl: string }
   ) {
     if (onRequestStart) {
       debug("Calling \"onRequestStart\" hook");
@@ -287,7 +282,6 @@ export class RegisterActionHandler<I> implements ActionHandlerInterface {
         await onRequestStart(this.adapter.request, {
           authToken,
           saleorApiUrl,
-          saleorDomain,
           respondWithError: this.createCallbackError,
         });
       } catch (e: RegisterCallbackError | unknown) {
@@ -353,9 +347,9 @@ export class RegisterActionHandler<I> implements ActionHandlerInterface {
     token: string;
   }): Promise<
     | {
-        success: false;
-        responseBody: ActionHandlerResult<RegisterHandlerResponseBody>;
-      }
+      success: false;
+      responseBody: ActionHandlerResult<RegisterHandlerResponseBody>;
+    }
     | { success: true; appId: string }
   > {
     // Try to get App ID from the API, to confirm that communication can be established
@@ -380,9 +374,9 @@ export class RegisterActionHandler<I> implements ActionHandlerInterface {
 
   private async getJwksAndHandleMissingJwks({ saleorApiUrl }: { saleorApiUrl: string }): Promise<
     | {
-        success: false;
-        responseBody: ActionHandlerResult<RegisterHandlerResponseBody>;
-      }
+      success: false;
+      responseBody: ActionHandlerResult<RegisterHandlerResponseBody>;
+    }
     | { success: true; jwks: string }
   > {
     // Fetch the JWKS which will be used during webhook validation

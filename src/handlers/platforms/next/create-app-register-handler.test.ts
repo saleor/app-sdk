@@ -36,7 +36,6 @@ describe("create-app-register-handler", () => {
         host: "some-saleor-host.cloud",
         "x-forwarded-proto": "https",
         "saleor-api-url": "https://mock-saleor-domain.saleor.cloud/graphql/",
-        "saleor-domain": "https://mock-saleor-domain.saleor.cloud/",
       },
       method: "POST",
     });
@@ -52,7 +51,6 @@ describe("create-app-register-handler", () => {
      */
     expect(mockApl.set).toHaveBeenCalledWith({
       saleorApiUrl: "https://mock-saleor-domain.saleor.cloud/graphql/",
-      domain: "https://mock-saleor-domain.saleor.cloud/",
       token: "mock-auth-token",
       appId: "42",
       jwks: "{}",
@@ -72,7 +70,6 @@ describe("create-app-register-handler", () => {
         host: "some-saleor-host.cloud",
         "x-forwarded-proto": "https",
         "saleor-api-url": "https://wrong-saleor-domain.saleor.cloud/graphql/",
-        "saleor-domain": "https://wrong-saleor-domain.saleor.cloud/",
       },
       method: "POST",
     });
@@ -107,7 +104,6 @@ describe("create-app-register-handler", () => {
           host: "some-saleor-host.cloud",
           "x-forwarded-proto": "https",
           "saleor-api-url": "https://mock-saleor-domain.saleor.cloud/graphql/",
-          "saleor-domain": "https://mock-saleor-domain.saleor.cloud/",
         },
         method: "POST",
       });
@@ -122,7 +118,6 @@ describe("create-app-register-handler", () => {
 
       const expectedAuthData: AuthData = {
         token: "mock-auth-token",
-        domain: "https://mock-saleor-domain.saleor.cloud/",
         saleorApiUrl: "https://mock-saleor-domain.saleor.cloud/graphql/",
         jwks: mockJwksValue,
         appId: mockAppId,
@@ -134,7 +129,6 @@ describe("create-app-register-handler", () => {
         expect.anything(/* Assume original request */),
         expect.objectContaining({
           authToken: "mock-auth-token",
-          saleorDomain: "https://mock-saleor-domain.saleor.cloud/",
           saleorApiUrl: "https://mock-saleor-domain.saleor.cloud/graphql/",
         })
       );
@@ -173,7 +167,6 @@ describe("create-app-register-handler", () => {
           host: "some-saleor-host.cloud",
           "x-forwarded-proto": "https",
           "saleor-api-url": "https://mock-saleor-domain.saleor.cloud/graphql/",
-          "saleor-domain": "https://mock-saleor-domain.saleor.cloud/",
         },
         method: "POST",
       });
@@ -186,7 +179,6 @@ describe("create-app-register-handler", () => {
 
       const expectedAuthData: AuthData = {
         token: "mock-auth-token",
-        domain: "https://mock-saleor-domain.saleor.cloud/",
         saleorApiUrl: "https://mock-saleor-domain.saleor.cloud/graphql/",
         jwks: mockJwksValue,
         appId: mockAppId,
@@ -233,7 +225,6 @@ describe("create-app-register-handler", () => {
           host: "some-saleor-host.cloud",
           "x-forwarded-proto": "https",
           "saleor-api-url": "https://mock-saleor-domain.saleor.cloud/graphql/",
-          "saleor-domain": "https://mock-saleor-domain.saleor.cloud/",
         },
         method: "POST",
       });

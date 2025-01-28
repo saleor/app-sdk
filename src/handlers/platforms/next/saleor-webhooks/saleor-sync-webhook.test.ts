@@ -18,7 +18,6 @@ describe("Next.js SaleorSyncWebhook", () => {
         payload: { data: "test_payload" },
         schemaVersion: 3.19,
         authData: {
-          domain: mockApl.workingSaleorDomain,
           token: mockApl.mockToken,
           jwks: mockApl.mockJwks,
           saleorApiUrl: mockApl.workingSaleorApiUrl,
