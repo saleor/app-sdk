@@ -52,6 +52,7 @@ describe("processSaleorProtectedHandler", () => {
 
     expect(await processSaleorProtectedHandler({ apl: mockAPL, req: mockRequest })).toStrictEqual({
       authData: {
+        domain: mockAPL.workingSaleorDomain,
         token: mockAPL.mockToken,
         saleorApiUrl: mockAPL.workingSaleorApiUrl,
         appId: mockAPL.mockAppId,

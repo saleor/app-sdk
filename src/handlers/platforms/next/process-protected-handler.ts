@@ -3,14 +3,13 @@ import { NextApiRequest } from "next";
 
 import { APL } from "@/APL";
 import { createDebug } from "@/debug";
+import { ProtectedHandlerContext } from "@/handlers/shared/protected-action-validator";
 import { SaleorProtectedHandlerError } from "@/handlers/shared/protected-handler";
 import { getBaseUrl, getSaleorHeaders } from "@/headers";
 import { getOtelTracer } from "@/open-telemetry";
 import { Permission } from "@/types";
 import { extractUserFromJwt } from "@/util/extract-user-from-jwt";
 import { verifyJWT } from "@/verify-jwt";
-
-import { ProtectedHandlerContext } from "./protected-handler-context";
 
 const debug = createDebug("processProtectedHandler");
 
@@ -41,6 +40,8 @@ type ProcessAsyncSaleorProtectedHandler = (
  * In case of validation issues, instance of the ProtectedHandlerError will be thrown.
  *
  * Can pass entire next request or Headers with saleorApiUrl and token
+ *
+ * @deprecated Use ProtectedActionValidator class
  */
 export const processSaleorProtectedHandler: ProcessAsyncSaleorProtectedHandler = async ({
   req,

@@ -1,17 +1,13 @@
 import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
 
 import { APL } from "@/APL";
-import { createDebug } from "@/debug";
-import { ProtectedHandlerErrorCodeMap } from "@/handlers/shared/protected-handler";
+import {
+  ProtectedActionValidator,
+  ProtectedHandlerContext,
+} from "@/handlers/shared/protected-action-validator";
 import { Permission } from "@/types";
 
-import {
-  processSaleorProtectedHandler,
-  ProtectedHandlerError,
-} from "./process-protected-handler";
-import { ProtectedHandlerContext } from "./protected-handler-context";
-
-const debug = createDebug("ProtectedHandler");
+import { NextJsAdapter } from "./platform-adapter";
 
 export type NextProtectedApiHandler<TResp = unknown> = (
   req: NextApiRequest,
@@ -29,26 +25,22 @@ export const createProtectedHandler =
     apl: APL,
     requiredPermissions?: Permission[]
   ): NextApiHandler =>
-    (req, res) => {
-      debug("Protected handler called");
-      processSaleorProtectedHandler({
-        req,
-        apl,
-        requiredPermissions,
-      })
-        .then(async (context) => {
-          debug("Incoming request validated. Call handlerFn");
-          return handlerFn(req, res, context);
-        })
-        .catch((e) => {
-          debug("Unexpected error during processing the request");
+  async (req, res) => {
+    const adapter = new NextJsAdapter(req, res);
+    const actionValidator = new ProtectedActionValidator(adapter);
+    const validationResult = await actionValidator.validateRequest({
+      apl,
+      requiredPermissions,
+    });
 
-          if (e instanceof ProtectedHandlerError) {
-            debug(`Validation error: ${e.message}`);
-            res.status(ProtectedHandlerErrorCodeMap[e.errorType] || 400).end();
-            return;
-          }
-          debug("Unexpected error: %O", e);
-          res.status(500).end();
-        });
-    };
+    if (validationResult.result === "failure") {
+      return adapter.send(validationResult.value);
+    }
+
+    const context = validationResult.value;
+    try {
+      return handlerFn(req, res, context);
+    } catch (err) {
+      return res.status(500).end();
+    }
+  };

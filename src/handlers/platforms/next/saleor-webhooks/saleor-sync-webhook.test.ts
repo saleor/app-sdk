@@ -1,29 +1,31 @@
 import { createMocks } from "node-mocks-http";
 import { describe, expect, it, vi } from "vitest";
 
+import { SaleorWebhookValidator } from "@/handlers/shared/saleor-webhook-validator";
 import { MockAPL } from "@/test-utils/mock-apl";
 
-import { processSaleorWebhook } from "./process-saleor-webhook";
 import { SaleorSyncWebhook } from "./saleor-sync-webhook";
 
-describe("SaleorSyncWebhook", () => {
+describe("Next.js SaleorSyncWebhook", () => {
   const mockApl = new MockAPL();
 
   it("Provides type-safe response builder in the context", async () => {
-    vi.mock("./process-saleor-webhook");
-
-    vi.mocked(processSaleorWebhook).mockImplementationOnce(async () => ({
-      baseUrl: "example.com",
-      event: "CHECKOUT_CALCULATE_TAXES",
-      payload: { data: "test_payload" },
-      schemaVersion: 3.19,
-      authData: {
-        token: mockApl.mockToken,
-        jwks: mockApl.mockJwks,
-        saleorApiUrl: mockApl.workingSaleorApiUrl,
-        appId: mockApl.mockAppId,
+    vi.spyOn(SaleorWebhookValidator.prototype, "validateRequest").mockResolvedValue({
+      result: "ok",
+      context: {
+        baseUrl: "example.com",
+        event: "CHECKOUT_CALCULATE_TAXES",
+        payload: { data: "test_payload" },
+        schemaVersion: 3.19,
+        authData: {
+          domain: mockApl.workingSaleorDomain,
+          token: mockApl.mockToken,
+          jwks: mockApl.mockJwks,
+          saleorApiUrl: mockApl.workingSaleorApiUrl,
+          appId: mockApl.mockAppId,
+        },
       },
-    }));
+    });
 
     const { req, res } = createMocks({
       method: "POST",

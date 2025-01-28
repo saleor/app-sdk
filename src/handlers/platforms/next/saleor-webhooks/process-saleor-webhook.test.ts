@@ -4,32 +4,29 @@ import rawBody from "raw-body";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { MockAPL } from "@/test-utils/mock-apl";
+import * as verifySignatureModule from "@/verify-signature";
 
 import { processSaleorWebhook } from "./process-saleor-webhook";
 
-vi.mock("@/verify-signature", () => ({
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  verifySignature: vi.fn((domain, signature) => {
+vi.spyOn(verifySignatureModule, "verifySignatureFromApiUrl").mockImplementation(
+  async (domain, signature) => {
     if (signature !== "mocked_signature") {
       throw new Error("Wrong signature");
     }
-  }),
-  verifySignatureFromApiUrl: vi.fn((domain, signature) => {
+  }
+);
+vi.spyOn(verifySignatureModule, "verifySignatureWithJwks").mockImplementation(
+  async (domain, signature) => {
     if (signature !== "mocked_signature") {
       throw new Error("Wrong signature");
     }
-  }),
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  verifySignatureWithJwks: vi.fn((jwks, signature, body) => {
-    if (signature !== "mocked_signature") {
-      throw new Error("Wrong signature");
-    }
-  }),
-}));
+  }
+);
 
 vi.mock("raw-body", () => ({
   default: vi.fn().mockResolvedValue("{}"),
 }));
+
 describe("processAsyncSaleorWebhook", () => {
   let mockRequest: NextApiRequest;
 
@@ -138,7 +135,7 @@ describe("processAsyncSaleorWebhook", () => {
   it("Throw error on wrong signature", async () => {
     mockRequest.headers["saleor-signature"] = "wrong_signature";
 
-    vi.mock("@/fetch-remote-jwks", () => ({
+    vi.mock("../../../fetch-remote-jwks", () => ({
       fetchRemoteJwks: vi.fn(async () => "wrong_signature"),
     }));
 
@@ -161,6 +158,7 @@ describe("processAsyncSaleorWebhook", () => {
     ).resolves.toStrictEqual({
       authData: {
         appId: "mock-app-id",
+        domain: "example.com",
         jwks: "{}",
         saleorApiUrl: "https://example.com/graphql/",
         token: "mock-token",
