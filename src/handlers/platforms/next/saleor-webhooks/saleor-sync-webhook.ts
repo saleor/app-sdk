@@ -1,9 +1,9 @@
 import { NextApiHandler } from "next";
 
+import { buildSyncWebhookResponsePayload } from "@/handlers/shared/sync-webhook-response-builder";
 import { SyncWebhookEventType } from "@/types";
 
 import { NextWebhookApiHandler, SaleorWebhook, WebhookConfig } from "./saleor-webhook";
-import { buildSyncWebhookResponsePayload } from "./sync-webhook-response-builder";
 
 type InjectedContext<TEvent extends SyncWebhookEventType> = {
   buildResponse: typeof buildSyncWebhookResponsePayload<TEvent>;
