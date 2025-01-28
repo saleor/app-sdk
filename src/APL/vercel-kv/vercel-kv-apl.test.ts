@@ -22,7 +22,6 @@ const getMockAuthData = (saleorApiUrl = "https://demo.saleor.io/graphql"): AuthD
   appId: "foobar",
   saleorApiUrl,
   token: "token",
-  domain: "domain",
   jwks: "{}",
 });
 

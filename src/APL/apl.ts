@@ -1,5 +1,4 @@
 export interface AuthData {
-  domain?: string;
   token: string;
   saleorApiUrl: string;
   appId: string;

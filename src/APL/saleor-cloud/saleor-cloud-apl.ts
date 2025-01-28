@@ -51,13 +51,11 @@ const mapAuthDataToAPIBody = (authData: AuthData) => ({
   saleor_app_id: authData.appId,
   saleor_api_url: authData.saleorApiUrl,
   jwks: authData.jwks,
-  domain: authData.domain,
   token: authData.token,
 });
 
 const mapAPIResponseToAuthData = (response: CloudAPLAuthDataShape): AuthData => ({
   appId: response.saleor_app_id,
-  domain: response.domain,
   jwks: response.jwks,
   saleorApiUrl: response.saleor_api_url,
   token: response.token,

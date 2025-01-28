@@ -14,7 +14,6 @@ const getMockAuthData = (): AuthData => ({
   appId: "app-id",
   token: "some-token",
   jwks: "{}",
-  domain: "my-saleor-instance.cloud",
 });
 
 describe("EnvAPL", () => {
@@ -58,8 +57,7 @@ describe("EnvAPL", () => {
   "saleorApiUrl": "https://my-saleor-instance.cloud/graphql/",
   "appId": "app-id",
   "token": "some-token",
-  "jwks": "{}",
-  "domain": "my-saleor-instance.cloud"
+  "jwks": "{}"
 }`
     );
   });

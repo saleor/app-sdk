@@ -13,7 +13,6 @@ const aplConfig: UpstashAPLConfig = {
 };
 
 const stubAuthData: AuthData = {
-  domain: "example.com",
   token: "example-token",
   saleorApiUrl: "https://example.com/graphql/",
   appId: "42",

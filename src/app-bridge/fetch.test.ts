@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { SALEOR_AUTHORIZATION_BEARER_HEADER, SALEOR_DOMAIN_HEADER } from "../const";
+import { SALEOR_AUTHORIZATION_BEARER_HEADER } from "../const";
 import { AppBridge } from "./app-bridge";
 import { AppBridgeState } from "./app-bridge-state";
 import { createAuthenticatedFetch } from "./fetch";
@@ -35,9 +35,6 @@ describe("createAuthenticatedFetch", () => {
     const fetchCallArguments = spiedFetch.mock.lastCall;
     const fetchCallHeaders = fetchCallArguments![1]?.headers;
 
-    expect((fetchCallHeaders as Headers).get(SALEOR_DOMAIN_HEADER)).toBe(
-      "master.staging.saleor.cloud"
-    );
     expect((fetchCallHeaders as Headers).get(SALEOR_AUTHORIZATION_BEARER_HEADER)).toBe("XXX_YYY");
   });
 
@@ -59,9 +56,6 @@ describe("createAuthenticatedFetch", () => {
     const fetchCallArguments = spiedFetch.mock.lastCall;
     const fetchCallHeaders = fetchCallArguments![1]?.headers;
 
-    expect((fetchCallHeaders as Headers).get(SALEOR_DOMAIN_HEADER)).toBe(
-      "master.staging.saleor.cloud"
-    );
     expect((fetchCallHeaders as Headers).get(SALEOR_AUTHORIZATION_BEARER_HEADER)).toBe("XXX_YYY");
     expect((fetchCallHeaders as Headers).get("foo")).toBe("bar");
   });
