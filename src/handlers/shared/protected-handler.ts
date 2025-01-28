@@ -1,7 +1,6 @@
 export type SaleorProtectedHandlerError =
   | "OTHER"
   | "MISSING_HOST_HEADER"
-  | "MISSING_DOMAIN_HEADER"
   | "MISSING_API_URL_HEADER"
   | "MISSING_AUTHORIZATION_BEARER_HEADER"
   | "NOT_REGISTERED"
@@ -11,7 +10,6 @@ export type SaleorProtectedHandlerError =
 export const ProtectedHandlerErrorCodeMap: Record<SaleorProtectedHandlerError, number> = {
   OTHER: 500,
   MISSING_HOST_HEADER: 400,
-  MISSING_DOMAIN_HEADER: 400,
   MISSING_API_URL_HEADER: 400,
   NOT_REGISTERED: 401,
   JWT_VERIFICATION_FAILED: 401,
