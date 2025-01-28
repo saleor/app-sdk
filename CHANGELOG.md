@@ -1,5 +1,12 @@
 # @saleor/app-sdk
 
+## 0.52.1
+
+### Patch Changes
+
+- 2c1f41f: Marked domain header as deprecated
+- e764be0: Marked `/middleware`s as deprecated in favor of `/handlers`
+
 ## 0.52.0
 
 ### Minor Changes
