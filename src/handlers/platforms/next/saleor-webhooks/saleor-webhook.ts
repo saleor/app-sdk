@@ -4,13 +4,12 @@ import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
 import { APL } from "@/APL";
 import { createDebug } from "@/debug";
 import { gqlAstToString } from "@/gql-ast-to-string";
+import { WebhookContext, WebhookError } from "@/handlers/shared/process-saleor-webhook";
+import { WebhookErrorCodeMap } from "@/handlers/shared/saleor-webhook";
 import { AsyncWebhookEventType, SyncWebhookEventType, WebhookManifest } from "@/types";
 
 import {
   processSaleorWebhook,
-  SaleorWebhookError,
-  WebhookContext,
-  WebhookError,
 } from "./process-saleor-webhook";
 
 const debug = createDebug("SaleorWebhook");
@@ -36,22 +35,6 @@ export interface WebhookConfig<Event = AsyncWebhookEventType | SyncWebhookEventT
    */
   subscriptionQueryAst?: ASTNode;
 }
-
-export const WebhookErrorCodeMap: Record<SaleorWebhookError, number> = {
-  OTHER: 500,
-  MISSING_HOST_HEADER: 400,
-  MISSING_API_URL_HEADER: 400,
-  MISSING_EVENT_HEADER: 400,
-  MISSING_PAYLOAD_HEADER: 400,
-  MISSING_SIGNATURE_HEADER: 400,
-  MISSING_REQUEST_BODY: 400,
-  WRONG_EVENT: 400,
-  NOT_REGISTERED: 401,
-  SIGNATURE_VERIFICATION_FAILED: 401,
-  WRONG_METHOD: 405,
-  CANT_BE_PARSED: 400,
-  CONFIGURATION_ERROR: 500,
-};
 
 export type NextWebhookApiHandler<TPayload = unknown, TExtras = {}> = (
   req: NextApiRequest,
