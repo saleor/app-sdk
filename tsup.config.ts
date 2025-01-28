@@ -16,6 +16,7 @@ export default defineConfig({
     "app-bridge/next/index": "src/app-bridge/next/index.ts",
     "settings-manager/index": "src/settings-manager/index.ts",
     "handlers/shared/index": "src/handlers/shared/index.ts",
+    "handlers/actions/index": "src/handlers/actions/index.ts",
 
     // Deprecated
     "middleware/index": "src/middleware/index.ts",
