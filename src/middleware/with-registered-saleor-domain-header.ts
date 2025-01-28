@@ -7,6 +7,9 @@ import { getSaleorAppFromRequest } from "./with-saleor-app";
 
 const debug = createMiddlewareDebug("withRegisteredSaleorDomainHeader");
 
+/**
+ * @deprecated Use `/handlers` instead of middlewares
+ * */
 export const withRegisteredSaleorDomainHeader: Middleware = (handler) => async (request) => {
   const { saleorApiUrl } = getSaleorHeaders(request.headers);
 
