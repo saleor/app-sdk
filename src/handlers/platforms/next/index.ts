@@ -6,4 +6,6 @@ export * from "./protected-handler-context";
 export * from "./saleor-webhooks/saleor-async-webhook";
 export * from "./saleor-webhooks/saleor-sync-webhook";
 export { NextWebhookApiHandler } from "./saleor-webhooks/saleor-webhook";
-export * from "./saleor-webhooks/sync-webhook-response-builder";
+
+// Left for compatibility
+export { buildSyncWebhookResponsePayload } from "@/handlers/shared/sync-webhook-response-builder";
