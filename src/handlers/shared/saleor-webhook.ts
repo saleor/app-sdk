@@ -50,6 +50,7 @@ export type WebhookContext<TPayload> = {
   event: string;
   payload: TPayload;
   authData: AuthData;
+  // TODO: Make this required
   /** Added in Saleor 3.15 */
-  schemaVersion: number;
+  schemaVersion: number | null;
 };

@@ -4,8 +4,7 @@ import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
 import { APL } from "@/APL";
 import { createDebug } from "@/debug";
 import { gqlAstToString } from "@/gql-ast-to-string";
-import { WebhookContext, WebhookError } from "@/handlers/shared/process-saleor-webhook";
-import { WebhookErrorCodeMap } from "@/handlers/shared/saleor-webhook";
+import { WebhookContext, WebhookError, WebhookErrorCodeMap } from "@/handlers/shared/saleor-webhook";
 import { AsyncWebhookEventType, SyncWebhookEventType, WebhookManifest } from "@/types";
 
 import {

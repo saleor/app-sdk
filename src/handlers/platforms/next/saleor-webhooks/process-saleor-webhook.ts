@@ -5,7 +5,7 @@ import getRawBody from "raw-body";
 import { APL } from "@/APL";
 import { createDebug } from "@/debug";
 import { fetchRemoteJwks } from "@/fetch-remote-jwks";
-import { WebhookContext, WebhookError } from "@/handlers/shared/process-saleor-webhook";
+import { WebhookContext, WebhookError } from "@/handlers/shared/saleor-webhook";
 import { getBaseUrl, getSaleorHeaders } from "@/headers";
 import { getOtelTracer } from "@/open-telemetry";
 import { parseSchemaVersion } from "@/util";
