@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 1.0.0
+
+### Major Changes
+
+- c956220: Breaking change: Remove checking "domain" header from Saleor requests. It should be replaced with the "saleor-api-url" header.
+
 ## 0.52.0
 
 ### Minor Changes
