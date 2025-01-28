@@ -15,6 +15,9 @@ export interface DashboardTokenPayload extends jose.JWTPayload {
 
 const ERROR_MESSAGE = "JWT verification failed:";
 
+/**
+ * @deprecated Use `/handlers` instead of middlewares
+ * */
 export const withJWTVerified =
   (getAppId: (request: Request) => Promise<string | undefined>): Middleware =>
   (handler) =>
