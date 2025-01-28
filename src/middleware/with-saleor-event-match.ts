@@ -6,6 +6,9 @@ import { createMiddlewareDebug } from "./middleware-debug";
 
 const debug = createMiddlewareDebug("withSaleorEventMatch");
 
+/**
+ * @deprecated Use `/handlers` instead of middlewares
+ * */
 export const withSaleorEventMatch =
   <E extends string>(expectedEvent: `${Lowercase<E>}`): Middleware =>
   (handler) =>

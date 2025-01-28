@@ -5,6 +5,9 @@ import { createMiddlewareDebug } from "./middleware-debug";
 
 const debug = createMiddlewareDebug("withSaleorApp");
 
+/**
+ * @deprecated Use `/handlers` instead of middlewares
+ * */
 export const withSaleorApp =
   (saleorApp: SaleorApp): Middleware =>
   (handler) =>

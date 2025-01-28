@@ -9,6 +9,8 @@ type DebugFactory = (handlerName: string) => (msg: string, ...args: unknown[]) =
 
 /**
  * Experimental. Needs to be tested and evaluated on security
+ *
+ * @depreacted Use `/handlers` instead of middlewares
  */
 export const withReqResDebugging =
   (debugFactory: DebugFactory = createMiddlewareDebug): Middleware =>

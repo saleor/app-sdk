@@ -5,6 +5,9 @@ import { createMiddlewareDebug } from "./middleware-debug";
 
 const debug = createMiddlewareDebug("withAuthTokenRequired");
 
+/**
+ * @deprecated Use `/handlers` instead of middlewares
+ * */
 export const withAuthTokenRequired: Middleware = (handler) => async (request) => {
   debug("Middleware called");
 

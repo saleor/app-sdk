@@ -12,8 +12,8 @@ const debug = createMiddlewareDebug("withWebhookSignatureVerified");
 const ERROR_MESSAGE = "Webhook signature verification failed:";
 
 /**
- * TODO: Add test
- */
+ * @deprecated Use `/handlers` instead of middlewares
+ * */
 export const withWebhookSignatureVerified =
   (secretKey: string | undefined = undefined): Middleware =>
   (handler) =>

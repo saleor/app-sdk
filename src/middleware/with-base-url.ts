@@ -5,6 +5,9 @@ import { createMiddlewareDebug } from "./middleware-debug";
 
 const debug = createMiddlewareDebug("withBaseURL");
 
+/**
+ * @deprecated Use `/handlers` instead of middlewares
+ * */
 export const withBaseURL: Middleware = (handler) => async (request) => {
   const { host, "x-forwarded-proto": protocol = "http" } = request.headers;
 
