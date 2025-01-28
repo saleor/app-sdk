@@ -16,7 +16,6 @@ const debug = createDebug("processSaleorWebhook");
 export type SaleorWebhookError =
   | "OTHER"
   | "MISSING_HOST_HEADER"
-  | "MISSING_DOMAIN_HEADER"
   | "MISSING_API_URL_HEADER"
   | "MISSING_EVENT_HEADER"
   | "MISSING_PAYLOAD_HEADER"

@@ -39,7 +39,6 @@ export interface WebhookConfig<Event = AsyncWebhookEventType | SyncWebhookEventT
 export const WebhookErrorCodeMap: Record<SaleorWebhookError, number> = {
   OTHER: 500,
   MISSING_HOST_HEADER: 400,
-  MISSING_DOMAIN_HEADER: 400,
   MISSING_API_URL_HEADER: 400,
   MISSING_EVENT_HEADER: 400,
   MISSING_PAYLOAD_HEADER: 400,

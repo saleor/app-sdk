@@ -2,7 +2,7 @@ import { Handler, Request } from "retes";
 import { Response } from "retes/response";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { SALEOR_API_URL_HEADER, SALEOR_DOMAIN_HEADER } from "../const";
+import { SALEOR_API_URL_HEADER } from "../const";
 import { SaleorApp } from "../saleor-app";
 import { MockAPL } from "../test-utils/mock-apl";
 import { withRegisteredSaleorDomainHeader } from "./with-registered-saleor-domain-header";
@@ -26,7 +26,6 @@ describe("middleware", () => {
         headers: {
           host: "my-saleor-env.saleor.cloud",
           "x-forwarded-proto": "https",
-          [SALEOR_DOMAIN_HEADER]: mockAPL.workingSaleorDomain,
           [SALEOR_API_URL_HEADER]: mockAPL.workingSaleorApiUrl,
         },
       } as unknown as Request;
@@ -49,7 +48,6 @@ describe("middleware", () => {
         headers: {
           host: "my-saleor-env.saleor.cloud",
           "x-forwarded-proto": "https",
-          [SALEOR_DOMAIN_HEADER]: "not-registered.example.com",
           [SALEOR_API_URL_HEADER]: "https://not-registered.example.com/graphql/",
         },
       } as unknown as Request;
@@ -71,7 +69,6 @@ describe("middleware", () => {
         headers: {
           host: "my-saleor-env.saleor.cloud",
           "x-forwarded-proto": "https",
-          [SALEOR_DOMAIN_HEADER]: mockAPL.workingSaleorDomain,
           [SALEOR_API_URL_HEADER]: mockAPL.workingSaleorApiUrl,
         },
       } as unknown as Request;

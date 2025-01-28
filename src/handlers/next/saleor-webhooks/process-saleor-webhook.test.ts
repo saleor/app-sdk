@@ -160,7 +160,6 @@ describe("processAsyncSaleorWebhook", () => {
     ).resolves.toStrictEqual({
       authData: {
         appId: "mock-app-id",
-        domain: "example.com",
         jwks: "{}",
         saleorApiUrl: "https://example.com/graphql/",
         token: "mock-token",
