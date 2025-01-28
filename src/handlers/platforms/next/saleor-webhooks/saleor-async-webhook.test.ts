@@ -2,8 +2,9 @@ import { ASTNode } from "graphql";
 import { createMocks } from "node-mocks-http";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { MockAPL } from "../../../test-utils/mock-apl";
-import { AsyncWebhookEventType } from "../../../types";
+import { MockAPL } from "@/test-utils/mock-apl";
+import { AsyncWebhookEventType } from "@/types";
+
 import { processSaleorWebhook } from "./process-saleor-webhook";
 import { SaleorAsyncWebhook } from "./saleor-async-webhook";
 import { NextWebhookApiHandler, WebhookConfig } from "./saleor-webhook";

@@ -3,13 +3,14 @@ import { toNextHandler } from "retes/adapter";
 import { withMethod } from "retes/middleware";
 import { Response } from "retes/response";
 
-import { AuthData } from "../../APL";
-import { SALEOR_API_URL_HEADER, SALEOR_DOMAIN_HEADER } from "../../const";
-import { createDebug } from "../../debug";
-import { fetchRemoteJwks } from "../../fetch-remote-jwks";
-import { getAppId } from "../../get-app-id";
-import { withAuthTokenRequired, withSaleorDomainPresent } from "../../middleware";
-import { HasAPL } from "../../saleor-app";
+import { AuthData } from "@/APL";
+import { SALEOR_API_URL_HEADER } from "@/const";
+import { createDebug } from "@/debug";
+import { fetchRemoteJwks } from "@/fetch-remote-jwks";
+import { getAppId } from "@/get-app-id";
+import { withAuthTokenRequired } from "@/middleware";
+import { HasAPL } from "@/saleor-app";
+
 import { validateAllowSaleorUrls } from "./validate-allow-saleor-urls";
 
 const debug = createDebug("createAppRegisterHandler");

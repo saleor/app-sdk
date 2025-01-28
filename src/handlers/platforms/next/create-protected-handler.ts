@@ -1,8 +1,9 @@
 import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
 
-import { APL } from "../../APL";
-import { createDebug } from "../../debug";
-import { Permission } from "../../types";
+import { APL } from "@/APL";
+import { createDebug } from "@/debug";
+import { Permission } from "@/types";
+
 import {
   processSaleorProtectedHandler,
   ProtectedHandlerError,
@@ -39,26 +40,26 @@ export const createProtectedHandler =
     apl: APL,
     requiredPermissions?: Permission[]
   ): NextApiHandler =>
-  (req, res) => {
-    debug("Protected handler called");
-    processSaleorProtectedHandler({
-      req,
-      apl,
-      requiredPermissions,
-    })
-      .then(async (context) => {
-        debug("Incoming request validated. Call handlerFn");
-        return handlerFn(req, res, context);
+    (req, res) => {
+      debug("Protected handler called");
+      processSaleorProtectedHandler({
+        req,
+        apl,
+        requiredPermissions,
       })
-      .catch((e) => {
-        debug("Unexpected error during processing the request");
+        .then(async (context) => {
+          debug("Incoming request validated. Call handlerFn");
+          return handlerFn(req, res, context);
+        })
+        .catch((e) => {
+          debug("Unexpected error during processing the request");
 
-        if (e instanceof ProtectedHandlerError) {
-          debug(`Validation error: ${e.message}`);
-          res.status(ProtectedHandlerErrorCodeMap[e.errorType] || 400).end();
-          return;
-        }
-        debug("Unexpected error: %O", e);
-        res.status(500).end();
-      });
-  };
+          if (e instanceof ProtectedHandlerError) {
+            debug(`Validation error: ${e.message}`);
+            res.status(ProtectedHandlerErrorCodeMap[e.errorType] || 400).end();
+            return;
+          }
+          debug("Unexpected error: %O", e);
+          res.status(500).end();
+        });
+    };
