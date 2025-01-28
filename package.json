@@ -119,11 +119,6 @@
       "import": "./settings-manager/index.mjs",
       "require": "./settings-manager/index.js"
     },
-    "./middleware": {
-      "types": "./middleware/index.d.ts",
-      "import": "./middleware/index.mjs",
-      "require": "./middleware/index.js"
-    },
     "./urls": {
       "types": "./urls.d.ts",
       "import": "./urls.mjs",
