@@ -6,10 +6,6 @@ import { GenericCreateAppRegisterHandlerOptions } from "@/handlers/shared/create
 
 import { NextJsAdapter, NextJsHandler, NextJsHandlerInput } from "./platform-adapter";
 
-// Re-export types for backwards compatibility
-
-export type { RegisterHandlerResponseBody };
-
 export const createRegisterHandlerResponseBody = (
   success: boolean,
   error?: RegisterHandlerResponseBody["error"]
@@ -36,9 +32,9 @@ export type CreateAppRegisterHandlerOptions =
  * */
 export const createAppRegisterHandler =
   (config: CreateAppRegisterHandlerOptions): NextJsHandler =>
-  async (req, res) => {
-    const adapter = new NextJsAdapter(req, res);
-    const actionHandler = new RegisterActionHandler(adapter);
-    const result = await actionHandler.handleAction(config);
-    return adapter.send(result);
-  };
+    async (req, res) => {
+      const adapter = new NextJsAdapter(req, res);
+      const actionHandler = new RegisterActionHandler(adapter);
+      const result = await actionHandler.handleAction(config);
+      return adapter.send(result);
+    };

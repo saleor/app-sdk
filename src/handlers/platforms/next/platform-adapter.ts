@@ -12,7 +12,7 @@ export type NextJsHandler = (req: NextApiRequest, res: NextApiResponse) => Promi
 export class NextJsAdapter implements PlatformAdapterInterface<NextJsHandlerInput> {
   readonly type = "next" as const;
 
-  constructor(public request: NextApiRequest, private res: NextApiResponse) {}
+  constructor(public request: NextApiRequest, private res: NextApiResponse) { }
 
   getHeader(name: string) {
     const header = this.request.headers[name];

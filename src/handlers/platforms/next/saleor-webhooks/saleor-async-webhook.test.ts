@@ -2,13 +2,13 @@ import { ASTNode } from "graphql";
 import { createMocks } from "node-mocks-http";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { WebhookError } from "@/handlers/shared/process-saleor-webhook";
+import { WebhookError } from "@/handlers/shared";
 import { SaleorWebhookValidator } from "@/handlers/shared/saleor-webhook-validator";
 import { MockAPL } from "@/test-utils/mock-apl";
 import { AsyncWebhookEventType } from "@/types";
 
 import { SaleorAsyncWebhook } from "./saleor-async-webhook";
-import { NextWebhookApiHandler, WebhookConfig } from "./saleor-webhook";
+import { NextJsWebhookHandler, WebhookConfig } from "./saleor-webhook";
 
 const webhookPath = "api/webhooks/product-updated";
 const baseUrl = "http://example.com";
@@ -77,7 +77,7 @@ describe("Next.js SaleorAsyncWebhook", () => {
 
     // Test handler - will throw error if mocked context is not passed to it
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const testHandler: NextWebhookApiHandler = vi.fn().mockImplementation((req, res, context) => {
+    const testHandler: NextJsWebhookHandler = vi.fn().mockImplementation((req, res, context) => {
       if (context.payload.data === "test_payload") {
         res.status(200).end();
         return;
@@ -116,7 +116,7 @@ describe("Next.js SaleorAsyncWebhook", () => {
     });
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const testHandler: NextWebhookApiHandler = vi.fn().mockImplementation((req, res, context) => {
+    const testHandler: NextJsWebhookHandler = vi.fn().mockImplementation((req, res, context) => {
       if (context.payload.data === "test_payload") {
         res.status(200).end();
         return;

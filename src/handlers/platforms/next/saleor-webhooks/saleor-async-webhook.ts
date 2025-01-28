@@ -3,7 +3,7 @@ import { NextApiHandler } from "next";
 
 import { AsyncWebhookEventType } from "@/types";
 
-import { NextWebhookApiHandler, SaleorWebhook, WebhookConfig } from "./saleor-webhook";
+import { NextJsWebhookHandler, SaleorWebhook, WebhookConfig } from "./saleor-webhook";
 
 export class SaleorAsyncWebhook<TPayload = unknown> extends SaleorWebhook<TPayload> {
   readonly event: AsyncWebhookEventType;
@@ -44,7 +44,7 @@ export class SaleorAsyncWebhook<TPayload = unknown> extends SaleorWebhook<TPaylo
     this.query = configuration.query! ?? configuration.subscriptionQueryAst!;
   }
 
-  createHandler(handlerFn: NextWebhookApiHandler<TPayload>): NextApiHandler {
+  createHandler(handlerFn: NextJsWebhookHandler<TPayload>): NextApiHandler {
     return super.createHandler(handlerFn);
   }
 }

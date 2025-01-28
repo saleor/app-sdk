@@ -9,7 +9,7 @@ import { Permission } from "@/types";
 
 import { NextJsAdapter } from "./platform-adapter";
 
-export type NextProtectedApiHandler<TResp = unknown> = (
+export type NextJsProtectedApiHandler<TResp = unknown> = (
   req: NextApiRequest,
   res: NextApiResponse<TResp>,
   ctx: ProtectedHandlerContext
@@ -21,26 +21,26 @@ export type NextProtectedApiHandler<TResp = unknown> = (
  */
 export const createProtectedHandler =
   (
-    handlerFn: NextProtectedApiHandler,
+    handlerFn: NextJsProtectedApiHandler,
     apl: APL,
     requiredPermissions?: Permission[]
   ): NextApiHandler =>
-  async (req, res) => {
-    const adapter = new NextJsAdapter(req, res);
-    const actionValidator = new ProtectedActionValidator(adapter);
-    const validationResult = await actionValidator.validateRequest({
-      apl,
-      requiredPermissions,
-    });
+    async (req, res) => {
+      const adapter = new NextJsAdapter(req, res);
+      const actionValidator = new ProtectedActionValidator(adapter);
+      const validationResult = await actionValidator.validateRequest({
+        apl,
+        requiredPermissions,
+      });
 
-    if (validationResult.result === "failure") {
-      return adapter.send(validationResult.value);
-    }
+      if (validationResult.result === "failure") {
+        return adapter.send(validationResult.value);
+      }
 
-    const context = validationResult.value;
-    try {
-      return handlerFn(req, res, context);
-    } catch (err) {
-      return res.status(500).end();
-    }
-  };
+      const context = validationResult.value;
+      try {
+        return handlerFn(req, res, context);
+      } catch (err) {
+        return res.status(500).end();
+      }
+    };
