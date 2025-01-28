@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 0.52.1
+
+### Patch Changes
+
+- 2c1f41f: Marked domain header as deprecated
+
 ## 0.52.0
 
 ### Minor Changes
