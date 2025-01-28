@@ -4,11 +4,11 @@ import { withMethod } from "retes/middleware";
 import { Response } from "retes/response";
 
 import { AuthData } from "../../APL";
-import { SALEOR_API_URL_HEADER, SALEOR_DOMAIN_HEADER } from "../../const";
+import { SALEOR_API_URL_HEADER } from "../../const";
 import { createDebug } from "../../debug";
 import { fetchRemoteJwks } from "../../fetch-remote-jwks";
 import { getAppId } from "../../get-app-id";
-import { withAuthTokenRequired, withSaleorDomainPresent } from "../../middleware";
+import { withAuthTokenRequired } from "../../middleware";
 import { HasAPL } from "../../saleor-app";
 import { validateAllowSaleorUrls } from "./validate-allow-saleor-urls";
 
@@ -134,7 +134,6 @@ export const createAppRegisterHandler = ({
     debug("Request received");
 
     const authToken = request.params.auth_token;
-    const saleorDomain = request.headers[SALEOR_DOMAIN_HEADER] as string;
     const saleorApiUrl = request.headers[SALEOR_API_URL_HEADER] as string;
 
     if (onRequestStart) {
@@ -144,7 +143,6 @@ export const createAppRegisterHandler = ({
         await onRequestStart(request, {
           authToken,
           saleorApiUrl,
-          saleorDomain,
           respondWithError: createCallbackError,
         });
       } catch (e: RegisterCallbackError | unknown) {
@@ -218,7 +216,6 @@ export const createAppRegisterHandler = ({
     }
 
     const authData = {
-      domain: saleorDomain,
       token: authToken,
       saleorApiUrl,
       appId,
@@ -288,10 +285,5 @@ export const createAppRegisterHandler = ({
     return Response.OK(createRegisterHandlerResponseBody(true));
   };
 
-  return toNextHandler([
-    withMethod("POST"),
-    withSaleorDomainPresent,
-    withAuthTokenRequired,
-    baseHandler,
-  ]);
+  return toNextHandler([withMethod("POST"), withAuthTokenRequired, baseHandler]);
 };

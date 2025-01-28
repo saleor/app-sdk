@@ -48,19 +48,15 @@ export class FileAPL implements APL {
       return undefined;
     }
 
-    const { token, domain, saleorApiUrl, appId, jwks } = parsedData;
+    const { token, saleorApiUrl, appId, jwks } = parsedData;
 
     if (token && saleorApiUrl && appId) {
-      debug("Token and domain found, returning values: %s, %s", domain, `${token[0]}***`);
+      debug("Token found, returning values: %s", `${token[0]}***`);
 
       const authData: AuthData = { token, saleorApiUrl, appId };
 
       if (jwks) {
         authData.jwks = jwks;
-      }
-
-      if (domain) {
-        authData.domain = domain;
       }
 
       return authData;

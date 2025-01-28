@@ -14,7 +14,6 @@ const aplConfig: SaleorCloudAPLConfig = {
 };
 
 const stubAuthData: AuthData = {
-  domain: "example.com",
   token: "example-token",
   saleorApiUrl: "https://example.com/graphql/",
   appId: "42",
@@ -47,7 +46,6 @@ describe("APL", () => {
               saleor_app_id: "42",
               saleor_api_url: "https://example.com/graphql/",
               jwks: "{}",
-              domain: "example.com",
               token: "example-token",
             }),
             headers: {
@@ -129,7 +127,6 @@ describe("APL", () => {
               saleor_app_id: stubAuthData.appId,
               saleor_api_url: stubAuthData.saleorApiUrl,
               jwks: stubAuthData.jwks,
-              domain: stubAuthData.domain,
               token: stubAuthData.token,
             }),
           });
@@ -170,7 +167,6 @@ describe("APL", () => {
               saleor_app_id: stubAuthData.appId,
               saleor_api_url: stubAuthData.saleorApiUrl,
               jwks: stubAuthData.jwks,
-              domain: stubAuthData.domain,
               token: stubAuthData.token,
             }),
           });
@@ -219,7 +215,7 @@ describe("APL", () => {
                   saleor_app_id: "x",
                 },
                 {
-                  domain: "example2.com",
+                  domain: "example.com",
                   jwks: "{}",
                   token: "token2",
                   saleor_api_url: "https://example2.com/graphql/",
@@ -237,14 +233,12 @@ describe("APL", () => {
         expect(await apl.getAll()).toStrictEqual([
           {
             appId: "x",
-            domain: "example.com",
             jwks: "{}",
             saleorApiUrl: "https://example.com/graphql/",
             token: "token1",
           },
           {
             appId: "y",
-            domain: "example2.com",
             jwks: "{}",
             saleorApiUrl: "https://example2.com/graphql/",
             token: "token2",
@@ -285,7 +279,7 @@ describe("APL", () => {
                 previous: "https://example.com?page=1",
                 results: [
                   {
-                    domain: "example2.com",
+                    domain: "example.com",
                     jwks: "{}",
                     token: "token2",
                     saleor_api_url: "https://example2.com/graphql/",
@@ -303,14 +297,12 @@ describe("APL", () => {
         expect(await apl.getAll()).toStrictEqual([
           {
             appId: "x",
-            domain: "example.com",
             jwks: "{}",
             saleorApiUrl: "https://example.com/graphql/",
             token: "token1",
           },
           {
             appId: "y",
-            domain: "example2.com",
             jwks: "{}",
             saleorApiUrl: "https://example2.com/graphql/",
             token: "token2",

@@ -43,7 +43,6 @@ export class MockAPL implements APL {
   async get(saleorApiUrl: string) {
     if (saleorApiUrl === this.workingSaleorApiUrl) {
       return {
-        domain: this.resolveDomainFromApiUrl(saleorApiUrl),
         token: this.mockToken,
         saleorApiUrl,
         appId: this.mockAppId,

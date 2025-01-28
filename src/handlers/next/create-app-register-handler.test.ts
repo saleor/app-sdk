@@ -52,7 +52,6 @@ describe("create-app-register-handler", () => {
      */
     expect(mockApl.set).toHaveBeenCalledWith({
       saleorApiUrl: "https://mock-saleor-domain.saleor.cloud/graphql/",
-      domain: "https://mock-saleor-domain.saleor.cloud/",
       token: "mock-auth-token",
       appId: "42",
       jwks: "{}",
@@ -122,7 +121,6 @@ describe("create-app-register-handler", () => {
 
       const expectedAuthData: AuthData = {
         token: "mock-auth-token",
-        domain: "https://mock-saleor-domain.saleor.cloud/",
         saleorApiUrl: "https://mock-saleor-domain.saleor.cloud/graphql/",
         jwks: mockJwksValue,
         appId: mockAppId,
@@ -134,7 +132,6 @@ describe("create-app-register-handler", () => {
         expect.anything(/* Assume original request */),
         expect.objectContaining({
           authToken: "mock-auth-token",
-          saleorDomain: "https://mock-saleor-domain.saleor.cloud/",
           saleorApiUrl: "https://mock-saleor-domain.saleor.cloud/graphql/",
         })
       );
@@ -186,7 +183,6 @@ describe("create-app-register-handler", () => {
 
       const expectedAuthData: AuthData = {
         token: "mock-auth-token",
-        domain: "https://mock-saleor-domain.saleor.cloud/",
         saleorApiUrl: "https://mock-saleor-domain.saleor.cloud/graphql/",
         jwks: mockJwksValue,
         appId: mockAppId,
