@@ -1,6 +1,7 @@
 import { NextApiHandler } from "next";
 
-import { SyncWebhookEventType } from "../../../types";
+import { SyncWebhookEventType } from "@/types";
+
 import { NextWebhookApiHandler, SaleorWebhook, WebhookConfig } from "./saleor-webhook";
 import { buildSyncWebhookResponsePayload } from "./sync-webhook-response-builder";
 

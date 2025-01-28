@@ -1,10 +1,11 @@
 import { ASTNode } from "graphql";
 import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
 
-import { APL } from "../../../APL";
-import { createDebug } from "../../../debug";
-import { gqlAstToString } from "../../../gql-ast-to-string";
-import { AsyncWebhookEventType, SyncWebhookEventType, WebhookManifest } from "../../../types";
+import { APL } from "@/APL";
+import { createDebug } from "@/debug";
+import { gqlAstToString } from "@/gql-ast-to-string";
+import { AsyncWebhookEventType, SyncWebhookEventType, WebhookManifest } from "@/types";
+
 import {
   processSaleorWebhook,
   SaleorWebhookError,

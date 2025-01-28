@@ -1,4 +1,4 @@
-import { SyncWebhookEventType } from "../../../types";
+import { SyncWebhookEventType } from "@/types";
 
 export type SyncWebhookResponsesMap = {
   CHECKOUT_CALCULATE_TAXES: {
@@ -60,14 +60,14 @@ export type SyncWebhookResponsesMap = {
     pspReference?: string;
     data?: unknown;
     result:
-      | "CHARGE_SUCCESS"
-      | "CHARGE_FAILURE"
-      | "CHARGE_REQUESTED"
-      | "CHARGE_ACTION_REQUIRED"
-      | "AUTHORIZATION_SUCCESS"
-      | "AUTHORIZATION_FAILURE"
-      | "AUTHORIZATION_REQUESTED"
-      | "AUTHORIZATION_ACTION_REQUIRED";
+    | "CHARGE_SUCCESS"
+    | "CHARGE_FAILURE"
+    | "CHARGE_REQUESTED"
+    | "CHARGE_ACTION_REQUIRED"
+    | "AUTHORIZATION_SUCCESS"
+    | "AUTHORIZATION_FAILURE"
+    | "AUTHORIZATION_REQUESTED"
+    | "AUTHORIZATION_ACTION_REQUIRED";
     amount: number;
     time?: string;
     externalUrl?: string;
@@ -77,74 +77,74 @@ export type SyncWebhookResponsesMap = {
     pspReference?: string;
     data?: unknown;
     result:
-      | "CHARGE_SUCCESS"
-      | "CHARGE_FAILURE"
-      | "CHARGE_REQUESTED"
-      | "CHARGE_ACTION_REQUIRED"
-      | "AUTHORIZATION_SUCCESS"
-      | "AUTHORIZATION_FAILURE"
-      | "AUTHORIZATION_REQUESTED"
-      | "AUTHORIZATION_ACTION_REQUIRED";
+    | "CHARGE_SUCCESS"
+    | "CHARGE_FAILURE"
+    | "CHARGE_REQUESTED"
+    | "CHARGE_ACTION_REQUIRED"
+    | "AUTHORIZATION_SUCCESS"
+    | "AUTHORIZATION_FAILURE"
+    | "AUTHORIZATION_REQUESTED"
+    | "AUTHORIZATION_ACTION_REQUIRED";
     amount: number;
     time?: string;
     externalUrl?: string;
     message?: string;
   };
   PAYMENT_METHOD_PROCESS_TOKENIZATION_SESSION:
-    | {
-        result: "SUCCESSFULLY_TOKENIZED";
-        id: string;
-        data: unknown;
-      }
-    | {
-        result: "ADDITIONAL_ACTION_REQUIRED";
-        id: string;
-        data: unknown;
-      }
-    | {
-        result: "PENDING";
-        data: unknown;
-      }
-    | {
-        result: "FAILED_TO_TOKENIZE";
-        error: string;
-      };
+  | {
+    result: "SUCCESSFULLY_TOKENIZED";
+    id: string;
+    data: unknown;
+  }
+  | {
+    result: "ADDITIONAL_ACTION_REQUIRED";
+    id: string;
+    data: unknown;
+  }
+  | {
+    result: "PENDING";
+    data: unknown;
+  }
+  | {
+    result: "FAILED_TO_TOKENIZE";
+    error: string;
+  };
   PAYMENT_METHOD_INITIALIZE_TOKENIZATION_SESSION:
-    | {
-        result: "SUCCESSFULLY_TOKENIZED";
-        id: string;
-        data: unknown;
-      }
-    | {
-        result: "ADDITIONAL_ACTION_REQUIRED";
-        id: string;
-        data: unknown;
-      }
-    | {
-        result: "PENDING";
-        data: unknown;
-      }
-    | {
-        result: "FAILED_TO_TOKENIZE";
-        error: string;
-      };
+  | {
+    result: "SUCCESSFULLY_TOKENIZED";
+    id: string;
+    data: unknown;
+  }
+  | {
+    result: "ADDITIONAL_ACTION_REQUIRED";
+    id: string;
+    data: unknown;
+  }
+  | {
+    result: "PENDING";
+    data: unknown;
+  }
+  | {
+    result: "FAILED_TO_TOKENIZE";
+    error: string;
+  };
   PAYMENT_GATEWAY_INITIALIZE_TOKENIZATION_SESSION:
-    | {
-        result: "SUCCESSFULLY_INITIALIZED";
-        data: unknown;
-      }
-    | {
-        result: "FAILED_TO_INITIALIZE";
-        error: string;
-      };
+  | {
+    result: "SUCCESSFULLY_INITIALIZED";
+    data: unknown;
+  }
+  | {
+    result: "FAILED_TO_INITIALIZE";
+    error: string;
+  };
   STORED_PAYMENT_METHOD_DELETE_REQUESTED:
-    | {
-        result: "SUCCESSFULLY_DELETED";
-      }
-    | {
-        result: "FAILED_TO_DELETE";
-        error: string;
-      };
+  | {
+    result: "SUCCESSFULLY_DELETED";
+  }
+  | {
+    result: "FAILED_TO_DELETE";
+    error: string;
+  };
   LIST_STORED_PAYMENT_METHODS: {
     paymentMethods: Array<{
       id: string;

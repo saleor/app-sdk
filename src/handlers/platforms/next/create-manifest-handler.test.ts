@@ -1,7 +1,8 @@
 import { createMocks } from "node-mocks-http";
 import { describe, expect, it } from "vitest";
 
-import { AppManifest } from "../../types";
+import { AppManifest } from "@/types";
+
 import { createManifestHandler } from "./create-manifest-handler";
 
 describe("createManifestHandler", () => {
