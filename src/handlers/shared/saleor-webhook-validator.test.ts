@@ -1,11 +1,10 @@
-/* eslint-disable max-classes-per-file */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { MockAdapter } from "@/test-utils/mock-adapter";
 import { MockAPL } from "@/test-utils/mock-apl";
 import * as verifySignatureModule from "@/verify-signature";
 
 import { PlatformAdapterMiddleware } from "./adapter-middleware";
-import { HTTPMethod, PlatformAdapterInterface } from "./generic-adapter-use-case-types";
 import { SaleorWebhookValidator } from "./saleor-webhook-validator";
 
 vi.spyOn(verifySignatureModule, "verifySignatureFromApiUrl").mockImplementation(
@@ -22,32 +21,6 @@ vi.spyOn(verifySignatureModule, "verifySignatureWithJwks").mockImplementation(
     }
   }
 );
-
-class MockAdapter implements PlatformAdapterInterface<unknown> {
-  send() {
-    throw new Error("Method not implemented.");
-  }
-
-  getHeader() {
-    return null;
-  }
-
-  async getBody() {
-    return null;
-  }
-
-  async getRawBody() {
-    return "{}";
-  }
-
-  getBaseUrl() {
-    return "";
-  }
-
-  method: HTTPMethod = "POST";
-
-  request = {};
-}
 
 describe("SaleorWebhookValidator", () => {
   const mockAPL = new MockAPL();

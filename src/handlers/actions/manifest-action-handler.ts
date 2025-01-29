@@ -14,13 +14,13 @@ export type CreateManifestHandlerOptions<T> = {
   manifestFactory(context: {
     appBaseUrl: string;
     request: T;
-    /** For Saleor < 3.15 it will be null. */
-    schemaVersion: number | null;
+    /** Added in Saleor 3.15 */
+    schemaVersion: number;
   }): AppManifest | Promise<AppManifest>;
 };
 
 export class ManifestActionHandler<I> implements ActionHandlerInterface {
-  constructor(private adapter: PlatformAdapterInterface<I>) {}
+  constructor(private adapter: PlatformAdapterInterface<I>) { }
 
   private adapterMiddleware = new PlatformAdapterMiddleware(this.adapter);
 
@@ -29,6 +29,14 @@ export class ManifestActionHandler<I> implements ActionHandlerInterface {
     const baseURL = this.adapter.getBaseUrl();
 
     debug("Received request with schema version \"%s\" and base URL \"%s\"", schemaVersion, baseURL);
+
+    if (!schemaVersion) {
+      return {
+        status: 400,
+        bodyType: "string",
+        body: "Missing schema version header"
+      }
+    }
 
     try {
       const manifest = await options.manifestFactory({
