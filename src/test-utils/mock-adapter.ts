@@ -1,7 +1,7 @@
 import { HTTPMethod, PlatformAdapterInterface } from "@/handlers/shared/generic-adapter-use-case-types";
 
 export class MockAdapter implements PlatformAdapterInterface<unknown> {
-  constructor(private config: { mockHeaders?: Record<string, string>; baseUrl?: string }) {
+  constructor(public config: { mockHeaders?: Record<string, string>; baseUrl?: string }) {
   }
 
   send() {
