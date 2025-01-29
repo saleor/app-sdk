@@ -39,7 +39,7 @@ export class NextJsAdapter implements PlatformAdapterInterface<NextJsHandlerInpu
       : xForwardedProto;
     const protocols = xForwardedProtos.split(",");
     // prefer https over other protocols
-    const protocol = protocols.find((el) => el === "https") || protocols[0];
+    const protocol = protocols.find((el) => el === "https") || protocols.find((el => el === "http")) || protocols[0];
 
     return `${protocol}://${host}`;
   }
