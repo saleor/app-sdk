@@ -31,7 +31,7 @@ class RegisterCallbackError extends Error {
   }
 }
 
-export type RegisterErrorCodes =
+export type RegisterErrorCode =
   | "SALEOR_URL_PROHIBITED"
   | "APL_NOT_CONFIGURED"
   | "UNKNOWN_APP_ID"
@@ -41,7 +41,7 @@ export type RegisterErrorCodes =
 export type RegisterHandlerResponseBody = {
   success: boolean;
   error?: {
-    code?: RegisterErrorCodes;
+    code?: RegisterErrorCode;
     message?: string;
   };
 };
@@ -381,20 +381,25 @@ export class RegisterActionHandler<I> implements ActionHandlerInterface<Register
     | { success: true; jwks: string }
   > {
     // Fetch the JWKS which will be used during webhook validation
-    const jwks = await fetchRemoteJwks(saleorApiUrl);
-    if (!jwks) {
-      const responseBody = createRegisterHandlerResponseBody(
-        false,
-        {
-          code: "JWKS_NOT_AVAILABLE",
-          message: "Can't fetch the remote JWKS.",
-        },
-        401
-      );
-
-      return { success: false, responseBody };
+    try {
+      const jwks = await fetchRemoteJwks(saleorApiUrl);
+      if (jwks) {
+        return { success: true, jwks };
+      }
+    } catch (err) {
+      // no-op - will return result below
     }
-    return { success: true, jwks };
+
+    const responseBody = createRegisterHandlerResponseBody(
+      false,
+      {
+        code: "JWKS_NOT_AVAILABLE",
+        message: "Can't fetch the remote JWKS.",
+      },
+      401
+    );
+
+    return { success: false, responseBody };
   }
 
   private async handleOnRequestVerifiedCallback(

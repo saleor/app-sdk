@@ -20,8 +20,6 @@ describe("RegisterActionHandler", () => {
     appId: "mock-app-id"
   } as const satisfies AuthData;
 
-  vi.spyOn(getAppIdModule, "getAppId").mockResolvedValue(mockAuthData.appId);
-  vi.spyOn(fetchRemoteJwksModule, "fetchRemoteJwks").mockResolvedValue(mockAuthData.jwks);
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -32,6 +30,10 @@ describe("RegisterActionHandler", () => {
       },
       baseUrl: "http://example.com",
     });
+
+    vi.spyOn(adapter, "getBody").mockResolvedValue({ auth_token: mockAuthData.token });
+    vi.spyOn(getAppIdModule, "getAppId").mockResolvedValue(mockAuthData.appId);
+    vi.spyOn(fetchRemoteJwksModule, "fetchRemoteJwks").mockResolvedValue(mockAuthData.jwks);
   });
 
   describe("handleAction", () => {
@@ -79,7 +81,6 @@ describe("RegisterActionHandler", () => {
     });
 
     it("should return error when APL is not configured", async () => {
-      vi.spyOn(adapter, "getBody").mockResolvedValue({ auth_token: mockAuthData.token });
       mockApl.isConfigured.mockResolvedValue({ configured: false });
 
       const handler = new RegisterActionHandler(adapter);
@@ -94,10 +95,61 @@ describe("RegisterActionHandler", () => {
       });
     });
 
-    it("should successfully register app", async () => {
-      vi.spyOn(adapter, "getBody").mockResolvedValue({ auth_token: mockAuthData.token });
+    it("should return error when app ID cannot be fetched", async () => {
+      vi.spyOn(getAppIdModule, "getAppId").mockResolvedValue(undefined);
 
+      const handler = new RegisterActionHandler(adapter);
+      const result = await handler.handleAction({ apl: mockApl });
 
+      expect(result.status).toBe(401);
+      const body = result.body as RegisterHandlerResponseBody;
+      expect(body).toEqual({
+        success: false,
+        error: {
+          code: "UNKNOWN_APP_ID",
+          message: `The auth data given during registration request could not be used to fetch app ID. 
+          This usually means that App could not connect to Saleor during installation. Saleor URL that App tried to connect: ${mockAuthData.saleorApiUrl}`
+        }
+      });
+    });
+
+    it("should return error when JWKS cannot be fetched", async () => {
+      vi.spyOn(fetchRemoteJwksModule, "fetchRemoteJwks").mockRejectedValue(
+        new Error("Network error")
+      );
+
+      const handler = new RegisterActionHandler(adapter);
+      const result = await handler.handleAction({ apl: mockApl });
+
+      expect(result.status).toBe(401);
+      const body = result.body as RegisterHandlerResponseBody;
+      expect(body).toEqual({
+        success: false,
+        error: {
+          code: "JWKS_NOT_AVAILABLE",
+          message: "Can't fetch the remote JWKS."
+        }
+      });
+    });
+
+    it("should return error when JWKS is empty", async () => {
+      vi.spyOn(fetchRemoteJwksModule, "fetchRemoteJwks").mockResolvedValue("");
+
+      const handler = new RegisterActionHandler(adapter);
+      const result = await handler.handleAction({ apl: mockApl });
+
+      expect(result.status).toBe(401);
+      const body = result.body as RegisterHandlerResponseBody;
+      expect(body).toEqual({
+        success: false,
+        error: {
+          code: "JWKS_NOT_AVAILABLE",
+          message: "Can't fetch the remote JWKS."
+        }
+      });
+    });
+
+    it("should return response when app is successfully registered", async () => {
       const handler = new RegisterActionHandler(adapter);
       const result = await handler.handleAction({ apl: mockApl });
 
@@ -107,8 +159,7 @@ describe("RegisterActionHandler", () => {
       expect(body.success).toBe(true);
     });
 
-    it("should handle APL save failure", async () => {
-      vi.spyOn(adapter, "getBody").mockResolvedValue({ auth_token: mockAuthData.token });
+    it("should handle APL save failure when no onAplSetFailed callback is provided", async () => {
       mockApl.set.mockRejectedValue(new Error("APL save failed"));
 
       const handler = new RegisterActionHandler(adapter);
@@ -150,7 +201,6 @@ describe("RegisterActionHandler", () => {
     describe("onRequestStart callback", () => {
       it("should proceed with execution and call onRequestStart when provided", async () => {
         const onRequestStart = vi.fn();
-        vi.spyOn(adapter, "getBody").mockResolvedValue({ auth_token: mockAuthData.token });
 
         const handler = new RegisterActionHandler(adapter);
         const result = await handler.handleAction({ apl: mockApl, onRequestStart });
@@ -172,7 +222,7 @@ describe("RegisterActionHandler", () => {
         expect(mockApl.set).toHaveBeenCalledWith(mockAuthData);
       });
 
-      it("should map error correctly when onRequestStart throws RegisterCallbackError", async () => {
+      it("should map error correctly when onRequestStart calls respondWithError", async () => {
         const errorMessage = "Custom validation error";
         const onRequestStart = vi.fn().mockImplementation((_req, { respondWithError }) => {
           respondWithError({
@@ -180,8 +230,6 @@ describe("RegisterActionHandler", () => {
             status: 422
           });
         });
-
-        vi.spyOn(adapter, "getBody").mockResolvedValue({ auth_token: mockAuthData.token });
 
         const handler = new RegisterActionHandler(adapter);
         const result = await handler.handleAction({ apl: mockApl, onRequestStart });
@@ -204,12 +252,206 @@ describe("RegisterActionHandler", () => {
           throw new Error("Unexpected error");
         });
 
-        vi.spyOn(adapter, "getBody").mockResolvedValue({ auth_token: mockAuthData.token });
-
         const handler = new RegisterActionHandler(adapter);
         const result = await handler.handleAction({ apl: mockApl, onRequestStart });
 
         expect(onRequestStart).toHaveBeenCalled();
+        expect(result.status).toBe(500);
+        expect(result.body).toBe("Error during app installation");
+      });
+    });
+
+    describe("onRequestVerified callback", () => {
+      it("should proceed with execution and call onRequestVerified if provided", async () => {
+        const onRequestVerified = vi.fn();
+
+        const handler = new RegisterActionHandler(adapter);
+        const result = await handler.handleAction({
+          apl: mockApl,
+          onRequestVerified
+        });
+
+        expect(result.status).toBe(200);
+        expect(onRequestVerified).toHaveBeenCalledWith(
+          adapter.request,
+          expect.objectContaining({
+            authData: mockAuthData,
+            respondWithError: expect.any(Function)
+          })
+        );
+        expect(mockApl.set).toHaveBeenCalledWith(mockAuthData);
+      });
+
+      it("should map and return error when onRequestVerified calls respondWithError", async () => {
+        const errorMessage = "Verification failed";
+        const onRequestVerified = vi.fn().mockImplementation((_req, { respondWithError }) => {
+          respondWithError({
+            message: errorMessage,
+            status: 422
+          });
+        });
+
+        const handler = new RegisterActionHandler(adapter);
+        const result = await handler.handleAction({
+          apl: mockApl,
+          onRequestVerified
+        });
+
+        expect(result.status).toBe(422);
+        const body = result.body as RegisterHandlerResponseBody;
+        expect(body).toEqual({
+          success: false,
+          error: {
+            code: "REGISTER_HANDLER_HOOK_ERROR",
+            message: errorMessage
+          }
+        });
+        expect(mockApl.set).not.toHaveBeenCalled();
+      });
+
+      it("should handle generic errors thrown from onRequestVerified callback", async () => {
+        const onRequestVerified = vi.fn().mockImplementation(() => {
+          throw new Error("Unexpected error");
+        });
+
+        const handler = new RegisterActionHandler(adapter);
+        const result = await handler.handleAction({
+          apl: mockApl,
+          onRequestVerified
+        });
+
+        expect(result.status).toBe(500);
+        expect(result.body).toBe("Error during app installation");
+        expect(mockApl.set).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("onAuthAplSaved callback", () => {
+      it("should proceed with execution and call if onAuthAplSaved is provided", async () => {
+        const onAuthAplSaved = vi.fn();
+
+        const handler = new RegisterActionHandler(adapter);
+        const result = await handler.handleAction({
+          apl: mockApl,
+          onAuthAplSaved
+        });
+
+        expect(result.status).toBe(200);
+        expect(onAuthAplSaved).toHaveBeenCalledWith(
+          adapter.request,
+          expect.objectContaining({
+            authData: mockAuthData,
+            respondWithError: expect.any(Function)
+          })
+        );
+      });
+
+      it("should map and return error when onAuthAplSaved calls respondWithError", async () => {
+        const errorMessage = "Post-save validation failed";
+        const onAuthAplSaved = vi.fn().mockImplementation((_req, { respondWithError }) => {
+          respondWithError({
+            message: errorMessage,
+            status: 422
+          });
+        });
+
+        const handler = new RegisterActionHandler(adapter);
+        const result = await handler.handleAction({
+          apl: mockApl,
+          onAuthAplSaved
+        });
+
+        expect(result.status).toBe(422);
+        const body = result.body as RegisterHandlerResponseBody;
+        expect(body).toEqual({
+          success: false,
+          error: {
+            code: "REGISTER_HANDLER_HOOK_ERROR",
+            message: errorMessage
+          }
+        });
+      });
+
+      it("should map thrown error from onAuthAplSaved callback", async () => {
+        const onAuthAplSaved = vi.fn().mockImplementation(() => {
+          throw new Error("Unexpected error");
+        });
+
+        const handler = new RegisterActionHandler(adapter);
+        const result = await handler.handleAction({
+          apl: mockApl,
+          onAuthAplSaved
+        });
+
+        expect(result.status).toBe(500);
+        expect(result.body).toBe("Error during app installation");
+      });
+    });
+
+    describe("onAplSetFailed callback", () => {
+      it("should call onAplSetFailed is provided and when APL save fails", async () => {
+        const onAplSetFailed = vi.fn();
+        const aplError = new Error("APL save error");
+        mockApl.set.mockRejectedValue(aplError);
+
+        const handler = new RegisterActionHandler(adapter);
+        const result = await handler.handleAction({
+          apl: mockApl,
+          onAplSetFailed
+        });
+
+        expect(result.status).toBe(500);
+        expect(onAplSetFailed).toHaveBeenCalledWith(
+          adapter.request,
+          expect.objectContaining({
+            authData: mockAuthData,
+            error: aplError,
+            respondWithError: expect.any(Function)
+          })
+        );
+        const body = result.body as RegisterHandlerResponseBody;
+        expect(body.success).toBe(false);
+      });
+
+      it("should map and return error when onAplSetFailed calls respondWithError", async () => {
+        const errorMessage = "Custom error handling";
+        const onAplSetFailed = vi.fn().mockImplementation((_req, { respondWithError }) => {
+          respondWithError({
+            message: errorMessage,
+            status: 503
+          });
+        });
+        mockApl.set.mockRejectedValue(new Error("APL save error"));
+
+        const handler = new RegisterActionHandler(adapter);
+        const result = await handler.handleAction({
+          apl: mockApl,
+          onAplSetFailed
+        });
+
+        expect(result.status).toBe(503);
+        const body = result.body as RegisterHandlerResponseBody;
+        expect(body).toEqual({
+          success: false,
+          error: {
+            code: "REGISTER_HANDLER_HOOK_ERROR",
+            message: errorMessage
+          }
+        });
+      });
+
+      it("should map thrown error from onAplSetFailed callback", async () => {
+        const onAplSetFailed = vi.fn().mockImplementation(() => {
+          throw new Error("Unexpected error");
+        });
+        mockApl.set.mockRejectedValue(new Error("APL save error"));
+
+        const handler = new RegisterActionHandler(adapter);
+        const result = await handler.handleAction({
+          apl: mockApl,
+          onAplSetFailed
+        });
+
         expect(result.status).toBe(500);
         expect(result.body).toBe("Error during app installation");
       });
