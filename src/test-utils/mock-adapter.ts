@@ -15,11 +15,11 @@ export class MockAdapter implements PlatformAdapterInterface<unknown> {
     return null;
   }
 
-  async getBody() {
+  async getBody(): Promise<object | null> {
     return null;
   }
 
-  async getRawBody() {
+  async getRawBody(): Promise<string> {
     return "{}";
   }
 

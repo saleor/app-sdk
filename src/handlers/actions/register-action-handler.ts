@@ -112,12 +112,12 @@ export type AppRegisterHandlerOptions<Request> = HasAPL & {
   ): Promise<void>;
 };
 
-export class RegisterActionHandler<I> implements ActionHandlerInterface {
+export class RegisterActionHandler<I> implements ActionHandlerInterface<RegisterHandlerResponseBody> {
   constructor(private adapter: PlatformAdapterInterface<I>) { }
 
   private adapterMiddleware = new PlatformAdapterMiddleware(this.adapter);
 
-  private runPreChecks(): ActionHandlerResult | null {
+  private runPreChecks(): ActionHandlerResult<RegisterHandlerResponseBody> | null {
     const checksToRun = [
       this.adapterMiddleware.withMethod(["POST"]),
       this.adapterMiddleware.withSaleorApiUrlPresent(),
@@ -132,7 +132,7 @@ export class RegisterActionHandler<I> implements ActionHandlerInterface {
     return null;
   }
 
-  async handleAction(config: AppRegisterHandlerOptions<I>): Promise<ActionHandlerResult> {
+  async handleAction(config: AppRegisterHandlerOptions<I>): Promise<ActionHandlerResult<RegisterHandlerResponseBody>> {
     debug("Request received");
 
     const precheckResult = this.runPreChecks();
@@ -157,12 +157,6 @@ export class RegisterActionHandler<I> implements ActionHandlerInterface {
 
     if (handleOnRequestResult) {
       return handleOnRequestResult;
-    }
-
-    if (!saleorApiUrl) {
-      // TODO: We should strictly require `saleorApiUrl` instead of
-      // relying on `saleor-domain` that is deprecated
-      debug("saleorApiUrl doesn't exist in headers");
     }
 
     const saleorApiUrlValidationResult = this.handleSaleorApiUrlValidation({
@@ -226,7 +220,7 @@ export class RegisterActionHandler<I> implements ActionHandlerInterface {
   }
 
   private async parseRequestBody(): Promise<
-    | { success: false; response: ActionHandlerResult; authToken?: never }
+    | { success: false; response: ActionHandlerResult<RegisterHandlerResponseBody>; authToken?: never }
     | {
       success: true;
       authToken: string;
@@ -476,7 +470,7 @@ export class RegisterActionHandler<I> implements ActionHandlerInterface {
 
   /** Callbacks declared by users in configuration can throw an error
    * It is caught here and converted into a response */
-  private handleHookError(e: RegisterCallbackError | unknown): ActionHandlerResult {
+  private handleHookError(e: RegisterCallbackError | unknown): ActionHandlerResult<RegisterHandlerResponseBody> {
     if (e instanceof RegisterCallbackError) {
       return createRegisterHandlerResponseBody(
         false,

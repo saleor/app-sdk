@@ -17,32 +17,32 @@ export type ResultStatusCodes = number;
  * that is then translated by adapter to a valid platform response */
 export type ActionHandlerResult<Body = unknown> =
   | {
-      status: ResultStatusCodes;
-      body: Body;
-      bodyType: "json";
-    }
+    status: ResultStatusCodes;
+    body: Body;
+    bodyType: "json";
+  }
   | {
-      status: ResultStatusCodes;
-      body: string;
-      bodyType: "string";
-    };
+    status: ResultStatusCodes;
+    body: string;
+    bodyType: "string";
+  };
 
 /**
  * Interface for adapters that translate specific platform objects (e.g. Web API, Next.js)
  * into a common interface that can be used in each handler use case
  * */
-export interface PlatformAdapterInterface<T> {
-  send(result: ActionHandlerResult): unknown;
+export interface PlatformAdapterInterface<Request, Body = unknown> {
+  send(result: ActionHandlerResult<Body>): unknown;
   getHeader(name: string): string | null;
   getBody(): Promise<unknown>;
   getRawBody(): Promise<string | null>;
   getBaseUrl(): string;
   method: HTTPMethod;
-  request: T;
+  request: Request;
 }
 
 /** Interfaces for use case handlers that encapsulate business logic
  * (e.g. validating headers, checking HTTP method, etc. ) */
-export interface ActionHandlerInterface {
-  handleAction(...params: [unknown]): Promise<ActionHandlerResult>;
+export interface ActionHandlerInterface<Body = unknown> {
+  handleAction(...params: [unknown]): Promise<ActionHandlerResult<Body>>;
 }

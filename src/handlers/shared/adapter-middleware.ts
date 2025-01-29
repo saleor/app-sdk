@@ -15,19 +15,19 @@ import {
 export class PlatformAdapterMiddleware<T> {
   constructor(private adapter: PlatformAdapterInterface<T>) { }
 
-  withMethod(methods: HTTPMethod[]): ActionHandlerResult | null {
+  withMethod(methods: HTTPMethod[]) {
     if (!methods.includes(this.adapter.method)) {
       return {
         body: "Method not allowed",
         bodyType: "string",
         status: 405,
-      };
+      } as const satisfies ActionHandlerResult;
     }
 
     return null;
   }
 
-  withSaleorApiUrlPresent(): ActionHandlerResult | null {
+  withSaleorApiUrlPresent() {
     const { saleorApiUrl } = this.getSaleorHeaders();
 
     if (!saleorApiUrl) {
@@ -35,7 +35,7 @@ export class PlatformAdapterMiddleware<T> {
         body: "Missing saleor-api-url header",
         bodyType: "string",
         status: 400,
-      }
+      } as const satisfies ActionHandlerResult;
     }
 
     return null;
