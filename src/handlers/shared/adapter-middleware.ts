@@ -46,7 +46,7 @@ export class PlatformAdapterMiddleware<T> {
     value ? value.toString() : undefined;
 
   private toFloatOrNull = (value: string | string[] | undefined | null) =>
-    value ? parseFloat(value.toString()) : null;
+    value ? parseFloat(value.toString()) : undefined;
 
   getSaleorHeaders() {
     return {
