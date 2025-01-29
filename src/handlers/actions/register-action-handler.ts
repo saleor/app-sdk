@@ -31,10 +31,17 @@ class RegisterCallbackError extends Error {
   }
 }
 
+export type RegisterErrorCodes =
+  | "SALEOR_URL_PROHIBITED"
+  | "APL_NOT_CONFIGURED"
+  | "UNKNOWN_APP_ID"
+  | "JWKS_NOT_AVAILABLE"
+  | "REGISTER_HANDLER_HOOK_ERROR";
+
 export type RegisterHandlerResponseBody = {
   success: boolean;
   error?: {
-    code?: string;
+    code?: RegisterErrorCodes;
     message?: string;
   };
 };
