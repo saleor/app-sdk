@@ -6,14 +6,10 @@ import {
   SALEOR_SIGNATURE_HEADER,
 } from "@/const";
 
-import {
-  ActionHandlerResult,
-  HTTPMethod,
-  PlatformAdapterInterface,
-} from "./generic-adapter-use-case-types";
+import { HTTPMethod, PlatformAdapterInterface } from "./generic-adapter-use-case-types";
 
 export class PlatformAdapterMiddleware<T> {
-  constructor(private adapter: PlatformAdapterInterface<T>) { }
+  constructor(private adapter: PlatformAdapterInterface<T>) {}
 
   withMethod(methods: HTTPMethod[]) {
     if (!methods.includes(this.adapter.method)) {
@@ -21,7 +17,7 @@ export class PlatformAdapterMiddleware<T> {
         body: "Method not allowed",
         bodyType: "string",
         status: 405,
-      } as const satisfies ActionHandlerResult;
+      } as const;
     }
 
     return null;
@@ -35,12 +31,11 @@ export class PlatformAdapterMiddleware<T> {
         body: "Missing saleor-api-url header",
         bodyType: "string",
         status: 400,
-      } as const satisfies ActionHandlerResult;
+      } as const;
     }
 
     return null;
   }
-
 
   private toStringOrUndefined = (value: string | string[] | undefined | null) =>
     value ? value.toString() : undefined;
@@ -51,7 +46,7 @@ export class PlatformAdapterMiddleware<T> {
   getSaleorHeaders() {
     return {
       authorizationBearer: this.toStringOrUndefined(
-        this.adapter.getHeader(SALEOR_AUTHORIZATION_BEARER_HEADER)
+        this.adapter.getHeader(SALEOR_AUTHORIZATION_BEARER_HEADER),
       ),
       signature: this.toStringOrUndefined(this.adapter.getHeader(SALEOR_SIGNATURE_HEADER)),
       event: this.toStringOrUndefined(this.adapter.getHeader(SALEOR_EVENT_HEADER)),
