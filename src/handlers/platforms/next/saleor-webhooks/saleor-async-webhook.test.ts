@@ -1,4 +1,3 @@
-import { ASTNode } from "graphql";
 import { createMocks } from "node-mocks-http";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -144,38 +143,5 @@ describe("Next.js SaleorAsyncWebhook", () => {
      * Handler should not be called, since it thrown before
      */
     expect(testHandler).not.toHaveBeenCalled();
-  });
-
-  /**
-   * Pre 0.35.0 - then remove
-   */
-  it("Allows legacy asyncEvent and subscriptionQueryAst fields, but fails if none provided", () => {
-    expect(
-      () =>
-        new SaleorAsyncWebhook({
-          asyncEvent: "ADDRESS_CREATED",
-          subscriptionQueryAst: {} as unknown as ASTNode,
-          apl: mockAPL,
-          webhookPath: "",
-        })
-    ).not.toThrowError();
-
-    expect(
-      () =>
-        new SaleorAsyncWebhook({
-          subscriptionQueryAst: {} as unknown as ASTNode,
-          apl: mockAPL,
-          webhookPath: "",
-        })
-    ).toThrowError();
-
-    expect(
-      () =>
-        new SaleorAsyncWebhook({
-          asyncEvent: "ADDRESS_CREATED",
-          apl: mockAPL,
-          webhookPath: "",
-        })
-    ).toThrowError();
   });
 });

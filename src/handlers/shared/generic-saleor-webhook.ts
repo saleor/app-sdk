@@ -3,7 +3,11 @@ import { ASTNode } from "graphql";
 import { APL } from "@/APL";
 import { createDebug } from "@/debug";
 import { gqlAstToString } from "@/gql-ast-to-string";
-import { WebhookContext, WebhookError, WebhookErrorCodeMap } from "@/handlers/shared/saleor-webhook";
+import {
+  WebhookContext,
+  WebhookError,
+  WebhookErrorCodeMap,
+} from "@/handlers/shared/saleor-webhook";
 import { SaleorWebhookValidator } from "@/handlers/shared/saleor-webhook-validator";
 import { AsyncWebhookEventType, SyncWebhookEventType, WebhookManifest } from "@/types";
 
@@ -30,10 +34,6 @@ export interface GenericWebhookConfig<
     body: string;
   }>;
   query: string | ASTNode;
-  /**
-   * @deprecated will be removed in 0.35.0, use query field instead
-   */
-  subscriptionQueryAst?: ASTNode;
 }
 
 export abstract class GenericSaleorWebhook<
@@ -64,23 +64,10 @@ export abstract class GenericSaleorWebhook<
   formatErrorResponse: GenericWebhookConfig<TRequestType>["formatErrorResponse"];
 
   protected constructor(configuration: GenericWebhookConfig<TRequestType>) {
-    const {
-      name,
-      webhookPath,
-      event,
-      query,
-      apl,
-      isActive = true,
-      subscriptionQueryAst,
-    } = configuration;
+    const { name, webhookPath, event, query, apl, isActive = true } = configuration;
 
     this.name = name || `${event} webhook`;
-    /**
-     * Fallback subscriptionQueryAst to avoid breaking changes
-     *
-     * TODO Remove in 0.35.0
-     */
-    this.query = query ?? subscriptionQueryAst;
+    this.query = query;
     this.webhookPath = webhookPath;
     this.event = event;
     this.isActive = isActive;
