@@ -15,9 +15,9 @@ export type CreateManifestHandlerOptions = GenericCreateManifestHandlerOptions<N
  */
 export const createManifestHandler =
   (options: CreateManifestHandlerOptions): NextJsHandler =>
-  async (req, res) => {
-    const adapter = new NextJsAdapter(req, res);
-    const actionHandler = new ManifestActionHandler(adapter);
-    const result = await actionHandler.handleAction(options);
-    return adapter.send(result);
-  };
+    async (req, res) => {
+      const adapter = new NextJsAdapter(req, res);
+      const actionHandler = new ManifestActionHandler(adapter);
+      const result = await actionHandler.handleAction(options);
+      return adapter.send(result);
+    };
