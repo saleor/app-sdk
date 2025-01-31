@@ -24,50 +24,58 @@ describe("ManifestActionHandler", () => {
         [SALEOR_SCHEMA_VERSION]: "3.20",
       },
       baseUrl: "http://example.com",
-    })
+    });
+    adapter.method = "GET";
   });
 
-  describe("handleAction success", () => {
-    it("should return manifest with 200 status when factory succeeds", async () => {
-      const handler = new ManifestActionHandler(adapter);
-      const manifestFactory = vi.fn().mockResolvedValue(mockManifest);
+  it("should call manifest factory and return 200 status when it resolves", async () => {
+    const handler = new ManifestActionHandler(adapter);
+    const manifestFactory = vi.fn().mockResolvedValue(mockManifest);
 
-      const result = await handler.handleAction({ manifestFactory });
+    const result = await handler.handleAction({ manifestFactory });
 
-      expect(result.status).toBe(200);
-      expect(result.body).toEqual(mockManifest);
-      expect(manifestFactory).toHaveBeenCalledWith({
-        appBaseUrl: "http://example.com",
-        request: {},
-        schemaVersion: 3.20,
-      });
+    expect(result.status).toBe(200);
+    expect(result.body).toEqual(mockManifest);
+    expect(manifestFactory).toHaveBeenCalledWith({
+      appBaseUrl: "http://example.com",
+      request: {},
+      schemaVersion: 3.20,
     });
   });
 
-  describe("handleAction error handling", () => {
-    it("should return 500 status when factory throws error", async () => {
-      const handler = new ManifestActionHandler(adapter);
-      const manifestFactory = vi.fn().mockRejectedValue(new Error("Test error"));
+  it("should call manifest factory and return 500 when it throws an error", async () => {
+    const handler = new ManifestActionHandler(adapter);
+    const manifestFactory = vi.fn().mockRejectedValue(new Error("Test error"));
 
-      const result = await handler.handleAction({ manifestFactory });
+    const result = await handler.handleAction({ manifestFactory });
 
-      expect(result.status).toBe(500);
-      expect(result.body).toBe("Error resolving manifest file.");
-    });
+    expect(result.status).toBe(500);
+    expect(result.body).toBe("Error resolving manifest file.");
   });
 
-  describe("schemaVersion handling", () => {
-    it("should throw error when receives null schema version header from unsupported legacy Saleor version", async () => {
-      adapter.getHeader = vi.fn().mockReturnValue(null);
-      const handler = new ManifestActionHandler(adapter);
+  it("should return 405 when not called using HTTP GET method", async () => {
+    adapter.method = "POST";
+    const handler = new ManifestActionHandler(adapter);
 
-      const manifestFactory = vi.fn().mockResolvedValue(mockManifest);
+    const manifestFactory = vi.fn().mockResolvedValue(mockManifest);
 
-      const result = await handler.handleAction({ manifestFactory });
+    const result = await handler.handleAction({ manifestFactory });
 
-      expect(result.status).toBe(400);
-      expect(result.body).toBe("Missing schema version header");
-      expect(manifestFactory).not.toHaveBeenCalled();
-    });
+    expect(result.status).toBe(405);
+    expect(result.body).toBe("Method not allowed");
+    expect(manifestFactory).not.toHaveBeenCalled();
+  })
+
+  it("should return 400 when receives null schema version header from unsupported legacy Saleor version", async () => {
+    adapter.getHeader = vi.fn().mockReturnValue(null);
+    const handler = new ManifestActionHandler(adapter);
+
+    const manifestFactory = vi.fn().mockResolvedValue(mockManifest);
+
+    const result = await handler.handleAction({ manifestFactory });
+
+    expect(result.status).toBe(400);
+    expect(result.body).toBe("Missing schema version header");
+    expect(manifestFactory).not.toHaveBeenCalled();
   });
 });

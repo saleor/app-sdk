@@ -30,6 +30,12 @@ export class ManifestActionHandler<I> implements ActionHandlerInterface {
 
     debug("Received request with schema version \"%s\" and base URL \"%s\"", schemaVersion, baseURL);
 
+    const methodEagerResponse = this.adapterMiddleware.withMethod(["GET"]);
+
+    if (methodEagerResponse) {
+      return methodEagerResponse;
+    }
+
     if (!schemaVersion) {
       return {
         status: 400,
