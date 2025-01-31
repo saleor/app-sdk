@@ -13,7 +13,7 @@ import { WebhookContext, WebhookError } from "./saleor-webhook";
 
 type WebhookValidationResult<TPayload> =
   | { result: "ok"; context: WebhookContext<TPayload> }
-  | { result: "failure"; error: WebhookError };
+  | { result: "failure"; error: WebhookError | Error };
 
 export class SaleorWebhookValidator {
   private debug = createDebug("processProtectedHandler");
@@ -36,7 +36,7 @@ export class SaleorWebhookValidator {
     } catch (err) {
       return {
         result: "failure",
-        error: err as WebhookError,
+        error: err as WebhookError | Error,
       };
     }
   }
