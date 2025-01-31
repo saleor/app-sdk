@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { AuthData } from "@/APL";
 import { SALEOR_API_URL_HEADER } from "@/const";
 import * as fetchRemoteJwksModule from "@/fetch-remote-jwks";
 import * as getAppIdModule from "@/get-app-id";
@@ -17,9 +16,8 @@ describe("RegisterActionHandler", () => {
     token: "mock-auth-token",
     saleorApiUrl: "https://mock-saleor-domain.saleor.cloud/graphql",
     jwks: "mock-jwks",
-    appId: "mock-app-id"
-  } as const satisfies AuthData;
-
+    appId: "mock-app-id",
+  } as const;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -72,7 +70,7 @@ describe("RegisterActionHandler", () => {
       const handler = new RegisterActionHandler(adapter);
       const result = await handler.handleAction({
         apl: mockApl,
-        allowedSaleorUrls: ["different-domain.saleor.cloud"]
+        allowedSaleorUrls: ["different-domain.saleor.cloud"],
       });
 
       expect(result.status).toBe(403);
@@ -91,7 +89,7 @@ describe("RegisterActionHandler", () => {
       expect(body.success).toBe(false);
       expect(body.error).toEqual({
         code: "APL_NOT_CONFIGURED",
-        message: "APL_NOT_CONFIGURED. App is configured properly. Check APL docs for help."
+        message: "APL_NOT_CONFIGURED. App is configured properly. Check APL docs for help.",
       });
     });
 
@@ -108,14 +106,14 @@ describe("RegisterActionHandler", () => {
         error: {
           code: "UNKNOWN_APP_ID",
           message: `The auth data given during registration request could not be used to fetch app ID. 
-          This usually means that App could not connect to Saleor during installation. Saleor URL that App tried to connect: ${mockAuthData.saleorApiUrl}`
-        }
+          This usually means that App could not connect to Saleor during installation. Saleor URL that App tried to connect: ${mockAuthData.saleorApiUrl}`,
+        },
       });
     });
 
     it("should return error when JWKS cannot be fetched", async () => {
       vi.spyOn(fetchRemoteJwksModule, "fetchRemoteJwks").mockRejectedValue(
-        new Error("Network error")
+        new Error("Network error"),
       );
 
       const handler = new RegisterActionHandler(adapter);
@@ -127,8 +125,8 @@ describe("RegisterActionHandler", () => {
         success: false,
         error: {
           code: "JWKS_NOT_AVAILABLE",
-          message: "Can't fetch the remote JWKS."
-        }
+          message: "Can't fetch the remote JWKS.",
+        },
       });
     });
 
@@ -144,8 +142,8 @@ describe("RegisterActionHandler", () => {
         success: false,
         error: {
           code: "JWKS_NOT_AVAILABLE",
-          message: "Can't fetch the remote JWKS."
-        }
+          message: "Can't fetch the remote JWKS.",
+        },
       });
     });
 
@@ -182,7 +180,7 @@ describe("RegisterActionHandler", () => {
         }),
         onAuthAplSaved: vi.fn().mockImplementation(() => {
           hookOrder.push("onAuthAplSaved");
-        })
+        }),
       };
 
       vi.spyOn(adapter, "getBody").mockResolvedValue({ auth_token: mockAuthData.token });
@@ -190,11 +188,7 @@ describe("RegisterActionHandler", () => {
       const handler = new RegisterActionHandler(adapter);
       await handler.handleAction(config);
 
-      expect(hookOrder).toEqual([
-        "onRequestStart",
-        "onRequestVerified",
-        "onAuthAplSaved"
-      ]);
+      expect(hookOrder).toEqual(["onRequestStart", "onRequestVerified", "onAuthAplSaved"]);
       expect(mockApl.set).toHaveBeenCalledWith(mockAuthData);
     });
 
@@ -211,8 +205,8 @@ describe("RegisterActionHandler", () => {
           expect.objectContaining({
             authToken: mockAuthData.token,
             saleorApiUrl: mockAuthData.saleorApiUrl,
-            respondWithError: expect.any(Function)
-          })
+            respondWithError: expect.any(Function),
+          }),
         );
 
         // Verify the registration flow completed successfully
@@ -227,7 +221,7 @@ describe("RegisterActionHandler", () => {
         const onRequestStart = vi.fn().mockImplementation((_req, { respondWithError }) => {
           respondWithError({
             message: errorMessage,
-            status: 422
+            status: 422,
           });
         });
 
@@ -241,11 +235,10 @@ describe("RegisterActionHandler", () => {
           success: false,
           error: {
             code: "REGISTER_HANDLER_HOOK_ERROR",
-            message: errorMessage
-          }
+            message: errorMessage,
+          },
         });
       });
-
 
       it("should handle generic errors from onRequestStart", async () => {
         const onRequestStart = vi.fn().mockImplementation(() => {
@@ -268,7 +261,7 @@ describe("RegisterActionHandler", () => {
         const handler = new RegisterActionHandler(adapter);
         const result = await handler.handleAction({
           apl: mockApl,
-          onRequestVerified
+          onRequestVerified,
         });
 
         expect(result.status).toBe(200);
@@ -276,8 +269,8 @@ describe("RegisterActionHandler", () => {
           adapter.request,
           expect.objectContaining({
             authData: mockAuthData,
-            respondWithError: expect.any(Function)
-          })
+            respondWithError: expect.any(Function),
+          }),
         );
         expect(mockApl.set).toHaveBeenCalledWith(mockAuthData);
       });
@@ -287,14 +280,14 @@ describe("RegisterActionHandler", () => {
         const onRequestVerified = vi.fn().mockImplementation((_req, { respondWithError }) => {
           respondWithError({
             message: errorMessage,
-            status: 422
+            status: 422,
           });
         });
 
         const handler = new RegisterActionHandler(adapter);
         const result = await handler.handleAction({
           apl: mockApl,
-          onRequestVerified
+          onRequestVerified,
         });
 
         expect(result.status).toBe(422);
@@ -303,8 +296,8 @@ describe("RegisterActionHandler", () => {
           success: false,
           error: {
             code: "REGISTER_HANDLER_HOOK_ERROR",
-            message: errorMessage
-          }
+            message: errorMessage,
+          },
         });
         expect(mockApl.set).not.toHaveBeenCalled();
       });
@@ -317,7 +310,7 @@ describe("RegisterActionHandler", () => {
         const handler = new RegisterActionHandler(adapter);
         const result = await handler.handleAction({
           apl: mockApl,
-          onRequestVerified
+          onRequestVerified,
         });
 
         expect(result.status).toBe(500);
@@ -333,7 +326,7 @@ describe("RegisterActionHandler", () => {
         const handler = new RegisterActionHandler(adapter);
         const result = await handler.handleAction({
           apl: mockApl,
-          onAuthAplSaved
+          onAuthAplSaved,
         });
 
         expect(result.status).toBe(200);
@@ -341,8 +334,8 @@ describe("RegisterActionHandler", () => {
           adapter.request,
           expect.objectContaining({
             authData: mockAuthData,
-            respondWithError: expect.any(Function)
-          })
+            respondWithError: expect.any(Function),
+          }),
         );
       });
 
@@ -351,14 +344,14 @@ describe("RegisterActionHandler", () => {
         const onAuthAplSaved = vi.fn().mockImplementation((_req, { respondWithError }) => {
           respondWithError({
             message: errorMessage,
-            status: 422
+            status: 422,
           });
         });
 
         const handler = new RegisterActionHandler(adapter);
         const result = await handler.handleAction({
           apl: mockApl,
-          onAuthAplSaved
+          onAuthAplSaved,
         });
 
         expect(result.status).toBe(422);
@@ -367,8 +360,8 @@ describe("RegisterActionHandler", () => {
           success: false,
           error: {
             code: "REGISTER_HANDLER_HOOK_ERROR",
-            message: errorMessage
-          }
+            message: errorMessage,
+          },
         });
       });
 
@@ -380,7 +373,7 @@ describe("RegisterActionHandler", () => {
         const handler = new RegisterActionHandler(adapter);
         const result = await handler.handleAction({
           apl: mockApl,
-          onAuthAplSaved
+          onAuthAplSaved,
         });
 
         expect(result.status).toBe(500);
@@ -397,7 +390,7 @@ describe("RegisterActionHandler", () => {
         const handler = new RegisterActionHandler(adapter);
         const result = await handler.handleAction({
           apl: mockApl,
-          onAplSetFailed
+          onAplSetFailed,
         });
 
         expect(result.status).toBe(500);
@@ -406,8 +399,8 @@ describe("RegisterActionHandler", () => {
           expect.objectContaining({
             authData: mockAuthData,
             error: aplError,
-            respondWithError: expect.any(Function)
-          })
+            respondWithError: expect.any(Function),
+          }),
         );
         const body = result.body as RegisterHandlerResponseBody;
         expect(body.success).toBe(false);
@@ -418,7 +411,7 @@ describe("RegisterActionHandler", () => {
         const onAplSetFailed = vi.fn().mockImplementation((_req, { respondWithError }) => {
           respondWithError({
             message: errorMessage,
-            status: 503
+            status: 503,
           });
         });
         mockApl.set.mockRejectedValue(new Error("APL save error"));
@@ -426,7 +419,7 @@ describe("RegisterActionHandler", () => {
         const handler = new RegisterActionHandler(adapter);
         const result = await handler.handleAction({
           apl: mockApl,
-          onAplSetFailed
+          onAplSetFailed,
         });
 
         expect(result.status).toBe(503);
@@ -435,8 +428,8 @@ describe("RegisterActionHandler", () => {
           success: false,
           error: {
             code: "REGISTER_HANDLER_HOOK_ERROR",
-            message: errorMessage
-          }
+            message: errorMessage,
+          },
         });
       });
 
@@ -449,7 +442,7 @@ describe("RegisterActionHandler", () => {
         const handler = new RegisterActionHandler(adapter);
         const result = await handler.handleAction({
           apl: mockApl,
-          onAplSetFailed
+          onAplSetFailed,
         });
 
         expect(result.status).toBe(500);
@@ -458,4 +451,3 @@ describe("RegisterActionHandler", () => {
     });
   });
 });
-
