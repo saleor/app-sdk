@@ -38,9 +38,8 @@ describe("SaleorWebhookValidator", () => {
   };
 
   beforeEach(() => {
-    adapter = new MockAdapter();
+    adapter = new MockAdapter({ baseUrl: "https://example-app.com/api" });
     middleware = new PlatformAdapterMiddleware(adapter);
-    vi.spyOn(adapter, "getBaseUrl").mockReturnValue("https://example-app.com/api");
   });
 
   it("Processes valid request", async () => {
