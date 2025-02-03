@@ -24,7 +24,6 @@ export type GenericCreateAppRegisterHandlerOptions<RequestType> = HasAPL & {
     request: RequestType,
     context: {
       authToken?: string;
-      saleorDomain?: string;
       saleorApiUrl?: string;
       respondWithError: CallbackErrorHandler;
     }
