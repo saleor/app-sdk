@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { AuthData } from "@/APL";
+import * as fetchRemoteJwksModule from "@/fetch-remote-jwks";
 import { MockAdapter } from "@/test-utils/mock-adapter";
 import { MockAPL } from "@/test-utils/mock-apl";
 import * as verifySignatureModule from "@/verify-signature";
@@ -40,27 +42,6 @@ describe("SaleorWebhookValidator", () => {
   beforeEach(() => {
     adapter = new MockAdapter({ baseUrl: "https://example-app.com/api" });
     middleware = new PlatformAdapterMiddleware(adapter);
-  });
-
-  it("Processes valid request", async () => {
-    vi.spyOn(middleware, "getSaleorHeaders").mockReturnValue(validHeaders);
-
-    const result = await validator.validateRequest({
-      allowedEvent: "PRODUCT_UPDATED",
-      apl: mockAPL,
-      adapter,
-      adapterMiddleware: middleware,
-    });
-
-    expect(result).toMatchObject({
-      result: "ok",
-      context: expect.objectContaining({
-        baseUrl: "https://example-app.com/api",
-        event: "product_updated",
-        payload: {},
-        schemaVersion: null,
-      }),
-    });
   });
 
   it("Throws error on non-POST request method", async () => {
@@ -211,6 +192,7 @@ describe("SaleorWebhookValidator", () => {
     });
   });
 
+  // TODO: This should be required
   it("Fallbacks to null if version is missing in payload", async () => {
     vi.spyOn(adapter, "getRawBody").mockResolvedValue(JSON.stringify({}));
     vi.spyOn(middleware, "getSaleorHeaders").mockReturnValue(validHeaders);
@@ -227,6 +209,162 @@ describe("SaleorWebhookValidator", () => {
       context: expect.objectContaining({
         schemaVersion: null,
       }),
+    });
+  });
+
+  it("Returns success on valid request with signature passing validation against jwks in auth data", async () => {
+    vi.spyOn(middleware, "getSaleorHeaders").mockReturnValue(validHeaders);
+
+    const result = await validator.validateRequest({
+      allowedEvent: "PRODUCT_UPDATED",
+      apl: mockAPL,
+      adapter,
+      adapterMiddleware: middleware,
+    });
+
+    expect(result).toMatchObject({
+      result: "ok",
+      context: expect.objectContaining({
+        baseUrl: "https://example-app.com/api",
+        event: "product_updated",
+        payload: {},
+        schemaVersion: null,
+      }),
+    });
+  });
+
+  describe("JWKS re-try validation", () => {
+    const authDataNoJwks = {
+      token: mockAPL.mockToken,
+      saleorApiUrl: mockAPL.workingSaleorApiUrl,
+      appId: mockAPL.mockAppId,
+      jwks: null, // Simulate missing JWKS in initial auth data
+    } as unknown as AuthData; // We're testing missing jwks, so this is fine
+
+    beforeEach(() => {
+      vi.resetAllMocks();
+      vi.spyOn(middleware, "getSaleorHeaders").mockReturnValue(validHeaders);
+    });
+
+    it("Triggers JWKS refresh when initial auth data contains empty JWKS", async () => {
+      vi.spyOn(mockAPL, "get").mockResolvedValue(authDataNoJwks);
+      vi.spyOn(verifySignatureModule, "verifySignatureWithJwks").mockResolvedValueOnce(undefined);
+      vi.spyOn(fetchRemoteJwksModule, "fetchRemoteJwks").mockResolvedValue("new-jwks");
+
+      const result = await validator.validateRequest({
+        allowedEvent: "PRODUCT_UPDATED",
+        apl: mockAPL,
+        adapter,
+        adapterMiddleware: middleware,
+      });
+
+      expect(result).toMatchObject({
+        result: "ok",
+        context: expect.objectContaining({
+          baseUrl: "https://example-app.com/api",
+          event: "product_updated",
+          payload: {},
+          schemaVersion: null,
+        }),
+      });
+
+      expect(mockAPL.set).toHaveBeenCalledWith(
+        expect.objectContaining({
+          jwks: "new-jwks",
+        })
+      );
+      expect(fetchRemoteJwksModule.fetchRemoteJwks).toHaveBeenCalledWith(
+        authDataNoJwks.saleorApiUrl
+      );
+      // it's called only once because jwks was missing initially, so we skipped first validation
+      expect(verifySignatureModule.verifySignatureWithJwks).toHaveBeenCalledTimes(1);
+    });
+
+    it("Triggers JWKS refresh when token signature doesn't match JWKS from existing auth data", async () => {
+      vi.spyOn(verifySignatureModule, "verifySignatureWithJwks")
+        .mockRejectedValueOnce(new Error("Signature verification failed")) // First: reject validation due to stale jwks
+        .mockResolvedValueOnce(undefined); // Second: resolve validation because jwks is now correct
+      vi.spyOn(fetchRemoteJwksModule, "fetchRemoteJwks").mockResolvedValue("new-jwks");
+
+      const result = await validator.validateRequest({
+        allowedEvent: "PRODUCT_UPDATED",
+        apl: mockAPL,
+        adapter,
+        adapterMiddleware: middleware,
+      });
+
+      expect(result).toMatchObject({
+        result: "ok",
+        context: expect.objectContaining({
+          baseUrl: "https://example-app.com/api",
+          event: "product_updated",
+          payload: {},
+          schemaVersion: null,
+        }),
+      });
+
+      expect(mockAPL.set).toHaveBeenCalledWith(
+        expect.objectContaining({
+          jwks: "new-jwks",
+        })
+      );
+      expect(fetchRemoteJwksModule.fetchRemoteJwks).toHaveBeenCalledWith(
+        authDataNoJwks.saleorApiUrl
+      );
+      expect(verifySignatureModule.verifySignatureWithJwks).toHaveBeenCalledTimes(2);
+    });
+
+    it("Returns an error when new JWKS cannot be fetched", async () => {
+      vi.spyOn(mockAPL, "get").mockResolvedValue(authDataNoJwks);
+      vi.spyOn(verifySignatureModule, "verifySignatureWithJwks").mockRejectedValue(
+        new Error("Initial verification failed")
+      );
+      vi.spyOn(fetchRemoteJwksModule, "fetchRemoteJwks").mockRejectedValue(
+        new Error("JWKS fetch failed")
+      );
+
+      const result = await validator.validateRequest({
+        allowedEvent: "PRODUCT_UPDATED",
+        apl: mockAPL,
+        adapter,
+        adapterMiddleware: middleware,
+      });
+
+      expect(result).toMatchObject({
+        result: "failure",
+        error: expect.objectContaining({
+          errorType: "SIGNATURE_VERIFICATION_FAILED",
+          message: "Fetching remote JWKS failed",
+        }),
+      });
+      expect(fetchRemoteJwksModule.fetchRemoteJwks).toHaveBeenCalledTimes(1);
+    });
+
+    it("Returns an error when signature doesn't match JWKS after re-fetching it", async () => {
+      vi.spyOn(verifySignatureModule, "verifySignatureWithJwks")
+        .mockRejectedValueOnce(new Error("Stale JWKS")) // First attempt fails
+        .mockRejectedValueOnce(new Error("Fresh JWKS mismatch")); // Second attempt fails
+      vi.spyOn(fetchRemoteJwksModule, "fetchRemoteJwks").mockResolvedValue("{}");
+
+      const result = await validator.validateRequest({
+        allowedEvent: "PRODUCT_UPDATED",
+        apl: mockAPL,
+        adapter,
+        adapterMiddleware: middleware,
+      });
+
+      expect(result).toMatchObject({
+        result: "failure",
+        error: expect.objectContaining({
+          errorType: "SIGNATURE_VERIFICATION_FAILED",
+          message: "Request signature check failed",
+        }),
+      });
+
+      expect(verifySignatureModule.verifySignatureWithJwks).toHaveBeenCalledTimes(2);
+      expect(fetchRemoteJwksModule.fetchRemoteJwks).toHaveBeenCalledWith(
+        authDataNoJwks.saleorApiUrl
+      );
     });
   });
 });

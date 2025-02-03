@@ -40,7 +40,7 @@ export class MockAPL implements APL {
     return this.resolveDomainFromApiUrl(this.workingSaleorApiUrl);
   }
 
-  async get(saleorApiUrl: string) {
+  async get(saleorApiUrl: string): Promise<AuthData | null> {
     if (saleorApiUrl === this.workingSaleorApiUrl) {
       return {
         token: this.mockToken,
