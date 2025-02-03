@@ -2,11 +2,15 @@ import { createMocks } from "node-mocks-http";
 import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
 
 import { APL, AuthData } from "@/APL";
+import { SALEOR_API_URL_HEADER } from "@/const";
 import * as fetchRemoteJwksModule from "@/fetch-remote-jwks";
 import * as getAppIdModule from "@/get-app-id";
 import { MockAPL } from "@/test-utils/mock-apl";
 
-import { createAppRegisterHandler } from "./create-app-register-handler";
+import {
+  createAppRegisterHandler,
+  CreateAppRegisterHandlerOptions,
+} from "./create-app-register-handler";
 
 const mockJwksValue = "{}";
 const mockAppId = "42";
@@ -16,7 +20,7 @@ const mockAppId = "42";
 vi.spyOn(fetchRemoteJwksModule, "fetchRemoteJwks").mockResolvedValue("{}");
 vi.spyOn(getAppIdModule, "getAppId").mockResolvedValue("42");
 
-describe("create-app-register-handler", () => {
+describe("Next.js create-app-register-handler", () => {
   let mockApl: APL;
 
   beforeEach(() => {
@@ -35,7 +39,7 @@ describe("create-app-register-handler", () => {
       headers: {
         host: "some-saleor-host.cloud",
         "x-forwarded-proto": "https",
-        "saleor-api-url": "https://mock-saleor-domain.saleor.cloud/graphql/",
+        [SALEOR_API_URL_HEADER]: "https://mock-saleor-domain.saleor.cloud/graphql/",
       },
       method: "POST",
     });
@@ -199,19 +203,14 @@ describe("create-app-register-handler", () => {
     });
 
     it("Allows to send custom error response via callback hook", async () => {
-      const mockOnRequestStart = vi.fn().mockImplementation(
-        (
-          req,
-          context: {
-            respondWithError(params: { status: number; body: string; message: string }): Error;
-          }
-        ) =>
+      const mockOnRequestStart = vi
+        .fn<NonNullable<CreateAppRegisterHandlerOptions["onRequestStart"]>>()
+        .mockImplementation((_req, context) =>
           context.respondWithError({
             status: 401,
-            body: "test",
             message: "test message",
           })
-      );
+        );
 
       const { res, req } = createMocks({
         /**
@@ -244,6 +243,7 @@ describe("create-app-register-handler", () => {
           message: "test message",
         },
       });
+      expect(mockOnRequestStart).toHaveBeenCalled();
     });
   });
 });
