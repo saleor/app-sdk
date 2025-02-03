@@ -26,8 +26,7 @@ export type ValidationResult =
   | { result: "ok"; value: ProtectedHandlerContext };
 
 export class ProtectedActionValidator<I> {
-  // Name left for backwards compatibility
-  private debug = createDebug("processProtectedHandler");
+  private debug = createDebug("ProtectedActionValidator");
 
   private tracer = getOtelTracer();
 
