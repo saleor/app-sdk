@@ -12,6 +12,15 @@ export type AWSLambdaHandler = (
   context: Context
 ) => Promise<APIGatewayProxyResultV2>;
 
+/** PlatformAdapter for AWS Lambda HTTP events
+ *
+ * Platform adapters are used in Actions to handle generic request logic
+ * like getting body, headers, etc.
+ *
+ * Thanks to this Actions logic can be re-used for each platform
+
+ * @see {PlatformAdapterInterface}
+ * */
 export class AwsLambdaAdapter implements PlatformAdapterInterface<AwsLambdaHandlerInput> {
   public request: AwsLambdaHandlerInput;
 

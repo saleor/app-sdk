@@ -6,6 +6,18 @@ import {
 export type WebApiHandlerInput = Request;
 export type WebApiHandler = (req: Request) => Response | Promise<Response>;
 
+/** PlatformAdapter for Web API (Fetch API: Request and Response)
+ *
+ * Platform adapters are used in Actions to handle generic request logic
+ * like getting body, headers, etc.
+ *
+ * Thanks to this Actions logic can be re-used for each platform
+
+ * @see {PlatformAdapterInterface}
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Response}
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Request}
+ *
+ * */
 export class WebApiAdapter implements PlatformAdapterInterface<WebApiHandlerInput> {
   constructor(public request: Request) {}
 
