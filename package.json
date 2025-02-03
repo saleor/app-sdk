@@ -47,6 +47,7 @@
     "@changesets/cli": "2.27.1",
     "@testing-library/dom": "^8.17.1",
     "@testing-library/react": "^13.4.0",
+    "@types/aws-lambda": "^8.10.147",
     "@types/debug": "^4.1.7",
     "@types/node": "^18.7.15",
     "@types/react": "18.0.21",
