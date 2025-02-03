@@ -17,9 +17,6 @@ export default defineConfig({
     "settings-manager/index": "src/settings-manager/index.ts",
     "handlers/shared/index": "src/handlers/shared/index.ts",
 
-    // Deprecated
-    "middleware/index": "src/middleware/index.ts",
-
     // Mapped exports
     "handlers/next/index": "src/handlers/platforms/next/index.ts",
   },

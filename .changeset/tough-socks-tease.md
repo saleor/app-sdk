@@ -2,4 +2,4 @@
 "@saleor/app-sdk": major
 ---
 
-Breaking change: Remove checking "domain" header from Saleor requests. It should be replaced with the "saleor-api-url" header.
+Breaking change: SDK will no longer check `saleor-domain` header when validating Saleor requests, instead it will check `saleor-api-url` header.

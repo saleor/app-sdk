@@ -1,18 +1,20 @@
 import { createMocks } from "node-mocks-http";
 import { describe, expect, it } from "vitest";
 
+import { SALEOR_SCHEMA_VERSION } from "@/const";
 import { AppManifest } from "@/types";
 
 import { createManifestHandler } from "./create-manifest-handler";
 
 describe("createManifestHandler", () => {
   it("Creates a handler that responds with Manifest. Includes request in context", async () => {
-    expect.assertions(3);
+    expect.assertions(4);
 
     const { res, req } = createMocks({
       headers: {
         host: "some-saleor-host.cloud",
         "x-forwarded-proto": "https",
+        [SALEOR_SCHEMA_VERSION]: "3.20",
       },
       method: "GET",
     });
@@ -34,6 +36,8 @@ describe("createManifestHandler", () => {
     });
 
     await handler(req, res);
+
+    expect(res.statusCode).toBe(200);
 
     expect(res._getJSONData()).toEqual({
       appUrl: "https://some-saleor-host.cloud",

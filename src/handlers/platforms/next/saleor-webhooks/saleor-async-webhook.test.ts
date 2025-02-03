@@ -1,18 +1,18 @@
-import { ASTNode } from "graphql";
 import { createMocks } from "node-mocks-http";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { WebhookError } from "@/handlers/shared";
+import { SaleorWebhookValidator } from "@/handlers/shared/saleor-webhook-validator";
 import { MockAPL } from "@/test-utils/mock-apl";
 import { AsyncWebhookEventType } from "@/types";
 
-import { processSaleorWebhook } from "./process-saleor-webhook";
 import { SaleorAsyncWebhook } from "./saleor-async-webhook";
-import { NextWebhookApiHandler, WebhookConfig } from "./saleor-webhook";
+import { NextJsWebhookHandler, WebhookConfig } from "./saleor-webhook";
 
 const webhookPath = "api/webhooks/product-updated";
 const baseUrl = "http://example.com";
 
-describe("SaleorAsyncWebhook", () => {
+describe("Next.js SaleorAsyncWebhook", () => {
   const mockAPL = new MockAPL();
 
   afterEach(async () => {
@@ -28,161 +28,253 @@ describe("SaleorAsyncWebhook", () => {
 
   const saleorAsyncWebhook = new SaleorAsyncWebhook(validAsyncWebhookConfiguration);
 
-  it("constructor passes if query is provided", async () => {
-    expect(() => {
-      // eslint-disable-next-line no-new
-      new SaleorAsyncWebhook({
-        ...validAsyncWebhookConfiguration,
+  describe("getWebhookManifest", () => {
+    it("should return full path to the webhook route based on given baseUrl", async () => {
+      expect(saleorAsyncWebhook.getWebhookManifest(baseUrl)).toEqual(
+        expect.objectContaining({
+          targetUrl: `${baseUrl}/${webhookPath}`,
+        })
+      );
+    });
+
+    it("should return a valid manifest", async () => {
+      expect(saleorAsyncWebhook.getWebhookManifest(baseUrl)).toStrictEqual({
+        asyncEvents: ["PRODUCT_UPDATED"],
+        isActive: true,
+        name: "PRODUCT_UPDATED webhook",
+        targetUrl: "http://example.com/api/webhooks/product-updated",
         query: "subscription { event { ... on ProductUpdated { product { id }}}}",
       });
-    }).not.toThrowError();
-  });
-
-  it("targetUrl should return full path to the webhook route based on given baseUrl", async () => {
-    expect(saleorAsyncWebhook.getWebhookManifest(baseUrl)).toEqual(
-      expect.objectContaining({
-        targetUrl: `${baseUrl}/${webhookPath}`,
-      })
-    );
-  });
-
-  it("getWebhookManifest should return a valid manifest", async () => {
-    expect(saleorAsyncWebhook.getWebhookManifest(baseUrl)).toStrictEqual({
-      asyncEvents: ["PRODUCT_UPDATED"],
-      isActive: true,
-      name: "PRODUCT_UPDATED webhook",
-      targetUrl: "http://example.com/api/webhooks/product-updated",
-      query: "subscription { event { ... on ProductUpdated { product { id }}}}",
     });
   });
 
-  it("Test createHandler which return success", async () => {
-    // prepare mocked context returned by mocked process function
-    vi.mock("./process-saleor-webhook");
+  describe("createHandler", () => {
+    it("validates request before passing it to provided handler function with context", async () => {
+      vi.spyOn(SaleorWebhookValidator.prototype, "validateRequest").mockResolvedValue({
+        result: "ok",
+        context: {
+          baseUrl: "example.com",
+          event: "product_updated",
+          payload: { data: "test_payload" },
+          schemaVersion: 3.19,
+          authData: {
+            token: "token",
+            jwks: "",
+            saleorApiUrl: "https://example.com/graphql/",
+            appId: "12345",
+          },
+        },
+      });
 
-    vi.mocked(processSaleorWebhook).mockImplementationOnce(async () => ({
-      baseUrl: "example.com",
-      event: "product_updated",
-      payload: { data: "test_payload" },
-      schemaVersion: 3.19,
-      authData: {
-        token: "token",
-        jwks: "",
-        saleorApiUrl: "https://example.com/graphql/",
-        appId: "12345",
-      },
-    }));
+      const testHandler: NextJsWebhookHandler = vi.fn().mockImplementation((_req, res, context) => {
+        if (context.payload.data === "test_payload") {
+          res.status(200).end();
+          return;
+        }
+        throw new Error("Test payload has not been passed to handler function");
+      });
 
-    // Test handler - will throw error if mocked context is not passed to it
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const testHandler: NextWebhookApiHandler = vi.fn().mockImplementation((req, res, context) => {
-      if (context.payload.data === "test_payload") {
-        res.status(200).end();
-        return;
-      }
-      throw new Error("Test payload has not been passed to handler function");
+      const { req, res } = createMocks();
+      const wrappedHandler = saleorAsyncWebhook.createHandler(testHandler);
+      await wrappedHandler(req, res);
+
+      expect(res.statusCode).toBe(200);
+      expect(testHandler).toBeCalledTimes(1);
     });
 
-    // We are mocking validation method, so empty mock requests will pass
-    const { req, res } = createMocks();
-    const wrappedHandler = saleorAsyncWebhook.createHandler(testHandler);
-    await wrappedHandler(req, res);
+    it("prevents handler execution when validation fails", async () => {
+      const handler = vi.fn();
+      const webhook = new SaleorAsyncWebhook(validAsyncWebhookConfiguration);
 
-    expect(res.statusCode).toBe(200);
+      vi.spyOn(SaleorWebhookValidator.prototype, "validateRequest").mockResolvedValue({
+        result: "failure",
+        error: new Error("Test error"),
+      });
 
-    // Check if test handler was used by the wrapper
-    expect(testHandler).toBeCalledTimes(1);
-  });
+      const { req, res } = createMocks();
+      await webhook.createHandler(handler)(req, res);
 
-  it("Calls callbacks for error handling", async () => {
-    const onErrorCallback = vi.fn();
-    const formatErrorCallback = vi.fn().mockImplementation(async () => ({
-      code: 401,
-      body: "My Body",
-    }));
-
-    const webhook = new SaleorAsyncWebhook({
-      ...validAsyncWebhookConfiguration,
-      onError: onErrorCallback,
-      formatErrorResponse: formatErrorCallback,
+      expect(handler).not.toHaveBeenCalled();
     });
 
-    // prepare mocked context returned by mocked process function
-    vi.mock("./process-saleor-webhook");
+    describe("when validation throws WebhookError", () => {
+      it("calls onError and uses formatErrorResponse when provided", async () => {
+        const webhookError = new WebhookError("Test error", "OTHER");
+        const formatErrorResponse = vi.fn().mockResolvedValue({
+          code: 418,
+          body: "Custom response",
+        });
 
-    vi.mocked(processSaleorWebhook).mockImplementationOnce(async () => {
-      /**
-       * This mock should throw WebhookError, but there was TypeError related to constructor of extended class.
-       * Try "throw new WebhookError()" to check it.
-       *
-       * For test suite it doesn't matter, because errors thrown from source code are valid
-       */
-      throw new Error("Test error message");
+        const webhook = new SaleorAsyncWebhook({
+          ...validAsyncWebhookConfiguration,
+          onError: vi.fn(),
+          formatErrorResponse,
+        });
+
+        vi.spyOn(SaleorWebhookValidator.prototype, "validateRequest").mockResolvedValue({
+          result: "failure",
+          error: webhookError,
+        });
+
+        const { req, res } = createMocks();
+        await webhook.createHandler(() => {})(req, res);
+
+        expect(webhook.onError).toHaveBeenCalledWith(webhookError, req);
+        expect(formatErrorResponse).toHaveBeenCalledWith(webhookError, req);
+        expect(res.statusCode).toBe(418);
+        expect(res._getData()).toBe("Custom response");
+      });
+
+      it("calls onError and uses default JSON response when formatErrorResponse not provided", async () => {
+        const webhookError = new WebhookError("Test error", "OTHER");
+        const webhook = new SaleorAsyncWebhook({
+          ...validAsyncWebhookConfiguration,
+          onError: vi.fn(),
+        });
+
+        vi.spyOn(SaleorWebhookValidator.prototype, "validateRequest").mockResolvedValue({
+          result: "failure",
+          error: webhookError,
+        });
+
+        const { req, res } = createMocks();
+        await webhook.createHandler(() => {})(req, res);
+
+        expect(webhook.onError).toHaveBeenCalledWith(webhookError, req);
+        expect(res.statusCode).toBe(500); // OTHER error is mapped to 500
+        expect(res._getJSONData()).toEqual({
+          error: { type: "OTHER", message: "Test error" },
+        });
+      });
+
+      describe("WebhookError code mapping", () => {
+        const webhook = new SaleorAsyncWebhook(validAsyncWebhookConfiguration);
+
+        it("should map OTHER error to 500 status code", async () => {
+          const webhookError = new WebhookError("Internal server error", "OTHER");
+          vi.spyOn(SaleorWebhookValidator.prototype, "validateRequest").mockResolvedValue({
+            result: "failure",
+            error: webhookError,
+          });
+
+          const { req, res } = createMocks();
+          await webhook.createHandler(() => {})(req, res);
+
+          expect(res.statusCode).toBe(500);
+          expect(res._getJSONData()).toEqual({
+            error: {
+              type: "OTHER",
+              message: "Internal server error",
+            },
+          });
+        });
+
+        it("should map MISSING_HOST_HEADER error to 400 status code", async () => {
+          const webhookError = new WebhookError("Missing host header", "MISSING_HOST_HEADER");
+          vi.spyOn(SaleorWebhookValidator.prototype, "validateRequest").mockResolvedValue({
+            result: "failure",
+            error: webhookError,
+          });
+
+          const { req, res } = createMocks();
+          await webhook.createHandler(() => {})(req, res);
+
+          expect(res.statusCode).toBe(400);
+          expect(res._getJSONData()).toEqual({
+            error: {
+              type: "MISSING_HOST_HEADER",
+              message: "Missing host header",
+            },
+          });
+        });
+
+        it("should map NOT_REGISTERED error to 401 status code", async () => {
+          const webhookError = new WebhookError("Not registered", "NOT_REGISTERED");
+          vi.spyOn(SaleorWebhookValidator.prototype, "validateRequest").mockResolvedValue({
+            result: "failure",
+            error: webhookError,
+          });
+
+          const { req, res } = createMocks();
+          await webhook.createHandler(() => {})(req, res);
+
+          expect(res.statusCode).toBe(401);
+          expect(res._getJSONData()).toEqual({
+            error: {
+              type: "NOT_REGISTERED",
+              message: "Not registered",
+            },
+          });
+        });
+
+        it("should map WRONG_METHOD error to 405 status code", async () => {
+          const webhookError = new WebhookError("Wrong HTTP method", "WRONG_METHOD");
+          vi.spyOn(SaleorWebhookValidator.prototype, "validateRequest").mockResolvedValue({
+            result: "failure",
+            error: webhookError,
+          });
+
+          const { req, res } = createMocks();
+          await webhook.createHandler(() => {})(req, res);
+
+          expect(res.statusCode).toBe(405);
+          expect(res._getJSONData()).toEqual({
+            error: {
+              type: "WRONG_METHOD",
+              message: "Wrong HTTP method",
+            },
+          });
+        });
+      });
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const testHandler: NextWebhookApiHandler = vi.fn().mockImplementation((req, res, context) => {
-      if (context.payload.data === "test_payload") {
-        res.status(200).end();
-        return;
-      }
-      throw new Error("Test payload has not been passed to handler function");
+    describe("when validation throws generic Error", () => {
+      const genericError = new Error("Unexpected error");
+
+      it("calls onError and uses formatErrorResponse when provided", async () => {
+        const formatErrorResponse = vi.fn().mockResolvedValue({
+          code: 500,
+          body: "Server error",
+        });
+
+        const webhook = new SaleorAsyncWebhook({
+          ...validAsyncWebhookConfiguration,
+          onError: vi.fn(),
+          formatErrorResponse,
+        });
+
+        vi.spyOn(SaleorWebhookValidator.prototype, "validateRequest").mockResolvedValue({
+          result: "failure",
+          error: genericError,
+        });
+
+        const { req, res } = createMocks();
+        await webhook.createHandler(() => {})(req, res);
+
+        expect(webhook.onError).toHaveBeenCalledWith(genericError, req);
+        expect(formatErrorResponse).toHaveBeenCalledWith(genericError, req);
+        expect(res.statusCode).toBe(500);
+        expect(res._getData()).toBe("Server error");
+      });
+
+      it("calls onError and uses default text response when formatErrorResponse not provided", async () => {
+        const webhook = new SaleorAsyncWebhook({
+          ...validAsyncWebhookConfiguration,
+          onError: vi.fn(),
+        });
+
+        vi.spyOn(SaleorWebhookValidator.prototype, "validateRequest").mockResolvedValue({
+          result: "failure",
+          error: genericError,
+        });
+
+        const { req, res } = createMocks();
+        await webhook.createHandler(() => {})(req, res);
+
+        expect(webhook.onError).toHaveBeenCalledWith(genericError, req);
+        expect(res.statusCode).toBe(500);
+        expect(res._getData()).toBe("Unexpected error while handling request");
+      });
     });
-
-    const { req, res } = createMocks();
-    const wrappedHandler = webhook.createHandler(testHandler);
-
-    await wrappedHandler(req, res);
-
-    /**
-     * Response should match formatErrorCallback
-     */
-    expect(res.statusCode).toBe(401);
-    expect(res._getData()).toBe("My Body");
-    expect(onErrorCallback).toHaveBeenCalledWith(
-      expect.objectContaining({
-        message: "Test error message",
-      }),
-      req,
-      res
-    );
-
-    /**
-     * Handler should not be called, since it thrown before
-     */
-    expect(testHandler).not.toHaveBeenCalled();
-  });
-
-  /**
-   * Pre 0.35.0 - then remove
-   */
-  it("Allows legacy asyncEvent and subscriptionQueryAst fields, but fails if none provided", () => {
-    expect(
-      () =>
-        new SaleorAsyncWebhook({
-          asyncEvent: "ADDRESS_CREATED",
-          subscriptionQueryAst: {} as unknown as ASTNode,
-          apl: mockAPL,
-          webhookPath: "",
-        })
-    ).not.toThrowError();
-
-    expect(
-      () =>
-        new SaleorAsyncWebhook({
-          subscriptionQueryAst: {} as unknown as ASTNode,
-          apl: mockAPL,
-          webhookPath: "",
-        })
-    ).toThrowError();
-
-    expect(
-      () =>
-        new SaleorAsyncWebhook({
-          asyncEvent: "ADDRESS_CREATED",
-          apl: mockAPL,
-          webhookPath: "",
-        })
-    ).toThrowError();
   });
 });
