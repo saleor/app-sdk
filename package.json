@@ -146,6 +146,21 @@
       "import": "./handlers/next/index.mjs",
       "require": "./handlers/next/index.js"
     },
+    "./handlers/fetch-api": {
+      "types": "./handlers/fetch-api/index.d.ts",
+      "import": "./handlers/fetch-api/index.mjs",
+      "require": "./handlers/fetch-api/index.js"
+    },
+    "./handlers/aws-lambda": {
+      "types": "./handlers/aws-lambda/index.d.ts",
+      "import": "./handlers/aws-lambda/index.mjs",
+      "require": "./handlers/aws-lambda/index.js"
+    },
+    "./handlers/next-app-router": {
+      "types": "./handlers/fetch-api/index.d.ts",
+      "import": "./handlers/fetch-api/index.mjs",
+      "require": "./handlers/fetch-api/index.js"
+    },
     "./handlers/shared": {
       "types": "./handlers/shared/index.d.ts",
       "import": "./handlers/shared/index.mjs",
