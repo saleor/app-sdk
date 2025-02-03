@@ -56,9 +56,28 @@ describe("SaleorWebhookValidator", () => {
 
     expect(result).toMatchObject({
       result: "failure",
-      error: expect.objectContaining({
+      error: {
         message: "Wrong request method, only POST allowed",
-      }),
+        errorType: "WRONG_METHOD",
+      },
+    });
+  });
+
+  it("Throws error on missing base URL", async () => {
+    vi.spyOn(adapter, "getBaseUrl").mockReturnValue("");
+    const result = await validator.validateRequest({
+      allowedEvent: "PRODUCT_UPDATED",
+      apl: mockAPL,
+      adapter,
+      adapterMiddleware: middleware,
+    });
+
+    expect(result).toMatchObject({
+      result: "failure",
+      error: {
+        message: "Missing host header",
+        errorType: "MISSING_HOST_HEADER",
+      },
     });
   });
 
@@ -78,9 +97,10 @@ describe("SaleorWebhookValidator", () => {
 
     expect(result).toMatchObject({
       result: "failure",
-      error: expect.objectContaining({
+      error: {
         message: "Missing saleor-api-url header",
-      }),
+        errorType: "MISSING_API_URL_HEADER",
+      },
     });
   });
 
@@ -101,9 +121,10 @@ describe("SaleorWebhookValidator", () => {
 
     expect(result).toMatchObject({
       result: "failure",
-      error: expect.objectContaining({
+      error: {
         message: "Missing saleor-event header",
-      }),
+        errorType: "MISSING_EVENT_HEADER",
+      },
     });
   });
 
@@ -122,9 +143,10 @@ describe("SaleorWebhookValidator", () => {
 
     expect(result).toMatchObject({
       result: "failure",
-      error: expect.objectContaining({
+      error: {
         message: "Wrong incoming request event: different_event. Expected: product_updated",
-      }),
+        errorType: "WRONG_EVENT",
+      },
     });
   });
 
@@ -144,9 +166,10 @@ describe("SaleorWebhookValidator", () => {
 
     expect(result).toMatchObject({
       result: "failure",
-      error: expect.objectContaining({
+      error: {
         message: "Missing saleor-signature header",
-      }),
+        errorType: "MISSING_SIGNATURE_HEADER",
+      },
     });
   });
 
@@ -163,9 +186,30 @@ describe("SaleorWebhookValidator", () => {
 
     expect(result).toMatchObject({
       result: "failure",
-      error: expect.objectContaining({
+      error: {
         message: "Missing request body",
-      }),
+        errorType: "MISSING_REQUEST_BODY",
+      },
+    });
+  });
+
+  it("Throws error on unparsable request body", async () => {
+    vi.spyOn(adapter, "getRawBody").mockResolvedValue("{ "); // broken JSON
+    vi.spyOn(middleware, "getSaleorHeaders").mockReturnValue(validHeaders);
+
+    const result = await validator.validateRequest({
+      allowedEvent: "PRODUCT_UPDATED",
+      apl: mockAPL,
+      adapter,
+      adapterMiddleware: middleware,
+    });
+
+    expect(result).toMatchObject({
+      result: "failure",
+      error: {
+        message: "Request body can't be parsed",
+        errorType: "CANT_BE_PARSED",
+      },
     });
   });
 
@@ -186,9 +230,10 @@ describe("SaleorWebhookValidator", () => {
 
     expect(result).toMatchObject({
       result: "failure",
-      error: expect.objectContaining({
+      error: {
         message: `Can't find auth data for ${unregisteredApiUrl}. Please register the application`,
-      }),
+        errorType: "NOT_REGISTERED",
+      },
     });
   });
 
@@ -332,10 +377,10 @@ describe("SaleorWebhookValidator", () => {
 
       expect(result).toMatchObject({
         result: "failure",
-        error: expect.objectContaining({
+        error: {
           errorType: "SIGNATURE_VERIFICATION_FAILED",
           message: "Fetching remote JWKS failed",
-        }),
+        },
       });
       expect(fetchRemoteJwksModule.fetchRemoteJwks).toHaveBeenCalledTimes(1);
     });
@@ -355,10 +400,10 @@ describe("SaleorWebhookValidator", () => {
 
       expect(result).toMatchObject({
         result: "failure",
-        error: expect.objectContaining({
+        error: {
           errorType: "SIGNATURE_VERIFICATION_FAILED",
           message: "Request signature check failed",
-        }),
+        },
       });
 
       expect(verifySignatureModule.verifySignatureWithJwks).toHaveBeenCalledTimes(2);

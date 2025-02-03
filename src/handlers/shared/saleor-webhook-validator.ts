@@ -145,8 +145,6 @@ export class SaleorWebhookValidator {
 
           /**
            * Verify payload signature
-           *
-           * TODO: Add test for repeat verification scenario
            */
           try {
             this.debug("Will verify signature with JWKS saved in AuthData");
