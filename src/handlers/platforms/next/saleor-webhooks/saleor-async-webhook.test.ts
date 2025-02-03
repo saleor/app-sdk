@@ -29,12 +29,9 @@ describe("Next.js SaleorAsyncWebhook", () => {
   const saleorAsyncWebhook = new SaleorAsyncWebhook(validAsyncWebhookConfiguration);
 
   describe("constructor", () => {
-    it("passes if query is provided", async () => {
+    it("passes if query and event is provided", async () => {
       expect(() => {
-        new SaleorAsyncWebhook({
-          ...validAsyncWebhookConfiguration,
-          query: "subscription { event { ... on ProductUpdated { product { id }}}}",
-        });
+        new SaleorAsyncWebhook(validAsyncWebhookConfiguration);
       }).not.toThrowError();
     });
 
@@ -43,6 +40,15 @@ describe("Next.js SaleorAsyncWebhook", () => {
         new SaleorAsyncWebhook({
           ...validAsyncWebhookConfiguration,
           query: undefined,
+        });
+      }).toThrowError();
+    });
+
+    it("throws error if event is not provided", async () => {
+      expect(() => {
+        new SaleorAsyncWebhook({
+          ...validAsyncWebhookConfiguration,
+          event: undefined,
         });
       }).toThrowError();
     });
@@ -69,7 +75,7 @@ describe("Next.js SaleorAsyncWebhook", () => {
   });
 
   describe("createHandler", () => {
-    it("validates request before passing it to provided handler function", async () => {
+    it("validates request before passing it to provided handler function with context", async () => {
       vi.spyOn(SaleorWebhookValidator.prototype, "validateRequest").mockResolvedValue({
         result: "ok",
         context: {
