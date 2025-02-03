@@ -27,11 +27,8 @@ export class WebApiAdapter implements PlatformAdapterInterface<WebApiHandlerInpu
 
   async getBody() {
     const request = this.request.clone();
-    try {
-      return await request.json();
-    } catch (err) {
-      return null;
-    }
+
+    return request.json();
   }
 
   async getRawBody() {

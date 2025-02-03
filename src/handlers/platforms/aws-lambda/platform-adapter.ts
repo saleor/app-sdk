@@ -1,4 +1,8 @@
-import type { APIGatewayProxyEventV2, APIGatewayProxyResultV2, Context } from "aws-lambda";
+import type {
+  APIGatewayProxyEventV2,
+  APIGatewayProxyStructuredResultV2,
+  Context,
+} from "aws-lambda";
 
 import {
   ActionHandlerResult,
@@ -10,7 +14,7 @@ export type AwsLambdaHandlerInput = APIGatewayProxyEventV2;
 export type AWSLambdaHandler = (
   event: APIGatewayProxyEventV2,
   context: Context
-) => Promise<APIGatewayProxyResultV2>;
+) => Promise<APIGatewayProxyStructuredResultV2>;
 
 /** PlatformAdapter for AWS Lambda HTTP events
  *
@@ -33,11 +37,11 @@ export class AwsLambdaAdapter implements PlatformAdapterInterface<AwsLambdaHandl
   }
 
   async getBody(): Promise<unknown | null> {
-    try {
-      return JSON.parse(this.request.body || "{}");
-    } catch (err) {
+    if (!this.request.body) {
       return null;
     }
+
+    return JSON.parse(this.request.body);
   }
 
   async getRawBody(): Promise<string | null> {
@@ -76,7 +80,7 @@ export class AwsLambdaAdapter implements PlatformAdapterInterface<AwsLambdaHandl
     return this.event.requestContext.http.method as HTTPMethod;
   }
 
-  async send(result: ActionHandlerResult): Promise<APIGatewayProxyResultV2> {
+  async send(result: ActionHandlerResult): Promise<APIGatewayProxyStructuredResultV2> {
     const body = result.bodyType === "json" ? JSON.stringify(result.body) : result.body;
 
     return {
