@@ -1,4 +1,7 @@
+import { SyncWebhookEventType } from "@/types";
+
 import { AuthData } from "../../APL";
+import { buildSyncWebhookResponsePayload } from "./sync-webhook-response-builder";
 
 export const WebhookErrorCodeMap: Record<SaleorWebhookError, number> = {
   OTHER: 500,
@@ -53,4 +56,13 @@ export type WebhookContext<TPayload> = {
   // TODO: Make this required
   /** Added in Saleor 3.15 */
   schemaVersion: number | null;
+};
+
+export type SyncWebhookInjectedContext<TEvent extends SyncWebhookEventType> = {
+  buildResponse: typeof buildSyncWebhookResponsePayload<TEvent>;
+};
+
+export type FormatWebhookErrorResult = {
+  code: number;
+  body: string;
 };

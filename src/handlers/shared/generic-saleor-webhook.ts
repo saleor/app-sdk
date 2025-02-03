@@ -4,6 +4,7 @@ import { APL } from "@/APL";
 import { createDebug } from "@/debug";
 import { gqlAstToString } from "@/gql-ast-to-string";
 import {
+  FormatWebhookErrorResult,
   WebhookContext,
   WebhookError,
   WebhookErrorCodeMap,
@@ -29,10 +30,7 @@ export interface GenericWebhookConfig<
   formatErrorResponse?(
     error: WebhookError | Error,
     request: RequestType
-  ): Promise<{
-    code: number;
-    body: string;
-  }>;
+  ): Promise<FormatWebhookErrorResult>;
   query: string | ASTNode;
 }
 

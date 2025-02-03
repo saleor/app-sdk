@@ -1,15 +1,13 @@
-import { createMocks } from "node-mocks-http";
 import { describe, expect, it, vi } from "vitest";
 
 import { SALEOR_SCHEMA_VERSION } from "@/const";
 
 import { createManifestHandler, CreateManifestHandlerOptions } from "./create-manifest-handler";
 
-describe("Next.js createManifestHandler", () => {
-  it("Creates a handler that responds with Manifest. Includes request in context", async () => {
+describe("Fetch API createManifestHandler", () => {
+  it("Creates a handler that responds with manifest, includes a request and baseUrl in factory method", async () => {
     const baseUrl = "https://some-app-host.cloud";
-
-    const { res, req } = createMocks({
+    const request = new Request(baseUrl, {
       headers: {
         host: "some-app-host.cloud",
         "x-forwarded-proto": "https",
@@ -33,17 +31,15 @@ describe("Next.js createManifestHandler", () => {
       manifestFactory: mockManifestFactory,
     });
 
-    await handler(req, res);
+    const response = await handler(request);
 
     expect(mockManifestFactory).toHaveBeenCalledWith({
       appBaseUrl: baseUrl,
-      request: req,
+      request,
       schemaVersion: 3.2,
     });
-
-    expect(res.statusCode).toBe(200);
-
-    expect(res._getJSONData()).toEqual({
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toStrictEqual({
       appUrl: "https://some-app-host.cloud",
       id: "app-id",
       name: "Test app",

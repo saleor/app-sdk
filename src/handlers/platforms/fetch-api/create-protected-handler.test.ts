@@ -1,5 +1,4 @@
-import { createMocks } from "node-mocks-http";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   ProtectedActionValidator,
@@ -10,16 +9,10 @@ import { Permission } from "@/types";
 
 import { createProtectedHandler } from "./create-protected-handler";
 
-describe("Next.js createProtectedHandler", () => {
+describe("Web API createProtectedHandler", () => {
   const mockAPL = new MockAPL();
   const mockHandlerFn = vi.fn();
-  const { req, res } = createMocks({
-    headers: {
-      host: "some-saleor-host.cloud",
-      "x-forwarded-proto": "https",
-    },
-    method: "GET",
-  });
+
   const mockHandlerContext: ProtectedHandlerContext = {
     baseUrl: "https://example.com",
     authData: {
@@ -34,6 +27,18 @@ describe("Next.js createProtectedHandler", () => {
     },
   };
 
+  let request: Request;
+
+  beforeEach(() => {
+    request = new Request("https://example.com", {
+      headers: {
+        host: "some-saleor-host.cloud",
+        "x-forwarded-proto": "https",
+      },
+      method: "GET",
+    });
+  });
+
   describe("validation", () => {
     it("sends error when request validation fails", async () => {
       vi.spyOn(ProtectedActionValidator.prototype, "validateRequest").mockResolvedValueOnce({
@@ -46,10 +51,10 @@ describe("Next.js createProtectedHandler", () => {
       });
 
       const handler = createProtectedHandler(mockHandlerFn, mockAPL);
-      await handler(req, res);
+      const response = await handler(request);
 
       expect(mockHandlerFn).not.toHaveBeenCalled();
-      expect(res._getStatusCode()).toBe(401);
+      expect(response.status).toBe(401);
     });
 
     it("calls handler function when validation succeeds", async () => {
@@ -59,9 +64,9 @@ describe("Next.js createProtectedHandler", () => {
       });
 
       const handler = createProtectedHandler(mockHandlerFn, mockAPL);
-      await handler(req, res);
+      await handler(request);
 
-      expect(mockHandlerFn).toHaveBeenCalledWith(req, res, mockHandlerContext);
+      expect(mockHandlerFn).toHaveBeenCalledWith(request, mockHandlerContext);
     });
   });
 
@@ -71,7 +76,7 @@ describe("Next.js createProtectedHandler", () => {
       const requiredPermissions: Permission[] = ["MANAGE_APPS"];
 
       const handler = createProtectedHandler(mockHandlerFn, mockAPL, requiredPermissions);
-      await handler(req, res);
+      await handler(request);
 
       expect(validateRequestSpy).toHaveBeenCalledWith({
         apl: mockAPL,
@@ -92,9 +97,9 @@ describe("Next.js createProtectedHandler", () => {
       });
 
       const handler = createProtectedHandler(mockHandlerFn, mockAPL);
-      await handler(req, res);
+      const response = await handler(request);
 
-      expect(res._getStatusCode()).toBe(500);
+      expect(response.status).toBe(500);
     });
   });
 });

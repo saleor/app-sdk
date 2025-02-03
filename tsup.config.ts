@@ -19,6 +19,10 @@ export default defineConfig({
 
     // Mapped exports
     "handlers/next/index": "src/handlers/platforms/next/index.ts",
+    "handlers/fetch-api/index": "src/handlers/platforms/fetch-api/index.ts",
+
+    // Virtual export
+    "handlers/next-app-router/index": "src/handlers/platforms/fetch-api/index.ts",
   },
   dts: true,
   clean: true,
