@@ -1,12 +1,12 @@
 import { createDebug } from "@/debug";
 import { AppManifest } from "@/types";
 
-import { PlatformAdapterMiddleware } from "../shared/adapter-middleware";
 import {
   ActionHandlerInterface,
   ActionHandlerResult,
   PlatformAdapterInterface,
 } from "../shared/generic-adapter-use-case-types";
+import { SaleorRequestProcessor } from "../shared/saleor-request-processor";
 
 const debug = createDebug("create-manifest-handler");
 
@@ -20,17 +20,17 @@ export type CreateManifestHandlerOptions<T> = {
 };
 
 export class ManifestActionHandler<I> implements ActionHandlerInterface {
-  constructor(private adapter: PlatformAdapterInterface<I>) { }
+  constructor(private adapter: PlatformAdapterInterface<I>) {}
 
-  private adapterMiddleware = new PlatformAdapterMiddleware(this.adapter);
+  private requestProcessor = new SaleorRequestProcessor(this.adapter);
 
   async handleAction(options: CreateManifestHandlerOptions<I>): Promise<ActionHandlerResult> {
-    const { schemaVersion } = this.adapterMiddleware.getSaleorHeaders();
+    const { schemaVersion } = this.requestProcessor.getSaleorHeaders();
     const baseURL = this.adapter.getBaseUrl();
 
     debug("Received request with schema version \"%s\" and base URL \"%s\"", schemaVersion, baseURL);
 
-    const methodEagerResponse = this.adapterMiddleware.withMethod(["GET"]);
+    const methodEagerResponse = this.requestProcessor.withMethod(["GET"]);
 
     if (methodEagerResponse) {
       return methodEagerResponse;
@@ -40,8 +40,8 @@ export class ManifestActionHandler<I> implements ActionHandlerInterface {
       return {
         status: 400,
         bodyType: "string",
-        body: "Missing schema version header"
-      }
+        body: "Missing schema version header",
+      };
     }
 
     try {

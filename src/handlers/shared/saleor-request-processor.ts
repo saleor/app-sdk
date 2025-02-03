@@ -8,7 +8,7 @@ import {
 
 import { HTTPMethod, PlatformAdapterInterface } from "./generic-adapter-use-case-types";
 
-export class PlatformAdapterMiddleware<T> {
+export class SaleorRequestProcessor<T> {
   constructor(private adapter: PlatformAdapterInterface<T>) {}
 
   withMethod(methods: HTTPMethod[]) {
@@ -46,7 +46,7 @@ export class PlatformAdapterMiddleware<T> {
   getSaleorHeaders() {
     return {
       authorizationBearer: this.toStringOrUndefined(
-        this.adapter.getHeader(SALEOR_AUTHORIZATION_BEARER_HEADER),
+        this.adapter.getHeader(SALEOR_AUTHORIZATION_BEARER_HEADER)
       ),
       signature: this.toStringOrUndefined(this.adapter.getHeader(SALEOR_SIGNATURE_HEADER)),
       event: this.toStringOrUndefined(this.adapter.getHeader(SALEOR_EVENT_HEADER)),

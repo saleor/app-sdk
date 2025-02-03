@@ -11,8 +11,8 @@ import {
 import { SaleorWebhookValidator } from "@/handlers/shared/saleor-webhook-validator";
 import { AsyncWebhookEventType, SyncWebhookEventType, WebhookManifest } from "@/types";
 
-import { PlatformAdapterMiddleware } from "./adapter-middleware";
 import { PlatformAdapterInterface } from "./generic-adapter-use-case-types";
+import { SaleorRequestProcessor } from "./saleor-request-processor";
 
 const debug = createDebug("SaleorWebhook");
 
@@ -117,12 +117,12 @@ export abstract class GenericSaleorWebhook<
     | { result: "callHandler"; context: WebhookContext<TPayload> }
     | { result: "sendResponse"; response: ReturnType<Adapter["send"]> }
   > {
-    const adapterMiddleware = new PlatformAdapterMiddleware<TRequestType>(adapter);
+    const requestProcessor = new SaleorRequestProcessor<TRequestType>(adapter);
     const validationResult = await this.webhookValidator.validateRequest<TPayload, TRequestType>({
       allowedEvent: this.event,
       apl: this.apl,
       adapter,
-      adapterMiddleware,
+      requestProcessor,
     });
 
     if (validationResult.result === "ok") {

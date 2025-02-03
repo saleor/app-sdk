@@ -9,9 +9,9 @@ import {
 } from "@/const";
 import { MockAdapter } from "@/test-utils/mock-adapter";
 
-import { PlatformAdapterMiddleware } from "./adapter-middleware";
+import { SaleorRequestProcessor } from "./saleor-request-processor";
 
-describe("PlatformAdapterMiddleware", () => {
+describe("SaleorRequestProcessor", () => {
   let mockAdapter: MockAdapter;
 
   beforeEach(() => {
@@ -21,7 +21,7 @@ describe("PlatformAdapterMiddleware", () => {
   describe("withMethod", () => {
     it("returns null when method is allowed", () => {
       mockAdapter.method = "POST";
-      const middleware = new PlatformAdapterMiddleware(mockAdapter);
+      const middleware = new SaleorRequestProcessor(mockAdapter);
 
       const result = middleware.withMethod(["POST", "GET"]);
 
@@ -30,7 +30,7 @@ describe("PlatformAdapterMiddleware", () => {
 
     it("returns 405 error when method is not allowed", () => {
       mockAdapter.method = "POST";
-      const middleware = new PlatformAdapterMiddleware(mockAdapter);
+      const middleware = new SaleorRequestProcessor(mockAdapter);
 
       const result = middleware.withMethod(["GET"]);
 
@@ -46,10 +46,10 @@ describe("PlatformAdapterMiddleware", () => {
     it("returns null when saleor-api-url header is present", () => {
       const adapter = new MockAdapter({
         mockHeaders: {
-          [SALEOR_API_URL_HEADER]: "https://api.saleor.io"
-        }
-      })
-      const middleware = new PlatformAdapterMiddleware(adapter);
+          [SALEOR_API_URL_HEADER]: "https://api.saleor.io",
+        },
+      });
+      const middleware = new SaleorRequestProcessor(adapter);
 
       const result = middleware.withSaleorApiUrlPresent();
 
@@ -57,7 +57,7 @@ describe("PlatformAdapterMiddleware", () => {
     });
 
     it("returns 400 error when saleor api url is missing", () => {
-      const middleware = new PlatformAdapterMiddleware(mockAdapter);
+      const middleware = new SaleorRequestProcessor(mockAdapter);
 
       const result = middleware.withSaleorApiUrlPresent();
 
@@ -78,9 +78,9 @@ describe("PlatformAdapterMiddleware", () => {
           [SALEOR_EVENT_HEADER]: "event-name",
           [SALEOR_API_URL_HEADER]: "https://api.saleor.io",
           [SALEOR_SCHEMA_VERSION]: "3.20",
-        }
-      })
-      const middleware = new PlatformAdapterMiddleware(adapter);
+        },
+      });
+      const middleware = new SaleorRequestProcessor(adapter);
 
       const result = middleware.getSaleorHeaders();
 
@@ -89,12 +89,12 @@ describe("PlatformAdapterMiddleware", () => {
         signature: "signature-value",
         event: "event-name",
         saleorApiUrl: "https://api.saleor.io",
-        schemaVersion: 3.20,
+        schemaVersion: 3.2,
       });
     });
 
     it("handles missing values correctly - returns undefined", () => {
-      const middleware = new PlatformAdapterMiddleware(mockAdapter);
+      const middleware = new SaleorRequestProcessor(mockAdapter);
 
       const result = middleware.getSaleorHeaders();
 
@@ -115,9 +115,9 @@ describe("PlatformAdapterMiddleware", () => {
           [SALEOR_EVENT_HEADER]: "event-name",
           [SALEOR_API_URL_HEADER]: "https://api.saleor.io",
           // SALEOR_SCHEMA_VERSION missing
-        }
-      })
-      const middleware = new PlatformAdapterMiddleware(adapter);
+        },
+      });
+      const middleware = new SaleorRequestProcessor(adapter);
 
       const result = middleware.getSaleorHeaders();
 
@@ -128,6 +128,6 @@ describe("PlatformAdapterMiddleware", () => {
         saleorApiUrl: "https://api.saleor.io",
         schemaVersion: undefined,
       });
-    })
+    });
   });
 });

@@ -7,8 +7,8 @@ import { Permission } from "@/types";
 import { extractUserFromJwt, TokenUserPayload } from "@/util/extract-user-from-jwt";
 import { verifyJWT } from "@/verify-jwt";
 
-import { PlatformAdapterMiddleware } from "./adapter-middleware";
 import { ActionHandlerResult, PlatformAdapterInterface } from "./generic-adapter-use-case-types";
+import { SaleorRequestProcessor } from "./saleor-request-processor";
 
 export type ProtectedHandlerConfig = {
   apl: APL;
@@ -33,7 +33,7 @@ export class ProtectedActionValidator<I> {
 
   constructor(private adapter: PlatformAdapterInterface<I>) {}
 
-  private adapterMiddleware = new PlatformAdapterMiddleware(this.adapter);
+  private requestProcessor = new SaleorRequestProcessor(this.adapter);
 
   /** Validates received request if it's legitimate webhook request from Saleor
    * returns ActionHandlerResult if request is invalid and must be terminated early
@@ -51,7 +51,7 @@ export class ProtectedActionValidator<I> {
         this.debug("Request processing started");
 
         const { saleorApiUrl, authorizationBearer: token } =
-          this.adapterMiddleware.getSaleorHeaders();
+          this.requestProcessor.getSaleorHeaders();
 
         const baseUrl = this.adapter.getBaseUrl();
 

@@ -7,8 +7,8 @@ import { getOtelTracer } from "@/open-telemetry";
 import { parseSchemaVersion } from "@/util";
 import { verifySignatureWithJwks } from "@/verify-signature";
 
-import { PlatformAdapterMiddleware } from "./adapter-middleware";
 import { PlatformAdapterInterface } from "./generic-adapter-use-case-types";
+import { SaleorRequestProcessor } from "./saleor-request-processor";
 import { WebhookContext, WebhookError } from "./saleor-webhook";
 
 type WebhookValidationResult<TPayload> =
@@ -24,7 +24,7 @@ export class SaleorWebhookValidator {
     allowedEvent: string;
     apl: APL;
     adapter: PlatformAdapterInterface<TRequestType>;
-    adapterMiddleware: PlatformAdapterMiddleware<TRequestType>;
+    requestProcessor: SaleorRequestProcessor<TRequestType>;
   }): Promise<WebhookValidationResult<TPayload>> {
     try {
       const context = await this.validateRequestOrThrowError<TPayload, TRequestType>(config);
@@ -45,12 +45,12 @@ export class SaleorWebhookValidator {
     allowedEvent,
     apl,
     adapter,
-    adapterMiddleware,
+    requestProcessor,
   }: {
     allowedEvent: string;
     apl: APL;
     adapter: PlatformAdapterInterface<TRequestType>;
-    adapterMiddleware: PlatformAdapterMiddleware<TRequestType>;
+    requestProcessor: SaleorRequestProcessor<TRequestType>;
   }): Promise<WebhookContext<TPayload>> {
     return this.tracer.startActiveSpan(
       "processSaleorWebhook",
@@ -69,7 +69,7 @@ export class SaleorWebhookValidator {
             throw new WebhookError("Wrong request method, only POST allowed", "WRONG_METHOD");
           }
 
-          const { event, signature, saleorApiUrl } = adapterMiddleware.getSaleorHeaders();
+          const { event, signature, saleorApiUrl } = requestProcessor.getSaleorHeaders();
           const baseUrl = adapter.getBaseUrl();
 
           if (!baseUrl) {

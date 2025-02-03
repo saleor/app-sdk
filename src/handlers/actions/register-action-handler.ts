@@ -6,13 +6,13 @@ import { fetchRemoteJwks } from "@/fetch-remote-jwks";
 import { getAppId } from "@/get-app-id";
 import { HasAPL } from "@/saleor-app";
 
-import { PlatformAdapterMiddleware } from "../shared/adapter-middleware";
 import {
   ActionHandlerInterface,
   ActionHandlerResult,
   PlatformAdapterInterface,
   ResultStatusCodes,
 } from "../shared/generic-adapter-use-case-types";
+import { SaleorRequestProcessor } from "../shared/saleor-request-processor";
 import { validateAllowSaleorUrls } from "../shared/validate-allow-saleor-urls";
 
 const debug = createDebug("createAppRegisterHandler");
@@ -119,15 +119,17 @@ export type AppRegisterHandlerOptions<Request> = HasAPL & {
   ): Promise<void>;
 };
 
-export class RegisterActionHandler<I> implements ActionHandlerInterface<RegisterHandlerResponseBody> {
-  constructor(private adapter: PlatformAdapterInterface<I>) { }
+export class RegisterActionHandler<I>
+  implements ActionHandlerInterface<RegisterHandlerResponseBody>
+{
+  constructor(private adapter: PlatformAdapterInterface<I>) {}
 
-  private adapterMiddleware = new PlatformAdapterMiddleware(this.adapter);
+  private requestProcessor = new SaleorRequestProcessor(this.adapter);
 
   private runPreChecks(): ActionHandlerResult<RegisterHandlerResponseBody> | null {
     const checksToRun = [
-      this.adapterMiddleware.withMethod(["POST"]),
-      this.adapterMiddleware.withSaleorApiUrlPresent(),
+      this.requestProcessor.withMethod(["POST"]),
+      this.requestProcessor.withSaleorApiUrlPresent(),
     ];
 
     for (const check of checksToRun) {
@@ -139,7 +141,9 @@ export class RegisterActionHandler<I> implements ActionHandlerInterface<Register
     return null;
   }
 
-  async handleAction(config: AppRegisterHandlerOptions<I>): Promise<ActionHandlerResult<RegisterHandlerResponseBody>> {
+  async handleAction(
+    config: AppRegisterHandlerOptions<I>
+  ): Promise<ActionHandlerResult<RegisterHandlerResponseBody>> {
     debug("Request received");
 
     const precheckResult = this.runPreChecks();
@@ -227,12 +231,16 @@ export class RegisterActionHandler<I> implements ActionHandlerInterface<Register
   }
 
   private async parseRequestBody(): Promise<
-    | { success: false; response: ActionHandlerResult<RegisterHandlerResponseBody>; authToken?: never }
     | {
-      success: true;
-      authToken: string;
-      response?: never;
-    }
+        success: false;
+        response: ActionHandlerResult<RegisterHandlerResponseBody>;
+        authToken?: never;
+      }
+    | {
+        success: true;
+        authToken: string;
+        response?: never;
+      }
   > {
     let body: { auth_token: string };
     try {
@@ -271,10 +279,7 @@ export class RegisterActionHandler<I> implements ActionHandlerInterface<Register
 
   private async handleOnRequestStartCallback(
     onRequestStart: AppRegisterHandlerOptions<I>["onRequestStart"],
-    {
-      authToken,
-      saleorApiUrl,
-    }: { authToken: string; saleorApiUrl: string }
+    { authToken, saleorApiUrl }: { authToken: string; saleorApiUrl: string }
   ) {
     if (onRequestStart) {
       debug("Calling \"onRequestStart\" hook");
@@ -348,9 +353,9 @@ export class RegisterActionHandler<I> implements ActionHandlerInterface<Register
     token: string;
   }): Promise<
     | {
-      success: false;
-      responseBody: ActionHandlerResult<RegisterHandlerResponseBody>;
-    }
+        success: false;
+        responseBody: ActionHandlerResult<RegisterHandlerResponseBody>;
+      }
     | { success: true; appId: string }
   > {
     // Try to get App ID from the API, to confirm that communication can be established
@@ -375,9 +380,9 @@ export class RegisterActionHandler<I> implements ActionHandlerInterface<Register
 
   private async getJwksAndHandleMissingJwks({ saleorApiUrl }: { saleorApiUrl: string }): Promise<
     | {
-      success: false;
-      responseBody: ActionHandlerResult<RegisterHandlerResponseBody>;
-    }
+        success: false;
+        responseBody: ActionHandlerResult<RegisterHandlerResponseBody>;
+      }
     | { success: true; jwks: string }
   > {
     // Fetch the JWKS which will be used during webhook validation
@@ -482,7 +487,9 @@ export class RegisterActionHandler<I> implements ActionHandlerInterface<Register
 
   /** Callbacks declared by users in configuration can throw an error
    * It is caught here and converted into a response */
-  private handleHookError(e: RegisterCallbackError | unknown): ActionHandlerResult<RegisterHandlerResponseBody> {
+  private handleHookError(
+    e: RegisterCallbackError | unknown
+  ): ActionHandlerResult<RegisterHandlerResponseBody> {
     if (e instanceof RegisterCallbackError) {
       return createRegisterHandlerResponseBody(
         false,

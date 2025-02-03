@@ -6,7 +6,7 @@ import { MockAdapter } from "@/test-utils/mock-adapter";
 import { MockAPL } from "@/test-utils/mock-apl";
 import * as verifySignatureModule from "@/verify-signature";
 
-import { PlatformAdapterMiddleware } from "./adapter-middleware";
+import { SaleorRequestProcessor } from "./saleor-request-processor";
 import { SaleorWebhookValidator } from "./saleor-webhook-validator";
 
 vi.spyOn(verifySignatureModule, "verifySignatureFromApiUrl").mockImplementation(
@@ -28,7 +28,7 @@ describe("SaleorWebhookValidator", () => {
   const mockAPL = new MockAPL();
   const validator = new SaleorWebhookValidator();
   let adapter: MockAdapter;
-  let middleware: PlatformAdapterMiddleware<unknown>;
+  let requestProcessor: SaleorRequestProcessor<unknown>;
 
   const validHeaders = {
     saleorApiUrl: mockAPL.workingSaleorApiUrl,
@@ -41,7 +41,7 @@ describe("SaleorWebhookValidator", () => {
 
   beforeEach(() => {
     adapter = new MockAdapter({ baseUrl: "https://example-app.com/api" });
-    middleware = new PlatformAdapterMiddleware(adapter);
+    requestProcessor = new SaleorRequestProcessor(adapter);
   });
 
   it("Throws error on non-POST request method", async () => {
@@ -51,7 +51,7 @@ describe("SaleorWebhookValidator", () => {
       allowedEvent: "PRODUCT_UPDATED",
       apl: mockAPL,
       adapter,
-      adapterMiddleware: middleware,
+      requestProcessor,
     });
 
     expect(result).toMatchObject({
@@ -69,7 +69,7 @@ describe("SaleorWebhookValidator", () => {
       allowedEvent: "PRODUCT_UPDATED",
       apl: mockAPL,
       adapter,
-      adapterMiddleware: middleware,
+      requestProcessor,
     });
 
     expect(result).toMatchObject({
@@ -82,7 +82,7 @@ describe("SaleorWebhookValidator", () => {
   });
 
   it("Throws error on missing api url header", async () => {
-    vi.spyOn(middleware, "getSaleorHeaders").mockReturnValue({
+    vi.spyOn(requestProcessor, "getSaleorHeaders").mockReturnValue({
       ...validHeaders,
       // @ts-expect-error testing missing saleorApiUrl
       saleorApiUrl: null,
@@ -92,7 +92,7 @@ describe("SaleorWebhookValidator", () => {
       allowedEvent: "PRODUCT_UPDATED",
       apl: mockAPL,
       adapter,
-      adapterMiddleware: middleware,
+      requestProcessor,
     });
 
     expect(result).toMatchObject({
@@ -105,7 +105,7 @@ describe("SaleorWebhookValidator", () => {
   });
 
   it("Throws error on missing event header", async () => {
-    vi.spyOn(middleware, "getSaleorHeaders").mockReturnValue({
+    vi.spyOn(requestProcessor, "getSaleorHeaders").mockReturnValue({
       // @ts-expect-error testing missing event
       event: null,
       signature: "mocked_signature",
@@ -116,7 +116,7 @@ describe("SaleorWebhookValidator", () => {
       allowedEvent: "PRODUCT_UPDATED",
       apl: mockAPL,
       adapter,
-      adapterMiddleware: middleware,
+      requestProcessor,
     });
 
     expect(result).toMatchObject({
@@ -129,7 +129,7 @@ describe("SaleorWebhookValidator", () => {
   });
 
   it("Throws error on mismatched event header", async () => {
-    vi.spyOn(middleware, "getSaleorHeaders").mockReturnValue({
+    vi.spyOn(requestProcessor, "getSaleorHeaders").mockReturnValue({
       ...validHeaders,
       event: "different_event",
     });
@@ -138,7 +138,7 @@ describe("SaleorWebhookValidator", () => {
       allowedEvent: "PRODUCT_UPDATED",
       apl: mockAPL,
       adapter,
-      adapterMiddleware: middleware,
+      requestProcessor,
     });
 
     expect(result).toMatchObject({
@@ -151,7 +151,7 @@ describe("SaleorWebhookValidator", () => {
   });
 
   it("Throws error on missing signature header", async () => {
-    vi.spyOn(middleware, "getSaleorHeaders").mockReturnValue({
+    vi.spyOn(requestProcessor, "getSaleorHeaders").mockReturnValue({
       ...validHeaders,
       // @ts-expect-error testing missing signature
       signature: null,
@@ -161,7 +161,7 @@ describe("SaleorWebhookValidator", () => {
       allowedEvent: "PRODUCT_UPDATED",
       apl: mockAPL,
       adapter,
-      adapterMiddleware: middleware,
+      requestProcessor,
     });
 
     expect(result).toMatchObject({
@@ -175,13 +175,13 @@ describe("SaleorWebhookValidator", () => {
 
   it("Throws error on missing request body", async () => {
     vi.spyOn(adapter, "getRawBody").mockResolvedValue("");
-    vi.spyOn(middleware, "getSaleorHeaders").mockReturnValue(validHeaders);
+    vi.spyOn(requestProcessor, "getSaleorHeaders").mockReturnValue(validHeaders);
 
     const result = await validator.validateRequest({
       allowedEvent: "PRODUCT_UPDATED",
       apl: mockAPL,
       adapter,
-      adapterMiddleware: middleware,
+      requestProcessor,
     });
 
     expect(result).toMatchObject({
@@ -195,13 +195,13 @@ describe("SaleorWebhookValidator", () => {
 
   it("Throws error on unparsable request body", async () => {
     vi.spyOn(adapter, "getRawBody").mockResolvedValue("{ "); // broken JSON
-    vi.spyOn(middleware, "getSaleorHeaders").mockReturnValue(validHeaders);
+    vi.spyOn(requestProcessor, "getSaleorHeaders").mockReturnValue(validHeaders);
 
     const result = await validator.validateRequest({
       allowedEvent: "PRODUCT_UPDATED",
       apl: mockAPL,
       adapter,
-      adapterMiddleware: middleware,
+      requestProcessor,
     });
 
     expect(result).toMatchObject({
@@ -216,7 +216,7 @@ describe("SaleorWebhookValidator", () => {
   it("Throws error on unregistered app", async () => {
     const unregisteredApiUrl = "https://not-registered.example.com/graphql/";
 
-    vi.spyOn(middleware, "getSaleorHeaders").mockReturnValue({
+    vi.spyOn(requestProcessor, "getSaleorHeaders").mockReturnValue({
       ...validHeaders,
       saleorApiUrl: unregisteredApiUrl,
     });
@@ -225,7 +225,7 @@ describe("SaleorWebhookValidator", () => {
       allowedEvent: "PRODUCT_UPDATED",
       apl: mockAPL,
       adapter,
-      adapterMiddleware: middleware,
+      requestProcessor,
     });
 
     expect(result).toMatchObject({
@@ -240,13 +240,13 @@ describe("SaleorWebhookValidator", () => {
   // TODO: This should be required
   it("Fallbacks to null if version is missing in payload", async () => {
     vi.spyOn(adapter, "getRawBody").mockResolvedValue(JSON.stringify({}));
-    vi.spyOn(middleware, "getSaleorHeaders").mockReturnValue(validHeaders);
+    vi.spyOn(requestProcessor, "getSaleorHeaders").mockReturnValue(validHeaders);
 
     const result = await validator.validateRequest({
       allowedEvent: "PRODUCT_UPDATED",
       apl: mockAPL,
       adapter,
-      adapterMiddleware: middleware,
+      requestProcessor,
     });
 
     expect(result).toMatchObject({
@@ -258,13 +258,13 @@ describe("SaleorWebhookValidator", () => {
   });
 
   it("Returns success on valid request with signature passing validation against jwks in auth data", async () => {
-    vi.spyOn(middleware, "getSaleorHeaders").mockReturnValue(validHeaders);
+    vi.spyOn(requestProcessor, "getSaleorHeaders").mockReturnValue(validHeaders);
 
     const result = await validator.validateRequest({
       allowedEvent: "PRODUCT_UPDATED",
       apl: mockAPL,
       adapter,
-      adapterMiddleware: middleware,
+      requestProcessor,
     });
 
     expect(result).toMatchObject({
@@ -288,7 +288,7 @@ describe("SaleorWebhookValidator", () => {
 
     beforeEach(() => {
       vi.resetAllMocks();
-      vi.spyOn(middleware, "getSaleorHeaders").mockReturnValue(validHeaders);
+      vi.spyOn(requestProcessor, "getSaleorHeaders").mockReturnValue(validHeaders);
     });
 
     it("Triggers JWKS refresh when initial auth data contains empty JWKS", async () => {
@@ -300,7 +300,7 @@ describe("SaleorWebhookValidator", () => {
         allowedEvent: "PRODUCT_UPDATED",
         apl: mockAPL,
         adapter,
-        adapterMiddleware: middleware,
+        requestProcessor,
       });
 
       expect(result).toMatchObject({
@@ -335,7 +335,7 @@ describe("SaleorWebhookValidator", () => {
         allowedEvent: "PRODUCT_UPDATED",
         apl: mockAPL,
         adapter,
-        adapterMiddleware: middleware,
+        requestProcessor,
       });
 
       expect(result).toMatchObject({
@@ -372,7 +372,7 @@ describe("SaleorWebhookValidator", () => {
         allowedEvent: "PRODUCT_UPDATED",
         apl: mockAPL,
         adapter,
-        adapterMiddleware: middleware,
+        requestProcessor,
       });
 
       expect(result).toMatchObject({
@@ -395,7 +395,7 @@ describe("SaleorWebhookValidator", () => {
         allowedEvent: "PRODUCT_UPDATED",
         apl: mockAPL,
         adapter,
-        adapterMiddleware: middleware,
+        requestProcessor,
       });
 
       expect(result).toMatchObject({
