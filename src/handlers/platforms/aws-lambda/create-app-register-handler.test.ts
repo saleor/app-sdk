@@ -1,3 +1,4 @@
+import type { APIGatewayProxyEventV2 } from "aws-lambda";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AuthData } from "@/APL";
@@ -10,8 +11,9 @@ import {
   createAppRegisterHandler,
   CreateAppRegisterHandlerOptions,
 } from "./create-app-register-handler";
+import { createLambdaEvent, mockLambdaContext } from "./test-utils";
 
-describe("Fetch API create-app-register-handler", () => {
+describe("AWS Lambda create-app-register-handler", () => {
   const mockJwksValue = "{}";
   const mockAppId = "42";
   const saleorApiUrl = "https://mock-saleor-domain.saleor.cloud/graphql/";
@@ -19,28 +21,27 @@ describe("Fetch API create-app-register-handler", () => {
 
   vi.spyOn(fetchRemoteJwksModule, "fetchRemoteJwks").mockResolvedValue(mockJwksValue);
   vi.spyOn(getAppIdModule, "getAppId").mockResolvedValue(mockAppId);
-  let mockApl: MockAPL;
-  let request: Request;
 
+  let mockApl: MockAPL;
+  let event: APIGatewayProxyEventV2;
   beforeEach(() => {
     mockApl = new MockAPL();
-    request = new Request("https://example.com", {
-      method: "POST",
+    event = createLambdaEvent({
+      body: JSON.stringify({ auth_token: authToken }),
       headers: {
-        "Content-Type": "application/json",
-        Host: "mock-slaeor-domain.saleor.cloud",
-        "X-Forwarded-Proto": "https",
+        "content-type": "application/json",
+        host: "mock-slaeor-domain.saleor.cloud",
+        "x-forwarded-proto": "https",
         [SALEOR_API_URL_HEADER]: saleorApiUrl,
       },
-      body: JSON.stringify({ auth_token: authToken }),
     });
   });
 
-  it("Sets auth data for correct request", async () => {
+  it("Sets auth data for correct Lambda event", async () => {
     const handler = createAppRegisterHandler({ apl: mockApl });
-    const response = await handler(request);
+    const response = await handler(event, mockLambdaContext);
 
-    expect(response.status).toBe(200);
+    expect(response.statusCode).toBe(200);
     expect(mockApl.set).toHaveBeenCalledWith({
       saleorApiUrl,
       token: authToken,
@@ -49,43 +50,31 @@ describe("Fetch API create-app-register-handler", () => {
     });
   });
 
-  it("Returns 403 for prohibited Saleor URLs", async () => {
-    request.headers.set(SALEOR_API_URL_HEADER, "https://wrong-domain.saleor.cloud/graphql/");
+  it("Returns 403 for prohibited Saleor URLs in Lambda event", async () => {
+    event.headers[SALEOR_API_URL_HEADER] = "https://wrong-domain.saleor.cloud/graphql/";
+
     const handler = createAppRegisterHandler({
       apl: mockApl,
-      allowedSaleorUrls: [saleorApiUrl],
+      allowedSaleorUrls: [(url) => url === "https://correct-domain.saleor.cloud"],
     });
 
-    const response = await handler(request);
-    const data = await response.json();
+    const response = await handler(event, mockLambdaContext);
+    const body = JSON.parse(response.body!);
 
-    expect(response.status).toBe(403);
-    expect(data.success).toBe(false);
+    expect(response.statusCode).toBe(403);
+    expect(body.success).toBe(false);
   });
 
-  it("Handles invalid JSON bodies", async () => {
-    const brokenRequest = new Request("https://example.com", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Host: "mock-slaeor-domain.saleor.cloud",
-        "X-Forwarded-Proto": "https",
-        [SALEOR_API_URL_HEADER]: saleorApiUrl,
-      },
-      body: "{ ",
-    });
-    const handler = createAppRegisterHandler({
-      apl: mockApl,
-      allowedSaleorUrls: [saleorApiUrl],
-    });
+  it("Handles invalid JSON bodies in Lambda event", async () => {
+    event.body = "{ ";
+    const handler = createAppRegisterHandler({ apl: mockApl });
+    const response = await handler(event, mockLambdaContext);
 
-    const response = await handler(brokenRequest);
-
-    expect(response.status).toBe(400);
-    await expect(response.text()).resolves.toBe("Invalid request json.");
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toBe("Invalid request json.");
   });
 
-  describe("Callback hooks", () => {
+  describe("Lambda callback hooks", () => {
     const expectedAuthData: AuthData = {
       token: authToken,
       saleorApiUrl,
@@ -93,7 +82,7 @@ describe("Fetch API create-app-register-handler", () => {
       appId: mockAppId,
     };
 
-    it("Triggers success callbacks when APL save succeeds", async () => {
+    it("Triggers success callbacks with Lambda event context", async () => {
       const mockOnRequestStart = vi.fn();
       const mockOnRequestVerified = vi.fn();
       const mockOnAuthAplFailed = vi.fn();
@@ -107,23 +96,23 @@ describe("Fetch API create-app-register-handler", () => {
         onAuthAplSaved: mockOnAuthAplSaved,
       });
 
-      await handler(request);
+      await handler(event, mockLambdaContext);
 
       expect(mockOnRequestStart).toHaveBeenCalledWith(
-        request,
+        event,
         expect.objectContaining({
           authToken,
           saleorApiUrl,
         })
       );
       expect(mockOnRequestVerified).toHaveBeenCalledWith(
-        request,
+        event,
         expect.objectContaining({
           authData: expectedAuthData,
         })
       );
       expect(mockOnAuthAplSaved).toHaveBeenCalledWith(
-        request,
+        event,
         expect.objectContaining({
           authData: expectedAuthData,
         })
@@ -143,10 +132,10 @@ describe("Fetch API create-app-register-handler", () => {
         onAuthAplSaved: mockOnAuthAplSaved,
       });
 
-      await handler(request);
+      await handler(event, mockLambdaContext);
 
       expect(mockOnAuthAplFailed).toHaveBeenCalledWith(
-        request,
+        event,
         expect.objectContaining({
           error: expect.any(Error),
           authData: expectedAuthData,
@@ -168,10 +157,10 @@ describe("Fetch API create-app-register-handler", () => {
         onRequestStart: mockOnRequestStart,
       });
 
-      const response = await handler(request);
+      const response = await handler(event, mockLambdaContext);
 
-      expect(response.status).toBe(401);
-      await expect(response.json()).resolves.toStrictEqual({
+      expect(response.statusCode).toBe(401);
+      expect(JSON.parse(response.body!)).toStrictEqual({
         error: {
           code: "REGISTER_HANDLER_HOOK_ERROR",
           message: "test message",
