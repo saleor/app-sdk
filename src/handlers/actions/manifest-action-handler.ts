@@ -30,10 +30,10 @@ export class ManifestActionHandler<I> implements ActionHandlerInterface {
 
     debug("Received request with schema version \"%s\" and base URL \"%s\"", schemaVersion, baseURL);
 
-    const methodEagerResponse = this.requestProcessor.withMethod(["GET"]);
+    const invalidMethodResponse = this.requestProcessor.withMethod(["GET"]);
 
-    if (methodEagerResponse) {
-      return methodEagerResponse;
+    if (invalidMethodResponse) {
+      return invalidMethodResponse;
     }
 
     if (!schemaVersion) {
