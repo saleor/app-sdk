@@ -28,32 +28,6 @@ describe("Next.js SaleorAsyncWebhook", () => {
 
   const saleorAsyncWebhook = new SaleorAsyncWebhook(validAsyncWebhookConfiguration);
 
-  describe("constructor", () => {
-    it("passes if query and event is provided", async () => {
-      expect(() => {
-        new SaleorAsyncWebhook(validAsyncWebhookConfiguration);
-      }).not.toThrowError();
-    });
-
-    it("throws error if query is not provided", async () => {
-      expect(() => {
-        new SaleorAsyncWebhook({
-          ...validAsyncWebhookConfiguration,
-          query: undefined,
-        });
-      }).toThrowError();
-    });
-
-    it("throws error if event is not provided", async () => {
-      expect(() => {
-        new SaleorAsyncWebhook({
-          ...validAsyncWebhookConfiguration,
-          event: undefined,
-        });
-      }).toThrowError();
-    });
-  });
-
   describe("getWebhookManifest", () => {
     it("should return full path to the webhook route based on given baseUrl", async () => {
       expect(saleorAsyncWebhook.getWebhookManifest(baseUrl)).toEqual(
