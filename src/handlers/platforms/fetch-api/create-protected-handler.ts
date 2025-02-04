@@ -5,7 +5,7 @@ import {
 } from "@/handlers/shared/protected-action-validator";
 import { Permission } from "@/types";
 
-import { WebApiAdapter } from "./platform-adapter";
+import { WebApiAdapter, WebApiHandler } from "./platform-adapter";
 
 export type WebApiProtectedHandler = (
   request: Request,
@@ -17,7 +17,7 @@ export const createProtectedHandler =
     handlerFn: WebApiProtectedHandler,
     apl: APL,
     requiredPermissions?: Permission[]
-  ): WebApiProtectedHandler =>
+  ): WebApiHandler =>
   async (request) => {
     const adapter = new WebApiAdapter(request);
     const actionValidator = new ProtectedActionValidator(adapter);
