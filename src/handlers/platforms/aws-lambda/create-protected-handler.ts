@@ -13,7 +13,7 @@ export type AwsLambdaProtectedHandler = (
   event: APIGatewayProxyEventV2,
   context: Context,
   saleorContext: ProtectedHandlerContext
-) => Promise<APIGatewayProxyStructuredResultV2>;
+) => Promise<APIGatewayProxyStructuredResultV2> | APIGatewayProxyStructuredResultV2;
 
 /**
  * Wraps provided function, to ensure incoming request comes from Saleor Dashboard.
