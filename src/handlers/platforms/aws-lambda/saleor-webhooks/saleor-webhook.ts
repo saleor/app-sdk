@@ -1,4 +1,4 @@
-import { APIGatewayProxyResultV2, Context } from "aws-lambda";
+import { APIGatewayProxyStructuredResultV2, Context } from "aws-lambda";
 
 import { createDebug } from "@/debug";
 import {
@@ -20,7 +20,7 @@ export type SaleorWebhookHandler<TPayload = unknown, TExtras = {}> = (
   event: AwsLambdaHandlerInput,
   context: Context,
   ctx: WebhookContext<TPayload> & TExtras
-) => Promise<APIGatewayProxyResultV2> | APIGatewayProxyResultV2;
+) => Promise<APIGatewayProxyStructuredResultV2> | APIGatewayProxyStructuredResultV2;
 
 export abstract class SaleorWebApiWebhook<
   TPayload = unknown,

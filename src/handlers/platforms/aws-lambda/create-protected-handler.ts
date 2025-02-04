@@ -1,4 +1,4 @@
-import { APIGatewayProxyEventV2, APIGatewayProxyResultV2, Context } from "aws-lambda";
+import { APIGatewayProxyEventV2, APIGatewayProxyStructuredResultV2, Context } from "aws-lambda";
 
 import { APL } from "@/APL";
 import {
@@ -13,7 +13,7 @@ export type AwsLambdaProtectedHandler = (
   event: APIGatewayProxyEventV2,
   context: Context,
   saleorContext: ProtectedHandlerContext
-) => Promise<APIGatewayProxyResultV2>;
+) => Promise<APIGatewayProxyStructuredResultV2>;
 
 /**
  * Wraps provided function, to ensure incoming request comes from Saleor Dashboard.
