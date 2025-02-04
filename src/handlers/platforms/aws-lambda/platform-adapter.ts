@@ -32,7 +32,15 @@ export class AwsLambdaAdapter implements PlatformAdapterInterface<AwsLambdaHandl
     this.request = event;
   }
 
-  getHeader(name: string): string | null {
+  getHeader(requestedName: string): string | null {
+    // TODO: Check if it works correctly with both API gateway and Lambda Function URL
+
+    // Lambda headers are always in lowercase for new deployments using API Gateway,
+    // they use HTTP/2 which requires them to be lowercase
+    //
+    // if there are multiple values they are separated by comma: ,
+    // https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
+    const name = requestedName.toLocaleLowerCase();
     return this.request.headers[name] || null;
   }
 

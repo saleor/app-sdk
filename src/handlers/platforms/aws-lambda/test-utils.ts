@@ -17,12 +17,12 @@ export const mockLambdaContext: Context = {
 };
 
 export function createLambdaEvent(
-  overrides: Partial<APIGatewayProxyEventV2> = {}
+  config: Partial<APIGatewayProxyEventV2> & { path?: string; method?: "POST" | "GET" } = {}
 ): APIGatewayProxyEventV2 {
-  const path = "/some-path";
+  const { path = "/some-path", method = "POST", ...overrides } = config ?? {};
   return {
     version: "2.0",
-    routeKey: `POST ${path}`,
+    routeKey: `${method} ${path}`,
     rawPath: path,
     rawQueryString: "",
     headers: {},
@@ -32,14 +32,14 @@ export function createLambdaEvent(
       domainName: "example.com",
       domainPrefix: "example",
       http: {
-        method: "POST",
+        method,
         path,
         protocol: "HTTP/1.1",
         sourceIp: "192.168.0.1",
         userAgent: "vitest-test",
       },
       requestId: "test-request-id",
-      routeKey: `POST /${path}`,
+      routeKey: `${method} /${path}`,
       stage: "test",
       time: "03/Feb/2025:16:00:00 +0000",
       timeEpoch: Date.now(),

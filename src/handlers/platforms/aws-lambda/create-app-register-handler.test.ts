@@ -13,7 +13,7 @@ import {
 } from "./create-app-register-handler";
 import { createLambdaEvent, mockLambdaContext } from "./test-utils";
 
-describe("AWS Lambda create-app-register-handler", () => {
+describe("AWS Lambda createAppRegisterHandler", () => {
   const mockJwksValue = "{}";
   const mockAppId = "42";
   const saleorApiUrl = "https://mock-saleor-domain.saleor.cloud/graphql/";

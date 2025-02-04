@@ -11,7 +11,7 @@ import {
   CreateAppRegisterHandlerOptions,
 } from "./create-app-register-handler";
 
-describe("Fetch API create-app-register-handler", () => {
+describe("Fetch API createAppRegisterHandler", () => {
   const mockJwksValue = "{}";
   const mockAppId = "42";
   const saleorApiUrl = "https://mock-saleor-domain.saleor.cloud/graphql/";

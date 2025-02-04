@@ -20,7 +20,7 @@ const mockAppId = "42";
 vi.spyOn(fetchRemoteJwksModule, "fetchRemoteJwks").mockResolvedValue("{}");
 vi.spyOn(getAppIdModule, "getAppId").mockResolvedValue("42");
 
-describe("Next.js create-app-register-handler", () => {
+describe("Next.js createAppRegisterHandler", () => {
   let mockApl: APL;
 
   beforeEach(() => {
