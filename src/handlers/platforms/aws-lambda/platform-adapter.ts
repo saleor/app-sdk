@@ -53,12 +53,11 @@ export class AwsLambdaAdapter implements PlatformAdapterInterface<AwsLambdaHandl
   }
 
   async getRawBody(): Promise<string | null> {
-    const { body } = this.request;
-    if (!body) {
+    if (!this.request.body) {
       return null;
     }
 
-    return body;
+    return this.request.body;
   }
 
   getBaseUrl(): string {
@@ -69,8 +68,12 @@ export class AwsLambdaAdapter implements PlatformAdapterInterface<AwsLambdaHandl
       ? xForwardedProto.join(",")
       : xForwardedProto;
     const protocols = xForwardedProtos.split(",");
-    // prefer https over other protocols
-    const protocol = protocols.find((el) => el === "https") || protocols[0];
+
+    // prefer https, then http over other protocols
+    const protocol =
+      protocols.find((el) => el === "https") ||
+      protocols.find((el) => el === "http") ||
+      protocols[0];
 
     // API Gateway splits deployment into multiple stages which are
     // included in the API url (e.g. /dev or /prod)
