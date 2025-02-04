@@ -54,8 +54,8 @@ export class AwsLambdaAdapter implements PlatformAdapterInterface<AwsLambdaHandl
   }
 
   getBaseUrl(): string {
-    const xForwardedProto = this.getHeader("X-Forwarded-Proto") || "https";
-    const host = this.getHeader("Host");
+    const xForwardedProto = this.getHeader("x-forwarded-proto") || "https";
+    const host = this.getHeader("host");
 
     const xForwardedProtos = Array.isArray(xForwardedProto)
       ? xForwardedProto.join(",")
