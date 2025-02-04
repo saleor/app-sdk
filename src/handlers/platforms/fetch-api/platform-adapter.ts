@@ -37,27 +37,22 @@ export class WebApiAdapter implements PlatformAdapterInterface<WebApiHandlerInpu
   }
 
   getBaseUrl(): string {
-    let url: URL | undefined;
-    try {
-      url = new URL(this.request.url);
-    } catch (e) {
-      // no-op
-    }
-
+    const url = new URL(this.request.url); // This is safe, URL in Request object must be valid
     const host = this.request.headers.get("host");
     const xForwardedProto = this.request.headers.get("x-forwarded-proto");
 
     let protocol: string;
     if (xForwardedProto) {
       const xForwardedForProtocols = xForwardedProto.split(",").map((value) => value.trimStart());
-      protocol = xForwardedForProtocols.find((el) => el === "https") || xForwardedForProtocols[0];
-    } else if (url) {
+      protocol =
+        xForwardedForProtocols.find((el) => el === "https") ||
+        xForwardedForProtocols.find((el) => el === "http") ||
+        xForwardedForProtocols[0];
+    } else {
       // Some providers (e.g. Deno Deploy)
       // do not set x-forwarded-for header when handling request
       // try to get it from URL
       protocol = url.protocol.replace(":", "");
-    } else {
-      protocol = "http";
     }
 
     return `${protocol}://${host}`;

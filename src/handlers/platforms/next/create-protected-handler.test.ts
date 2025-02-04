@@ -1,13 +1,16 @@
 import { createMocks } from "node-mocks-http";
 import { describe, expect, it, vi } from "vitest";
 
-import { ProtectedActionValidator, ProtectedHandlerContext } from "@/handlers/shared/protected-action-validator";
+import {
+  ProtectedActionValidator,
+  ProtectedHandlerContext,
+} from "@/handlers/shared/protected-action-validator";
 import { MockAPL } from "@/test-utils/mock-apl";
 import { Permission } from "@/types";
 
 import { createProtectedHandler } from "./create-protected-handler";
 
-describe("createProtectedHandler", () => {
+describe("Next.js createProtectedHandler", () => {
   const mockAPL = new MockAPL();
   const mockHandlerFn = vi.fn();
   const { req, res } = createMocks({
