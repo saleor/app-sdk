@@ -53,7 +53,7 @@ describe("Web API SaleorSyncWebhook", () => {
         return new Response(JSON.stringify(responsePayload), { status: 200 });
       });
 
-    const saleorSyncWebhook = new SaleorSyncWebhook(webhookConfiguration);
+    const saleorSyncWebhook = new SaleorSyncWebhook<Payload>(webhookConfiguration);
 
     // Note: Requests are not representative of a real one,
     // we mock resolved value from webhook validator, which parses request

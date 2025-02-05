@@ -8,7 +8,7 @@ import { SaleorWebApiWebhook, WebApiWebhookHandler, WebhookConfig } from "./sale
 export type WebApiSyncWebhookHandler<
   TPayload,
   TEvent extends SyncWebhookEventType = SyncWebhookEventType
-> = WebApiWebhookHandler<TPayload, InjectedContext<TEvent>>;
+> = WebApiWebhookHandler<TPayload, SyncWebhookInjectedContext<TEvent>>;
 
 export class SaleorSyncWebhook<
   TPayload = unknown,

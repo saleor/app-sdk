@@ -1,12 +1,11 @@
 /* eslint-disable max-classes-per-file */
-import { GenericCreateAppRegisterHandlerOptions } from "dist/handlers/shared";
-
 import { APL, AuthData } from "@/APL";
 import { SALEOR_API_URL_HEADER } from "@/const";
 import { createDebug } from "@/debug";
 import { fetchRemoteJwks } from "@/fetch-remote-jwks";
 import { getAppId } from "@/get-app-id";
 
+import { GenericCreateAppRegisterHandlerOptions } from "../shared";
 import {
   ActionHandlerInterface,
   ActionHandlerResult,
