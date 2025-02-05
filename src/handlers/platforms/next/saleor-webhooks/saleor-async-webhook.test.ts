@@ -19,14 +19,14 @@ describe("Next.js SaleorAsyncWebhook", () => {
     vi.restoreAllMocks();
   });
 
-  const validAsyncWebhookConfiguration: WebhookConfig<AsyncWebhookEventType> = {
+  const webhookConfig: WebhookConfig<AsyncWebhookEventType> = {
     apl: mockAPL,
     event: "PRODUCT_UPDATED",
     webhookPath,
     query: "subscription { event { ... on ProductUpdated { product { id }}}}",
   } as const;
 
-  const saleorAsyncWebhook = new SaleorAsyncWebhook(validAsyncWebhookConfiguration);
+  const saleorAsyncWebhook = new SaleorAsyncWebhook(webhookConfig);
 
   describe("getWebhookManifest", () => {
     it("should return full path to the webhook route based on given baseUrl", async () => {
@@ -56,17 +56,17 @@ describe("Next.js SaleorAsyncWebhook", () => {
           baseUrl: "example.com",
           event: "product_updated",
           payload: { data: "test_payload" },
-          schemaVersion: 3.19,
+          schemaVersion: 3.2,
           authData: {
-            token: "token",
-            jwks: "",
-            saleorApiUrl: "https://example.com/graphql/",
-            appId: "12345",
+            saleorApiUrl: mockAPL.workingSaleorApiUrl,
+            token: mockAPL.mockToken,
+            jwks: mockAPL.mockJwks,
+            appId: mockAPL.mockAppId,
           },
         },
       });
 
-      const testHandler: NextJsWebhookHandler = vi.fn().mockImplementation((_req, res, context) => {
+      const handler: NextJsWebhookHandler = vi.fn().mockImplementation((_req, res, context) => {
         if (context.payload.data === "test_payload") {
           res.status(200).end();
           return;
@@ -75,25 +75,28 @@ describe("Next.js SaleorAsyncWebhook", () => {
       });
 
       const { req, res } = createMocks();
-      const wrappedHandler = saleorAsyncWebhook.createHandler(testHandler);
+      const wrappedHandler = saleorAsyncWebhook.createHandler(handler);
       await wrappedHandler(req, res);
 
       expect(res.statusCode).toBe(200);
-      expect(testHandler).toBeCalledTimes(1);
+      expect(handler).toBeCalledTimes(1);
     });
 
-    it("prevents handler execution when validation fails", async () => {
-      const handler = vi.fn();
-      const webhook = new SaleorAsyncWebhook(validAsyncWebhookConfiguration);
-
+    it("prevents handler execution when validation fails and returns error", async () => {
       vi.spyOn(SaleorWebhookValidator.prototype, "validateRequest").mockResolvedValue({
         result: "failure",
         error: new Error("Test error"),
       });
 
+      const handler = vi.fn();
+      const webhook = new SaleorAsyncWebhook(webhookConfig);
       const { req, res } = createMocks();
-      await webhook.createHandler(handler)(req, res);
 
+      const wrappedHandler = webhook.createHandler(handler);
+      await wrappedHandler(req, res);
+
+      expect(res.statusCode).toBe(500);
+      expect(res._getData()).toBe("Unexpected error while handling request");
       expect(handler).not.toHaveBeenCalled();
     });
 
@@ -106,7 +109,7 @@ describe("Next.js SaleorAsyncWebhook", () => {
         });
 
         const webhook = new SaleorAsyncWebhook({
-          ...validAsyncWebhookConfiguration,
+          ...webhookConfig,
           onError: vi.fn(),
           formatErrorResponse,
         });
@@ -128,7 +131,7 @@ describe("Next.js SaleorAsyncWebhook", () => {
       it("calls onError and uses default JSON response when formatErrorResponse not provided", async () => {
         const webhookError = new WebhookError("Test error", "OTHER");
         const webhook = new SaleorAsyncWebhook({
-          ...validAsyncWebhookConfiguration,
+          ...webhookConfig,
           onError: vi.fn(),
         });
 
@@ -148,7 +151,7 @@ describe("Next.js SaleorAsyncWebhook", () => {
       });
 
       describe("WebhookError code mapping", () => {
-        const webhook = new SaleorAsyncWebhook(validAsyncWebhookConfiguration);
+        const webhook = new SaleorAsyncWebhook(webhookConfig);
 
         it("should map OTHER error to 500 status code", async () => {
           const webhookError = new WebhookError("Internal server error", "OTHER");
@@ -238,7 +241,7 @@ describe("Next.js SaleorAsyncWebhook", () => {
         });
 
         const webhook = new SaleorAsyncWebhook({
-          ...validAsyncWebhookConfiguration,
+          ...webhookConfig,
           onError: vi.fn(),
           formatErrorResponse,
         });
@@ -259,7 +262,7 @@ describe("Next.js SaleorAsyncWebhook", () => {
 
       it("calls onError and uses default text response when formatErrorResponse not provided", async () => {
         const webhook = new SaleorAsyncWebhook({
-          ...validAsyncWebhookConfiguration,
+          ...webhookConfig,
           onError: vi.fn(),
         });
 

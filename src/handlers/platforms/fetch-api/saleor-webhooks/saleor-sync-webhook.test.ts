@@ -41,9 +41,9 @@ describe("Web API SaleorSyncWebhook", () => {
       },
     });
 
-    const testHandler = vi
+    const handler = vi
       .fn<WebApiSyncWebhookHandler<Payload>>()
-      .mockImplementation((request, ctx) => {
+      .mockImplementation((_request, ctx) => {
         const responsePayload = ctx.buildResponse({
           lines: [{ tax_rate: 8, total_net_amount: 10, total_gross_amount: 1.08 }],
           shipping_price_gross_amount: 2,
@@ -56,11 +56,11 @@ describe("Web API SaleorSyncWebhook", () => {
     const saleorSyncWebhook = new SaleorSyncWebhook(validSyncWebhookConfiguration);
 
     const request = new Request(`${baseUrl}/webhook`);
-    const wrappedHandler = saleorSyncWebhook.createHandler(testHandler);
+    const wrappedHandler = saleorSyncWebhook.createHandler(handler);
     const response = await wrappedHandler(request);
 
     expect(response.status).toBe(200);
-    expect(testHandler).toBeCalledTimes(1);
+    expect(handler).toBeCalledTimes(1);
     await expect(response.json()).resolves.toEqual(
       expect.objectContaining({
         lines: [{ tax_rate: 8, total_net_amount: 10, total_gross_amount: 1.08 }],
@@ -81,16 +81,18 @@ describe("Web API SaleorSyncWebhook", () => {
       ...validSyncWebhookConfiguration,
     });
 
-    const testHandler = vi.fn();
+    const handler = vi.fn();
+    const wrappedHandler = saleorSyncWebhook.createHandler(handler);
+
     const request = new Request(`${baseUrl}/webhook`);
-    const wrappedHandler = saleorSyncWebhook.createHandler(testHandler);
     const response = await wrappedHandler(request);
 
     expect(response.status).toBe(500);
     await expect(response.text()).resolves.toBe("Unexpected error while handling request");
+    expect(handler).not.toHaveBeenCalled();
   });
 
-  it("should allow overriding error responses", async () => {
+  it("should allow overriding error responses using formatErrorResponse", async () => {
     vi.spyOn(SaleorWebhookValidator.prototype, "validateRequest").mockResolvedValue({
       result: "failure",
       error: new Error("Test error"),
@@ -106,12 +108,14 @@ describe("Web API SaleorSyncWebhook", () => {
       formatErrorResponse: mockFormatErrorResponse,
     });
 
-    const testHandler = vi.fn();
+    const handler = vi.fn();
+    const wrappedHandler = saleorSyncWebhook.createHandler(handler);
+
     const request = new Request(`${baseUrl}/webhook`);
-    const wrappedHandler = saleorSyncWebhook.createHandler(testHandler);
     const response = await wrappedHandler(request);
 
     expect(response.status).toBe(418);
     await expect(response.text()).resolves.toBe("Custom error");
+    expect(handler).not.toHaveBeenCalled();
   });
 });
