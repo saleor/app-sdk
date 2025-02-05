@@ -14,7 +14,7 @@ export type WebhookConfig<Event = AsyncWebhookEventType | SyncWebhookEventType> 
   GenericWebhookConfig<WebApiHandlerInput, Event>;
 
 /** Function type provided by consumer in `SaleorWebApiWebhook.createHandler` */
-export type SaleorWebhookHandler<TPayload = unknown, TExtras = {}> = (
+export type WebApiWebhookHandler<TPayload = unknown, TExtras = {}> = (
   req: Request,
   ctx: WebhookContext<TPayload> & TExtras
 ) => Response | Promise<Response>;
@@ -23,7 +23,7 @@ export abstract class SaleorWebApiWebhook<
   TPayload = unknown,
   TExtras extends Record<string, unknown> = {}
 > extends GenericSaleorWebhook<WebApiHandlerInput, TPayload, TExtras> {
-  createHandler(handlerFn: SaleorWebhookHandler<TPayload, TExtras>): WebApiHandler {
+  createHandler(handlerFn: WebApiWebhookHandler<TPayload, TExtras>): WebApiHandler {
     return async (req) => {
       const adapter = new WebApiAdapter(req);
       const prepareRequestResult = await super.prepareRequest<WebApiAdapter>(adapter);

@@ -1,7 +1,7 @@
 import { AsyncWebhookEventType } from "@/types";
 
 import { WebApiHandler } from "../platform-adapter";
-import { SaleorWebApiWebhook, SaleorWebhookHandler, WebhookConfig } from "./saleor-webhook";
+import { SaleorWebApiWebhook, WebApiWebhookHandler, WebhookConfig } from "./saleor-webhook";
 
 export class SaleorAsyncWebhook<TPayload = unknown> extends SaleorWebApiWebhook<TPayload> {
   readonly event: AsyncWebhookEventType;
@@ -14,7 +14,7 @@ export class SaleorAsyncWebhook<TPayload = unknown> extends SaleorWebApiWebhook<
     this.event = configuration.event;
   }
 
-  createHandler(handlerFn: SaleorWebhookHandler<TPayload>): WebApiHandler {
+  createHandler(handlerFn: WebApiWebhookHandler<TPayload>): WebApiHandler {
     return super.createHandler(handlerFn);
   }
 }

@@ -1,16 +1,19 @@
+import { SyncWebhookInjectedContext } from "@/handlers/shared";
 import { buildSyncWebhookResponsePayload } from "@/handlers/shared/sync-webhook-response-builder";
 import { SyncWebhookEventType } from "@/types";
 
 import { AWSLambdaHandler } from "../platform-adapter";
-import { SaleorWebApiWebhook, SaleorWebhookHandler, WebhookConfig } from "./saleor-webhook";
+import { AwsLambdaWebhookHandler, SaleorWebApiWebhook, WebhookConfig } from "./saleor-webhook";
 
-type InjectedContext<TEvent extends SyncWebhookEventType> = {
-  buildResponse: typeof buildSyncWebhookResponsePayload<TEvent>;
-};
+export type AwsLambdaSyncWebhookHandler<
+  TPayload,
+  TEvent extends SyncWebhookEventType = SyncWebhookEventType
+> = AwsLambdaWebhookHandler<TPayload, SyncWebhookInjectedContext<TEvent>>;
+
 export class SaleorSyncWebhook<
   TPayload = unknown,
   TEvent extends SyncWebhookEventType = SyncWebhookEventType
-> extends SaleorWebApiWebhook<TPayload, InjectedContext<TEvent>> {
+> extends SaleorWebApiWebhook<TPayload, SyncWebhookInjectedContext<TEvent>> {
   readonly event: TEvent;
 
   protected readonly eventType = "sync" as const;
@@ -25,14 +28,7 @@ export class SaleorSyncWebhook<
     this.event = configuration.event;
   }
 
-  createHandler(
-    handlerFn: SaleorWebhookHandler<
-      TPayload,
-      {
-        buildResponse: typeof buildSyncWebhookResponsePayload<TEvent>;
-      }
-    >
-  ): AWSLambdaHandler {
+  createHandler(handlerFn: AwsLambdaSyncWebhookHandler<TPayload, TEvent>): AWSLambdaHandler {
     return super.createHandler(handlerFn);
   }
 }

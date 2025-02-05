@@ -1,18 +1,20 @@
 import { NextApiHandler } from "next";
 
+import { SyncWebhookInjectedContext } from "@/handlers/shared";
 import { buildSyncWebhookResponsePayload } from "@/handlers/shared/sync-webhook-response-builder";
 import { SyncWebhookEventType } from "@/types";
 
 import { NextJsWebhookHandler, SaleorWebhook, WebhookConfig } from "./saleor-webhook";
 
-type InjectedContext<TEvent extends SyncWebhookEventType> = {
-  buildResponse: typeof buildSyncWebhookResponsePayload<TEvent>;
-};
+export type NextJsSyncWebhookHandler<
+  TPayload,
+  TEvent extends SyncWebhookEventType = SyncWebhookEventType
+> = NextJsWebhookHandler<TPayload, SyncWebhookInjectedContext<TEvent>>;
 
 export class SaleorSyncWebhook<
   TPayload = unknown,
   TEvent extends SyncWebhookEventType = SyncWebhookEventType
-> extends SaleorWebhook<TPayload, InjectedContext<TEvent>> {
+> extends SaleorWebhook<TPayload, SyncWebhookInjectedContext<TEvent>> {
   readonly event: TEvent;
 
   protected readonly eventType = "sync" as const;
@@ -27,14 +29,7 @@ export class SaleorSyncWebhook<
     this.event = configuration.event;
   }
 
-  createHandler(
-    handlerFn: NextJsWebhookHandler<
-      TPayload,
-      {
-        buildResponse: typeof buildSyncWebhookResponsePayload<TEvent>;
-      }
-    >
-  ): NextApiHandler {
+  createHandler(handlerFn: NextJsSyncWebhookHandler<TPayload, TEvent>): NextApiHandler {
     return super.createHandler(handlerFn);
   }
 }

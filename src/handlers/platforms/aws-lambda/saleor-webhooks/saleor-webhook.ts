@@ -16,7 +16,7 @@ export type WebhookConfig<Event = AsyncWebhookEventType | SyncWebhookEventType> 
   GenericWebhookConfig<AwsLambdaHandlerInput, Event>;
 
 /** Function type provided by consumer in `SaleorWebApiWebhook.createHandler` */
-export type SaleorWebhookHandler<TPayload = unknown, TExtras = {}> = (
+export type AwsLambdaWebhookHandler<TPayload = unknown, TExtras = {}> = (
   event: AwsLambdaHandlerInput,
   context: Context,
   ctx: WebhookContext<TPayload> & TExtras
