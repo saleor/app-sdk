@@ -30,7 +30,7 @@ export abstract class SaleorWebApiWebhook<
    * Wraps provided function, to ensure incoming request comes from registered Saleor instance.
    * Also provides additional `context` object containing typed payload and request properties.
    */
-  createHandler(handlerFn: SaleorWebhookHandler<TPayload, TExtras>): AWSLambdaHandler {
+  createHandler(handlerFn: AwsLambdaWebhookHandler<TPayload, TExtras>): AWSLambdaHandler {
     return async (event, context) => {
       const adapter = new AwsLambdaAdapter(event, context);
       const prepareRequestResult = await super.prepareRequest<AwsLambdaAdapter>(adapter);

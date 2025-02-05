@@ -1,7 +1,7 @@
 import { AsyncWebhookEventType } from "@/types";
 
 import { AWSLambdaHandler } from "../platform-adapter";
-import { SaleorWebApiWebhook, SaleorWebhookHandler, WebhookConfig } from "./saleor-webhook";
+import { AwsLambdaWebhookHandler, SaleorWebApiWebhook, WebhookConfig } from "./saleor-webhook";
 
 export class SaleorAsyncWebhook<TPayload = unknown> extends SaleorWebApiWebhook<TPayload> {
   readonly event: AsyncWebhookEventType;
@@ -14,7 +14,7 @@ export class SaleorAsyncWebhook<TPayload = unknown> extends SaleorWebApiWebhook<
     this.event = configuration.event;
   }
 
-  createHandler(handlerFn: SaleorWebhookHandler<TPayload>): AWSLambdaHandler {
+  createHandler(handlerFn: AwsLambdaWebhookHandler<TPayload>): AWSLambdaHandler {
     return super.createHandler(handlerFn);
   }
 }

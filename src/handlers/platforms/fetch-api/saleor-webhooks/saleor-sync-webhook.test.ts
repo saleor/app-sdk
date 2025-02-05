@@ -9,7 +9,7 @@ import { SaleorSyncWebhook, WebApiSyncWebhookHandler } from "./saleor-sync-webho
 describe("Web API SaleorSyncWebhook", () => {
   const mockAPL = new MockAPL();
   const baseUrl = "http://saleor-app.com";
-  const validSyncWebhookConfiguration = {
+  const webhookConfiguration = {
     apl: mockAPL,
     webhookPath: "api/webhooks/checkout-calculate-taxes",
     event: "CHECKOUT_CALCULATE_TAXES",
@@ -33,10 +33,10 @@ describe("Web API SaleorSyncWebhook", () => {
         payload: { data: "test_payload" },
         schemaVersion: 3.19,
         authData: {
-          token: validSyncWebhookConfiguration.apl.mockToken,
-          jwks: validSyncWebhookConfiguration.apl.mockJwks,
-          saleorApiUrl: validSyncWebhookConfiguration.apl.workingSaleorApiUrl,
-          appId: validSyncWebhookConfiguration.apl.mockAppId,
+          token: webhookConfiguration.apl.mockToken,
+          jwks: webhookConfiguration.apl.mockJwks,
+          saleorApiUrl: webhookConfiguration.apl.workingSaleorApiUrl,
+          appId: webhookConfiguration.apl.mockAppId,
         },
       },
     });
@@ -53,9 +53,12 @@ describe("Web API SaleorSyncWebhook", () => {
         return new Response(JSON.stringify(responsePayload), { status: 200 });
       });
 
-    const saleorSyncWebhook = new SaleorSyncWebhook(validSyncWebhookConfiguration);
+    const saleorSyncWebhook = new SaleorSyncWebhook(webhookConfiguration);
 
+    // Note: Requests are not representative of a real one,
+    // we mock resolved value from webhook validator, which parses request
     const request = new Request(`${baseUrl}/webhook`);
+
     const wrappedHandler = saleorSyncWebhook.createHandler(handler);
     const response = await wrappedHandler(request);
 
@@ -78,12 +81,14 @@ describe("Web API SaleorSyncWebhook", () => {
     });
 
     const saleorSyncWebhook = new SaleorSyncWebhook({
-      ...validSyncWebhookConfiguration,
+      ...webhookConfiguration,
     });
 
     const handler = vi.fn();
     const wrappedHandler = saleorSyncWebhook.createHandler(handler);
 
+    // Note: Requests are not representative of a real one,
+    // we mock resolved value from webhook validator, which parses request
     const request = new Request(`${baseUrl}/webhook`);
     const response = await wrappedHandler(request);
 
@@ -93,9 +98,10 @@ describe("Web API SaleorSyncWebhook", () => {
   });
 
   it("should allow overriding error responses using formatErrorResponse", async () => {
+    const error = new Error("Test error");
     vi.spyOn(SaleorWebhookValidator.prototype, "validateRequest").mockResolvedValue({
       result: "failure",
-      error: new Error("Test error"),
+      error,
     });
 
     const mockFormatErrorResponse = vi.fn().mockResolvedValue({
@@ -104,16 +110,19 @@ describe("Web API SaleorSyncWebhook", () => {
     } as FormatWebhookErrorResult);
 
     const saleorSyncWebhook = new SaleorSyncWebhook({
-      ...validSyncWebhookConfiguration,
+      ...webhookConfiguration,
       formatErrorResponse: mockFormatErrorResponse,
     });
 
     const handler = vi.fn();
     const wrappedHandler = saleorSyncWebhook.createHandler(handler);
 
+    // Note: Requests are not representative of a real one,
+    // we mock resolved value from webhook validator, which parses request
     const request = new Request(`${baseUrl}/webhook`);
     const response = await wrappedHandler(request);
 
+    expect(mockFormatErrorResponse).toHaveBeenCalledWith(error, request);
     expect(response.status).toBe(418);
     await expect(response.text()).resolves.toBe("Custom error");
     expect(handler).not.toHaveBeenCalled();
