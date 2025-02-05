@@ -61,3 +61,8 @@ export type WebhookContext<TPayload> = {
 export type SyncWebhookInjectedContext<TEvent extends SyncWebhookEventType> = {
   buildResponse: typeof buildSyncWebhookResponsePayload<TEvent>;
 };
+
+export type FormatWebhookErrorResult = {
+  code: number;
+  body: string;
+};

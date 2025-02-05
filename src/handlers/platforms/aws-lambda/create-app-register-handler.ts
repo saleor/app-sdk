@@ -1,18 +1,7 @@
-import {
-  RegisterActionHandler,
-  RegisterHandlerResponseBody,
-} from "@/handlers/actions/register-action-handler";
+import { RegisterActionHandler } from "@/handlers/actions/register-action-handler";
 import { GenericCreateAppRegisterHandlerOptions } from "@/handlers/shared/create-app-register-handler-types";
 
 import { AwsLambdaAdapter, AWSLambdaHandler, AwsLambdaHandlerInput } from "./platform-adapter";
-
-export const createRegisterHandlerResponseBody = (
-  success: boolean,
-  error?: RegisterHandlerResponseBody["error"]
-): RegisterHandlerResponseBody => ({
-  success,
-  error,
-});
 
 export type CreateAppRegisterHandlerOptions =
   GenericCreateAppRegisterHandlerOptions<AwsLambdaHandlerInput>;
