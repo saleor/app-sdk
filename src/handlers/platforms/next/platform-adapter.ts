@@ -9,10 +9,21 @@ import {
 export type NextJsHandlerInput = NextApiRequest;
 export type NextJsHandler = (req: NextApiRequest, res: NextApiResponse) => Promise<void>;
 
+/** PlatformAdapter for Next.js /pages router API routes
+ *
+ * Platform adapters are used in Actions to handle generic request logic
+ * like getting body, headers, etc.
+ *
+ * Thanks to this Actions logic can be re-used for each platform
+
+ * @see {PlatformAdapterInterface}
+ * @see {@link https://nextjs.org/docs/pages/building-your-application/routing/api-routes}
+ *
+ * */
 export class NextJsAdapter implements PlatformAdapterInterface<NextJsHandlerInput> {
   readonly type = "next" as const;
 
-  constructor(public request: NextApiRequest, private res: NextApiResponse) { }
+  constructor(public request: NextApiRequest, private res: NextApiResponse) {}
 
   getHeader(name: string) {
     const header = this.request.headers[name];
@@ -39,7 +50,10 @@ export class NextJsAdapter implements PlatformAdapterInterface<NextJsHandlerInpu
       : xForwardedProto;
     const protocols = xForwardedProtos.split(",");
     // prefer https over other protocols
-    const protocol = protocols.find((el) => el === "https") || protocols.find((el => el === "http")) || protocols[0];
+    const protocol =
+      protocols.find((el) => el === "https") ||
+      protocols.find((el) => el === "http") ||
+      protocols[0];
 
     return `${protocol}://${host}`;
   }

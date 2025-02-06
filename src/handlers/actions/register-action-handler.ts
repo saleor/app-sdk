@@ -4,8 +4,8 @@ import { SALEOR_API_URL_HEADER } from "@/const";
 import { createDebug } from "@/debug";
 import { fetchRemoteJwks } from "@/fetch-remote-jwks";
 import { getAppId } from "@/get-app-id";
-import { HasAPL } from "@/saleor-app";
 
+import { GenericCreateAppRegisterHandlerOptions } from "../shared";
 import {
   ActionHandlerInterface,
   ActionHandlerResult,
@@ -66,59 +66,6 @@ export type HookCallbackErrorParams = {
 
 export type CallbackErrorHandler = (params: HookCallbackErrorParams) => never;
 
-export type AppRegisterHandlerOptions<Request> = HasAPL & {
-  /**
-   * Protect app from being registered in Saleor other than specific.
-   * By default, allow everything.
-   *
-   * Provide array of  either a full Saleor API URL (eg. my-shop.saleor.cloud/graphql/)
-   * or a function that receives a full Saleor API URL ad returns true/false.
-   */
-  allowedSaleorUrls?: Array<string | ((saleorApiUrl: string) => boolean)>;
-  /**
-   * Run right after Saleor calls this endpoint
-   */
-  onRequestStart?(
-    request: Request,
-    context: {
-      authToken?: string;
-      saleorApiUrl?: string;
-      respondWithError: CallbackErrorHandler;
-    }
-  ): Promise<void>;
-  /**
-   * Run after all security checks
-   */
-  onRequestVerified?(
-    request: Request,
-    context: {
-      authData: AuthData;
-      respondWithError: CallbackErrorHandler;
-    }
-  ): Promise<void>;
-  /**
-   * Run after APL successfully AuthData, assuming that APL.set will reject a Promise in case of error
-   */
-  onAuthAplSaved?(
-    request: Request,
-    context: {
-      authData: AuthData;
-      respondWithError: CallbackErrorHandler;
-    }
-  ): Promise<void>;
-  /**
-   * Run after APL fails to set AuthData
-   */
-  onAplSetFailed?(
-    request: Request,
-    context: {
-      authData: AuthData;
-      error: unknown;
-      respondWithError: CallbackErrorHandler;
-    }
-  ): Promise<void>;
-};
-
 export class RegisterActionHandler<I>
   implements ActionHandlerInterface<RegisterHandlerResponseBody>
 {
@@ -142,7 +89,7 @@ export class RegisterActionHandler<I>
   }
 
   async handleAction(
-    config: AppRegisterHandlerOptions<I>
+    config: GenericCreateAppRegisterHandlerOptions<I>
   ): Promise<ActionHandlerResult<RegisterHandlerResponseBody>> {
     debug("Request received");
 
@@ -278,7 +225,7 @@ export class RegisterActionHandler<I>
   }
 
   private async handleOnRequestStartCallback(
-    onRequestStart: AppRegisterHandlerOptions<I>["onRequestStart"],
+    onRequestStart: GenericCreateAppRegisterHandlerOptions<I>["onRequestStart"],
     { authToken, saleorApiUrl }: { authToken: string; saleorApiUrl: string }
   ) {
     if (onRequestStart) {
@@ -305,7 +252,7 @@ export class RegisterActionHandler<I>
     allowedSaleorUrls,
   }: {
     saleorApiUrl: string;
-    allowedSaleorUrls: AppRegisterHandlerOptions<I>["allowedSaleorUrls"];
+    allowedSaleorUrls: GenericCreateAppRegisterHandlerOptions<I>["allowedSaleorUrls"];
   }) {
     if (!validateAllowSaleorUrls(saleorApiUrl, allowedSaleorUrls)) {
       debug(
@@ -326,7 +273,7 @@ export class RegisterActionHandler<I>
     return null;
   }
 
-  private async checkAplIsConfigured(apl: AppRegisterHandlerOptions<I>["apl"]) {
+  private async checkAplIsConfigured(apl: GenericCreateAppRegisterHandlerOptions<I>["apl"]) {
     const { configured: aplConfigured } = await apl.isConfigured();
 
     if (!aplConfigured) {
@@ -408,7 +355,7 @@ export class RegisterActionHandler<I>
   }
 
   private async handleOnRequestVerifiedCallback(
-    onRequestVerified: AppRegisterHandlerOptions<I>["onRequestVerified"],
+    onRequestVerified: GenericCreateAppRegisterHandlerOptions<I>["onRequestVerified"],
     authData: AuthData
   ) {
     if (onRequestVerified) {
@@ -436,8 +383,8 @@ export class RegisterActionHandler<I>
     authData,
   }: {
     apl: APL;
-    onAplSetFailed: AppRegisterHandlerOptions<I>["onAplSetFailed"];
-    onAuthAplSaved: AppRegisterHandlerOptions<I>["onAuthAplSaved"];
+    onAplSetFailed: GenericCreateAppRegisterHandlerOptions<I>["onAplSetFailed"];
+    onAuthAplSaved: GenericCreateAppRegisterHandlerOptions<I>["onAuthAplSaved"];
     authData: AuthData;
   }) {
     try {
