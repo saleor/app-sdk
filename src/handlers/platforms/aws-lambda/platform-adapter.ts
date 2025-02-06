@@ -60,6 +60,10 @@ export class AwsLambdaAdapter implements PlatformAdapterInterface<AwsLambdaHandl
     return this.request.body;
   }
 
+  // This stage name is used when no stage name is provided in AWS CDK
+  // this means that stage name is not appended to the lambda URL
+  private DEFAULT_STAGE_NAME = "$default";
+
   getBaseUrl(): string {
     const xForwardedProto = this.getHeader("x-forwarded-proto") || "https";
     const host = this.getHeader("host");
@@ -77,10 +81,11 @@ export class AwsLambdaAdapter implements PlatformAdapterInterface<AwsLambdaHandl
 
     // API Gateway splits deployment into multiple stages which are
     // included in the API url (e.g. /dev or /prod)
+    // default stage name means that it's not appended to the URL
     // More details: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
     const { stage } = this.event.requestContext;
 
-    if (stage) {
+    if (stage && stage !== this.DEFAULT_STAGE_NAME) {
       return `${protocol}://${host}/${stage}`;
     }
 
