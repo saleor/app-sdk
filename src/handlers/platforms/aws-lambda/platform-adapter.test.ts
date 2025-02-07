@@ -153,7 +153,7 @@ describe("AwsLambdaAdapter", () => {
           "x-forwarded-proto": "https",
         },
         requestContext: {
-          stage: null,
+          stage: undefined,
         },
       });
 
