@@ -81,12 +81,12 @@ export abstract class GenericSaleorWebhook<
   private getTargetUrl(baseUrl: string) {
     const parsedBaseUrl = new URL(baseUrl);
 
-    // Remove trailing slash `/` at the beginning of webhook path
+    // Remove slash `/` at the beginning of webhook path
     const normalizedWebhookPath = this.webhookPath.replace(/^\//, "");
 
-    // Note: URL removes path from `baseUrl`, so we must add it to webhookPath
-    // URL.pathname = http://my-fn.com/path -> /path
-    // Replace double slashes // -> / (either from webhook path or baseUrl)
+    /** Note: URL removes path from `baseUrl`, so we must add it to webhookPath
+     * URL.pathname = http://my-fn.com/path -> /path
+     * Replace double slashes // -> / (either from webhook path or baseUrl) */
     const fullPath = `${parsedBaseUrl.pathname}/${normalizedWebhookPath}`.replace("//", "/");
     return new URL(fullPath, baseUrl).href;
   }
