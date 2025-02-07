@@ -85,8 +85,6 @@ describe("AwsLambdaAdapter", () => {
           host: "example.com",
           "x-forwarded-proto": "https",
         },
-        // @ts-expect-error We don't need to mock entire object
-        requestContext: { stage: null },
       });
       const adapter = new AwsLambdaAdapter(event, mockLambdaContext);
       expect(adapter.getBaseUrl()).toBe("https://example.com");
@@ -98,8 +96,6 @@ describe("AwsLambdaAdapter", () => {
           host: "example.com",
           "x-forwarded-proto": "https,http,wss",
         },
-        // @ts-expect-error We don't need to mock entire object
-        requestContext: { stage: null },
       });
       const adapter = new AwsLambdaAdapter(event, mockLambdaContext);
       expect(adapter.getBaseUrl()).toBe("https://example.com");
@@ -111,8 +107,6 @@ describe("AwsLambdaAdapter", () => {
           host: "example.com",
           "x-forwarded-proto": "wss,http",
         },
-        // @ts-expect-error We don't need to mock entire object
-        requestContext: { stage: null },
       });
       const adapter = new AwsLambdaAdapter(event, mockLambdaContext);
       expect(adapter.getBaseUrl()).toBe("http://example.com");
@@ -124,8 +118,6 @@ describe("AwsLambdaAdapter", () => {
           host: "example.com",
           "x-forwarded-proto": "wss,ftp",
         },
-        // @ts-expect-error We don't need to mock entire object
-        requestContext: { stage: null },
       });
       const adapter = new AwsLambdaAdapter(event, mockLambdaContext);
       expect(adapter.getBaseUrl()).toBe("wss://example.com");
@@ -134,9 +126,37 @@ describe("AwsLambdaAdapter", () => {
     it("should use https as default when x-forwarded-proto header is not present", () => {
       const event = createLambdaEvent({
         headers: { host: "example.org" },
-        // @ts-expect-error We don't need to mock entire object
-        requestContext: { stage: null },
       });
+      const adapter = new AwsLambdaAdapter(event, mockLambdaContext);
+      expect(adapter.getBaseUrl()).toBe("https://example.org");
+    });
+
+    it("should exclude $default stage in base url when present", () => {
+      const event = createLambdaEvent({
+        headers: {
+          host: "example.org",
+          "x-forwarded-proto": "https",
+        },
+        requestContext: {
+          stage: "$default",
+        },
+      });
+
+      const adapter = new AwsLambdaAdapter(event, mockLambdaContext);
+      expect(adapter.getBaseUrl()).toBe("https://example.org");
+    });
+
+    it("should exclude stage in base url if missing", () => {
+      const event = createLambdaEvent({
+        headers: {
+          host: "example.org",
+          "x-forwarded-proto": "https",
+        },
+        requestContext: {
+          stage: null,
+        },
+      });
+
       const adapter = new AwsLambdaAdapter(event, mockLambdaContext);
       expect(adapter.getBaseUrl()).toBe("https://example.org");
     });
@@ -144,14 +164,16 @@ describe("AwsLambdaAdapter", () => {
     it("should include stage in base url when present", () => {
       const event = createLambdaEvent({
         headers: {
-          host: "example.com",
+          host: "example.org",
           "x-forwarded-proto": "https",
         },
-        // note: stage in the mock is "test"
+        requestContext: {
+          stage: "test",
+        },
       });
 
       const adapter = new AwsLambdaAdapter(event, mockLambdaContext);
-      expect(adapter.getBaseUrl()).toBe("https://example.com/test");
+      expect(adapter.getBaseUrl()).toBe("https://example.org/test");
     });
   });
 

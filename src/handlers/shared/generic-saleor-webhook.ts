@@ -74,8 +74,21 @@ export abstract class GenericSaleorWebhook<
     this.formatErrorResponse = configuration.formatErrorResponse;
   }
 
+  /** Gets webhook absolute URL based on baseUrl of app
+   * baseUrl is passed usually from manifest
+   * baseUrl can include it's own pathname (e.g. http://aws-lambda.com/prod -> has /prod pathname)
+   * that should be included in full webhook URL, e.g. http://my-webhook.com/prod/api/webhook/order-created */
   private getTargetUrl(baseUrl: string) {
-    return new URL(this.webhookPath, baseUrl).href;
+    const parsedBaseUrl = new URL(baseUrl);
+
+    // Remove trailing slash `/` at the beginning of webhook path
+    const normalizedWebhookPath = this.webhookPath.replace(/^\//, "");
+
+    // Note: URL removes path from `baseUrl`, so we must add it to webhookPath
+    // URL.pathname = http://my-fn.com/path -> /path
+    // Replace double slashes // -> / (either from webhook path or baseUrl)
+    const fullPath = `${parsedBaseUrl.pathname}/${normalizedWebhookPath}`.replace("//", "/");
+    return new URL(fullPath, baseUrl).href;
   }
 
   /**
