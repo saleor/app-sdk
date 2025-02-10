@@ -1,5 +1,5 @@
 ---
-"@saleor/app-sdk": patch
+"@saleor/app-sdk": minor
 ---
 
 Added abstract `PlatformAdapterInterface` and `ActionHandlerInterface` to enable cross-framework handler implementations.
