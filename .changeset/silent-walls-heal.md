@@ -7,7 +7,7 @@
 
 ### Previously:
 
-```
+```ts
 const handler = createManifestHandler({
   manifestFactory({ schemaVersion }) {
     schemaVersion -> null or number
@@ -20,12 +20,12 @@ const handler = createManifestHandler({
 
 Example request:
 
-```
+```http
 GET /api/manifest
 host: my-app.com
 ```
 
-```
+```http
 GET /api/manifest
 host: my-app.com
 saleor-schema-version: 3.20
@@ -33,7 +33,7 @@ saleor-schema-version: 3.20
 
 Example response:
 
-```
+```http
 Content-Type: application/json
 
 {
@@ -44,7 +44,7 @@ Content-Type: application/json
 
 ### Now:
 
-```
+```ts
 const handler = createManifestHandler({
   manifestFactory({ schemaVersion }) {
     schemaVersion -> number
@@ -64,7 +64,7 @@ host: my-app.com
 
 Response:
 
-```
+```http
 HTTP 400
 Content-Type: text/plain
 
@@ -81,7 +81,7 @@ saleor-schema-version: 3.20
 
 Response:
 
-```
+```http
 HTTP 200
 Content-Type: application/json
 

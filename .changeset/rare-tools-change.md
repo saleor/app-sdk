@@ -10,6 +10,10 @@ This example uses Next.js app router
 
 ```ts
 /* /app/api/manifest/route.ts */
+import { createManifestHandler } from "@saleor/app-sdk/handlers/fetch-api";
+// or
+import { createManifestHandler } from "@saleor/app-sdk/handlers/next-app-router";
+
 export const GET = createManifestHandler({
   manifestFactory({ appBaseUrl, request }) {
     return {
@@ -24,8 +28,12 @@ export const GET = createManifestHandler({
     };
   },
 });
+```
 
+```ts
 /* /app/api/register/route.ts */
+import { createAppRegisterHandler } from "@saleor/app-sdk/handlers/fetch-api";
+
 export const POST = createAppRegisterHandler({
   apl: saleorApp.apl,
 });
