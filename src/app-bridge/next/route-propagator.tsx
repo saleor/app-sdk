@@ -17,7 +17,9 @@ export const useRoutePropagator = () => {
   const router = useRouter();
 
   useEffect(() => {
-    if (!appBridgeState?.ready ?? !appBridge) {
+    const appBridgeStateIsReady = appBridgeState?.ready ?? false;
+
+    if (!appBridgeStateIsReady || !appBridge) {
       return;
     }
 
