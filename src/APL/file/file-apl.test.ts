@@ -1,7 +1,7 @@
 import { promises as fsPromises } from "fs";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { AuthData } from "./apl";
+import { AuthData } from "../apl";
 import { FileAPL } from "./file-apl";
 
 const stubAuthData: AuthData = {
@@ -39,7 +39,7 @@ describe("APL", () => {
             token: stubAuthData.token,
             saleorApiUrl: stubAuthData.saleorApiUrl,
             appId: stubAuthData.appId,
-          })
+          }),
         );
 
         const apl = new FileAPL();
@@ -69,7 +69,7 @@ describe("APL", () => {
         const apl = new FileAPL();
 
         await expect(apl.set(stubAuthData)).rejects.toThrow(
-          "File APL was unable to save auth data"
+          "File APL was unable to save auth data",
         );
         expect(spyWriteFile).toBeCalledWith(".saleor-app-auth.json", JSON.stringify(stubAuthData));
       });

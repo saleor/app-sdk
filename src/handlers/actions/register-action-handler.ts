@@ -49,7 +49,7 @@ export type RegisterHandlerResponseBody = {
 export const createRegisterHandlerResponseBody = (
   success: boolean,
   error?: RegisterHandlerResponseBody["error"],
-  statusCode?: ResultStatusCodes
+  statusCode?: ResultStatusCodes,
 ): ActionHandlerResult<RegisterHandlerResponseBody> => ({
   status: statusCode ?? (success ? 200 : 500),
   body: {
@@ -89,7 +89,7 @@ export class RegisterActionHandler<I>
   }
 
   async handleAction(
-    config: GenericCreateAppRegisterHandlerOptions<I>
+    config: GenericCreateAppRegisterHandlerOptions<I>,
   ): Promise<ActionHandlerResult<RegisterHandlerResponseBody>> {
     debug("Request received");
 
@@ -160,7 +160,7 @@ export class RegisterActionHandler<I>
 
     const onRequestVerifiedErrorResponse = await this.handleOnRequestVerifiedCallback(
       config.onRequestVerified,
-      authData
+      authData,
     );
 
     if (onRequestVerifiedErrorResponse) {
@@ -226,7 +226,7 @@ export class RegisterActionHandler<I>
 
   private async handleOnRequestStartCallback(
     onRequestStart: GenericCreateAppRegisterHandlerOptions<I>["onRequestStart"],
-    { authToken, saleorApiUrl }: { authToken: string; saleorApiUrl: string }
+    { authToken, saleorApiUrl }: { authToken: string; saleorApiUrl: string },
   ) {
     if (onRequestStart) {
       debug("Calling \"onRequestStart\" hook");
@@ -257,7 +257,7 @@ export class RegisterActionHandler<I>
     if (!validateAllowSaleorUrls(saleorApiUrl, allowedSaleorUrls)) {
       debug(
         "Validation of URL %s against allowSaleorUrls param resolves to false, throwing",
-        saleorApiUrl
+        saleorApiUrl,
       );
 
       return createRegisterHandlerResponseBody(
@@ -266,7 +266,7 @@ export class RegisterActionHandler<I>
           code: "SALEOR_URL_PROHIBITED",
           message: "This app expects to be installed only in allowed Saleor instances",
         },
-        403
+        403,
       );
     }
 
@@ -274,6 +274,13 @@ export class RegisterActionHandler<I>
   }
 
   private async checkAplIsConfigured(apl: GenericCreateAppRegisterHandlerOptions<I>["apl"]) {
+    /**
+     * Method is optional so if not implemented, just ignore this flow
+     */
+    if (!apl.isConfigured) {
+      return null;
+    }
+
     const { configured: aplConfigured } = await apl.isConfigured();
 
     if (!aplConfigured) {
@@ -285,7 +292,7 @@ export class RegisterActionHandler<I>
           code: "APL_NOT_CONFIGURED",
           message: "APL_NOT_CONFIGURED. App is configured properly. Check APL docs for help.",
         },
-        503
+        503,
       );
     }
 
@@ -316,7 +323,7 @@ export class RegisterActionHandler<I>
           message: `The auth data given during registration request could not be used to fetch app ID. 
           This usually means that App could not connect to Saleor during installation. Saleor URL that App tried to connect: ${saleorApiUrl}`,
         },
-        401
+        401,
       );
 
       return { success: false, responseBody };
@@ -348,7 +355,7 @@ export class RegisterActionHandler<I>
         code: "JWKS_NOT_AVAILABLE",
         message: "Can't fetch the remote JWKS.",
       },
-      401
+      401,
     );
 
     return { success: false, responseBody };
@@ -356,7 +363,7 @@ export class RegisterActionHandler<I>
 
   private async handleOnRequestVerifiedCallback(
     onRequestVerified: GenericCreateAppRegisterHandlerOptions<I>["onRequestVerified"],
-    authData: AuthData
+    authData: AuthData,
   ) {
     if (onRequestVerified) {
       debug("Calling \"onRequestVerified\" hook");
@@ -435,7 +442,7 @@ export class RegisterActionHandler<I>
   /** Callbacks declared by users in configuration can throw an error
    * It is caught here and converted into a response */
   private handleHookError(
-    e: RegisterCallbackError | unknown
+    e: RegisterCallbackError | unknown,
   ): ActionHandlerResult<RegisterHandlerResponseBody> {
     if (e instanceof RegisterCallbackError) {
       return createRegisterHandlerResponseBody(
@@ -444,7 +451,7 @@ export class RegisterActionHandler<I>
           code: "REGISTER_HANDLER_HOOK_ERROR",
           message: e.message,
         },
-        e.status
+        e.status,
       );
     }
     return {

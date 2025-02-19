@@ -115,6 +115,26 @@
       "import": "./APL/redis/index.mjs",
       "require": "./APL/redis/index.js"
     },
+    "./APL/env": {
+      "types": "./APL/env/index.d.ts",
+      "import": "./APL/env/index.mjs",
+      "require": "./APL/env/index.js"
+    },
+    "./APL/file": {
+      "types": "./APL/file/index.d.ts",
+      "import": "./APL/file/index.mjs",
+      "require": "./APL/file/index.js"
+    },
+    "./APL/upstash": {
+      "types": "./APL/upstash/index.d.ts",
+      "import": "./APL/upstash/index.mjs",
+      "require": "./APL/upstash/index.js"
+    },
+    "./APL/saleor-cloud": {
+      "types": "./APL/saleor-cloud/index.d.ts",
+      "import": "./APL/saleor-cloud/index.mjs",
+      "require": "./APL/saleor-cloud/index.js"
+    },
     "./APL/vercel-kv": {
       "types": "./APL/vercel-kv/index.d.ts",
       "import": "./APL/vercel-kv/index.mjs",

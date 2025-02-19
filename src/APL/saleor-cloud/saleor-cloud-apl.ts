@@ -3,7 +3,7 @@ import { SemanticAttributes } from "@opentelemetry/semantic-conventions";
 
 import { hasProp } from "../../has-prop";
 import { getOtelTracer, OTEL_APL_SERVICE_NAME } from "../../open-telemetry";
-import { APL, AplConfiguredResult, AplReadyResult, AuthData } from "../apl";
+import { APL, AuthData } from "../apl";
 import { createAPLDebug } from "../apl-debug";
 import { authDataFromObject } from "../auth-data-from-object";
 import { Paginator } from "./paginator";
@@ -42,7 +42,7 @@ const validateResponseStatus = (response: Response) => {
 
     throw new SaleorCloudAplError(
       CloudAplError.RESPONSE_NON_200,
-      `Fetch returned with non 200 status code ${response.status}`
+      `Fetch returned with non 200 status code ${response.status}`,
     );
   }
 };
@@ -170,7 +170,7 @@ export class SaleorCloudAPL implements APL {
 
           throw new SaleorCloudAplError(
             CloudAplError.FAILED_TO_REACH_API,
-            `${extractErrorMessage(error)}`
+            `${extractErrorMessage(error)}`,
           );
         });
 
@@ -187,7 +187,7 @@ export class SaleorCloudAPL implements APL {
 
           throw new SaleorCloudAplError(
             CloudAplError.FAILED_TO_REACH_API,
-            "Response couldn't be resolved"
+            "Response couldn't be resolved",
           );
         }
 
@@ -261,7 +261,7 @@ export class SaleorCloudAPL implements APL {
           .end();
 
         return authData;
-      }
+      },
     );
   }
 
@@ -296,7 +296,7 @@ export class SaleorCloudAPL implements APL {
 
           throw new SaleorCloudAplError(
             CloudAplError.ERROR_SAVING_DATA,
-            `Error during saving the data: ${extractErrorMessage(e)}`
+            `Error during saving the data: ${extractErrorMessage(e)}`,
           );
         });
 
@@ -312,7 +312,7 @@ export class SaleorCloudAPL implements APL {
         span.end();
 
         return undefined;
-      }
+      },
     );
   }
 
@@ -336,7 +336,7 @@ export class SaleorCloudAPL implements APL {
 
       throw new SaleorCloudAplError(
         CloudAplError.ERROR_DELETING_DATA,
-        `Error during deleting the data: ${errorMessage}`
+        `Error during deleting the data: ${errorMessage}`,
       );
     }
   }
@@ -359,32 +359,5 @@ export class SaleorCloudAPL implements APL {
     }
 
     return [];
-  }
-
-  async isReady(): Promise<AplReadyResult> {
-    const configured = await this.isConfigured();
-
-    return configured
-      ? {
-          ready: true,
-        }
-      : {
-          ready: false,
-          error: new Error("SaleorCloudAPL is not configured"),
-        };
-  }
-
-  async isConfigured(): Promise<AplConfiguredResult> {
-    if (!this.resourceUrl) {
-      debug("Resource URL has not been specified.");
-      return {
-        configured: false,
-        error: new Error("SaleorCloudAPL required resourceUrl param"),
-      };
-    }
-
-    return {
-      configured: true,
-    };
   }
 }

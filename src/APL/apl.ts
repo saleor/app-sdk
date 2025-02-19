@@ -31,6 +31,6 @@ export interface APL {
   /**
    * Inform that configuration is finished and correct
    */
-  isReady: () => Promise<AplReadyResult>;
-  isConfigured: () => Promise<AplConfiguredResult>;
+  isReady?: () => Promise<AplReadyResult>;
+  isConfigured?: () => Promise<AplConfiguredResult>;
 }

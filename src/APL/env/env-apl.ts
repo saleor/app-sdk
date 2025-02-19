@@ -1,5 +1,5 @@
-import { APL, AuthData } from "./apl";
-import { createAPLDebug } from "./apl-debug";
+import { APL, AuthData } from "../apl";
+import { createAPLDebug } from "../apl-debug";
 
 const debug = createAPLDebug("EnvAPL");
 
@@ -25,7 +25,7 @@ export class EnvAPL implements APL {
     if (!this.isAuthDataValid(options.env)) {
       // eslint-disable-next-line no-console
       console.warn(
-        "EnvAPL constructor not filled with valid AuthData config. Try to install the app with \"printAuthDataOnRegister\" enabled and check console logs"
+        "EnvAPL constructor not filled with valid AuthData config. Try to install the app with \"printAuthDataOnRegister\" enabled and check console logs",
       );
     }
 
@@ -39,7 +39,7 @@ export class EnvAPL implements APL {
     const keysToValidateAgainst: Array<keyof AuthData> = ["appId", "saleorApiUrl", "token"];
 
     return keysToValidateAgainst.every(
-      (key) => authData[key] && typeof authData[key] === "string" && authData[key]!.length > 0
+      (key) => authData[key] && typeof authData[key] === "string" && authData[key]!.length > 0,
     );
   }
 
@@ -71,7 +71,7 @@ export class EnvAPL implements APL {
       // eslint-disable-next-line no-console
       console.log(JSON.stringify(authData, null, 2));
       console.warn(
-        "🛑'printAuthDataOnRegister' option should be turned off once APL is configured, to avoid possible leaks"
+        "🛑'printAuthDataOnRegister' option should be turned off once APL is configured, to avoid possible leaks",
       );
     }
     debug("Called set method");
@@ -85,7 +85,7 @@ export class EnvAPL implements APL {
 
     if (saleorApiUrl !== this.options.env.saleorApiUrl) {
       throw new Error(
-        `Requested AuthData for domain "${saleorApiUrl}", however APL is configured for ${this.options.env.saleorApiUrl}. You may trying to install app in invalid Saleor URL `
+        `Requested AuthData for domain "${saleorApiUrl}", however APL is configured for ${this.options.env.saleorApiUrl}. You may trying to install app in invalid Saleor URL `,
       );
     }
 

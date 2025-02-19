@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { AuthData } from "./apl";
+import { AuthData } from "../apl";
 import { EnvAPL } from "./env-apl";
 
 const getMockEnvVars = () => ({
@@ -27,7 +27,7 @@ describe("EnvAPL", () => {
           appId: envVars.SALEOR_APP_ID,
           saleorApiUrl: envVars.SALEOR_API_URL,
         },
-      })
+      }),
     ).toBeDefined();
   });
 
@@ -58,7 +58,7 @@ describe("EnvAPL", () => {
   "appId": "app-id",
   "token": "some-token",
   "jwks": "{}"
-}`
+}`,
     );
   });
 

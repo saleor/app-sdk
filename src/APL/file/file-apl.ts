@@ -1,7 +1,7 @@
 import { promises as fsPromises } from "fs";
 
-import { APL, AplConfiguredResult, AplReadyResult, AuthData } from "./apl";
-import { createAPLDebug } from "./apl-debug";
+import { APL, AuthData } from "../apl";
+import { createAPLDebug } from "../apl-debug";
 
 const debug = createAPLDebug("FileAPL");
 
@@ -42,7 +42,7 @@ export class FileAPL implements APL {
     } catch (err) {
       debug(`Could not read auth data from the ${this.fileName} file`, err);
       debug(
-        "Maybe apl.get() was called before app was registered. Returning empty, fallback data (undefined)"
+        "Maybe apl.get() was called before app was registered. Returning empty, fallback data (undefined)",
       );
 
       return undefined;
@@ -112,27 +112,5 @@ export class FileAPL implements APL {
     }
 
     return [authData];
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  async isReady(): Promise<AplReadyResult> {
-    /**
-     * Assume FileAPL is just ready to use.
-     * Consider checking if directory is writable
-     */
-    return {
-      ready: true,
-    };
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  async isConfigured(): Promise<AplConfiguredResult> {
-    /**
-     * Assume FileAPL is just ready to use.
-     * Consider checking if directory is writable
-     */
-    return {
-      configured: true,
-    };
   }
 }
