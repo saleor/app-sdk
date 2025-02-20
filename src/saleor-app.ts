@@ -1,4 +1,4 @@
-import { APL, AplReadyResult } from "./APL";
+import { APL } from "./APL";
 
 export interface HasAPL {
   apl: APL;
@@ -17,9 +17,5 @@ export class SaleorApp implements HasAPL {
   constructor(options: SaleorAppParams) {
     this.apl = options.apl;
     this.requiredEnvVars = options.requiredEnvVars ?? [];
-  }
-
-  isReady(): Promise<AplReadyResult> {
-    return this.apl.isReady();
   }
 }

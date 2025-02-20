@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 // eslint-disable-next-line max-classes-per-file
-import { APL, AplConfiguredResult, AplReadyResult, AuthData } from "./apl";
-import { createAPLDebug } from "./apl-debug";
+import { APL, AplConfiguredResult, AplReadyResult, AuthData } from "../apl";
+import { createAPLDebug } from "../apl-debug";
 
 const debug = createAPLDebug("UpstashAPL");
 
@@ -19,7 +19,7 @@ export class UpstashAplMisconfiguredError extends Error {
     super(
       `Configuration values for: ${missingVars
         .map((v) => `"${v}"`)
-        .join(", ")} not found or is empty. Pass values to constructor of use env variables.`
+        .join(", ")} not found or is empty. Pass values to constructor of use env variables.`,
     );
   }
 }
@@ -58,7 +58,7 @@ export class UpstashAPL implements APL {
     debug("Sending request to Upstash");
     if (!this.restURL || !this.restToken) {
       throw new Error(
-        "UpstashAPL is not configured. See https://docs.saleor.io/docs/3.x/developer/extending/apps/developing-apps/app-sdk/apl"
+        "UpstashAPL is not configured. See https://docs.saleor.io/docs/3.x/developer/extending/apps/developing-apps/app-sdk/apl",
       );
     }
     let response: Response;
@@ -79,11 +79,11 @@ export class UpstashAPL implements APL {
       if ("error" in parsedResponse) {
         debug("Error message: %s", parsedResponse.error);
         throw new Error(
-          `Upstash APL was not able to perform operation. Status code: ${response.status}. Error: ${parsedResponse.error}`
+          `Upstash APL was not able to perform operation. Status code: ${response.status}. Error: ${parsedResponse.error}`,
         );
       }
       throw new Error(
-        `Upstash APL was not able to perform operation. Status code: ${response.status}`
+        `Upstash APL was not able to perform operation. Status code: ${response.status}`,
       );
     }
     debug("Upstash service responded successfully");
@@ -160,7 +160,7 @@ export class UpstashAPL implements APL {
       : {
           configured: false,
           error: new UpstashAplNotConfiguredError(
-            "UpstashAPL not configured. Check if REST URL and token provided in constructor or env"
+            "UpstashAPL not configured. Check if REST URL and token provided in constructor or env",
           ),
         };
   }

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { AuthData } from "./apl";
+import { AuthData } from "../apl";
 import { UpstashAPL, UpstashAPLConfig, UpstashAPLVariables } from "./upstash-apl";
 
 const fetchMock = vi.fn();
@@ -62,7 +62,7 @@ describe("APL", () => {
               Authorization: "Bearer token",
             },
             method: "POST",
-          }
+          },
         );
       });
 
@@ -79,7 +79,7 @@ describe("APL", () => {
           restToken: "token",
         });
         await expect(apl.set(stubAuthData)).rejects.toThrow(
-          "Upstash APL was not able to perform operation. Status code: 401. Error: Unauthorized"
+          "Upstash APL was not able to perform operation. Status code: 401. Error: Unauthorized",
         );
       });
     });
@@ -138,7 +138,7 @@ describe("APL", () => {
         // @ts-ignore
         expect(result.error.message).toEqual(
           // eslint-disable-next-line quotes
-          'Configuration values for: "restToken", "restURL" not found or is empty. Pass values to constructor of use env variables.'
+          'Configuration values for: "restToken", "restURL" not found or is empty. Pass values to constructor of use env variables.',
         );
       });
     });

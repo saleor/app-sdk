@@ -9,9 +9,17 @@ export default defineConfig({
     "saleor-app": "src/saleor-app.ts",
     "verify-jwt": "src/verify-jwt.ts",
     "verify-signature": "src/verify-signature.ts",
+    /**
+     * APLs
+     */
     "APL/index": "src/APL/index.ts",
     "APL/redis/index": "src/APL/redis/index.ts",
+    "APL/upstash/index": "src/APL/upstash/index.ts",
     "APL/vercel-kv/index": "src/APL/vercel-kv/index.ts",
+    "APL/env/index": "src/APL/env/index.ts",
+    "APL/file/index": "src/APL/file/index.ts",
+    "APL/saleor-cloud/index": "src/APL/saleor-cloud/index.ts",
+
     "app-bridge/index": "src/app-bridge/index.ts",
     "app-bridge/next/index": "src/app-bridge/next/index.ts",
     "settings-manager/index": "src/settings-manager/index.ts",

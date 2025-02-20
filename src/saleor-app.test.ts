@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { FileAPL } from "./APL";
+import { FileAPL } from "@/APL/file";
+
 import { SaleorApp } from "./saleor-app";
 
 describe("SaleorApp", () => {
