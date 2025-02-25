@@ -36,8 +36,8 @@
     "redis": ">=4"
   },
   "dependencies": {
-    "@opentelemetry/api": "^1.7.0",
-    "@opentelemetry/semantic-conventions": "^1.18.1",
+    "@opentelemetry/api": "1.9.0",
+    "@opentelemetry/semantic-conventions": "1.30.0",
     "debug": "4.3.4",
     "jose": "5.10.0",
     "raw-body": "3.0.0"
@@ -71,19 +71,19 @@
     "graphql": "16.8.0",
     "husky": "^8.0.1",
     "jsdom": "^20.0.3",
-    "lint-staged": "^13.0.3",
-    "next": "^12.3.0",
-    "node-mocks-http": "^1.11.0",
-    "prettier": "3.5.1",
-    "react": "^18.2.0",
-    "react-dom": "18.2.0",
-    "redis": "^4.7.0",
-    "tsm": "^2.2.2",
-    "tsup": "^8.3.6",
+    "lint-staged": "15.4.3",
+    "next": "15.1.7",
+    "node-mocks-http": "1.16.2",
+    "prettier": "3.5.2",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "redis": "4.7.0",
+    "tsm": "2.3.0",
+    "tsup": "8.3.6",
     "typescript": "5.7.3",
-    "vite": "6.0.11",
-    "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "3.0.4"
+    "vite": "6.2.0",
+    "vite-tsconfig-paths": "5.1.4",
+    "vitest": "3.0.7"
   },
   "peerDependenciesMeta": {
     "@vercel/kv": {
