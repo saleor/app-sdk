@@ -28,7 +28,7 @@ describe("AppBridgeProvider", () => {
     const { container } = render(
       <AppBridgeProvider>
         <div />
-      </AppBridgeProvider>
+      </AppBridgeProvider>,
     );
 
     expect(container).toBeDefined();
@@ -45,7 +45,7 @@ describe("AppBridgeProvider", () => {
         }
       >
         <div />
-      </AppBridgeProvider>
+      </AppBridgeProvider>,
     );
 
     expect(container).toBeDefined();
@@ -64,27 +64,15 @@ describe("useAppBridge hook", () => {
   it("Throws if not wrapped inside AppBridgeProvider", () => {
     expect.assertions(2);
 
-    const mockConsoleError = vi.spyOn(console, "error");
-    /**
-     * Silent errors
-     */
-    mockConsoleError.mockImplementation(() => {
-      // Silence
-    });
-
     let appBridgeResult: AppBridge | undefined;
 
     try {
-      const { result } = renderHook(() => useAppBridge(), {});
+      const { result } = renderHook(() => useAppBridge());
       appBridgeResult = result.current.appBridge;
-
-      mockConsoleError.mockClear();
     } catch (e) {
-      expect(mockConsoleError).toHaveBeenCalled();
+      expect(e).toEqual(Error("useAppBridge used outside of AppBridgeProvider"));
       expect(appBridgeResult).toBeUndefined();
     }
-
-    mockConsoleError.mockClear();
   });
 
   it("Returned instance provided in Provider", () => {
@@ -118,7 +106,7 @@ describe("useAppBridge hook", () => {
     render(
       <AppBridgeProvider appBridgeInstance={appBridge}>
         <TestComponent />
-      </AppBridgeProvider>
+      </AppBridgeProvider>,
     );
 
     fireEvent(
@@ -126,7 +114,7 @@ describe("useAppBridge hook", () => {
       new MessageEvent("message", {
         data: DashboardEventFactory.createThemeChangeEvent("light"),
         origin,
-      })
+      }),
     );
 
     return waitFor(() => {
