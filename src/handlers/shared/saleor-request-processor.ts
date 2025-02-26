@@ -40,18 +40,20 @@ export class SaleorRequestProcessor<T> {
   private toStringOrUndefined = (value: string | string[] | undefined | null) =>
     value ? value.toString() : undefined;
 
-  private toFloatOrNull = (value: string | string[] | undefined | null) =>
-    value ? parseFloat(value.toString()) : undefined;
-
   getSaleorHeaders() {
     return {
       authorizationBearer: this.toStringOrUndefined(
-        this.adapter.getHeader(SALEOR_AUTHORIZATION_BEARER_HEADER)
+        this.adapter.getHeader(SALEOR_AUTHORIZATION_BEARER_HEADER),
       ),
       signature: this.toStringOrUndefined(this.adapter.getHeader(SALEOR_SIGNATURE_HEADER)),
       event: this.toStringOrUndefined(this.adapter.getHeader(SALEOR_EVENT_HEADER)),
       saleorApiUrl: this.toStringOrUndefined(this.adapter.getHeader(SALEOR_API_URL_HEADER)),
-      schemaVersion: this.toFloatOrNull(this.adapter.getHeader(SALEOR_SCHEMA_VERSION)),
+      /**
+       * Schema version must remain string. Since format is "x.x" like "3.20" for javascript it's a floating numer - so it's 3.2
+       * Saleor version 3.20 != 3.2.
+       * Semver must be compared as strings
+       */
+      schemaVersion: this.toStringOrUndefined(this.adapter.getHeader(SALEOR_SCHEMA_VERSION)),
     };
   }
 }

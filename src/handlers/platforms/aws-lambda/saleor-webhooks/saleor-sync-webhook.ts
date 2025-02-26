@@ -7,19 +7,19 @@ import { AwsLambdaWebhookHandler, SaleorWebApiWebhook, WebhookConfig } from "./s
 
 export type AwsLambdaSyncWebhookHandler<
   TPayload,
-  TEvent extends SyncWebhookEventType = SyncWebhookEventType
+  TEvent extends SyncWebhookEventType = SyncWebhookEventType,
 > = AwsLambdaWebhookHandler<TPayload, SyncWebhookInjectedContext<TEvent>>;
 
 export class SaleorSyncWebhook<
   TPayload = unknown,
-  TEvent extends SyncWebhookEventType = SyncWebhookEventType
+  TEvent extends SyncWebhookEventType = SyncWebhookEventType,
 > extends SaleorWebApiWebhook<TPayload, SyncWebhookInjectedContext<TEvent>> {
   readonly event: TEvent;
 
   protected readonly eventType = "sync" as const;
 
   protected extraContext = {
-    buildResponse: buildSyncWebhookResponsePayload,
+    buildResponse: buildSyncWebhookResponsePayload<TEvent>,
   };
 
   constructor(configuration: WebhookConfig<TEvent>) {

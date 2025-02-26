@@ -14,14 +14,14 @@ vi.spyOn(verifySignatureModule, "verifySignatureFromApiUrl").mockImplementation(
     if (signature !== "mocked_signature") {
       throw new Error("Wrong signature");
     }
-  }
+  },
 );
 vi.spyOn(verifySignatureModule, "verifySignatureWithJwks").mockImplementation(
   async (domain, signature) => {
     if (signature !== "mocked_signature") {
       throw new Error("Wrong signature");
     }
-  }
+  },
 );
 
 describe("SaleorWebhookValidator", () => {
@@ -33,7 +33,7 @@ describe("SaleorWebhookValidator", () => {
   const validHeaders = {
     saleorApiUrl: mockAPL.workingSaleorApiUrl,
     event: "product_updated",
-    schemaVersion: 3.2,
+    schemaVersion: "3.20",
     signature: "mocked_signature",
     authorizationBearer: "mocked_bearer",
     domain: "example.com",
@@ -316,10 +316,10 @@ describe("SaleorWebhookValidator", () => {
       expect(mockAPL.set).toHaveBeenCalledWith(
         expect.objectContaining({
           jwks: "new-jwks",
-        })
+        }),
       );
       expect(fetchRemoteJwksModule.fetchRemoteJwks).toHaveBeenCalledWith(
-        authDataNoJwks.saleorApiUrl
+        authDataNoJwks.saleorApiUrl,
       );
       // it's called only once because jwks was missing initially, so we skipped first validation
       expect(verifySignatureModule.verifySignatureWithJwks).toHaveBeenCalledTimes(1);
@@ -351,10 +351,10 @@ describe("SaleorWebhookValidator", () => {
       expect(mockAPL.set).toHaveBeenCalledWith(
         expect.objectContaining({
           jwks: "new-jwks",
-        })
+        }),
       );
       expect(fetchRemoteJwksModule.fetchRemoteJwks).toHaveBeenCalledWith(
-        authDataNoJwks.saleorApiUrl
+        authDataNoJwks.saleorApiUrl,
       );
       expect(verifySignatureModule.verifySignatureWithJwks).toHaveBeenCalledTimes(2);
     });
@@ -362,10 +362,10 @@ describe("SaleorWebhookValidator", () => {
     it("Returns an error when new JWKS cannot be fetched", async () => {
       vi.spyOn(mockAPL, "get").mockResolvedValue(authDataNoJwks);
       vi.spyOn(verifySignatureModule, "verifySignatureWithJwks").mockRejectedValue(
-        new Error("Initial verification failed")
+        new Error("Initial verification failed"),
       );
       vi.spyOn(fetchRemoteJwksModule, "fetchRemoteJwks").mockRejectedValue(
-        new Error("JWKS fetch failed")
+        new Error("JWKS fetch failed"),
       );
 
       const result = await validator.validateRequest({
@@ -408,7 +408,7 @@ describe("SaleorWebhookValidator", () => {
 
       expect(verifySignatureModule.verifySignatureWithJwks).toHaveBeenCalledTimes(2);
       expect(fetchRemoteJwksModule.fetchRemoteJwks).toHaveBeenCalledWith(
-        authDataNoJwks.saleorApiUrl
+        authDataNoJwks.saleorApiUrl,
       );
     });
   });

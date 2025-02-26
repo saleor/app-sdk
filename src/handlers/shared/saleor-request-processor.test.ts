@@ -89,7 +89,7 @@ describe("SaleorRequestProcessor", () => {
         signature: "signature-value",
         event: "event-name",
         saleorApiUrl: "https://api.saleor.io",
-        schemaVersion: 3.2,
+        schemaVersion: "3.20",
       });
     });
 
