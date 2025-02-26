@@ -1,5 +1,3 @@
-import { v4 as uuidv4 } from "uuid";
-
 import { AppPermission } from "../types";
 import { Values } from "./helpers";
 
@@ -42,9 +40,9 @@ type ActionWithId<Name extends ActionType, Payload extends {}> = {
 };
 
 function withActionId<Name extends ActionType, Payload extends {}, T extends Action<Name, Payload>>(
-  action: T
+  action: T,
 ): ActionWithId<Name, Payload> {
-  const actionId = uuidv4();
+  const actionId = globalThis.crypto.randomUUID();
 
   return {
     ...action,
@@ -127,7 +125,7 @@ export type RequestPermissions = ActionWithId<
 
 function createRequestPermissionsAction(
   permissions: AppPermission[],
-  redirectPath: string
+  redirectPath: string,
 ): RequestPermissions {
   return withActionId({
     type: "requestPermissions",
