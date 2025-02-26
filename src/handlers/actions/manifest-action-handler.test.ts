@@ -39,7 +39,7 @@ describe("ManifestActionHandler", () => {
     expect(manifestFactory).toHaveBeenCalledWith({
       appBaseUrl: "http://example.com",
       request: {},
-      schemaVersion: 3.20,
+      schemaVersion: 3.2,
     });
   });
 
@@ -64,9 +64,13 @@ describe("ManifestActionHandler", () => {
     expect(result.status).toBe(405);
     expect(result.body).toBe("Method not allowed");
     expect(manifestFactory).not.toHaveBeenCalled();
-  })
+  });
 
-  it("should return 400 when receives null schema version header from unsupported legacy Saleor version", async () => {
+  /**
+   * api/manifest endpoint is GET and header should be optional. It can be used to install the app eventually,
+   * but also to preview the manifest from the plain GET request
+   */
+  it("should NOT return 400 when receives null schema version header from unsupported legacy Saleor version", async () => {
     adapter.getHeader = vi.fn().mockReturnValue(null);
     const handler = new ManifestActionHandler(adapter);
 
@@ -74,8 +78,7 @@ describe("ManifestActionHandler", () => {
 
     const result = await handler.handleAction({ manifestFactory });
 
-    expect(result.status).toBe(400);
-    expect(result.body).toBe("Missing schema version header");
-    expect(manifestFactory).not.toHaveBeenCalled();
+    expect(result.status).toBe(200);
+    expect(manifestFactory).toHaveBeenCalled();
   });
 });
