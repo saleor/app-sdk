@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { FormatWebhookErrorResult } from "@/handlers/shared";
+import { buildSyncWebhookResponsePayload, FormatWebhookErrorResult } from "@/handlers/shared";
 import { SaleorWebhookValidator } from "@/handlers/shared/saleor-webhook-validator";
 import { MockAPL } from "@/test-utils/mock-apl";
 
@@ -27,20 +27,20 @@ describe("AWS Lambda SaleorSyncWebhook", () => {
     it("returns valid URL when baseUrl has Lambda stage", () => {
       const webhook = new SaleorSyncWebhook(webhookConfig);
       expect(webhook.getWebhookManifest("https://aws-lambda.com/prod").targetUrl).toBe(
-        "https://aws-lambda.com/prod/api/webhooks/checkout-calculate-taxes"
+        "https://aws-lambda.com/prod/api/webhooks/checkout-calculate-taxes",
       );
       expect(webhook.getWebhookManifest("https://aws-lambda.com/prod/").targetUrl).toBe(
-        "https://aws-lambda.com/prod/api/webhooks/checkout-calculate-taxes"
+        "https://aws-lambda.com/prod/api/webhooks/checkout-calculate-taxes",
       );
       expect(webhook.getWebhookManifest("https://aws-lambda.com/test").targetUrl).toBe(
-        "https://aws-lambda.com/test/api/webhooks/checkout-calculate-taxes"
+        "https://aws-lambda.com/test/api/webhooks/checkout-calculate-taxes",
       );
     });
 
     it("returns valid URL when baseURl doesn't have lambda stage ($default stage)", () => {
       const webhook = new SaleorSyncWebhook(webhookConfig);
       expect(webhook.getWebhookManifest("https://aws-lambda.com/").targetUrl).toBe(
-        "https://aws-lambda.com/api/webhooks/checkout-calculate-taxes"
+        "https://aws-lambda.com/api/webhooks/checkout-calculate-taxes",
       );
     });
 
@@ -50,16 +50,16 @@ describe("AWS Lambda SaleorSyncWebhook", () => {
         webhookPath: `/${webhookConfig.webhookPath}`,
       });
       expect(webhook.getWebhookManifest("https://aws-lambda.com/prod").targetUrl).toBe(
-        "https://aws-lambda.com/prod/api/webhooks/checkout-calculate-taxes"
+        "https://aws-lambda.com/prod/api/webhooks/checkout-calculate-taxes",
       );
       expect(webhook.getWebhookManifest("https://aws-lambda.com/prod/").targetUrl).toBe(
-        "https://aws-lambda.com/prod/api/webhooks/checkout-calculate-taxes"
+        "https://aws-lambda.com/prod/api/webhooks/checkout-calculate-taxes",
       );
       expect(webhook.getWebhookManifest("https://aws-lambda.com/test").targetUrl).toBe(
-        "https://aws-lambda.com/test/api/webhooks/checkout-calculate-taxes"
+        "https://aws-lambda.com/test/api/webhooks/checkout-calculate-taxes",
       );
       expect(webhook.getWebhookManifest("https://aws-lambda.com/").targetUrl).toBe(
-        "https://aws-lambda.com/api/webhooks/checkout-calculate-taxes"
+        "https://aws-lambda.com/api/webhooks/checkout-calculate-taxes",
       );
     });
   });
@@ -88,15 +88,15 @@ describe("AWS Lambda SaleorSyncWebhook", () => {
 
       const handler: AwsLambdaSyncWebhookHandler<Payload> = vi
         .fn()
-        .mockImplementation(async (_event, _context, ctx) => ({
+        .mockImplementation(async () => ({
           statusCode: 200,
           body: JSON.stringify(
-            ctx.buildResponse({
+            buildSyncWebhookResponsePayload<"CHECKOUT_CALCULATE_TAXES">({
               lines: [{ tax_rate: 8, total_net_amount: 10, total_gross_amount: 10.8 }],
               shipping_price_gross_amount: 2.16,
               shipping_tax_rate: 8,
               shipping_price_net_amount: 2,
-            })
+            }),
           ),
         }));
       const wrappedHandler = saleorSyncWebhook.createHandler(handler);
