@@ -16,21 +16,21 @@ export type WebhookConfig<Event = AsyncWebhookEventType | SyncWebhookEventType> 
   GenericWebhookConfig<AwsLambdaHandlerInput, Event>;
 
 /** Function type provided by consumer in `SaleorWebApiWebhook.createHandler` */
-export type AwsLambdaWebhookHandler<TPayload = unknown, TExtras = {}> = (
+export type AwsLambdaWebhookHandler<TPayload = unknown> = (
   event: AwsLambdaHandlerInput,
   context: Context,
-  ctx: WebhookContext<TPayload> & TExtras
+  ctx: WebhookContext<TPayload>,
 ) => Promise<APIGatewayProxyStructuredResultV2> | APIGatewayProxyStructuredResultV2;
 
-export abstract class SaleorWebApiWebhook<
-  TPayload = unknown,
-  TExtras extends Record<string, unknown> = {}
-> extends GenericSaleorWebhook<AwsLambdaHandlerInput, TPayload, TExtras> {
+export abstract class SaleorWebApiWebhook<TPayload = unknown> extends GenericSaleorWebhook<
+  AwsLambdaHandlerInput,
+  TPayload
+> {
   /**
    * Wraps provided function, to ensure incoming request comes from registered Saleor instance.
    * Also provides additional `context` object containing typed payload and request properties.
    */
-  createHandler(handlerFn: AwsLambdaWebhookHandler<TPayload, TExtras>): AWSLambdaHandler {
+  createHandler(handlerFn: AwsLambdaWebhookHandler<TPayload>): AWSLambdaHandler {
     return async (event, context) => {
       const adapter = new AwsLambdaAdapter(event, context);
       const prepareRequestResult = await super.prepareRequest<AwsLambdaAdapter>(adapter);
@@ -41,7 +41,6 @@ export abstract class SaleorWebApiWebhook<
 
       debug("Incoming request validated. Call handlerFn");
       return handlerFn(event, context, {
-        ...(this.extraContext ?? ({} as TExtras)),
         ...prepareRequestResult.context,
       });
     };
