@@ -36,7 +36,7 @@ describe("Fetch API createManifestHandler", () => {
     expect(mockManifestFactory).toHaveBeenCalledWith({
       appBaseUrl: baseUrl,
       request,
-      schemaVersion: 3.2,
+      schemaVersion: "3.20",
     });
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toStrictEqual({

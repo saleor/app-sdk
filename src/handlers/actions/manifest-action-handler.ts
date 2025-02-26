@@ -19,7 +19,7 @@ export type CreateManifestHandlerOptions<T> = {
      * so manifest can be generated according to the version. But it may
      * be also requested from plain GET from the browser, so it may not be available
      */
-    schemaVersion?: number;
+    schemaVersion?: string;
   }): AppManifest | Promise<AppManifest>;
 };
 
