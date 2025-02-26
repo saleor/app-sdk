@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { FormatWebhookErrorResult } from "@/handlers/shared";
+import { buildSyncWebhookResponsePayload, FormatWebhookErrorResult } from "@/handlers/shared";
 import { SaleorWebhookValidator } from "@/handlers/shared/saleor-webhook-validator";
 import { MockAPL } from "@/test-utils/mock-apl";
 
@@ -41,17 +41,15 @@ describe("Web API SaleorSyncWebhook", () => {
       },
     });
 
-    const handler = vi
-      .fn<WebApiSyncWebhookHandler<Payload>>()
-      .mockImplementation((_request, ctx) => {
-        const responsePayload = ctx.buildResponse({
-          lines: [{ tax_rate: 8, total_net_amount: 10, total_gross_amount: 1.08 }],
-          shipping_price_gross_amount: 2,
-          shipping_tax_rate: 8,
-          shipping_price_net_amount: 1,
-        });
-        return new Response(JSON.stringify(responsePayload), { status: 200 });
+    const handler = vi.fn<WebApiSyncWebhookHandler<Payload>>().mockImplementation(() => {
+      const responsePayload = buildSyncWebhookResponsePayload<"ORDER_CALCULATE_TAXES">({
+        lines: [{ tax_rate: 8, total_net_amount: 10, total_gross_amount: 1.08 }],
+        shipping_price_gross_amount: 2,
+        shipping_tax_rate: 8,
+        shipping_price_net_amount: 1,
       });
+      return new Response(JSON.stringify(responsePayload), { status: 200 });
+    });
 
     const saleorSyncWebhook = new SaleorSyncWebhook<Payload>(webhookConfiguration);
 
@@ -70,7 +68,7 @@ describe("Web API SaleorSyncWebhook", () => {
         shipping_price_gross_amount: 2,
         shipping_tax_rate: 8,
         shipping_price_net_amount: 1,
-      })
+      }),
     );
   });
 
