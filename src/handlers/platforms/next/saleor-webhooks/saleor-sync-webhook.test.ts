@@ -55,7 +55,7 @@ describe("Next.js SaleorSyncWebhook", () => {
           baseUrl: "example.com",
           event: "checkout_calculate_taxes",
           payload: { data: "test_payload" },
-          schemaVersion: 3.19,
+          schemaVersion: [3, 19],
           authData: {
             token: validSyncWebhookConfiguration.apl.mockToken,
             jwks: validSyncWebhookConfiguration.apl.mockJwks,

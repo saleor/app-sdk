@@ -320,3 +320,8 @@ export interface AppManifest {
     };
   };
 }
+
+/**
+ * Tuple representing public schema version. Patch is omitted - it doesn't change the schema.
+ */
+export type SaleorSchemaVersion = [major: number, minor: number];
