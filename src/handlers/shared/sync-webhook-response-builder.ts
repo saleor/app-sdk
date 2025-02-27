@@ -167,5 +167,5 @@ export type SyncWebhookResponsesMap = {
  * Identity function, but it works on Typescript level to pick right payload based on first param
  */
 export const buildSyncWebhookResponsePayload = <E extends SyncWebhookEventType>(
-  payload: SyncWebhookResponsesMap[E]
+  payload: SyncWebhookResponsesMap[E],
 ): SyncWebhookResponsesMap[E] => payload;

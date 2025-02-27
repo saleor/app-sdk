@@ -1,7 +1,7 @@
 import { createMocks } from "node-mocks-http";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { WebhookError } from "@/handlers/shared";
+import { buildSyncWebhookResponsePayload, WebhookError } from "@/handlers/shared";
 import { SaleorWebhookValidator } from "@/handlers/shared/saleor-webhook-validator";
 import { MockAPL } from "@/test-utils/mock-apl";
 
@@ -31,7 +31,7 @@ describe("Next.js SaleorSyncWebhook", () => {
       expect(manifest).toEqual(
         expect.objectContaining({
           targetUrl: `${baseUrl}/${validSyncWebhookConfiguration.webhookPath}`,
-        })
+        }),
       );
     });
 
@@ -66,8 +66,8 @@ describe("Next.js SaleorSyncWebhook", () => {
       });
 
       const saleorSyncWebhook = new SaleorSyncWebhook(validSyncWebhookConfiguration);
-      const testHandler: NextJsWebhookHandler = vi.fn().mockImplementation((_req, res, ctx) => {
-        const responsePayload = ctx.buildResponse({
+      const testHandler: NextJsWebhookHandler = vi.fn().mockImplementation((_req, res) => {
+        const responsePayload = buildSyncWebhookResponsePayload({
           lines: [{ tax_rate: 8, total_net_amount: 10, total_gross_amount: 1.08 }],
           shipping_price_gross_amount: 2,
           shipping_tax_rate: 8,
@@ -88,7 +88,7 @@ describe("Next.js SaleorSyncWebhook", () => {
           shipping_price_gross_amount: 2,
           shipping_tax_rate: 8,
           shipping_price_net_amount: 1,
-        })
+        }),
       );
     });
 
