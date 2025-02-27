@@ -1,3 +1,5 @@
+import { SaleorSchemaVersion } from "@/types";
+
 import { AuthData } from "../../APL";
 
 export const WebhookErrorCodeMap: Record<SaleorWebhookError, number> = {
@@ -50,9 +52,7 @@ export type WebhookContext<TPayload> = {
   event: string;
   payload: TPayload;
   authData: AuthData;
-  // TODO: Make this required
-  /** Added in Saleor 3.15 */
-  schemaVersion: number | null;
+  schemaVersion: SaleorSchemaVersion;
 };
 
 export type FormatWebhookErrorResult = {

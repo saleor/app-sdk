@@ -4,6 +4,7 @@ import { APL } from "@/APL";
 import { createDebug } from "@/debug";
 import { fetchRemoteJwks } from "@/fetch-remote-jwks";
 import { getOtelTracer } from "@/open-telemetry";
+import { SaleorSchemaVersion } from "@/types";
 import { parseSchemaVersion } from "@/util";
 import { verifySignatureWithJwks } from "@/verify-signature";
 
@@ -69,7 +70,8 @@ export class SaleorWebhookValidator {
             throw new WebhookError("Wrong request method, only POST allowed", "WRONG_METHOD");
           }
 
-          const { event, signature, saleorApiUrl } = requestProcessor.getSaleorHeaders();
+          const { event, signature, saleorApiUrl, schemaVersion } =
+            requestProcessor.getSaleorHeaders();
           const baseUrl = adapter.getBaseUrl();
 
           if (!baseUrl) {
@@ -94,7 +96,7 @@ export class SaleorWebhookValidator {
 
             throw new WebhookError(
               `Wrong incoming request event: ${event}. Expected: ${expected}`,
-              "WRONG_EVENT"
+              "WRONG_EVENT",
             );
           }
 
@@ -111,7 +113,7 @@ export class SaleorWebhookValidator {
             throw new WebhookError("Missing request body", "MISSING_REQUEST_BODY");
           }
 
-          let parsedBody: unknown & { version?: string | null };
+          let parsedBody: unknown;
 
           try {
             parsedBody = JSON.parse(rawBody);
@@ -121,13 +123,7 @@ export class SaleorWebhookValidator {
             throw new WebhookError("Request body can't be parsed", "CANT_BE_PARSED");
           }
 
-          let parsedSchemaVersion: number | null = null;
-
-          try {
-            parsedSchemaVersion = parseSchemaVersion(parsedBody.version);
-          } catch {
-            this.debug("Schema version cannot be parsed");
-          }
+          const parsedSchemaVersion = parseSchemaVersion(schemaVersion);
 
           /**
            * Verify if the app is properly installed for given Saleor API URL
@@ -139,7 +135,7 @@ export class SaleorWebhookValidator {
 
             throw new WebhookError(
               `Can't find auth data for ${saleorApiUrl}. Please register the application`,
-              "NOT_REGISTERED"
+              "NOT_REGISTERED",
             );
           }
 
@@ -162,7 +158,7 @@ export class SaleorWebhookValidator {
 
               throw new WebhookError(
                 "Fetching remote JWKS failed",
-                "SIGNATURE_VERIFICATION_FAILED"
+                "SIGNATURE_VERIFICATION_FAILED",
               );
             });
 
@@ -170,7 +166,7 @@ export class SaleorWebhookValidator {
 
             try {
               this.debug(
-                "Second attempt to validate the signature JWKS, using fresh tokens from the API"
+                "Second attempt to validate the signature JWKS, using fresh tokens from the API",
               );
 
               await verifySignatureWithJwks(newJwks, signature, rawBody);
@@ -183,7 +179,7 @@ export class SaleorWebhookValidator {
 
               throw new WebhookError(
                 "Request signature check failed",
-                "SIGNATURE_VERIFICATION_FAILED"
+                "SIGNATURE_VERIFICATION_FAILED",
               );
             }
           }
@@ -211,7 +207,7 @@ export class SaleorWebhookValidator {
         } finally {
           span.end();
         }
-      }
+      },
     );
   }
 }
