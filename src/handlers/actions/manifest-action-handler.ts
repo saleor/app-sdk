@@ -14,8 +14,12 @@ export type CreateManifestHandlerOptions<T> = {
   manifestFactory(context: {
     appBaseUrl: string;
     request: T;
-    /** Added in Saleor 3.15 */
-    schemaVersion: number;
+    /**
+     * Schema version is optional. During installation, Saleor will send it,
+     * so manifest can be generated according to the version. But it may
+     * be also requested from plain GET from the browser, so it may not be available
+     */
+    schemaVersion?: string;
   }): AppManifest | Promise<AppManifest>;
 };
 
@@ -34,14 +38,6 @@ export class ManifestActionHandler<I> implements ActionHandlerInterface {
 
     if (invalidMethodResponse) {
       return invalidMethodResponse;
-    }
-
-    if (!schemaVersion) {
-      return {
-        status: 400,
-        bodyType: "string",
-        body: "Missing schema version header",
-      };
     }
 
     try {
