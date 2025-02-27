@@ -2,7 +2,7 @@
 "@saleor/app-sdk": major
 ---
 
-Removed `ctx` parameter from SyncWebhookHandler and replace with standalone `buildSyncWebhookResponsePayload` function
+Removed `ctx.buildResponse` parameter from SyncWebhookHandler ctx and replace with standalone `buildSyncWebhookResponsePayload` function
 
 Before
 
