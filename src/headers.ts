@@ -9,9 +9,6 @@ import {
 const toStringOrUndefined = (value: string | string[] | undefined) =>
   value ? value.toString() : undefined;
 
-const toFloatOrNull = (value: string | string[] | undefined) =>
-  value ? parseFloat(value.toString()) : null;
-
 /**
  * Extracts Saleor-specific headers from the response.
  */
@@ -20,7 +17,7 @@ export const getSaleorHeaders = (headers: { [name: string]: string | string[] | 
   signature: toStringOrUndefined(headers[SALEOR_SIGNATURE_HEADER]),
   event: toStringOrUndefined(headers[SALEOR_EVENT_HEADER]),
   saleorApiUrl: toStringOrUndefined(headers[SALEOR_API_URL_HEADER]),
-  schemaVersion: toFloatOrNull(headers[SALEOR_SCHEMA_VERSION]),
+  schemaVersion: toStringOrUndefined(headers[SALEOR_SCHEMA_VERSION]),
 });
 
 /**

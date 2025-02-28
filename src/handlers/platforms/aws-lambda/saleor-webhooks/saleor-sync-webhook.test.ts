@@ -74,7 +74,7 @@ describe("AWS Lambda SaleorSyncWebhook", () => {
           baseUrl: "example.com",
           event: "CHECKOUT_CALCULATE_TAXES",
           payload: { data: "test_payload" },
-          schemaVersion: 3.19,
+          schemaVersion: [3, 19],
           authData: {
             token: webhookConfig.apl.mockToken,
             jwks: webhookConfig.apl.mockJwks,

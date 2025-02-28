@@ -39,7 +39,7 @@ describe("ManifestActionHandler", () => {
     expect(manifestFactory).toHaveBeenCalledWith({
       appBaseUrl: "http://example.com",
       request: {},
-      schemaVersion: "3.20",
+      schemaVersion: [3, 20],
     });
   });
 
