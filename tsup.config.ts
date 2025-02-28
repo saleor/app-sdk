@@ -6,6 +6,7 @@ export default defineConfig({
     types: "src/types.ts",
     urls: "src/urls.ts",
     headers: "src/headers.ts",
+    util: "src/util/public/index.ts",
     "saleor-app": "src/saleor-app.ts",
     "verify-jwt": "src/verify-jwt.ts",
     "verify-signature": "src/verify-signature.ts",
