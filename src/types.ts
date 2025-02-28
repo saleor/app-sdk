@@ -320,3 +320,5 @@ export interface AppManifest {
     };
   };
 }
+
+export type SaleorSchemaVersion = [major: number, minor: number];

@@ -43,7 +43,7 @@ describe("AWS Lambda createManifestHandler", () => {
       expect.objectContaining({
         appBaseUrl: expectedBaseUrl,
         request: event,
-        schemaVersion: "3.20",
+        schemaVersion: [3, 20],
       }),
     );
     expect(response.statusCode).toBe(200);
@@ -98,7 +98,7 @@ describe("AWS Lambda createManifestHandler", () => {
       expect.objectContaining({
         appBaseUrl: expectedBaseUrl,
         request: event,
-        schemaVersion: "3.20",
+        schemaVersion: [3, 20],
       }),
     );
     expect(response.statusCode).toBe(200);

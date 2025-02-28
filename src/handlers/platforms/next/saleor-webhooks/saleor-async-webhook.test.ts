@@ -33,7 +33,7 @@ describe("Next.js SaleorAsyncWebhook", () => {
       expect(saleorAsyncWebhook.getWebhookManifest(baseUrl)).toEqual(
         expect.objectContaining({
           targetUrl: `${baseUrl}/${webhookPath}`,
-        })
+        }),
       );
     });
 
@@ -56,7 +56,7 @@ describe("Next.js SaleorAsyncWebhook", () => {
           baseUrl: "example.com",
           event: "product_updated",
           payload: { data: "test_payload" },
-          schemaVersion: 3.2,
+          schemaVersion: [3, 20],
           authData: {
             saleorApiUrl: mockAPL.workingSaleorApiUrl,
             token: mockAPL.mockToken,

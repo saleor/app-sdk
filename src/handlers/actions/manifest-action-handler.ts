@@ -1,5 +1,6 @@
 import { createDebug } from "@/debug";
-import { AppManifest } from "@/types";
+import { AppManifest, SaleorSchemaVersion } from "@/types";
+import { parseSchemaVersion } from "@/util";
 
 import {
   ActionHandlerInterface,
@@ -19,7 +20,7 @@ export type CreateManifestHandlerOptions<T> = {
      * so manifest can be generated according to the version. But it may
      * be also requested from plain GET from the browser, so it may not be available
      */
-    schemaVersion?: string;
+    schemaVersion?: SaleorSchemaVersion;
   }): AppManifest | Promise<AppManifest>;
 };
 
@@ -30,6 +31,7 @@ export class ManifestActionHandler<I> implements ActionHandlerInterface {
 
   async handleAction(options: CreateManifestHandlerOptions<I>): Promise<ActionHandlerResult> {
     const { schemaVersion } = this.requestProcessor.getSaleorHeaders();
+    const parsedSchemaVersion = parseSchemaVersion(schemaVersion) ?? undefined;
     const baseURL = this.adapter.getBaseUrl();
 
     debug("Received request with schema version \"%s\" and base URL \"%s\"", schemaVersion, baseURL);
@@ -44,7 +46,7 @@ export class ManifestActionHandler<I> implements ActionHandlerInterface {
       const manifest = await options.manifestFactory({
         appBaseUrl: baseURL,
         request: this.adapter.request,
-        schemaVersion,
+        schemaVersion: parsedSchemaVersion,
       });
 
       debug("Executed manifest file");

@@ -1,4 +1,8 @@
-export const parseSchemaVersion = (rawVersion: string | undefined | null): number | null => {
+import { SaleorSchemaVersion } from "@/types";
+
+export const parseSchemaVersion = (
+  rawVersion: string | undefined | null,
+): SaleorSchemaVersion | null => {
   if (!rawVersion) {
     return null;
   }
@@ -8,7 +12,7 @@ export const parseSchemaVersion = (rawVersion: string | undefined | null): numbe
   const minor = parseInt(minorString, 10);
 
   if (major && minor) {
-    return parseFloat(`${major}.${minor}`);
+    return [major, minor];
   }
 
   return null;

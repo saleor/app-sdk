@@ -10,11 +10,11 @@ describe("parseSchemaVersion", () => {
     },
     {
       rawVersion: "3.19",
-      parsedVersion: 3.19,
+      parsedVersion: [3, 19],
     },
     {
       rawVersion: "3.19.1",
-      parsedVersion: 3.19,
+      parsedVersion: [3, 19],
     },
     {
       rawVersion: "malformed",
@@ -39,7 +39,7 @@ describe("parseSchemaVersion", () => {
   ])(
     "Parses version string from: $rawVersion to: $parsedVersion",
     ({ rawVersion, parsedVersion }) => {
-      expect(parseSchemaVersion(rawVersion)).toBe(parsedVersion);
-    }
+      expect(parseSchemaVersion(rawVersion)).toEqual(parsedVersion);
+    },
   );
 });

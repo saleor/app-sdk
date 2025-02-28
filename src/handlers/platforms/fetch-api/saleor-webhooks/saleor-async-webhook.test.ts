@@ -33,7 +33,7 @@ describe("Web API SaleorAsyncWebhook", () => {
           baseUrl: "example.com",
           event: "product_updated",
           payload: { data: "test_payload" },
-          schemaVersion: 3.2,
+          schemaVersion: [3, 20],
           authData: {
             saleorApiUrl: mockAPL.workingSaleorApiUrl,
             token: mockAPL.mockToken,
@@ -62,7 +62,7 @@ describe("Web API SaleorAsyncWebhook", () => {
           authData: expect.objectContaining({
             saleorApiUrl: mockAPL.workingSaleorApiUrl,
           }),
-        })
+        }),
       );
     });
 
