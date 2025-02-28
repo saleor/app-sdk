@@ -203,6 +203,11 @@
       "import": "./headers.mjs",
       "require": "./headers.js"
     },
+    "./util": {
+      "types": "./util/public/index.d.ts",
+      "import": "./util/public/index.mjs",
+      "require": "./util/public/index.js"
+    },
     "./types": {
       "types": "./types.d.ts"
     }
