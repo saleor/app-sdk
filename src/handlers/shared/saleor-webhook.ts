@@ -1,3 +1,5 @@
+import { SaleorSchemaVersion } from "@/types";
+
 import { AuthData } from "../../APL";
 
 export const WebhookErrorCodeMap: Record<SaleorWebhookError, number> = {
@@ -50,9 +52,11 @@ export type WebhookContext<TPayload> = {
   event: string;
   payload: TPayload;
   authData: AuthData;
-  // TODO: Make this required
-  /** Added in Saleor 3.15 */
-  schemaVersion: number | null;
+  /**
+   * Schema version is passed in subscription payload. Webhook must request it, otherwise it will be null.
+   * If subscription contains version, it will be parsed to SaleorSchemaVersion
+   */
+  schemaVersion: SaleorSchemaVersion | null;
 };
 
 export type FormatWebhookErrorResult = {

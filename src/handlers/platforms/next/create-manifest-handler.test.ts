@@ -38,7 +38,7 @@ describe("Next.js createManifestHandler", () => {
     expect(mockManifestFactory).toHaveBeenCalledWith({
       appBaseUrl: baseUrl,
       request: req,
-      schemaVersion: "3.20",
+      schemaVersion: [3, 20],
     });
 
     expect(res.statusCode).toBe(200);
