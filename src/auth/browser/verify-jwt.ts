@@ -1,9 +1,9 @@
 import * as jose from "jose";
 
-import { createDebug } from "./debug";
+import { createDebug } from "../../debug";
+import { Permission } from "../../types";
+import { getJwksUrlFromSaleorApiUrl } from "../../urls";
 import { hasPermissionsInJwtToken } from "./has-permissions-in-jwt-token";
-import { Permission } from "./types";
-import { getJwksUrlFromSaleorApiUrl } from "./urls";
 import { verifyTokenExpiration } from "./verify-token-expiration";
 
 const debug = createDebug("verify-jwt");
@@ -45,7 +45,7 @@ export const verifyJWT = async ({
 
   if (tokenClaims.app !== appId) {
     debug(
-      "Resolved App ID value from token to be different than in request, will respond with Bad Request"
+      "Resolved App ID value from token to be different than in request, will respond with Bad Request",
     );
 
     throw new Error(`${ERROR_MESSAGE} Token's app property is different than app ID.`);

@@ -1,8 +1,12 @@
-import { createDebug } from "./debug";
+import { createDebug } from "../../debug";
 import { DashboardTokenPayload } from "./verify-jwt";
 
 const debug = createDebug("verify-token-expiration");
 
+/**
+ * Takes user token that Dashboard provides via AppBridge (decoded).
+ * Checks token expiration and throws if expired
+ */
 export const verifyTokenExpiration = (token: DashboardTokenPayload) => {
   const tokenExpiration = token.exp;
   const now = new Date();
@@ -18,9 +22,9 @@ export const verifyTokenExpiration = (token: DashboardTokenPayload) => {
   const tokenMsTimestamp = tokenExpiration * 1000;
 
   debug(
-    "Comparing todays date: %s and token expiration date: %s",
+    "Comparing to days date: %s and token expiration date: %s",
     now.toLocaleString(),
-    new Date(tokenMsTimestamp).toLocaleString()
+    new Date(tokenMsTimestamp).toLocaleString(),
   );
 
   if (tokenMsTimestamp <= nowTimestamp) {

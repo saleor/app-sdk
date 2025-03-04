@@ -1,11 +1,11 @@
 import { SpanKind, SpanStatusCode } from "@opentelemetry/api";
 
 import { APL, AuthData } from "@/APL";
+import { verifyJWT } from "@/auth/browser/verify-jwt";
 import { createDebug } from "@/debug";
 import { getOtelTracer } from "@/open-telemetry";
 import { Permission } from "@/types";
 import { extractUserFromJwt, TokenUserPayload } from "@/util/extract-user-from-jwt";
-import { verifyJWT } from "@/verify-jwt";
 
 import { ActionHandlerResult, PlatformAdapterInterface } from "./generic-adapter-use-case-types";
 import { SaleorRequestProcessor } from "./saleor-request-processor";
@@ -191,7 +191,7 @@ export class ProtectedActionValidator<I> {
             },
           };
         }
-      }
+      },
     );
   }
 }
