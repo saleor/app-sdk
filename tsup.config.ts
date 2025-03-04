@@ -7,6 +7,7 @@ export default defineConfig({
     util: "src/util/public/index.ts",
     "util/browser": "src/util/public/browser/index.ts",
     "saleor-app": "src/saleor-app.ts",
+    auth: "src/auth/index.ts",
     /**
      * APLs
      */
@@ -28,7 +29,6 @@ export default defineConfig({
     "handlers/fetch-api/index": "src/handlers/platforms/fetch-api/index.ts",
     "handlers/aws-lambda/index": "src/handlers/platforms/aws-lambda/index.ts",
     "handlers/next-app-router/index": "src/handlers/platforms/next-app-router/index.ts",
-    "auth/node/index": "src/auth/index.ts",
   },
   dts: true,
   clean: true,
