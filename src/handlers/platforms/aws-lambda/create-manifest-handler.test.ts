@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { SALEOR_SCHEMA_VERSION } from "@/const";
+import { SALEOR_SCHEMA_VERSION } from "@/headers";
 
 import { createManifestHandler, CreateManifestHandlerOptions } from "./create-manifest-handler";
 import { createLambdaEvent, mockLambdaContext } from "./test-utils";

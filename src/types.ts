@@ -322,3 +322,5 @@ export interface AppManifest {
 }
 
 export type SaleorSchemaVersion = [major: number, minor: number];
+
+export { LocaleCode } from "./locales";

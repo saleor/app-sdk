@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { SALEOR_SCHEMA_VERSION } from "@/const";
+import { SALEOR_SCHEMA_VERSION } from "@/headers";
 import { MockAdapter } from "@/test-utils/mock-adapter";
 import { AppManifest } from "@/types";
 

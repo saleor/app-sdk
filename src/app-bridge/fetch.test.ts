@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { SALEOR_AUTHORIZATION_BEARER_HEADER } from "../const";
+import { SALEOR_AUTHORIZATION_BEARER_HEADER } from "@/headers";
+
 import { AppBridge } from "./app-bridge";
 import { AppBridgeState } from "./app-bridge-state";
 import { createAuthenticatedFetch } from "./fetch";

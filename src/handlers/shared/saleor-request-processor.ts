@@ -4,7 +4,7 @@ import {
   SALEOR_EVENT_HEADER,
   SALEOR_SCHEMA_VERSION,
   SALEOR_SIGNATURE_HEADER,
-} from "@/const";
+} from "@/headers";
 
 import { HTTPMethod, PlatformAdapterInterface } from "./generic-adapter-use-case-types";
 

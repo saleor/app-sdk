@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { SALEOR_API_URL_HEADER } from "@/const";
-import * as fetchRemoteJwksModule from "@/fetch-remote-jwks";
+import * as fetchRemoteJwksModule from "@/auth/node/fetch-remote-jwks";
 import * as getAppIdModule from "@/get-app-id";
+import { SALEOR_API_URL_HEADER } from "@/headers";
 import { MockAdapter } from "@/test-utils/mock-adapter";
 import { MockAPL } from "@/test-utils/mock-apl";
 

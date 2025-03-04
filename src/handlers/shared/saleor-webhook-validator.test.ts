@@ -1,21 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AuthData } from "@/APL";
-import * as fetchRemoteJwksModule from "@/fetch-remote-jwks";
+import * as fetchRemoteJwksModule from "@/auth/node/fetch-remote-jwks";
+import * as verifySignatureModule from "@/auth/node/verify-signature";
 import { MockAdapter } from "@/test-utils/mock-adapter";
 import { MockAPL } from "@/test-utils/mock-apl";
-import * as verifySignatureModule from "@/verify-signature";
 
 import { SaleorRequestProcessor } from "./saleor-request-processor";
 import { SaleorWebhookValidator } from "./saleor-webhook-validator";
 
-vi.spyOn(verifySignatureModule, "verifySignatureFromApiUrl").mockImplementation(
-  async (domain, signature) => {
-    if (signature !== "mocked_signature") {
-      throw new Error("Wrong signature");
-    }
-  },
-);
 vi.spyOn(verifySignatureModule, "verifySignatureWithJwks").mockImplementation(
   async (domain, signature) => {
     if (signature !== "mocked_signature") {
