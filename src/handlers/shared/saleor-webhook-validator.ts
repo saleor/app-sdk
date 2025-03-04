@@ -1,8 +1,8 @@
 import { SpanKind, SpanStatusCode } from "@opentelemetry/api";
 
 import { APL } from "@/APL";
-import { fetchRemoteJwks } from "@/auth/node/fetch-remote-jwks";
-import { verifySignatureWithJwks } from "@/auth/node/verify-signature";
+import { fetchRemoteJwks } from "@/auth/fetch-remote-jwks";
+import { verifySignatureWithJwks } from "@/auth/verify-signature";
 import { createDebug } from "@/debug";
 import { getOtelTracer } from "@/open-telemetry";
 import { SaleorSchemaVersion } from "@/types";

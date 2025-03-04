@@ -183,15 +183,10 @@
       "import": "./saleor-app.mjs",
       "require": "./saleor-app.js"
     },
-    "./auth/node": {
-      "types": "./auth/node.index.d.ts",
-      "import": "./auth/node/index.mjs",
-      "require": "./auth/node/index.js"
-    },
-    "./auth/browser": {
-      "types": "./auth/node.index.d.ts",
-      "import": "./auth/node/index.mjs",
-      "require": "./auth/node/index.js"
+    "./auth": {
+      "types": "./auth/index.d.ts",
+      "import": "./auth/index.mjs",
+      "require": "./auth/index.js"
     },
     "./headers": {
       "types": "./headers.d.ts",

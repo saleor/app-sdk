@@ -1,5 +1,5 @@
-import { createDebug } from "../../debug";
-import { Permission } from "../../types";
+import { createDebug } from "../debug";
+import { Permission } from "../types";
 import { DashboardTokenPayload } from "./verify-jwt";
 
 const debug = createDebug("checkJwtPermissions");

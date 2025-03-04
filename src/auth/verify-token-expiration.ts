@@ -1,4 +1,4 @@
-import { createDebug } from "../../debug";
+import { createDebug } from "../debug";
 import { DashboardTokenPayload } from "./verify-jwt";
 
 const debug = createDebug("verify-token-expiration");

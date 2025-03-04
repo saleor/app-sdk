@@ -1,6 +1,6 @@
 import * as jose from "jose";
 
-import { createDebug } from "../../debug";
+import { createDebug } from "../debug";
 
 const debug = createDebug("verify-signature");
 

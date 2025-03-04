@@ -1,9 +1,9 @@
 import * as jose from "jose";
 
-import { getJwksUrlFromSaleorApiUrl } from "@/auth/node";
+import { getJwksUrlFromSaleorApiUrl } from "@/auth/index";
 
-import { createDebug } from "../../debug";
-import { Permission } from "../../types";
+import { createDebug } from "../debug";
+import { Permission } from "../types";
 import { hasPermissionsInJwtToken } from "./has-permissions-in-jwt-token";
 import { verifyTokenExpiration } from "./verify-token-expiration";
 

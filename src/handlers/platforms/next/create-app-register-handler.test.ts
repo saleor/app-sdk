@@ -2,7 +2,7 @@ import { createMocks } from "node-mocks-http";
 import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
 
 import { APL, AuthData } from "@/APL";
-import * as fetchRemoteJwksModule from "@/auth/node/fetch-remote-jwks";
+import * as fetchRemoteJwksModule from "@/auth/fetch-remote-jwks";
 import * as getAppIdModule from "@/get-app-id";
 import { SALEOR_API_URL_HEADER } from "@/headers";
 import { MockAPL } from "@/test-utils/mock-apl";

@@ -2,7 +2,7 @@ import type { APIGatewayProxyEventV2 } from "aws-lambda";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AuthData } from "@/APL";
-import * as fetchRemoteJwksModule from "@/auth/node/fetch-remote-jwks";
+import * as fetchRemoteJwksModule from "@/auth/fetch-remote-jwks";
 import * as getAppIdModule from "@/get-app-id";
 import { SALEOR_API_URL_HEADER } from "@/headers";
 import { MockAPL } from "@/test-utils/mock-apl";

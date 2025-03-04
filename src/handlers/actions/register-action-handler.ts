@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
 import { APL, AuthData } from "@/APL";
-import { fetchRemoteJwks } from "@/auth/node/fetch-remote-jwks";
+import { fetchRemoteJwks } from "@/auth/fetch-remote-jwks";
 import { createDebug } from "@/debug";
 import { getAppId } from "@/get-app-id";
 import { SALEOR_API_URL_HEADER } from "@/headers";

@@ -1,7 +1,7 @@
 import { SpanKind, SpanStatusCode } from "@opentelemetry/api";
 
 import { APL, AuthData } from "@/APL";
-import { verifyJWT } from "@/auth/browser/verify-jwt";
+import { verifyJWT } from "@/auth/verify-jwt";
 import { createDebug } from "@/debug";
 import { getOtelTracer } from "@/open-telemetry";
 import { Permission } from "@/types";

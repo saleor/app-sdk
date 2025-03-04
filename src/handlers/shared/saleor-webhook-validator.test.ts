@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AuthData } from "@/APL";
-import * as fetchRemoteJwksModule from "@/auth/node/fetch-remote-jwks";
-import * as verifySignatureModule from "@/auth/node/verify-signature";
+import * as fetchRemoteJwksModule from "@/auth/fetch-remote-jwks";
+import * as verifySignatureModule from "@/auth/verify-signature";
 import { MockAdapter } from "@/test-utils/mock-adapter";
 import { MockAPL } from "@/test-utils/mock-apl";
 
