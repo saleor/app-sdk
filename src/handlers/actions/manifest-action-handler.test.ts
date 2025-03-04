@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { SALEOR_SCHEMA_VERSION } from "@/headers";
+import { SALEOR_SCHEMA_VERSION_HEADER } from "@/headers";
 import { MockAdapter } from "@/test-utils/mock-adapter";
 import { AppManifest } from "@/types";
 
@@ -21,7 +21,7 @@ describe("ManifestActionHandler", () => {
   beforeEach(() => {
     adapter = new MockAdapter({
       mockHeaders: {
-        [SALEOR_SCHEMA_VERSION]: "3.20",
+        [SALEOR_SCHEMA_VERSION_HEADER]: "3.20",
       },
       baseUrl: "http://example.com",
     });

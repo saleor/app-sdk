@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { SALEOR_SCHEMA_VERSION } from "@/headers";
+import { SALEOR_SCHEMA_VERSION_HEADER } from "@/headers";
 
 import { createManifestHandler, CreateManifestHandlerOptions } from "./create-manifest-handler";
 import { createLambdaEvent, mockLambdaContext } from "./test-utils";
@@ -17,7 +17,7 @@ describe("AWS Lambda createManifestHandler", () => {
         "content-type": "application/json",
         host: "some-app-host.cloud",
         "x-forwarded-proto": "https",
-        [SALEOR_SCHEMA_VERSION]: "3.20",
+        [SALEOR_SCHEMA_VERSION_HEADER]: "3.20",
       },
     });
     const expectedBaseUrl = "https://some-app-host.cloud";
@@ -69,7 +69,7 @@ describe("AWS Lambda createManifestHandler", () => {
         "content-type": "application/json",
         host: "some-app-host.cloud",
         "x-forwarded-proto": "https",
-        [SALEOR_SCHEMA_VERSION]: "3.20",
+        [SALEOR_SCHEMA_VERSION_HEADER]: "3.20",
       },
       requestContext: {
         stage: "test",

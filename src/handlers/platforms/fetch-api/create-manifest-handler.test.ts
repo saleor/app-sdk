@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { SALEOR_SCHEMA_VERSION } from "@/headers";
+import { SALEOR_SCHEMA_VERSION_HEADER } from "@/headers";
 
 import { createManifestHandler, CreateManifestHandlerOptions } from "./create-manifest-handler";
 
@@ -11,7 +11,7 @@ describe("Fetch API createManifestHandler", () => {
       headers: {
         host: "some-app-host.cloud",
         "x-forwarded-proto": "https",
-        [SALEOR_SCHEMA_VERSION]: "3.20",
+        [SALEOR_SCHEMA_VERSION_HEADER]: "3.20",
       },
       method: "GET",
     });
