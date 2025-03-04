@@ -1,3 +1,5 @@
+import { NextRequest, NextResponse } from "next/server";
+
 import { APL } from "@/APL";
 import {
   ProtectedActionValidator,
@@ -5,21 +7,21 @@ import {
 } from "@/handlers/shared/protected-action-validator";
 import { Permission } from "@/types";
 
-import { WebApiAdapter, WebApiHandler } from "./platform-adapter";
+import { NextAppRouterAdapter, NextAppRouterHandler } from "./platform-adapter";
 
-export type WebApiProtectedHandler = (
-  request: Request,
+export type NextAppRouterProtectedHandler = (
+  request: NextRequest,
   ctx: ProtectedHandlerContext,
-) => Response | Promise<Response>;
+) => NextResponse | Promise<NextResponse>;
 
 export const createProtectedHandler =
   (
-    handlerFn: WebApiProtectedHandler,
+    handlerFn: NextAppRouterProtectedHandler,
     apl: APL,
     requiredPermissions?: Permission[],
-  ): WebApiHandler =>
+  ): NextAppRouterHandler =>
   async (request) => {
-    const adapter = new WebApiAdapter(request, Response);
+    const adapter = new NextAppRouterAdapter(request);
     const actionValidator = new ProtectedActionValidator(adapter);
     const validationResult = await actionValidator.validateRequest({
       apl,
@@ -34,6 +36,6 @@ export const createProtectedHandler =
     try {
       return await handlerFn(request, context);
     } catch (err) {
-      return new Response("Unexpected server error", { status: 500 });
+      return new NextResponse("Unexpected server error", { status: 500 });
     }
   };

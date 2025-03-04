@@ -30,9 +30,7 @@ export default defineConfig({
     "handlers/next/index": "src/handlers/platforms/next/index.ts",
     "handlers/fetch-api/index": "src/handlers/platforms/fetch-api/index.ts",
     "handlers/aws-lambda/index": "src/handlers/platforms/aws-lambda/index.ts",
-
-    // Virtual export
-    "handlers/next-app-router/index": "src/handlers/platforms/fetch-api/index.ts",
+    "handlers/next-app-router/index": "src/handlers/platforms/next-app-router/index.ts",
   },
   dts: true,
   clean: true,

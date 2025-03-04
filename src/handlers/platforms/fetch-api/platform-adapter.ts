@@ -18,8 +18,17 @@ export type WebApiHandler = (req: Request) => Response | Promise<Response>;
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Request}
  *
  * */
-export class WebApiAdapter implements PlatformAdapterInterface<WebApiHandlerInput> {
-  constructor(public request: Request) {}
+export class WebApiAdapter<
+  TRequest extends Request = Request,
+  TResponse extends Response = Response,
+> implements PlatformAdapterInterface<TRequest>
+{
+  constructor(
+    public request: TRequest,
+    // todo how to type this nightmare
+    // maybe instead of constructor, pass instance and clone it?
+    public ResponseConstructor: { new (...args: any): TResponse },
+  ) {}
 
   getHeader(name: string) {
     return this.request.headers.get(name);
@@ -62,10 +71,10 @@ export class WebApiAdapter implements PlatformAdapterInterface<WebApiHandlerInpu
     return this.request.method as "POST" | "GET";
   }
 
-  async send(result: ActionHandlerResult): Promise<Response> {
+  async send(result: ActionHandlerResult): Promise<TResponse> {
     const body = result.bodyType === "json" ? JSON.stringify(result.body) : result.body;
 
-    return new Response(body, {
+    return new this.ResponseConstructor(body, {
       status: result.status,
       headers: {
         "Content-Type": result.bodyType === "json" ? "application/json" : "text/plain",

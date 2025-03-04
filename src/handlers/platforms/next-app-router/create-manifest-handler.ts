@@ -1,11 +1,17 @@
+import { NextRequest } from "next/server";
+
 import {
   CreateManifestHandlerOptions as GenericHandlerOptions,
   ManifestActionHandler,
 } from "@/handlers/actions/manifest-action-handler";
 
-import { WebApiAdapter, WebApiHandler, WebApiHandlerInput } from "./platform-adapter";
+import {
+  NextAppRouterAdapter,
+  NextAppRouterHandler,
+  NextAppRouterHandlerInput,
+} from "./platform-adapter";
 
-export type CreateManifestHandlerOptions = GenericHandlerOptions<WebApiHandlerInput>;
+export type CreateManifestHandlerOptions = GenericHandlerOptions<NextAppRouterHandlerInput>;
 
 /** Returns app manifest API route handler for Web API compatible request handlers
  * (examples: Next.js app router, hono, deno, etc.)
@@ -25,9 +31,9 @@ export type CreateManifestHandlerOptions = GenericHandlerOptions<WebApiHandlerIn
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Request}
  * */
 export const createManifestHandler =
-  (config: CreateManifestHandlerOptions): WebApiHandler =>
-  async (request: Request) => {
-    const adapter = new WebApiAdapter(request, Response);
+  (config: CreateManifestHandlerOptions): NextAppRouterHandler =>
+  async (request: NextRequest) => {
+    const adapter = new NextAppRouterAdapter(request);
     const actionHandler = new ManifestActionHandler(adapter);
     const result = await actionHandler.handleAction(config);
     return adapter.send(result);

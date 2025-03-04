@@ -15,21 +15,21 @@ const debug = createDebug("SaleorWebhook");
 export type WebhookConfig<Event = AsyncWebhookEventType | SyncWebhookEventType> =
   GenericWebhookConfig<NextApiRequest, Event>;
 
-export type NextJsWebhookHandler<TPayload = unknown, TExtras = {}> = (
+export type NextJsWebhookHandler<TPayload = unknown> = (
   req: NextApiRequest,
   res: NextApiResponse,
-  ctx: WebhookContext<TPayload> & TExtras
+  ctx: WebhookContext<TPayload>,
 ) => unknown | Promise<unknown>;
 
-export abstract class SaleorWebhook<
-  TPayload = unknown,
-  TExtras extends Record<string, unknown> = {}
-> extends GenericSaleorWebhook<NextApiRequest, TPayload, TExtras> {
+export abstract class SaleorWebhook<TPayload = unknown> extends GenericSaleorWebhook<
+  NextApiRequest,
+  TPayload
+> {
   /**
    * Wraps provided function, to ensure incoming request comes from registered Saleor instance.
    * Also provides additional `context` object containing typed payload and request properties.
    */
-  createHandler(handlerFn: NextJsWebhookHandler<TPayload, TExtras>): NextApiHandler {
+  createHandler(handlerFn: NextJsWebhookHandler<TPayload>): NextApiHandler {
     return async (req, res) => {
       const adapter = new NextJsAdapter(req, res);
       const prepareRequestResult = await super.prepareRequest<NextJsAdapter>(adapter);
@@ -40,7 +40,6 @@ export abstract class SaleorWebhook<
 
       debug("Incoming request validated. Call handlerFn");
       return handlerFn(req, res, {
-        ...(this.extraContext ?? ({} as TExtras)),
         ...prepareRequestResult.context,
       });
     };
