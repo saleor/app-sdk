@@ -194,9 +194,9 @@
       "require": "./headers.js"
     },
     "./util": {
-      "types": "./util/public/index.d.ts",
-      "import": "./util/public/index.mjs",
-      "require": "./util/public/index.js"
+      "types": "./util/index.d.ts",
+      "import": "./util/index.mjs",
+      "require": "./util/index.js"
     },
     "./util/browser": {
       "types": "./util/public/browser/index.d.ts",

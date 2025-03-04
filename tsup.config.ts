@@ -4,10 +4,10 @@ export default defineConfig({
   entry: {
     types: "src/types.ts",
     headers: "src/headers.ts",
-    util: "src/util/public/index.ts",
+    "util/index": "src/util/public/index.ts",
     "util/browser": "src/util/public/browser/index.ts",
     "saleor-app": "src/saleor-app.ts",
-    auth: "src/auth/index.ts",
+    "auth/index": "src/auth/index.ts",
     /**
      * APLs
      */
