@@ -8,7 +8,6 @@ describe("app-bridge-state.ts", () => {
 
     expect(instance.getState()).toEqual({
       id: "",
-      domain: "",
       ready: false,
       path: "/",
       theme: "light",
@@ -21,7 +20,6 @@ describe("app-bridge-state.ts", () => {
     const instance = new AppBridgeStateContainer();
 
     const newState: Partial<AppBridgeState> = {
-      domain: "my-saleor-instance.cloud",
       saleorApiUrl: "https://my-saleor-instance.cloud/graphql/",
       id: "foo-bar",
       path: "/",
@@ -42,7 +40,7 @@ describe("app-bridge-state.ts", () => {
     expect(
       new AppBridgeStateContainer({
         initialLocale: "pl",
-      }).getState().locale
+      }).getState().locale,
     ).toBe("pl");
   });
 
@@ -50,7 +48,7 @@ describe("app-bridge-state.ts", () => {
     expect(
       new AppBridgeStateContainer({
         initialTheme: "dark",
-      }).getState().theme
+      }).getState().theme,
     ).toBe("dark");
   });
 });

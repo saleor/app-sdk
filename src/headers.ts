@@ -2,6 +2,9 @@ export const SALEOR_EVENT_HEADER = "saleor-event";
 export const SALEOR_SIGNATURE_HEADER = "saleor-signature";
 export const SALEOR_AUTHORIZATION_BEARER_HEADER = "authorization-bearer";
 export const SALEOR_API_URL_HEADER = "saleor-api-url";
+/**
+ * Available when Saleor executes "manifest" or "token exchange" requests.
+ */
 export const SALEOR_SCHEMA_VERSION_HEADER = "saleor-schema-version";
 
 const toStringOrUndefined = (value: string | string[] | undefined) =>
