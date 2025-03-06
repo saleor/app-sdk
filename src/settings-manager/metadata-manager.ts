@@ -41,11 +41,7 @@ const serializeSettingsToMetadata = ({ key, value, domain }: SettingsValue): Met
 export interface MetadataManagerConfig {
   fetchMetadata: FetchMetadataCallback;
   mutateMetadata: MutateMetadataCallback;
-  /**
-   * Keep it optional, to avoid breaking changes. If not provided, delete will throw.
-   * TODO: Make it required in next major version
-   */
-  deleteMetadata?: DeleteMetadataCallback;
+  deleteMetadata: DeleteMetadataCallback;
 }
 
 /**
@@ -62,7 +58,7 @@ export class MetadataManager implements SettingsManager {
 
   private mutateMetadata: MutateMetadataCallback;
 
-  private deleteMetadata?: DeleteMetadataCallback;
+  private deleteMetadata: DeleteMetadataCallback;
 
   constructor({ fetchMetadata, mutateMetadata, deleteMetadata }: MetadataManagerConfig) {
     this.fetchMetadata = fetchMetadata;
@@ -98,7 +94,7 @@ export class MetadataManager implements SettingsManager {
   async delete(args: DeleteSettingsValue | DeleteSettingsValue[] | string | string[]) {
     if (!this.deleteMetadata) {
       throw new Error(
-        "Delete not implemented. Ensure MetadataManager is configured with deleteMetadata param in constructor"
+        "Delete not implemented. Ensure MetadataManager is configured with deleteMetadata param in constructor",
       );
     }
 

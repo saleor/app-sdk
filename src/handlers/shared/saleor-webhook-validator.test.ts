@@ -230,7 +230,6 @@ describe("SaleorWebhookValidator", () => {
     });
   });
 
-  // TODO: This should be required
   it("Fallbacks to null if version is missing in payload", async () => {
     vi.spyOn(adapter, "getRawBody").mockResolvedValue(JSON.stringify({}));
     vi.spyOn(requestProcessor, "getSaleorHeaders").mockReturnValue(validHeaders);

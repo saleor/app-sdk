@@ -21,7 +21,11 @@ describe("settings-manager", () => {
     });
 
     it("Get method - using cached values", async () => {
-      const manager = new MetadataManager({ fetchMetadata: fetchMock, mutateMetadata: mutateMock });
+      const manager = new MetadataManager({
+        fetchMetadata: fetchMock,
+        mutateMetadata: mutateMock,
+        deleteMetadata: deleteMetadataMock,
+      });
       expect(fetchMock).toBeCalledTimes(0);
 
       // Fetch should be called just after getting a first value
@@ -38,7 +42,11 @@ describe("settings-manager", () => {
     });
 
     it("Get method - return values for chosen domain", async () => {
-      const manager = new MetadataManager({ fetchMetadata: fetchMock, mutateMetadata: mutateMock });
+      const manager = new MetadataManager({
+        fetchMetadata: fetchMock,
+        mutateMetadata: mutateMock,
+        deleteMetadata: deleteMetadataMock,
+      });
 
       expect(await manager.get("a", "x.com")).toBe(entryForDomainX.value);
       expect(await manager.get("a", "y.com")).toBe(entryForDomainY.value);
@@ -46,7 +54,11 @@ describe("settings-manager", () => {
     });
 
     it("Set method - return values for chosen domain", async () => {
-      const manager = new MetadataManager({ fetchMetadata: fetchMock, mutateMetadata: mutateMock });
+      const manager = new MetadataManager({
+        fetchMetadata: fetchMock,
+        mutateMetadata: mutateMock,
+        deleteMetadata: deleteMetadataMock,
+      });
       const newEntry = { key: "new", value: "new value" };
 
       await manager.set(newEntry);
@@ -64,20 +76,10 @@ describe("settings-manager", () => {
         const manager = new MetadataManager({
           fetchMetadata: fetchMock,
           mutateMetadata: mutateMock,
+          deleteMetadata: deleteMetadataMock,
         });
 
         expect(manager).toBeDefined();
-      });
-
-      it("Throws if \"delete\" method is called, but deleteMetadata was not passed to constructor", async () => {
-        const manager = new MetadataManager({
-          fetchMetadata: fetchMock,
-          mutateMetadata: mutateMock,
-        });
-
-        await expect(manager.delete("test")).rejects.toThrowErrorMatchingInlineSnapshot(
-          "[Error: Delete not implemented. Ensure MetadataManager is configured with deleteMetadata param in constructor]"
-        );
       });
 
       it("Calls deleteMetadata constructor param when \"delete\" method called", async () => {
