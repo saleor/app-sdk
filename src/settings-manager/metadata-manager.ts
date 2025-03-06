@@ -85,7 +85,7 @@ export class MetadataManager implements SettingsManager {
     }
     // changes should update cache
     const metadata = await this.mutateMetadata(serializedMetadata);
-    this.settings = metadata.map(deserializeMetadata);?
+    this.settings = metadata.map(deserializeMetadata);
   }
 
   /**
