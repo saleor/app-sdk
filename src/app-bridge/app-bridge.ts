@@ -85,7 +85,6 @@ const createEmptySubscribeMap = (): SubscribeMap => ({
 });
 
 export type AppBridgeOptions = {
-  targetDomain?: string;
   saleorApiUrl?: string;
   initialLocale?: LocaleCode;
   /**
@@ -103,12 +102,6 @@ const getLocaleFromUrl = () =>
   (new URL(window.location.href).searchParams.get(AppIframeParams.LOCALE) as LocaleCode) ||
   undefined;
 
-/**
- * TODO: Probably remove empty string fallback
- */
-const getDomainFromUrl = () =>
-  new URL(window.location.href).searchParams.get(AppIframeParams.DOMAIN) || "";
-
 const getSaleorApiUrlFromUrl = () =>
   new URL(window.location.href).searchParams.get(AppIframeParams.SALEOR_API_URL) || "";
 
@@ -125,7 +118,6 @@ const getThemeFromUrl = () => {
 };
 
 const getDefaultOptions = (): AppBridgeOptions => ({
-  targetDomain: getDomainFromUrl(),
   saleorApiUrl: getSaleorApiUrlFromUrl(),
   initialLocale: getLocaleFromUrl() ?? "en",
   autoNotifyReady: true,
@@ -146,7 +138,7 @@ export class AppBridge {
 
     if (SSR) {
       throw new Error(
-        "AppBridge detected you're running this app in SSR mode. Make sure to call `new AppBridge()` when window object exists."
+        "AppBridge detected you're running this app in SSR mode. Make sure to call `new AppBridge()` when window object exists.",
       );
     }
 
@@ -170,14 +162,8 @@ export class AppBridge {
       debug("?saleorApiUrl was not found in iframe url");
     }
 
-    if (!this.combinedOptions.targetDomain) {
-      debug("?domain was not found in iframe url");
-    }
-
-    if (!(this.combinedOptions.saleorApiUrl || this.combinedOptions.targetDomain)) {
-      console.error(
-        "domain and saleorApiUrl params were not found in iframe url. Ensure at least one of them is present"
-      );
+    if (!this.combinedOptions.saleorApiUrl) {
+      console.error("saleorApiUrl param was not found in iframe url");
     }
 
     this.setInitialState();
@@ -197,7 +183,7 @@ export class AppBridge {
    */
   subscribe<TEventType extends EventType, TPayload extends PayloadOfEvent<TEventType>>(
     eventType: TEventType,
-    cb: EventCallback<TPayload>
+    cb: EventCallback<TPayload>,
   ) {
     debug("subscribe() called with event %s and callback %s", eventType, cb.name);
 
@@ -251,7 +237,7 @@ export class AppBridge {
           type: action.type,
           payload: action.payload,
         },
-        "*"
+        "*",
       );
 
       let timeoutId: number;
@@ -261,7 +247,7 @@ export class AppBridge {
           "Subscribing to %s with action id: %s and status 'ok' is: %s",
           EventType.response,
           actionId,
-          ok
+          ok,
         );
 
         if (action.payload.actionId === actionId) {
@@ -274,8 +260,8 @@ export class AppBridge {
           } else {
             reject(
               new Error(
-                "Action responded with negative status. This indicates the action method was not used properly."
-              )
+                "Action responded with negative status. This indicates the action method was not used properly.",
+              ),
             );
           }
         }
@@ -312,7 +298,6 @@ export class AppBridge {
     const path = window.location.pathname || "";
 
     const state: Partial<AppBridgeState> = {
-      domain: this.combinedOptions.targetDomain,
       id,
       path,
       theme: this.combinedOptions.initialTheme,
@@ -355,7 +340,7 @@ export class AppBridge {
             this.subscribeMap[type][key](payload);
           });
         }
-      }
+      },
     );
   }
 }

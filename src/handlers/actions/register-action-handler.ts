@@ -1,9 +1,9 @@
 /* eslint-disable max-classes-per-file */
 import { APL, AuthData } from "@/APL";
-import { SALEOR_API_URL_HEADER } from "@/const";
+import { fetchRemoteJwks } from "@/auth/fetch-remote-jwks";
 import { createDebug } from "@/debug";
-import { fetchRemoteJwks } from "@/fetch-remote-jwks";
 import { getAppId } from "@/get-app-id";
+import { SALEOR_API_URL_HEADER } from "@/headers";
 
 import { GenericCreateAppRegisterHandlerOptions } from "../shared";
 import {

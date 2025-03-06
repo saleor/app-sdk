@@ -39,7 +39,6 @@ describe("AppBridgeProvider", () => {
       <AppBridgeProvider
         appBridgeInstance={
           new AppBridge({
-            targetDomain: domain,
             saleorApiUrl,
           })
         }
@@ -77,19 +76,18 @@ describe("useAppBridge hook", () => {
 
   it("Returned instance provided in Provider", () => {
     const appBridge = new AppBridge({
-      targetDomain: domain,
+      saleorApiUrl,
     });
 
     const { result } = renderHook(() => useAppBridge(), {
       wrapper: (props: {}) => <AppBridgeProvider {...props} appBridgeInstance={appBridge} />,
     });
 
-    expect(result.current.appBridge?.getState().domain).toBe(domain);
+    expect(result.current.appBridge?.getState().saleorApiUrl).toBe(saleorApiUrl);
   });
 
   it("Stores active state in React State", () => {
     const appBridge = new AppBridge({
-      targetDomain: domain,
       saleorApiUrl,
     });
 
@@ -120,7 +118,6 @@ describe("useAppBridge hook", () => {
     return waitFor(() => {
       expect(renderCallback).toHaveBeenCalledTimes(2);
       expect(renderCallback).toHaveBeenCalledWith({
-        domain,
         id: "appid",
         path: "",
         ready: false,

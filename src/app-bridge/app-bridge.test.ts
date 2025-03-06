@@ -65,7 +65,7 @@ const mockDashboardActionResponse = (actionType: ActionType, actionID: string) =
             payload: { ok: true, actionId: actionID },
           } as DispatchResponseEvent,
           origin,
-        })
+        }),
       );
     }
   }
@@ -96,10 +96,6 @@ describe("AppBridge", () => {
     vi.clearAllMocks();
   });
 
-  it("correctly sets the default domain, if not set in constructor", () => {
-    expect(appBridge.getState().domain).toEqual(domain);
-  });
-
   it("authenticates", () => {
     expect(appBridge.getState().ready).toBe(false);
 
@@ -109,7 +105,7 @@ describe("AppBridge", () => {
       new MessageEvent("message", {
         data: { type: "handshake", payload: { token } },
         origin,
-      })
+      }),
     );
 
     expect(appBridge.getState().ready).toBe(true);
@@ -135,7 +131,7 @@ describe("AppBridge", () => {
       new MessageEvent("message", {
         data: handshakeEvent,
         origin,
-      })
+      }),
     );
 
     // incorrect event type
@@ -144,7 +140,7 @@ describe("AppBridge", () => {
       new MessageEvent("message", {
         data: { type: "invalid", payload: { token: "invalid" } },
         origin,
-      })
+      }),
     );
 
     // incorrect origin
@@ -153,7 +149,7 @@ describe("AppBridge", () => {
       new MessageEvent("message", {
         data: { type: "handshake", payload: { token } },
         origin: "http://wrong.origin.com",
-      })
+      }),
     );
 
     expect(callback).toHaveBeenCalledTimes(1);
@@ -168,7 +164,7 @@ describe("AppBridge", () => {
       new MessageEvent("message", {
         data: { type: "handshake", payload: { token: validJwtToken } },
         origin,
-      })
+      }),
     );
 
     expect(callback).toHaveBeenCalledTimes(1);
@@ -188,17 +184,13 @@ describe("AppBridge", () => {
       new MessageEvent("message", {
         data: themeEvent,
         origin,
-      })
+      }),
     );
 
     expect(callback).toHaveBeenCalledOnce();
     expect(callback).toHaveBeenCalledWith({ theme: "light" });
 
     unsubscribe();
-  });
-
-  it("persists domain", () => {
-    expect(appBridge.getState().domain).toEqual(domain);
   });
 
   it("dispatches valid action", () => {
@@ -225,7 +217,7 @@ describe("AppBridge", () => {
       new MessageEvent("message", {
         data: handshakeEvent,
         origin,
-      })
+      }),
     );
 
     expect(cb1).toHaveBeenCalledTimes(1);
@@ -238,19 +230,11 @@ describe("AppBridge", () => {
       new MessageEvent("message", {
         data: handshakeEvent,
         origin,
-      })
+      }),
     );
 
     expect(cb1).toHaveBeenCalledTimes(1);
     expect(cb2).toHaveBeenCalledTimes(1);
-  });
-
-  it("attaches domain from options in constructor", () => {
-    appBridge = new AppBridge({
-      targetDomain: "https://foo.bar",
-    });
-
-    expect(appBridge.getState().domain).toEqual("https://foo.bar");
   });
 
   it.each<LocaleCode>(["pl", "en", "it"])("sets initial locale \"%s\" from constructor", (locale) => {
@@ -306,7 +290,7 @@ describe("AppBridge", () => {
       new MessageEvent("message", {
         data: handshakeEvent,
         origin,
-      })
+      }),
     );
 
     expect(appBridge.getState().token).toEqual(handshakeEvent.payload.token);
@@ -316,7 +300,7 @@ describe("AppBridge", () => {
       new MessageEvent("message", {
         data: tokenRefreshEvent,
         origin,
-      })
+      }),
     );
 
     expect(appBridge.getState().token).toEqual(tokenRefreshEvent.payload.token);
@@ -334,7 +318,7 @@ describe("AppBridge", () => {
           dashboard: "3.15.1",
         }),
         origin,
-      })
+      }),
     );
 
     expect(appBridge.getState().token).toEqual(validJwtToken);

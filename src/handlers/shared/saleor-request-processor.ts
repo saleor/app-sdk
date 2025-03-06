@@ -2,9 +2,9 @@ import {
   SALEOR_API_URL_HEADER,
   SALEOR_AUTHORIZATION_BEARER_HEADER,
   SALEOR_EVENT_HEADER,
-  SALEOR_SCHEMA_VERSION,
+  SALEOR_SCHEMA_VERSION_HEADER,
   SALEOR_SIGNATURE_HEADER,
-} from "@/const";
+} from "@/headers";
 
 import { HTTPMethod, PlatformAdapterInterface } from "./generic-adapter-use-case-types";
 
@@ -53,7 +53,7 @@ export class SaleorRequestProcessor<T> {
        * Saleor version 3.20 != 3.2.
        * Semver must be compared as strings
        */
-      schemaVersion: this.toStringOrUndefined(this.adapter.getHeader(SALEOR_SCHEMA_VERSION)),
+      schemaVersion: this.toStringOrUndefined(this.adapter.getHeader(SALEOR_SCHEMA_VERSION_HEADER)),
     };
   }
 }

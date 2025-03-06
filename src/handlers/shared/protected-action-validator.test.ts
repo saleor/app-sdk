@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { SALEOR_API_URL_HEADER, SALEOR_AUTHORIZATION_BEARER_HEADER } from "@/const";
+import * as verifyJWTModule from "@/auth/verify-jwt";
+import { SALEOR_API_URL_HEADER, SALEOR_AUTHORIZATION_BEARER_HEADER } from "@/headers";
 import { MockAdapter } from "@/test-utils/mock-adapter";
 import { MockAPL } from "@/test-utils/mock-apl";
 import * as extractUserModule from "@/util/extract-user-from-jwt";
-import * as verifyJWTModule from "@/verify-jwt";
 
 import { ProtectedActionValidator } from "./protected-action-validator";
 
@@ -18,15 +18,14 @@ describe("ProtectedActionValidator", () => {
       baseUrl: "https://example.com",
       mockHeaders: {
         [SALEOR_API_URL_HEADER]: mockAPL.workingSaleorApiUrl,
-        [SALEOR_AUTHORIZATION_BEARER_HEADER]: mockAPL.mockToken
-      }
+        [SALEOR_AUTHORIZATION_BEARER_HEADER]: mockAPL.mockToken,
+      },
     });
-
 
     vi.spyOn(verifyJWTModule, "verifyJWT").mockResolvedValue(undefined);
     vi.spyOn(extractUserModule, "extractUserFromJwt").mockReturnValue({
       email: "user@domain.com",
-      userPermissions: []
+      userPermissions: [],
     });
   });
 
@@ -76,8 +75,8 @@ describe("ProtectedActionValidator", () => {
         baseUrl: "https://example.com",
         mockHeaders: {
           // SALEOR_API_URL_HEADER is missing
-          [SALEOR_AUTHORIZATION_BEARER_HEADER]: mockAPL.mockToken
-        }
+          [SALEOR_AUTHORIZATION_BEARER_HEADER]: mockAPL.mockToken,
+        },
       });
       const validator = new ProtectedActionValidator(adapter);
 
@@ -102,7 +101,7 @@ describe("ProtectedActionValidator", () => {
         mockHeaders: {
           [SALEOR_API_URL_HEADER]: mockAPL.workingSaleorApiUrl,
           // SALEOR_AUTHORIZATION_BEARER_HEADER is missing
-        }
+        },
       });
       const validator = new ProtectedActionValidator(adapter);
 
@@ -143,7 +142,9 @@ describe("ProtectedActionValidator", () => {
     it("should fail validation when JWT verification fails", async () => {
       const validator = new ProtectedActionValidator(mockAdapter);
 
-      vi.spyOn(verifyJWTModule, "verifyJWT").mockRejectedValue(new Error("JWT verification failed"));
+      vi.spyOn(verifyJWTModule, "verifyJWT").mockRejectedValue(
+        new Error("JWT verification failed"),
+      );
 
       const result = await validator.validateRequest({
         apl: mockAPL,

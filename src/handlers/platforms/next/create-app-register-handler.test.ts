@@ -2,9 +2,9 @@ import { createMocks } from "node-mocks-http";
 import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
 
 import { APL, AuthData } from "@/APL";
-import { SALEOR_API_URL_HEADER } from "@/const";
-import * as fetchRemoteJwksModule from "@/fetch-remote-jwks";
+import * as fetchRemoteJwksModule from "@/auth/fetch-remote-jwks";
 import * as getAppIdModule from "@/get-app-id";
+import { SALEOR_API_URL_HEADER } from "@/headers";
 import { MockAPL } from "@/test-utils/mock-apl";
 
 import {
@@ -134,19 +134,19 @@ describe("Next.js createAppRegisterHandler", () => {
         expect.objectContaining({
           authToken: "mock-auth-token",
           saleorApiUrl: "https://mock-saleor-domain.saleor.cloud/graphql/",
-        })
+        }),
       );
       expect(mockOnRequestVerified).toHaveBeenCalledWith(
         expect.anything(/* Assume original request */),
         expect.objectContaining({
           authData: expectedAuthData,
-        })
+        }),
       );
       expect(mockOnAuthAplSaved).toHaveBeenCalledWith(
         expect.anything(/* Assume original request */),
         expect.objectContaining({
           authData: expectedAuthData,
-        })
+        }),
       );
       expect(mockOnAuthAplFailed).not.toHaveBeenCalled();
     });
@@ -198,7 +198,7 @@ describe("Next.js createAppRegisterHandler", () => {
           error: expect.objectContaining({
             message: "test error",
           }),
-        })
+        }),
       );
     });
 
@@ -209,7 +209,7 @@ describe("Next.js createAppRegisterHandler", () => {
           context.respondWithError({
             status: 401,
             message: "test message",
-          })
+          }),
         );
 
       const { res, req } = createMocks({

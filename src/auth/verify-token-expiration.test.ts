@@ -27,7 +27,7 @@ describe("verifyTokenExpiration", () => {
          * Must be seconds
          */
         exp: tokenDate.valueOf() / 1000,
-      } as DashboardTokenPayload)
+      } as DashboardTokenPayload),
     ).not.toThrow();
   });
 
@@ -44,7 +44,7 @@ describe("verifyTokenExpiration", () => {
          * Must be seconds
          */
         exp: tokenDate.valueOf() / 1000,
-      } as DashboardTokenPayload)
+      } as DashboardTokenPayload),
     ).toThrow();
   });
 
@@ -55,7 +55,7 @@ describe("verifyTokenExpiration", () => {
          * Must be seconds
          */
         exp: mockTodayDate.valueOf() / 1000,
-      } as DashboardTokenPayload)
+      } as DashboardTokenPayload),
     ).toThrow();
   });
 });

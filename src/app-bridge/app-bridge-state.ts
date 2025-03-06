@@ -6,15 +6,10 @@ export type AppBridgeState = {
   token?: string;
   id: string;
   ready: boolean;
-  domain: string;
   path: string;
   theme: ThemeType;
   locale: LocaleCode;
   saleorApiUrl: string;
-  /**
-   * Versions of Saleor that app is mounted. Passed from the Dashboard.
-   * Works form Saleor 3.15
-   */
   saleorVersion?: string;
   dashboardVersion?: string;
   user?: {
@@ -39,7 +34,6 @@ type Options = {
 export class AppBridgeStateContainer {
   private state: AppBridgeState = {
     id: "",
-    domain: "",
     saleorApiUrl: "",
     ready: false,
     path: "/",

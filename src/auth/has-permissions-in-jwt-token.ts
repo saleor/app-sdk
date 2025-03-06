@@ -1,12 +1,16 @@
-import { createDebug } from "./debug";
-import { Permission } from "./types";
+import { createDebug } from "../debug";
+import { Permission } from "../types";
 import { DashboardTokenPayload } from "./verify-jwt";
 
 const debug = createDebug("checkJwtPermissions");
 
+/**
+ * Takes decoded JWT token that Dashboard provides via AppBridge.
+ * Compare permissions against required in parameter
+ */
 export const hasPermissionsInJwtToken = (
   tokenData?: Pick<DashboardTokenPayload, "user_permissions">,
-  permissionsToCheckAgainst?: Permission[]
+  permissionsToCheckAgainst?: Permission[],
 ) => {
   debug(`Permissions required ${permissionsToCheckAgainst}`);
 
@@ -23,7 +27,7 @@ export const hasPermissionsInJwtToken = (
   }
 
   const arePermissionsSatisfied = permissionsToCheckAgainst.every((permission) =>
-    userPermissions.includes(permission)
+    userPermissions.includes(permission),
   );
 
   if (!arePermissionsSatisfied) {

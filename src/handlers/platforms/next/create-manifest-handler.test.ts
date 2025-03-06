@@ -1,7 +1,7 @@
 import { createMocks } from "node-mocks-http";
 import { describe, expect, it, vi } from "vitest";
 
-import { SALEOR_SCHEMA_VERSION } from "@/const";
+import { SALEOR_SCHEMA_VERSION_HEADER } from "@/headers";
 
 import { createManifestHandler, CreateManifestHandlerOptions } from "./create-manifest-handler";
 
@@ -13,7 +13,7 @@ describe("Next.js createManifestHandler", () => {
       headers: {
         host: "some-app-host.cloud",
         "x-forwarded-proto": "https",
-        [SALEOR_SCHEMA_VERSION]: "3.20",
+        [SALEOR_SCHEMA_VERSION_HEADER]: "3.20",
       },
       method: "GET",
     });

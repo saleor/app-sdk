@@ -42,13 +42,13 @@ describe("verifyJWT", () => {
 
   it("Throw error on decode issue", async () => {
     await expect(
-      verifyJWT({ appId: validAppId, saleorApiUrl: validApiUrl, token: "wrong_token" })
+      verifyJWT({ appId: validAppId, saleorApiUrl: validApiUrl, token: "wrong_token" }),
     ).rejects.toThrow("JWT verification failed: Could not decode authorization token.");
   });
 
   it("Throw error on app ID missmatch", async () => {
     await expect(
-      verifyJWT({ appId: "wrong_id", saleorApiUrl: validApiUrl, token: validToken })
+      verifyJWT({ appId: "wrong_id", saleorApiUrl: validApiUrl, token: validToken }),
     ).rejects.toThrow("JWT verification failed: Token's app property is different than app ID.");
   });
 
@@ -59,7 +59,7 @@ describe("verifyJWT", () => {
         saleorApiUrl: validApiUrl,
         token: validToken,
         requiredPermissions: ["HANDLE_TAXES"],
-      })
+      }),
     ).rejects.toThrow("JWT verification failed: Token's permissions are not sufficient.");
   });
 
@@ -71,7 +71,7 @@ describe("verifyJWT", () => {
         appId: validAppId,
         saleorApiUrl: validApiUrl,
         token: validToken,
-      })
+      }),
     ).rejects.toThrow("JWT verification failed: Token is expired");
   });
 });

@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 
-import { SALEOR_API_URL_HEADER, SALEOR_AUTHORIZATION_BEARER_HEADER } from "../const";
+import { SALEOR_API_URL_HEADER, SALEOR_AUTHORIZATION_BEARER_HEADER } from "@/headers";
+
 import { AppBridge } from "./app-bridge";
 import { useAppBridge } from "./app-bridge-provider";
 

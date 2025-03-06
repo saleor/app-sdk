@@ -2,7 +2,9 @@ import { NextPage } from "next";
 import * as React from "react";
 import { PropsWithChildren, ReactNode } from "react";
 
-import { isInIframe, useIsMounted } from "../util";
+import { isInIframe } from "@/util/is-in-iframe";
+import { useIsMounted } from "@/util/use-is-mounted";
+
 import { useDashboardToken } from "./use-dashboard-token";
 
 function SimpleError({ children }: PropsWithChildren<{}>) {
@@ -41,7 +43,7 @@ type WithAuthorizationHOC<P> = React.FunctionComponent<P> & {
 export const withAuthorization =
   (props: Props = defaultProps) =>
   <BaseProps extends React.ComponentProps<NextPage>>(
-    BaseComponent: React.FunctionComponent<BaseProps>
+    BaseComponent: React.FunctionComponent<BaseProps>,
   ): WithAuthorizationHOC<BaseProps> => {
     const { dashboardTokenInvalid, noDashboardToken, notIframe, unmounted } = {
       ...defaultProps,

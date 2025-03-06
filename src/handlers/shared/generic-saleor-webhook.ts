@@ -19,7 +19,7 @@ const debug = createDebug("SaleorWebhook");
 
 export interface GenericWebhookConfig<
   RequestType,
-  Event = AsyncWebhookEventType | SyncWebhookEventType
+  Event = AsyncWebhookEventType | SyncWebhookEventType,
 > {
   name?: string;
   webhookPath: string;
@@ -29,21 +29,15 @@ export interface GenericWebhookConfig<
   onError?(error: WebhookError | Error, request: RequestType): void;
   formatErrorResponse?(
     error: WebhookError | Error,
-    request: RequestType
+    request: RequestType,
   ): Promise<FormatWebhookErrorResult>;
   query: string | ASTNode;
 }
 
-export abstract class GenericSaleorWebhook<
-  TRequestType,
-  TPayload = unknown,
-  TExtras extends Record<string, unknown> = {}
-> {
+export abstract class GenericSaleorWebhook<TRequestType, TPayload = unknown> {
   private webhookValidator = new SaleorWebhookValidator();
 
   protected abstract eventType: "async" | "sync";
-
-  protected extraContext?: TExtras;
 
   name: string;
 
@@ -123,7 +117,7 @@ export abstract class GenericSaleorWebhook<
   }
 
   protected async prepareRequest<Adapter extends PlatformAdapterInterface<TRequestType>>(
-    adapter: Adapter
+    adapter: Adapter,
   ): Promise<
     | { result: "callHandler"; context: WebhookContext<TPayload> }
     | { result: "sendResponse"; response: ReturnType<Adapter["send"]> }

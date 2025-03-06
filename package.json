@@ -143,11 +143,6 @@
       "import": "./settings-manager/index.mjs",
       "require": "./settings-manager/index.js"
     },
-    "./urls": {
-      "types": "./urls.d.ts",
-      "import": "./urls.mjs",
-      "require": "./urls.js"
-    },
     "./app-bridge": {
       "types": "./app-bridge/index.d.ts",
       "import": "./app-bridge/index.mjs",
@@ -188,15 +183,10 @@
       "import": "./saleor-app.mjs",
       "require": "./saleor-app.js"
     },
-    "./verify-jwt": {
-      "types": "./verify-jwt.d.ts",
-      "import": "./verify-jwt.mjs",
-      "require": "./verify-jwt.js"
-    },
-    "./verify-signature": {
-      "types": "./verify-signature.d.ts",
-      "import": "./verify-signature.mjs",
-      "require": "./verify-signature.js"
+    "./auth": {
+      "types": "./auth/index.d.ts",
+      "import": "./auth/index.mjs",
+      "require": "./auth/index.js"
     },
     "./headers": {
       "types": "./headers.d.ts",
@@ -204,9 +194,14 @@
       "require": "./headers.js"
     },
     "./util": {
-      "types": "./util/public/index.d.ts",
-      "import": "./util/public/index.mjs",
-      "require": "./util/public/index.js"
+      "types": "./util/index.d.ts",
+      "import": "./util/index.mjs",
+      "require": "./util/index.js"
+    },
+    "./util/browser": {
+      "types": "./util/public/browser/index.d.ts",
+      "import": "./util/public/browser/index.mjs",
+      "require": "./util/public/browser/index.js"
     },
     "./types": {
       "types": "./types.d.ts"

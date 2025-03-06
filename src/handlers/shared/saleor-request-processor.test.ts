@@ -4,9 +4,9 @@ import {
   SALEOR_API_URL_HEADER,
   SALEOR_AUTHORIZATION_BEARER_HEADER,
   SALEOR_EVENT_HEADER,
-  SALEOR_SCHEMA_VERSION,
+  SALEOR_SCHEMA_VERSION_HEADER,
   SALEOR_SIGNATURE_HEADER,
-} from "@/const";
+} from "@/headers";
 import { MockAdapter } from "@/test-utils/mock-adapter";
 
 import { SaleorRequestProcessor } from "./saleor-request-processor";
@@ -77,7 +77,7 @@ describe("SaleorRequestProcessor", () => {
           [SALEOR_SIGNATURE_HEADER]: "signature-value",
           [SALEOR_EVENT_HEADER]: "event-name",
           [SALEOR_API_URL_HEADER]: "https://api.saleor.io",
-          [SALEOR_SCHEMA_VERSION]: "3.20",
+          [SALEOR_SCHEMA_VERSION_HEADER]: "3.20",
         },
       });
       const middleware = new SaleorRequestProcessor(adapter);

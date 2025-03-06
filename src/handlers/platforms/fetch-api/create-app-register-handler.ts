@@ -29,7 +29,7 @@ export type CreateAppRegisterHandlerOptions =
 export const createAppRegisterHandler =
   (config: CreateAppRegisterHandlerOptions): WebApiHandler =>
   async (req) => {
-    const adapter = new WebApiAdapter(req);
+    const adapter = new WebApiAdapter(req, Response);
     const useCase = new RegisterActionHandler(adapter);
     const result = await useCase.handleAction(config);
     return adapter.send(result);

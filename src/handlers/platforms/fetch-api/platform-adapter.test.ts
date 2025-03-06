@@ -15,7 +15,7 @@ describe("WebApiAdapter", () => {
         headers,
         body: JSON.stringify({ foo: "bar" }),
       });
-      const adapter = new WebApiAdapter(request);
+      const adapter = new WebApiAdapter(request, Response);
 
       expect(adapter.getHeader("host")).toBe("example.com");
       expect(adapter.getHeader("non-existent")).toBeNull();
@@ -30,7 +30,7 @@ describe("WebApiAdapter", () => {
         headers,
         body: JSON.stringify(sampleJson),
       });
-      const adapter = new WebApiAdapter(request);
+      const adapter = new WebApiAdapter(request, Response);
       const body = await adapter.getBody();
       expect(body).toEqual(sampleJson);
     });
@@ -41,7 +41,7 @@ describe("WebApiAdapter", () => {
         headers,
         body: "{ ", // invalid JSON
       });
-      const adapter = new WebApiAdapter(request);
+      const adapter = new WebApiAdapter(request, Response);
       await expect(adapter.getBody()).rejects.toThrowError();
     });
 
@@ -51,7 +51,7 @@ describe("WebApiAdapter", () => {
         headers,
         body: "{}",
       });
-      const adapter = new WebApiAdapter(request);
+      const adapter = new WebApiAdapter(request, Response);
       await adapter.getBody();
       expect(request.bodyUsed).toBe(false);
 
@@ -70,7 +70,7 @@ describe("WebApiAdapter", () => {
         }),
         body: "plain text",
       });
-      const adapter = new WebApiAdapter(request);
+      const adapter = new WebApiAdapter(request, Response);
       const body = await adapter.getRawBody();
       expect(body).toBe("plain text");
     });
@@ -84,7 +84,7 @@ describe("WebApiAdapter", () => {
         }),
         body: "plain text",
       });
-      const adapter = new WebApiAdapter(request);
+      const adapter = new WebApiAdapter(request, Response);
       await adapter.getRawBody();
       expect(request.bodyUsed).toBe(false);
 
@@ -103,7 +103,7 @@ describe("WebApiAdapter", () => {
         }),
         body: JSON.stringify({ foo: "bar" }),
       });
-      const adapter = new WebApiAdapter(request);
+      const adapter = new WebApiAdapter(request, Response);
       expect(adapter.getBaseUrl()).toBe("https://example.com");
     });
 
@@ -116,7 +116,7 @@ describe("WebApiAdapter", () => {
         }),
         body: JSON.stringify({ foo: "bar" }),
       });
-      const adapter = new WebApiAdapter(request);
+      const adapter = new WebApiAdapter(request, Response);
       expect(adapter.getBaseUrl()).toBe("https://example.com");
     });
 
@@ -129,7 +129,7 @@ describe("WebApiAdapter", () => {
         }),
         body: JSON.stringify({ foo: "bar" }),
       });
-      const adapter = new WebApiAdapter(request);
+      const adapter = new WebApiAdapter(request, Response);
       expect(adapter.getBaseUrl()).toBe("http://example.com");
     });
 
@@ -142,7 +142,7 @@ describe("WebApiAdapter", () => {
         }),
         body: JSON.stringify({ foo: "bar" }),
       });
-      const adapter = new WebApiAdapter(request);
+      const adapter = new WebApiAdapter(request, Response);
       expect(adapter.getBaseUrl()).toBe("wss://example.com");
     });
 
@@ -153,7 +153,7 @@ describe("WebApiAdapter", () => {
           host: "example.org",
         }),
       });
-      const adapter = new WebApiAdapter(request);
+      const adapter = new WebApiAdapter(request, Response);
       expect(adapter.getBaseUrl()).toBe("http://example.org");
     });
 
@@ -166,7 +166,7 @@ describe("WebApiAdapter", () => {
           }),
           body: JSON.stringify({ foo: "bar" }),
         });
-        const adapter = new WebApiAdapter(request);
+        const adapter = new WebApiAdapter(request, Response);
         expect(adapter.method).toBe("POST");
       });
 
@@ -177,7 +177,7 @@ describe("WebApiAdapter", () => {
             host: "example.com",
           }),
         });
-        const adapter = new WebApiAdapter(request);
+        const adapter = new WebApiAdapter(request, Response);
         expect(adapter.method).toBe("GET");
       });
     });
@@ -193,7 +193,7 @@ describe("WebApiAdapter", () => {
           }),
           body: JSON.stringify(sampleJson),
         });
-        const adapter = new WebApiAdapter(request);
+        const adapter = new WebApiAdapter(request, Response);
         const response = await adapter.send({
           bodyType: "json" as const,
           body: sampleJson,
@@ -215,7 +215,7 @@ describe("WebApiAdapter", () => {
           }),
           body: "plain text",
         });
-        const adapter = new WebApiAdapter(request);
+        const adapter = new WebApiAdapter(request, Response);
         const response = await adapter.send({
           status: 200,
           body: "Some text",

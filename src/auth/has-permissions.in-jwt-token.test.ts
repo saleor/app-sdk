@@ -23,7 +23,7 @@ describe("hasPermissionsInJwtToken", () => {
       user_permissions: ["MANAGE_ORDERS", "MANAGE_CHECKOUTS", "HANDLE_TAXES"],
     };
     await expect(
-      hasPermissionsInJwtToken(tokenData, ["MANAGE_ORDERS", "MANAGE_CHECKOUTS"])
+      hasPermissionsInJwtToken(tokenData, ["MANAGE_ORDERS", "MANAGE_CHECKOUTS"]),
     ).toBeTruthy();
   });
 
@@ -32,7 +32,7 @@ describe("hasPermissionsInJwtToken", () => {
       user_permissions: ["MANAGE_ORDERS", "HANDLE_TAXES"],
     };
     await expect(
-      hasPermissionsInJwtToken(tokenData, ["MANAGE_ORDERS", "MANAGE_CHECKOUTS"])
+      hasPermissionsInJwtToken(tokenData, ["MANAGE_ORDERS", "MANAGE_CHECKOUTS"]),
     ).toBeFalsy();
   });
 
@@ -41,7 +41,7 @@ describe("hasPermissionsInJwtToken", () => {
       user_permissions: [],
     };
     await expect(
-      hasPermissionsInJwtToken(tokenData, ["MANAGE_ORDERS", "MANAGE_CHECKOUTS"])
+      hasPermissionsInJwtToken(tokenData, ["MANAGE_ORDERS", "MANAGE_CHECKOUTS"]),
     ).toBeFalsy();
   });
 });

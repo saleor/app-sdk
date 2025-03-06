@@ -1,8 +1,9 @@
 import { SpanKind, SpanStatusCode } from "@opentelemetry/api";
 import { SemanticAttributes } from "@opentelemetry/semantic-conventions";
 
-import { getOtelTracer, OTEL_CORE_SERVICE_NAME } from "./open-telemetry";
-import { getJwksUrlFromSaleorApiUrl } from "./urls";
+import { getJwksUrlFromSaleorApiUrl } from "@/auth/index";
+
+import { getOtelTracer, OTEL_CORE_SERVICE_NAME } from "../open-telemetry";
 
 export const fetchRemoteJwks = async (saleorApiUrl: string) => {
   const tracer = getOtelTracer();
@@ -31,6 +32,6 @@ export const fetchRemoteJwks = async (saleorApiUrl: string) => {
       } finally {
         span.end();
       }
-    }
+    },
   );
 };

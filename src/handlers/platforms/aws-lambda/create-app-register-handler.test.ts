@@ -2,9 +2,9 @@ import type { APIGatewayProxyEventV2 } from "aws-lambda";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AuthData } from "@/APL";
-import { SALEOR_API_URL_HEADER } from "@/const";
-import * as fetchRemoteJwksModule from "@/fetch-remote-jwks";
+import * as fetchRemoteJwksModule from "@/auth/fetch-remote-jwks";
 import * as getAppIdModule from "@/get-app-id";
+import { SALEOR_API_URL_HEADER } from "@/headers";
 import { MockAPL } from "@/test-utils/mock-apl";
 
 import {
@@ -103,19 +103,19 @@ describe("AWS Lambda createAppRegisterHandler", () => {
         expect.objectContaining({
           authToken,
           saleorApiUrl,
-        })
+        }),
       );
       expect(mockOnRequestVerified).toHaveBeenCalledWith(
         event,
         expect.objectContaining({
           authData: expectedAuthData,
-        })
+        }),
       );
       expect(mockOnAuthAplSaved).toHaveBeenCalledWith(
         event,
         expect.objectContaining({
           authData: expectedAuthData,
-        })
+        }),
       );
       expect(mockOnAuthAplFailed).not.toHaveBeenCalled();
     });
@@ -139,7 +139,7 @@ describe("AWS Lambda createAppRegisterHandler", () => {
         expect.objectContaining({
           error: expect.any(Error),
           authData: expectedAuthData,
-        })
+        }),
       );
     });
 
@@ -150,7 +150,7 @@ describe("AWS Lambda createAppRegisterHandler", () => {
           context.respondWithError({
             status: 401,
             message: "test message",
-          })
+          }),
         );
       const handler = createAppRegisterHandler({
         apl: mockApl,

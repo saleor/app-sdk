@@ -1,6 +1,6 @@
 import { createDebug } from "@/debug";
 import { AppManifest, SaleorSchemaVersion } from "@/types";
-import { parseSchemaVersion } from "@/util";
+import { parseSchemaVersion } from "@/util/schema-version";
 
 import {
   ActionHandlerInterface,
