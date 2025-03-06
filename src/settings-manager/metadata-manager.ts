@@ -41,7 +41,7 @@ const serializeSettingsToMetadata = ({ key, value, domain }: SettingsValue): Met
 export interface MetadataManagerConfig {
   fetchMetadata: FetchMetadataCallback;
   mutateMetadata: MutateMetadataCallback;
-  deleteMetadata?: DeleteMetadataCallback;
+  deleteMetadata: DeleteMetadataCallback;
 }
 
 /**
@@ -58,7 +58,7 @@ export class MetadataManager implements SettingsManager {
 
   private mutateMetadata: MutateMetadataCallback;
 
-  private deleteMetadata?: DeleteMetadataCallback;
+  private deleteMetadata: DeleteMetadataCallback;
 
   constructor({ fetchMetadata, mutateMetadata, deleteMetadata }: MetadataManagerConfig) {
     this.fetchMetadata = fetchMetadata;
@@ -85,7 +85,7 @@ export class MetadataManager implements SettingsManager {
     }
     // changes should update cache
     const metadata = await this.mutateMetadata(serializedMetadata);
-    this.settings = metadata.map(deserializeMetadata);
+    this.settings = metadata.map(deserializeMetadata);?
   }
 
   /**
