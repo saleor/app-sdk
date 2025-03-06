@@ -1,5 +1,134 @@
 # @saleor/app-sdk
 
+## 1.0.0
+
+### Major Changes
+
+- 8dc8d4a: Changed publically exported paths. New exports will be documented in docs and migration guide
+- 3dfb91c: `requiredEnvVars` param was removed trom SaleorApp. Field was not used internally. Apps should validate it's envs.
+- 51caa77: Removed `/middlewares`, you should use `/handlers` instead.
+- 51caa77: Removed deprecated fields fields and methods in `/handlers`:
+
+  - `SaleorAsyncWebhook` and `SaleorSyncWebhook` - removed deprecated `asyncEvent` and `subscriptionQueryAst`
+  - Removed `processSaleorWebhook` and `processProtectedHandler` methods in favor of `SaleorSyncWebhook`, `SaleorAsyncWebhook` classes and `createProtectedHandler` handler
+  - Some types were moved from `/next` to `/shared`
+
+- a915771: ### APL
+
+  - `isReady` and `isConfigured` methods are now optional in the `APL` interface
+  - All APL implementations are now exported from dedicated paths `@saleor/app-sdk/APL/*` where `*` is one of the implementations. Now tree shaking is available
+
+- 126493d: Generating AppBridge action now uses native web API Crypto.
+
+  - Some older browser may not be working
+  - Only localhost and https is supported now
+
+- 5b0f7a8: Removed `ctx.buildResponse` parameter from SyncWebhookHandler ctx and replace with standalone `buildSyncWebhookResponsePayload` function
+
+  Before
+
+  ```typescript
+
+  new SaleorSyncWebhook(...).createHandler(
+    req, res, ctx
+  ) {
+
+    const typeSafePayload = ctx.buildResponse({
+      // this must be valid response
+    })
+  }
+  ```
+
+  After
+
+  ```typescript
+  import { buildSyncWebhookResponsePayload } from "@saleor/app-sdk/handlers/shared";
+
+  new SaleorSyncWebhook(...).createHandler(
+    req, res, ctx
+  )
+  {
+
+    const typeSafePayload = buildSyncWebhookResponsePayload<"ORDER_CALCULATE_TAXES">({
+      // this must be valid shape
+    })
+  }
+  ```
+
+  This change reduces complexity of TypeScript generics and make it easier to build abstractions on top of built-in handlers
+
+- 3dfb91c: Saleor version that was previously represented as a floating number (eg Saleor 3.20 was represented as 3.2) is now a `SaleorSchemaVersion` which is a tuple `major: number, minor: number`. This format is now passed to Manifest handler and webhooks handler
+- 8dc8d4a: Added new root exports: auth/browser and auth/node for token-related utilities
+- 6875d17: MetadataManager now requires deleteMetadata to be defined
+- c956220: Breaking change: SDK will no longer check `saleor-domain` header when validating Saleor requests, instead it will check `saleor-api-url` header.
+
+### Minor Changes
+
+- 4fa8271: Added handlers for Web API: Request and Response
+
+  ## Example
+
+  This example uses Next.js app router
+
+  ```ts
+  /* /app/api/manifest/route.ts */
+  import { createManifestHandler } from "@saleor/app-sdk/handlers/fetch-api";
+  // or
+  import { createManifestHandler } from "@saleor/app-sdk/handlers/next-app-router";
+
+  export const GET = createManifestHandler({
+    manifestFactory({ appBaseUrl, request }) {
+      return {
+        name: "Saleor App Template",
+        tokenTargetUrl: `${appBaseUrl}/api/register`,
+        appUrl: appBaseUrl,
+        permissions: ["MANAGE_ORDERS"],
+        id: "saleor.app",
+        version: "0.0.1",
+        webhooks: [orderCreatedWebhook.getWebhookManifest(apiBaseURL)],
+        author: "Saleor Commerce",
+      };
+    },
+  });
+  ```
+
+  ```ts
+  /* /app/api/register/route.ts */
+  import { createAppRegisterHandler } from "@saleor/app-sdk/handlers/fetch-api";
+
+  export const POST = createAppRegisterHandler({
+    apl: saleorApp.apl,
+  });
+  ```
+
+  To see more details check these examples:
+
+  - [Hono on Deno Deploy](https://github.com/witoszekdev/saleor-app-hono-deno-template)
+  - [Hono on Cloudflare Pages](https://github.com/witoszekdev/saleor-app-hono-cf-pages-template)
+  - [Hono on AWS Lambda](https://github.com/witoszekdev/saleor-app-hono-aws-lambda-template)
+  - [Next.js Edge Runtime](https://github.com/saleor/saleor-app-template/pull/267)
+
+- 51caa77: Added abstract `PlatformAdapterInterface` and `ActionHandlerInterface` to enable cross-framework handler implementations.
+
+  Next.js handlers were rewritten to use the new interface.
+
+- 5e4eb20: Add new exported path "util" with helper methods like parseSchemaVersion
+
+### Patch Changes
+
+- 003b1ca: Added `author` and `license` fields to `pacakge.json`
+- 003b1ca: Updated project license: it previously used BSD 3-Clause for code and Creative Commons Attribution 4.0 International License for artwork.
+  Since this project doesn't include any artwork, Creative Commons license was removed.
+
+  Updated `license` field in `package.json`: It incorrectly stated `ISC` license instead of `BSD-3-Clause`.
+
+- 8f6b437: Updated Typescript
+- 0a917ac: Updated packages: vite, vitest, raw-body, prettier, tsup, jose
+- 5fb68e6: Schema version passed to manifest handler will be string, not float
+- 853abaa: Added AWS Lambda platform handlers
+
+  Check [this example on how to use it](https://github.com/witoszekdev/saleor-app-lambda-template).
+
 ## 0.52.0
 
 ### Minor Changes
