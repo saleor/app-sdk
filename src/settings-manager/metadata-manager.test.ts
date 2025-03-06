@@ -76,7 +76,7 @@ describe("settings-manager", () => {
         });
 
         await expect(manager.delete("test")).rejects.toThrowErrorMatchingInlineSnapshot(
-          "[Error: Delete not implemented. Ensure MetadataManager is configured with deleteMetadata param in constructor]"
+          "[Error: Delete not implemented. Ensure MetadataManager is configured with deleteMetadata param in constructor]",
         );
       });
 

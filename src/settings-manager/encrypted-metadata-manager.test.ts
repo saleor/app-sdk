@@ -40,9 +40,9 @@ describe("settings-manager", () => {
               mutateMetadata: mutateMock,
               // @ts-expect-error
               encryptionKey: undefined,
-            })
+            }),
         ).toThrowError(
-          "Encryption key for the EncryptedMetadataManager has not been set. Setting it for the production environments is necessary. You can find more in the documentation: https://docs.saleor.io/docs/3.x/developer/extending/apps/developing-apps/app-sdk/settings-manager"
+          "Encryption key for the EncryptedMetadataManager has not been set. Setting it for the production environments is necessary. You can find more in the documentation: https://docs.saleor.io/docs/3.x/developer/extending/apps/developing-apps/app-sdk/settings-manager",
         );
       });
 
@@ -70,6 +70,7 @@ describe("settings-manager", () => {
         fetchMetadata: fetchMock,
         mutateMetadata: mutateMock,
         encryptionKey: "key",
+        deleteMetadata: deleteMetadataMock,
       });
 
       beforeEach(() => {
@@ -112,6 +113,7 @@ describe("settings-manager", () => {
           encryptionKey: "key",
           encryptionMethod: customEncrypt,
           decryptionMethod: customDecrypt,
+          deleteMetadata: deleteMetadataMock,
         });
 
         await customManager.set(newEntry);

@@ -80,11 +80,11 @@ export class EncryptedMetadataManager implements SettingsManager {
       if (process.env.NODE_ENV === "production") {
         console.error("Can't start the application without the secret key.");
         throw new Error(
-          "Encryption key for the EncryptedMetadataManager has not been set. Setting it for the production environments is necessary. You can find more in the documentation: https://docs.saleor.io/docs/3.x/developer/extending/apps/developing-apps/app-sdk/settings-manager"
+          "Encryption key for the EncryptedMetadataManager has not been set. Setting it for the production environments is necessary. You can find more in the documentation: https://docs.saleor.io/docs/3.x/developer/extending/apps/developing-apps/app-sdk/settings-manager",
         );
       }
       console.warn(
-        "WARNING: Encrypted Metadata Manager encryption key has not been set. For production deployments, it need's to be set"
+        "WARNING: Encrypted Metadata Manager encryption key has not been set. For production deployments, it need's to be set",
       );
       console.warn("Using placeholder value for the development.");
       this.encryptionKey = "CHANGE_ME";
