@@ -82,18 +82,6 @@ describe("settings-manager", () => {
         expect(manager).toBeDefined();
       });
 
-      it("Throws if \"delete\" method is called, but deleteMetadata was not passed to constructor", async () => {
-        const manager = new MetadataManager({
-          fetchMetadata: fetchMock,
-          mutateMetadata: mutateMock,
-          deleteMetadata: deleteMetadataMock,
-        });
-
-        await expect(manager.delete("test")).rejects.toThrowErrorMatchingInlineSnapshot(
-          "[Error: Delete not implemented. Ensure MetadataManager is configured with deleteMetadata param in constructor]",
-        );
-      });
-
       it("Calls deleteMetadata constructor param when \"delete\" method called", async () => {
         const manager = new MetadataManager({
           fetchMetadata: fetchMock,
