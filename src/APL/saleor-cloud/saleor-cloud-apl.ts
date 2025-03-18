@@ -51,6 +51,8 @@ const mapAuthDataToAPIBody = (authData: AuthData) => ({
   saleor_app_id: authData.appId,
   saleor_api_url: authData.saleorApiUrl,
   jwks: authData.jwks,
+  // TODO: remove domain from the Marketplace API
+  domain: "saleor.cloud",
   token: authData.token,
 });
 
