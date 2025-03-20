@@ -12,7 +12,7 @@ import { NextAppRouterAdapter, NextAppRouterHandler } from "./platform-adapter";
 export type NextAppRouterProtectedHandler = (
   request: NextRequest,
   ctx: ProtectedHandlerContext,
-) => NextResponse | Promise<NextResponse>;
+) => Response | Promise<Response>;
 
 export const createProtectedHandler =
   (

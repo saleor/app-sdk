@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
 import { createDebug } from "@/debug";
 import { WebApiWebhookHandler } from "@/handlers/platforms/fetch-api";
@@ -22,7 +22,7 @@ export type WebhookConfig<Event = AsyncWebhookEventType | SyncWebhookEventType> 
 export type NextAppRouterWebhookHandler<
   TPayload = unknown,
   TRequest extends NextRequest = NextRequest,
-  TResponse extends Response = NextResponse,
+  TResponse extends Response = Response,
 > = WebApiWebhookHandler<TPayload, TRequest, TResponse>;
 
 export abstract class SaleorNextAppRouterWebhook<TPayload = unknown> extends GenericSaleorWebhook<
