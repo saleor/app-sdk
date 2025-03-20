@@ -1,12 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
 import { WebApiAdapter } from "@/handlers/platforms/fetch-api";
 
 export type NextAppRouterHandlerInput = NextRequest;
-export type NextAppRouterHandler = (req: NextRequest) => NextResponse | Promise<NextResponse>;
+export type NextAppRouterHandler = (req: NextRequest) => Response | Promise<Response>;
 
-export class NextAppRouterAdapter extends WebApiAdapter<NextRequest, NextResponse> {
+export class NextAppRouterAdapter extends WebApiAdapter<NextRequest> {
   constructor(public request: NextRequest) {
-    super(request, NextResponse);
+    super(request, Response);
   }
 }

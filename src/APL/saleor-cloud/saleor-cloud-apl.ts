@@ -52,6 +52,7 @@ const mapAuthDataToAPIBody = (authData: AuthData) => ({
   saleor_api_url: authData.saleorApiUrl,
   jwks: authData.jwks,
   token: authData.token,
+  domain: new URL(authData.saleorApiUrl).hostname,
 });
 
 const mapAPIResponseToAuthData = (response: CloudAPLAuthDataShape): AuthData => ({

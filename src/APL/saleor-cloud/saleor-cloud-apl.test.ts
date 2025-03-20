@@ -47,13 +47,17 @@ describe("APL", () => {
               saleor_api_url: "https://example.com/graphql/",
               jwks: "{}",
               token: "example-token",
+              /**
+               * Domain is appended to the request body, because APL requires it
+               */
+              domain: "example.com",
             }),
             headers: {
               "Content-Type": "application/json",
               Authorization: "Bearer token",
             },
             method: "POST",
-          }
+          },
         );
       });
 
@@ -66,7 +70,7 @@ describe("APL", () => {
         const apl = new SaleorCloudAPL(aplConfig);
 
         await expect(apl.set(stubAuthData)).rejects.toThrow(
-          "Fetch returned with non 200 status code 500"
+          "Fetch returned with non 200 status code 500",
         );
       });
     });
@@ -112,7 +116,7 @@ describe("APL", () => {
 
             expect(err.code).toEqual("RESPONSE_BODY_INVALID");
             expect(err).toMatchInlineSnapshot(
-              "[SaleorCloudAplError: Cant parse response body: json error]"
+              "[SaleorCloudAplError: Cant parse response body: json error]",
             );
           }
         });
@@ -143,7 +147,7 @@ describe("APL", () => {
                 Authorization: "Bearer token",
               },
               method: "GET",
-            }
+            },
           );
         });
 
@@ -190,7 +194,7 @@ describe("APL", () => {
                 Authorization: "Bearer token",
               },
               method: "GET",
-            }
+            },
           );
         });
       });

@@ -164,9 +164,9 @@
       "require": "./handlers/fetch-api/index.js"
     },
     "./handlers/next-app-router": {
-      "types": "./handlers/fetch-api/index.d.ts",
-      "import": "./handlers/fetch-api/index.mjs",
-      "require": "./handlers/fetch-api/index.js"
+      "types": "./handlers/next-app-router/index.d.ts",
+      "import": "./handlers/next-app-router/index.mjs",
+      "require": "./handlers/next-app-router/index.js"
     },
     "./handlers/aws-lambda": {
       "types": "./handlers/aws-lambda/index.d.ts",
