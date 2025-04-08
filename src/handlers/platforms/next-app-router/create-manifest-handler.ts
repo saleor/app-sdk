@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server.js";
+import { NextRequest } from "next/server";
 
 import {
   CreateManifestHandlerOptions as GenericHandlerOptions,

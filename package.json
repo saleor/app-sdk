@@ -98,123 +98,213 @@
   },
   "exports": {
     "./package.json": "./package.json",
-    "./const": {
+    "./APL": {
       "import": {
-        "default": "./const.mjs",
-        "types": "./const.d.mts"
+        "types": "./APL/index.d.mts",
+        "default": "./APL/index.mjs"
       },
       "require": {
-        "default": "./const.js",
-        "types": "./const.d.ts"
+        "types": "./APL/index.d.ts",
+        "default": "./APL/index.js"
       }
     },
-    "./APL": {
-      "types": "./APL/index.d.ts",
-      "import": "./APL/index.mjs",
-      "require": "./APL/index.js"
-    },
     "./APL/redis": {
-      "types": "./APL/redis/index.d.ts",
-      "import": "./APL/redis/index.mjs",
-      "require": "./APL/redis/index.js"
+      "import": {
+        "types": "./APL/redis/index.d.mts",
+        "default": "./APL/redis/index.mjs"
+      },
+      "require": {
+        "types": "./APL/redis/index.d.ts",
+        "default": "./APL/redis/index.js"
+      }
     },
     "./APL/env": {
-      "types": "./APL/env/index.d.ts",
-      "import": "./APL/env/index.mjs",
-      "require": "./APL/env/index.js"
+      "import": {
+        "types": "./APL/env/index.d.mts",
+        "default": "./APL/env/index.mjs"
+      },
+      "require": {
+        "types": "./APL/env/index.d.ts",
+        "default": "./APL/env/index.js"
+      }
     },
     "./APL/file": {
-      "types": "./APL/file/index.d.ts",
-      "import": "./APL/file/index.mjs",
-      "require": "./APL/file/index.js"
+      "import": {
+        "types": "./APL/file/index.d.mts",
+        "default": "./APL/file/index.mjs"
+      },
+      "require": {
+        "types": "./APL/file/index.d.ts",
+        "default": "./APL/file/index.js"
+      }
     },
     "./APL/upstash": {
-      "types": "./APL/upstash/index.d.ts",
-      "import": "./APL/upstash/index.mjs",
-      "require": "./APL/upstash/index.js"
+      "import": {
+        "types": "./APL/upstash/index.d.mts",
+        "default": "./APL/upstash/index.mjs"
+      },
+      "require": {
+        "types": "./APL/upstash/index.d.ts",
+        "default": "./APL/upstash/index.js"
+      }
     },
     "./APL/saleor-cloud": {
-      "types": "./APL/saleor-cloud/index.d.ts",
-      "import": "./APL/saleor-cloud/index.mjs",
-      "require": "./APL/saleor-cloud/index.js"
+      "import": {
+        "types": "./APL/saleor-cloud/index.d.mts",
+        "default": "./APL/saleor-cloud/index.mjs"
+      },
+      "require": {
+        "types": "./APL/saleor-cloud/index.d.ts",
+        "default": "./APL/saleor-cloud/index.js"
+      }
     },
     "./APL/vercel-kv": {
-      "types": "./APL/vercel-kv/index.d.ts",
-      "import": "./APL/vercel-kv/index.mjs",
-      "require": "./APL/vercel-kv/index.js"
+      "import": {
+        "types": "./APL/vercel-kv/index.d.mts",
+        "default": "./APL/vercel-kv/index.mjs"
+      },
+      "require": {
+        "types": "./APL/vercel-kv/index.d.ts",
+        "default": "./APL/vercel-kv/index.js"
+      }
     },
     "./settings-manager": {
-      "types": "./settings-manager/index.d.ts",
-      "import": "./settings-manager/index.mjs",
-      "require": "./settings-manager/index.js"
+      "import": {
+        "types": "./settings-manager/index.d.mts",
+        "default": "./settings-manager/index.mjs"
+      },
+      "require": {
+        "types": "./settings-manager/index.d.ts",
+        "default": "./settings-manager/index.js"
+      }
     },
     "./app-bridge": {
-      "types": "./app-bridge/index.d.ts",
-      "import": "./app-bridge/index.mjs",
-      "require": "./app-bridge/index.js"
+      "import": {
+        "types": "./app-bridge/index.d.mts",
+        "default": "./app-bridge/index.mjs"
+      },
+      "require": {
+        "types": "./app-bridge/index.d.ts",
+        "default": "./app-bridge/index.js"
+      }
     },
     "./app-bridge/next": {
-      "types": "./app-bridge/next/index.d.ts",
-      "import": "./app-bridge/next/index.mjs",
-      "require": "./app-bridge/next/index.js"
+      "import": {
+        "types": "./app-bridge/next/index.d.mts",
+        "default": "./app-bridge/next/index.mjs"
+      },
+      "require": {
+        "types": "./app-bridge/next/index.d.ts",
+        "default": "./app-bridge/next/index.js"
+      }
     },
     "./handlers/next": {
-      "types": "./handlers/next/index.d.ts",
-      "import": "./handlers/next/index.mjs",
-      "require": "./handlers/next/index.js"
+      "import": {
+        "types": "./handlers/next/index.d.mts",
+        "default": "./handlers/next/index.mjs"
+      },
+      "require": {
+        "types": "./handlers/next/index.d.ts",
+        "default": "./handlers/next/index.js"
+      }
     },
     "./handlers/fetch-api": {
-      "types": "./handlers/fetch-api/index.d.ts",
-      "import": "./handlers/fetch-api/index.mjs",
-      "require": "./handlers/fetch-api/index.js"
+      "import": {
+        "types": "./handlers/fetch-api/index.d.mts",
+        "default": "./handlers/fetch-api/index.mjs"
+      },
+      "require": {
+        "types": "./handlers/fetch-api/index.d.ts",
+        "default": "./handlers/fetch-api/index.js"
+      }
     },
     "./handlers/next-app-router": {
       "import": {
-        "default": "./handlers/next-app-router/index.mjs",
-        "types": "./handlers/next-app-router/index.d.mts"
+        "types": "./handlers/next-app-router/index.d.mts",
+        "default": "./handlers/next-app-router/index.mjs"
       },
       "require": {
-        "default": "./handlers/next-app-router/index.js",
-        "types": "./handlers/next-app-router/index.d.ts"
+        "types": "./handlers/next-app-router/index.d.ts",
+        "default": "./handlers/next-app-router/index.js"
       }
     },
     "./handlers/aws-lambda": {
-      "types": "./handlers/aws-lambda/index.d.ts",
-      "import": "./handlers/aws-lambda/index.mjs",
-      "require": "./handlers/aws-lambda/index.js"
+      "import": {
+        "types": "./handlers/aws-lambda/index.d.mts",
+        "default": "./handlers/aws-lambda/index.mjs"
+      },
+      "require": {
+        "types": "./handlers/aws-lambda/index.d.ts",
+        "default": "./handlers/aws-lambda/index.js"
+      }
     },
     "./handlers/shared": {
-      "types": "./handlers/shared/index.d.ts",
-      "import": "./handlers/shared/index.mjs",
-      "require": "./handlers/shared/index.js"
+      "import": {
+        "types": "./handlers/shared/index.d.mts",
+        "default": "./handlers/shared/index.mjs"
+      },
+      "require": {
+        "types": "./handlers/shared/index.d.ts",
+        "default": "./handlers/shared/index.js"
+      }
     },
     "./saleor-app": {
-      "types": "./saleor-app.d.ts",
-      "import": "./saleor-app.mjs",
-      "require": "./saleor-app.js"
+      "import": {
+        "types": "./saleor-app.d.mts",
+        "default": "./saleor-app.mjs"
+      },
+      "require": {
+        "types": "./saleor-app.d.ts",
+        "default": "./handlers/shared/index.js"
+      }
     },
     "./auth": {
-      "types": "./auth/index.d.ts",
-      "import": "./auth/index.mjs",
-      "require": "./auth/index.js"
+      "import": {
+        "types": "./auth/index.d.mts",
+        "default": "./auth/index.mjs"
+      },
+      "require": {
+        "types": "./auth/index.d.ts",
+        "default": "./auth/index.js"
+      }
     },
     "./headers": {
-      "types": "./headers.d.ts",
-      "import": "./headers.mjs",
-      "require": "./headers.js"
+      "import": {
+        "types": "./headers.d.mts",
+        "default": "./headers.mjs"
+      },
+      "require": {
+        "types": "./headers.d.ts",
+        "default": "./headers.js"
+      }
     },
     "./util": {
-      "types": "./util/index.d.ts",
-      "import": "./util/index.mjs",
-      "require": "./util/index.js"
+      "import": {
+        "types": "./util/index.d.mts",
+        "default": "./util/index.mjs"
+      },
+      "require": {
+        "types": "./util/index.d.ts",
+        "default": "./util/index.js"
+      }
     },
     "./util/browser": {
-      "types": "./util/public/browser/index.d.ts",
-      "import": "./util/public/browser/index.mjs",
-      "require": "./util/public/browser/index.js"
+      "import": {
+        "types": "./util/public/browser/index.d.mts",
+        "default": "./util/public/browser/index.mjs"
+      },
+      "require": {
+        "types": "./util/public/browser/index.d.ts",
+        "default": "./util/public/browser/index.js"
+      }
     },
     "./types": {
-      "types": "./types.d.ts"
+      "import": {
+        "types": "./types.d.mts"
+      },
+      "require": {
+        "types": "./types.d.ts"
+      }
     }
   },
   "publishConfig": {

@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server.js";
+import { NextResponse } from "next/server";
 import { describe, expect, it } from "vitest";
 
 import { FileAPL } from "@/APL/file";
