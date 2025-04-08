@@ -290,12 +290,12 @@
     },
     "./util/browser": {
       "import": {
-        "types": "./util/public/browser/index.d.mts",
-        "default": "./util/public/browser/index.mjs"
+        "types": "./util/browser/index.d.mts",
+        "default": "./util/browser/index.mjs"
       },
       "require": {
-        "types": "./util/public/browser/index.d.ts",
-        "default": "./util/public/browser/index.js"
+        "types": "./util/browser/index.d.ts",
+        "default": "./util/browser/index.js"
       }
     },
     "./types": {
