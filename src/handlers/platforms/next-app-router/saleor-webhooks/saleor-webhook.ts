@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import { NextRequest } from "next/server.js";
 
 import { createDebug } from "@/debug";
 import { WebApiWebhookHandler } from "@/handlers/platforms/fetch-api";
