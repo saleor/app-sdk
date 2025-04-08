@@ -1,5 +1,12 @@
 # @saleor/app-sdk
 
+## 1.0.1
+
+### Patch Changes
+
+- 9849e55: Changed next.js import paths to include .js suffix, which seems to be required for ESM to work properly (for next/server).
+  Additionally improved package.json export paths to include dedicated d.mts files
+
 ## 1.0.0
 
 ### Major Changes
