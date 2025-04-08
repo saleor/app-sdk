@@ -99,9 +99,14 @@
   "exports": {
     "./package.json": "./package.json",
     "./const": {
-      "types": "./const.d.ts",
-      "import": "./const.mjs",
-      "require": "./const.js"
+      "import": {
+        "default": "./const.mjs",
+        "types": "./const.d.mts"
+      },
+      "require": {
+        "default": "./const.js",
+        "types": "./const.d.ts"
+      }
     },
     "./APL": {
       "types": "./APL/index.d.ts",
@@ -164,9 +169,14 @@
       "require": "./handlers/fetch-api/index.js"
     },
     "./handlers/next-app-router": {
-      "types": "./handlers/next-app-router/index.d.ts",
-      "import": "./handlers/next-app-router/index.mjs",
-      "require": "./handlers/next-app-router/index.js"
+      "import": {
+        "default": "./handlers/next-app-router/index.mjs",
+        "types": "./handlers/next-app-router/index.d.mts"
+      },
+      "require": {
+        "default": "./handlers/next-app-router/index.js",
+        "types": "./handlers/next-app-router/index.d.ts"
+      }
     },
     "./handlers/aws-lambda": {
       "types": "./handlers/aws-lambda/index.d.ts",
