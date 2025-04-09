@@ -62,7 +62,7 @@ export type SyncWebhookResponsesMap = {
     result:
       | "CHARGE_SUCCESS"
       | "CHARGE_FAILURE"
-      | "CHARGE_REQUESTED"
+      | "CHARGE_REQUEST"
       | "CHARGE_ACTION_REQUIRED"
       | "AUTHORIZATION_SUCCESS"
       | "AUTHORIZATION_FAILURE"
@@ -79,7 +79,7 @@ export type SyncWebhookResponsesMap = {
     result:
       | "CHARGE_SUCCESS"
       | "CHARGE_FAILURE"
-      | "CHARGE_REQUESTED"
+      | "CHARGE_REQUEST"
       | "CHARGE_ACTION_REQUIRED"
       | "AUTHORIZATION_SUCCESS"
       | "AUTHORIZATION_FAILURE"
