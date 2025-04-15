@@ -1,5 +1,17 @@
 # @saleor/app-sdk
 
+## 1.0.3
+
+### Patch Changes
+
+- c69f0ff: Fixed `TRANSACTION_CHARGE_REQUESTED`, `TRANSACTION_REFUND_REQUESTED`, `TRANSACTION_CANCELATION_REQUESTED`, `TRANSACTION_INITIALIZE_SESSION` and `TRANSACTION_PROCESS_SESSION` webhook response builder params. After this change `buildSyncWebhookResponsePayload` for those events should be the same as in Saleor docs.
+
+## 1.0.2
+
+### Patch Changes
+
+- ed57775: Fix typo for `TRANSACTION_INITIALIZE_SESSION` / `TRANSACTION_PROCESS_SESSION` result - it should be `CHARGE_REQUEST` instead of `CHARGE_REQUESTED`
+
 ## 1.0.1
 
 ### Patch Changes
