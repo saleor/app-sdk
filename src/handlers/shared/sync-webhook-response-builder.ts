@@ -29,36 +29,41 @@ export type SyncWebhookResponsesMap = {
      */
     maximum_delivery_days?: number;
   }>;
+  // https://docs.saleor.io/developer/extending/webhooks/synchronous-events/transaction#response
   TRANSACTION_CHARGE_REQUESTED: {
-    pspReference: string;
-    result?: "CHARGE_SUCCESS" | "CHARGE_FAILURE";
-    amount?: number;
+    result: "CHARGE_SUCCESS" | "CHARGE_FAILURE";
+    amount: number;
+    pspReference?: string;
     time?: string;
     externalUrl?: string;
     message?: string;
+    actions?: Array<"CHARGE" | "REFUND" | "CANCEL">;
   };
+  // https://docs.saleor.io/developer/extending/webhooks/synchronous-events/transaction#sync-flow-2
   TRANSACTION_REFUND_REQUESTED: {
-    pspReference: string;
-    result?: "REFUND_SUCCESS" | "REFUND_FAILURE";
-    amount?: number;
+    result: "REFUND_SUCCESS" | "REFUND_FAILURE";
+    amount: number;
+    pspReference?: string;
     time?: string;
     externalUrl?: string;
     message?: string;
+    actions?: Array<"CHARGE" | "REFUND" | "CANCEL">;
   };
+  // https://docs.saleor.io/developer/extending/webhooks/synchronous-events/transaction#response-1
   TRANSACTION_CANCELATION_REQUESTED: {
-    pspReference: string;
-    result?: "CANCEL_SUCCESS" | "CANCEL_FAILURE";
-    amount?: number;
+    result: "CANCEL_SUCCESS" | "CANCEL_FAILURE";
+    amount: number;
+    pspReference?: string;
     time?: string;
     externalUrl?: string;
     message?: string;
+    actions?: Array<"CHARGE" | "REFUND" | "CANCEL">;
   };
   PAYMENT_GATEWAY_INITIALIZE_SESSION: {
     data: unknown;
   };
+  // https://docs.saleor.io/developer/extending/webhooks/synchronous-events/transaction#response-4
   TRANSACTION_INITIALIZE_SESSION: {
-    pspReference?: string;
-    data?: unknown;
     result:
       | "CHARGE_SUCCESS"
       | "CHARGE_FAILURE"
@@ -66,16 +71,18 @@ export type SyncWebhookResponsesMap = {
       | "CHARGE_ACTION_REQUIRED"
       | "AUTHORIZATION_SUCCESS"
       | "AUTHORIZATION_FAILURE"
-      | "AUTHORIZATION_REQUESTED"
+      | "AUTHORIZATION_REQUEST"
       | "AUTHORIZATION_ACTION_REQUIRED";
     amount: number;
+    pspReference?: string;
+    data?: unknown;
     time?: string;
     externalUrl?: string;
     message?: string;
+    actions?: Array<"CHARGE" | "REFUND" | "CANCEL">;
   };
+  // https://docs.saleor.io/developer/extending/webhooks/synchronous-events/transaction#response-5
   TRANSACTION_PROCESS_SESSION: {
-    pspReference?: string;
-    data?: unknown;
     result:
       | "CHARGE_SUCCESS"
       | "CHARGE_FAILURE"
@@ -83,12 +90,15 @@ export type SyncWebhookResponsesMap = {
       | "CHARGE_ACTION_REQUIRED"
       | "AUTHORIZATION_SUCCESS"
       | "AUTHORIZATION_FAILURE"
-      | "AUTHORIZATION_REQUESTED"
+      | "AUTHORIZATION_REQUEST"
       | "AUTHORIZATION_ACTION_REQUIRED";
     amount: number;
+    pspReference?: string;
+    data?: unknown;
     time?: string;
     externalUrl?: string;
     message?: string;
+    actions?: Array<"CHARGE" | "REFUND" | "CANCEL">;
   };
   PAYMENT_METHOD_PROCESS_TOKENIZATION_SESSION:
     | {
