@@ -7,9 +7,9 @@ import { APL, AplConfiguredResult, AplReadyResult, AuthData } from "../apl";
 import { createAPLDebug } from "../apl-debug";
 
 /**
- * Configuration options for RedisAPL
+ * Configuration options for IORedisAPL
  */
-type RedisAPLConfig = {
+type IORedisAPLConfig = {
   /** Redis client instance to use for storage */
   client: Redis;
   /** Optional key to use for the hash collection. Defaults to "saleor_app_auth" */
@@ -21,7 +21,7 @@ type RedisAPLConfig = {
  * This class provides Redis-based storage for Saleor App authentication data.
  */
 export class IORedisAPL implements APL {
-  private debug = createAPLDebug("RedisAPL");
+  private debug = createAPLDebug("IORedisAPL");
 
   private tracer = getOtelTracer();
 
@@ -29,7 +29,7 @@ export class IORedisAPL implements APL {
 
   private hashCollectionKey: string;
 
-  constructor(config: RedisAPLConfig) {
+  constructor(config: IORedisAPLConfig) {
     this.client = config.client;
     this.hashCollectionKey = config.hashCollectionKey || "saleor_app_auth";
 
@@ -50,7 +50,7 @@ export class IORedisAPL implements APL {
     this.debug("Will get auth data from Redis for %s", saleorApiUrl);
 
     return this.tracer.startActiveSpan(
-      "RedisAPL.get",
+      "IORedisAPL.get",
       {
         attributes: {
           saleorApiUrl,
@@ -97,7 +97,7 @@ export class IORedisAPL implements APL {
     this.debug("Will set auth data in Redis for %s", authData.saleorApiUrl);
 
     return this.tracer.startActiveSpan(
-      "RedisAPL.set",
+      "IORedisAPL.set",
       {
         attributes: {
           saleorApiUrl: authData.saleorApiUrl,
@@ -140,7 +140,7 @@ export class IORedisAPL implements APL {
     this.debug("Will delete auth data from Redis for %s", saleorApiUrl);
 
     return this.tracer.startActiveSpan(
-      "RedisAPL.delete",
+      "IORedisAPL.delete",
       {
         attributes: {
           saleorApiUrl,
@@ -178,7 +178,7 @@ export class IORedisAPL implements APL {
     this.debug("Will get all auth data from Redis");
 
     return this.tracer.startActiveSpan(
-      "RedisAPL.getAll",
+      "IORedisAPL.getAll",
       {
         attributes: {
           [SemanticAttributes.PEER_SERVICE]: OTEL_APL_SERVICE_NAME,

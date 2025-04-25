@@ -16,7 +16,8 @@
     "publish:ci-prod": "pnpm publish && pnpm exec changeset tag && git push --follow-tags",
     "publish:ci-dev": "pnpm exec changeset version --snapshot pr && pnpm publish --tag dev --no-git-checks",
     "lint-staged": "lint-staged",
-    "test:integration": "INTEGRATION=1 vitest run test/integration"
+    "test:integration": "INTEGRATION=1 vitest run test/integration",
+    "test:integration-sentinel": "SENTINEL_INTEGRATION=1 vitest run test/integration"
   },
   "keywords": [
     "saleor",
@@ -33,13 +34,13 @@
     "next": ">=12",
     "react": ">=17",
     "react-dom": ">=17",
-    "redis": ">=4"
+    "redis": ">=4",
+    "ioredis": ">=5"
   },
   "dependencies": {
     "@opentelemetry/api": "1.9.0",
     "@opentelemetry/semantic-conventions": "1.30.0",
     "debug": "4.4.0",
-    "ioredis": "^5.6.1",
     "jose": "5.10.0",
     "raw-body": "3.0.0"
   },
@@ -91,6 +92,9 @@
     },
     "redis": {
       "optional": true
+    },
+    "ioredis": {
+      "optional": true
     }
   },
   "lint-staged": {
@@ -107,6 +111,16 @@
       "require": {
         "types": "./APL/index.d.ts",
         "default": "./APL/index.js"
+      }
+    },
+    "./APL/ioredis": {
+      "import": {
+        "types": "./APL/ioredis/index.d.mts",
+        "default": "./APL/ioredis/index.mjs"
+      },
+      "require": {
+        "types": "./APL/ioredis/index.d.ts",
+        "default": "./APL/ioredis/index.js"
       }
     },
     "./APL/redis": {

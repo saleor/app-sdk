@@ -27,7 +27,7 @@ Supports Saleor version 3.20+
   - Create a legacy release branch (e.g. `v1.x` branch)
   - Mark changeset to `main` with `major` change, which will start counting next `main` releases as `2.x.x`
   - Do not merge release PR until it's ready to be merged
- 
+
 ### Deploying test snapshots
 
 PRs can be pushed to NPM by adding label to PR `release dev tag`. Workflow will run and print version that has been released.
@@ -101,4 +101,40 @@ Note: If your Redis instance is running on a different host or port, you can set
 
 ```bash
 REDIS_URL=redis://custom-host:6379 pnpm test:integration
+```
+
+## Running IORedisAPL Integration Tests with Sentinel Support
+
+To run the IORedisAPL integration tests with Sentinel support, follow these steps:
+
+### 1. Set Up the Environment
+
+First, ensure you have Docker and Docker Compose installed on your machine. Then, navigate to the directory containing the `docker-compose.yml` file for the integration tests:
+
+```bash
+cd tests/integration/ioredis
+```
+
+### 2. Start the Redis Sentinel Setup
+
+Use the following command to start the Redis Sentinel setup. This command will set the `HOST_IP` environment variable to your local IP address and bring up the necessary containers:
+
+```bash
+HOST_IP=$(hostname -I | awk '{print $1}') docker-compose up -d
+```
+
+### 3. Run the Integration Tests
+
+Once the Sentinel setup is running, execute the integration tests with the following command:
+
+```bash
+pnpm test:integration-sentinel
+```
+
+### 4. Clean Up the Environment
+
+After the tests have completed, you can shut down the Docker containers and remove any associated volumes with the following command:
+
+```bash
+docker-compose down -v
 ```
