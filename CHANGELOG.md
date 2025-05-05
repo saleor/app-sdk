@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 1.0.4
+
+### Patch Changes
+
+- cfed375: Add `readonly` to actions for `TRANSACTION_CHARGE_REQUESTED`, `TRANSACTION_REFUND_REQUESTED`, `TRANSACTION_CANCELATION_REQUESTED`, `TRANSACTION_INITIALIZE_SESSION` & `TRANSACTION_PROCESS_SESSION` events.
+
 ## 1.0.3
 
 ### Patch Changes
