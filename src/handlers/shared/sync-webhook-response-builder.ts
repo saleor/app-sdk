@@ -37,7 +37,7 @@ export type SyncWebhookResponsesMap = {
     time?: string;
     externalUrl?: string;
     message?: string;
-    actions?: Array<"CHARGE" | "REFUND" | "CANCEL">;
+    readonly actions?: Array<"CHARGE" | "REFUND" | "CANCEL">;
   };
   // https://docs.saleor.io/developer/extending/webhooks/synchronous-events/transaction#sync-flow-2
   TRANSACTION_REFUND_REQUESTED: {
@@ -47,7 +47,7 @@ export type SyncWebhookResponsesMap = {
     time?: string;
     externalUrl?: string;
     message?: string;
-    actions?: Array<"CHARGE" | "REFUND" | "CANCEL">;
+    readonly actions?: Array<"CHARGE" | "REFUND" | "CANCEL">;
   };
   // https://docs.saleor.io/developer/extending/webhooks/synchronous-events/transaction#response-1
   TRANSACTION_CANCELATION_REQUESTED: {
@@ -57,7 +57,7 @@ export type SyncWebhookResponsesMap = {
     time?: string;
     externalUrl?: string;
     message?: string;
-    actions?: Array<"CHARGE" | "REFUND" | "CANCEL">;
+    readonly actions?: Array<"CHARGE" | "REFUND" | "CANCEL">;
   };
   PAYMENT_GATEWAY_INITIALIZE_SESSION: {
     data: unknown;
@@ -79,7 +79,7 @@ export type SyncWebhookResponsesMap = {
     time?: string;
     externalUrl?: string;
     message?: string;
-    actions?: Array<"CHARGE" | "REFUND" | "CANCEL">;
+    readonly actions?: Array<"CHARGE" | "REFUND" | "CANCEL">;
   };
   // https://docs.saleor.io/developer/extending/webhooks/synchronous-events/transaction#response-5
   TRANSACTION_PROCESS_SESSION: {
@@ -98,7 +98,7 @@ export type SyncWebhookResponsesMap = {
     time?: string;
     externalUrl?: string;
     message?: string;
-    actions?: Array<"CHARGE" | "REFUND" | "CANCEL">;
+    readonly actions?: Array<"CHARGE" | "REFUND" | "CANCEL">;
   };
   PAYMENT_METHOD_PROCESS_TOKENIZATION_SESSION:
     | {
