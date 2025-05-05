@@ -1,5 +1,7 @@
 import { SyncWebhookEventType } from "../../types";
 
+type TransactionActions = "CHARGE" | "REFUND" | "CANCEL";
+
 export type SyncWebhookResponsesMap = {
   CHECKOUT_CALCULATE_TAXES: {
     shipping_price_gross_amount: number;
@@ -37,7 +39,7 @@ export type SyncWebhookResponsesMap = {
     time?: string;
     externalUrl?: string;
     message?: string;
-    readonly actions?: Array<"CHARGE" | "REFUND" | "CANCEL">;
+    actions?: readonly TransactionActions[];
   };
   // https://docs.saleor.io/developer/extending/webhooks/synchronous-events/transaction#sync-flow-2
   TRANSACTION_REFUND_REQUESTED: {
@@ -47,7 +49,7 @@ export type SyncWebhookResponsesMap = {
     time?: string;
     externalUrl?: string;
     message?: string;
-    readonly actions?: Array<"CHARGE" | "REFUND" | "CANCEL">;
+    actions?: readonly TransactionActions[];
   };
   // https://docs.saleor.io/developer/extending/webhooks/synchronous-events/transaction#response-1
   TRANSACTION_CANCELATION_REQUESTED: {
@@ -57,7 +59,7 @@ export type SyncWebhookResponsesMap = {
     time?: string;
     externalUrl?: string;
     message?: string;
-    readonly actions?: Array<"CHARGE" | "REFUND" | "CANCEL">;
+    actions?: readonly TransactionActions[];
   };
   PAYMENT_GATEWAY_INITIALIZE_SESSION: {
     data: unknown;
@@ -79,7 +81,7 @@ export type SyncWebhookResponsesMap = {
     time?: string;
     externalUrl?: string;
     message?: string;
-    readonly actions?: Array<"CHARGE" | "REFUND" | "CANCEL">;
+    actions?: readonly TransactionActions[];
   };
   // https://docs.saleor.io/developer/extending/webhooks/synchronous-events/transaction#response-5
   TRANSACTION_PROCESS_SESSION: {
@@ -98,7 +100,7 @@ export type SyncWebhookResponsesMap = {
     time?: string;
     externalUrl?: string;
     message?: string;
-    readonly actions?: Array<"CHARGE" | "REFUND" | "CANCEL">;
+    actions?: readonly TransactionActions[];
   };
   PAYMENT_METHOD_PROCESS_TOKENIZATION_SESSION:
     | {
