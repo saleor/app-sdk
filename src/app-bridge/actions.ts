@@ -42,15 +42,19 @@ type ActionWithId<Name extends ActionType, Payload extends {}> = {
 function withActionId<Name extends ActionType, Payload extends {}, T extends Action<Name, Payload>>(
   action: T,
 ): ActionWithId<Name, Payload> {
-  const actionId = globalThis.crypto.randomUUID();
+  try {
+    const actionId = globalThis.crypto.randomUUID();
 
-  return {
-    ...action,
-    payload: {
-      ...action.payload,
-      actionId,
-    },
-  };
+    return {
+      ...action,
+      payload: {
+        ...action.payload,
+        actionId,
+      },
+    };
+  } catch (e) {
+    throw new Error("Failed to generate action ID. Please ensure you are using https or localhost");
+  }
 }
 
 export type RedirectPayload = {
