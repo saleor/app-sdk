@@ -1,6 +1,7 @@
 import { ASTNode } from "graphql";
 
 import { APL } from "@/APL";
+import { verifySignatureWithJwks } from "@/auth";
 import { createDebug } from "@/debug";
 import { gqlAstToString } from "@/gql-ast-to-string";
 import {
@@ -32,6 +33,7 @@ export interface GenericWebhookConfig<
     request: RequestType,
   ): Promise<FormatWebhookErrorResult>;
   query: string | ASTNode;
+  verifySignatureFn?: typeof verifySignatureWithJwks;
 }
 
 export abstract class GenericSaleorWebhook<TRequestType, TPayload = unknown> {
@@ -55,6 +57,8 @@ export abstract class GenericSaleorWebhook<TRequestType, TPayload = unknown> {
 
   formatErrorResponse: GenericWebhookConfig<TRequestType>["formatErrorResponse"];
 
+  verifySignatureFn: typeof verifySignatureWithJwks;
+
   protected constructor(configuration: GenericWebhookConfig<TRequestType>) {
     const { name, webhookPath, event, query, apl, isActive = true } = configuration;
 
@@ -66,6 +70,7 @@ export abstract class GenericSaleorWebhook<TRequestType, TPayload = unknown> {
     this.apl = apl;
     this.onError = configuration.onError;
     this.formatErrorResponse = configuration.formatErrorResponse;
+    this.verifySignatureFn = configuration.verifySignatureFn ?? verifySignatureWithJwks;
   }
 
   /** Gets webhook absolute URL based on baseUrl of app
