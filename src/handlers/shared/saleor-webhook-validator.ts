@@ -17,6 +17,12 @@ type WebhookValidationResult<TPayload> =
   | { result: "failure"; error: WebhookError | Error };
 
 export class SaleorWebhookValidator {
+  constructor(
+    private params: { verifySignatureFn: typeof verifySignatureWithJwks } = {
+      verifySignatureFn: verifySignatureWithJwks,
+    },
+  ) {}
+
   private debug = createDebug("processProtectedHandler");
 
   private tracer = getOtelTracer();
@@ -157,7 +163,7 @@ export class SaleorWebhookValidator {
               throw new Error("JWKS not found in AuthData");
             }
 
-            await verifySignatureWithJwks(authData.jwks, signature, rawBody);
+            await this.params.verifySignatureFn(authData.jwks, signature, rawBody);
           } catch {
             this.debug("Request signature check failed. Refresh the JWKS cache and check again");
 
@@ -177,7 +183,7 @@ export class SaleorWebhookValidator {
                 "Second attempt to validate the signature JWKS, using fresh tokens from the API",
               );
 
-              await verifySignatureWithJwks(newJwks, signature, rawBody);
+              await this.params.verifySignatureFn(newJwks, signature, rawBody);
 
               this.debug("Verification successful - update JWKS in the AuthData");
 

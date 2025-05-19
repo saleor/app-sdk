@@ -37,8 +37,6 @@ export interface GenericWebhookConfig<
 }
 
 export abstract class GenericSaleorWebhook<TRequestType, TPayload = unknown> {
-  private webhookValidator = new SaleorWebhookValidator();
-
   protected abstract eventType: "async" | "sync";
 
   name: string;
@@ -59,6 +57,8 @@ export abstract class GenericSaleorWebhook<TRequestType, TPayload = unknown> {
 
   verifySignatureFn: typeof verifySignatureWithJwks;
 
+  private webhookValidator: SaleorWebhookValidator;
+
   protected constructor(configuration: GenericWebhookConfig<TRequestType>) {
     const { name, webhookPath, event, query, apl, isActive = true } = configuration;
 
@@ -71,6 +71,10 @@ export abstract class GenericSaleorWebhook<TRequestType, TPayload = unknown> {
     this.onError = configuration.onError;
     this.formatErrorResponse = configuration.formatErrorResponse;
     this.verifySignatureFn = configuration.verifySignatureFn ?? verifySignatureWithJwks;
+
+    this.webhookValidator = new SaleorWebhookValidator({
+      verifySignatureFn: this.verifySignatureFn,
+    });
   }
 
   /** Gets webhook absolute URL based on baseUrl of app
