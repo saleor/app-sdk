@@ -50,6 +50,25 @@ type _320TransactionWebhookResponsesMap = {
     message?: string;
     actions?: readonly TransactionActions[];
   };
+  // https://docs.saleor.io/developer/extending/webhooks/synchronous-events/transaction#response-5
+  TRANSACTION_PROCESS_SESSION: {
+    result:
+      | "CHARGE_SUCCESS"
+      | "CHARGE_FAILURE"
+      | "CHARGE_REQUEST"
+      | "CHARGE_ACTION_REQUIRED"
+      | "AUTHORIZATION_SUCCESS"
+      | "AUTHORIZATION_FAILURE"
+      | "AUTHORIZATION_REQUEST"
+      | "AUTHORIZATION_ACTION_REQUIRED";
+    amount: number;
+    pspReference?: string;
+    data?: unknown;
+    time?: string;
+    externalUrl?: string;
+    message?: string;
+    actions?: readonly TransactionActions[];
+  };
 };
 
 type _321TransactionWebhookResponsesMap = {
@@ -85,6 +104,25 @@ type _321TransactionWebhookResponsesMap = {
   };
   // https://docs.saleor.io/developer/extending/webhooks/synchronous-events/transaction#response-4
   TRANSACTION_INITIALIZE_SESSION: {
+    result:
+      | "CHARGE_SUCCESS"
+      | "CHARGE_FAILURE"
+      | "CHARGE_REQUEST"
+      | "CHARGE_ACTION_REQUIRED"
+      | "AUTHORIZATION_SUCCESS"
+      | "AUTHORIZATION_FAILURE"
+      | "AUTHORIZATION_REQUEST"
+      | "AUTHORIZATION_ACTION_REQUIRED";
+    amount?: number;
+    pspReference?: string;
+    data?: unknown;
+    time?: string;
+    externalUrl?: string;
+    message?: string;
+    actions?: readonly TransactionActions[];
+  };
+  // https://docs.saleor.io/developer/extending/webhooks/synchronous-events/transaction#response-5
+  TRANSACTION_PROCESS_SESSION: {
     result:
       | "CHARGE_SUCCESS"
       | "CHARGE_FAILURE"
