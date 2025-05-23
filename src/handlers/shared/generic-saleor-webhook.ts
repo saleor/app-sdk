@@ -33,6 +33,11 @@ export interface GenericWebhookConfig<
     request: RequestType,
   ): Promise<FormatWebhookErrorResult>;
   query: string | ASTNode;
+  /**
+   * Allows to overwrite the default signature verification function.
+   *
+   * This is useful for testing purposes, when you want to fabricate a payload, or to opt-out from the default behavior from the library
+   */
   verifySignatureFn?: typeof verifySignatureWithJwks;
 }
 
