@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { buildSyncWebhookResponsePayload, FormatWebhookErrorResult } from "@/handlers/shared";
 import { SaleorWebhookValidator } from "@/handlers/shared/saleor-webhook-validator";
+import { SALEOR_API_URL_HEADER, SALEOR_EVENT_HEADER, SALEOR_SIGNATURE_HEADER } from "@/headers";
 import { MockAPL } from "@/test-utils/mock-apl";
 
 import { SaleorSyncWebhook, WebApiSyncWebhookHandler } from "./saleor-sync-webhook";
@@ -124,5 +125,30 @@ describe("Web API SaleorSyncWebhook", () => {
     expect(response.status).toBe(418);
     await expect(response.text()).resolves.toBe("Custom error");
     expect(handler).not.toHaveBeenCalled();
+  });
+
+  it("should call externally injected signature verification function", async () => {
+    const mockVerifySignatureFn = vi.fn().mockImplementationOnce(async () => {});
+
+    const saleorSyncWebhook = new SaleorSyncWebhook({
+      ...webhookConfiguration,
+      verifySignatureFn: mockVerifySignatureFn,
+    });
+
+    const handler = saleorSyncWebhook.createHandler(() => new Response("OK", { status: 200 }));
+
+    const request = new Request(`${baseUrl}/webhook`, {
+      method: "POST",
+      headers: {
+        [SALEOR_API_URL_HEADER]: "https://example.com/graphql/",
+        [SALEOR_SIGNATURE_HEADER]: "random-signature-test",
+        [SALEOR_EVENT_HEADER]: "checkout_calculate_taxes",
+      },
+      body: JSON.stringify({}),
+    });
+    const response = await handler(request);
+
+    expect(response.status).toBe(200);
+    expect(mockVerifySignatureFn).toHaveBeenCalledOnce();
   });
 });

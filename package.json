@@ -1,6 +1,6 @@
 {
   "name": "@saleor/app-sdk",
-  "version": "1.0.3",
+  "version": "1.0.5",
   "description": "SDK for building great Saleor Apps",
   "scripts": {
     "prepublishOnly": "pnpm build",

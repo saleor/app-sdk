@@ -2,12 +2,12 @@ import { SpanKind, SpanStatusCode } from "@opentelemetry/api";
 
 import { APL } from "@/APL";
 import { fetchRemoteJwks } from "@/auth/fetch-remote-jwks";
-import { verifySignatureWithJwks } from "@/auth/verify-signature";
 import { createDebug } from "@/debug";
 import { getOtelTracer } from "@/open-telemetry";
 import { SaleorSchemaVersion } from "@/types";
 import { parseSchemaVersion } from "@/util/schema-version";
 
+import { verifySignatureWithJwks } from "../../auth/verify-signature";
 import { PlatformAdapterInterface } from "./generic-adapter-use-case-types";
 import { SaleorRequestProcessor } from "./saleor-request-processor";
 import { WebhookContext, WebhookError } from "./saleor-webhook";
@@ -17,6 +17,14 @@ type WebhookValidationResult<TPayload> =
   | { result: "failure"; error: WebhookError | Error };
 
 export class SaleorWebhookValidator {
+  private verifySignatureWithJwks = verifySignatureWithJwks.bind(this);
+
+  constructor(params?: { verifySignatureFn: typeof verifySignatureWithJwks }) {
+    if (params?.verifySignatureFn) {
+      this.verifySignatureWithJwks = params.verifySignatureFn;
+    }
+  }
+
   private debug = createDebug("processProtectedHandler");
 
   private tracer = getOtelTracer();
@@ -157,7 +165,7 @@ export class SaleorWebhookValidator {
               throw new Error("JWKS not found in AuthData");
             }
 
-            await verifySignatureWithJwks(authData.jwks, signature, rawBody);
+            await this.verifySignatureWithJwks(authData.jwks, signature, rawBody);
           } catch {
             this.debug("Request signature check failed. Refresh the JWKS cache and check again");
 
@@ -177,7 +185,7 @@ export class SaleorWebhookValidator {
                 "Second attempt to validate the signature JWKS, using fresh tokens from the API",
               );
 
-              await verifySignatureWithJwks(newJwks, signature, rawBody);
+              await this.verifySignatureWithJwks(newJwks, signature, rawBody);
 
               this.debug("Verification successful - update JWKS in the AuthData");
 

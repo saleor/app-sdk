@@ -1,5 +1,34 @@
 # @saleor/app-sdk
 
+## 1.0.5
+
+### Patch Changes
+
+- 965089a: Added optional second generic parameter to `buildSyncWebhookResponsePayload` called `SaleorVersion`.
+  This change improves TypeScript type safety when working with different Saleor versions that have varying payload requirements.
+
+  After this change you can for example use `buildSyncWebhookResponsePayload` with different version and differently type responses:
+
+  ```ts
+  // 3.20 is default `SaleorVersion` so you can also write `buildSyncWebhookResponsePayload<TRANSACTION_CHARGE_REQUESTED>`
+  const respOne = buildSyncWebhookResponsePayload<"TRANSACTION_CHARGE_REQUESTED", "3.20">({
+    result: "CHARGE_SUCCESS",
+    amount: 100, // Required in 3.20
+  });
+
+  const respTwo = buildSyncWebhookResponsePayload<"TRANSACTION_CHARGE_REQUESTED", "3.21">({
+    result: "CHARGE_SUCCESS", // amount is optional in 3.21
+  });
+  ```
+
+- a353fdf: Allow to override signature verification method in SaleorWebhook class (likely for testing)
+
+## 1.0.4
+
+### Patch Changes
+
+- cfed375: Add `readonly` to actions for `TRANSACTION_CHARGE_REQUESTED`, `TRANSACTION_REFUND_REQUESTED`, `TRANSACTION_CANCELATION_REQUESTED`, `TRANSACTION_INITIALIZE_SESSION` & `TRANSACTION_PROCESS_SESSION` events.
+
 ## 1.0.3
 
 ### Patch Changes
