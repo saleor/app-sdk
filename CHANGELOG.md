@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 1.0.6
+
+### Patch Changes
+
+- a61f1cf: Added custom warning for not available Crypto in non-secure environments (it can be used in localhost or https only)
+
 ## 1.0.5
 
 ### Patch Changes
