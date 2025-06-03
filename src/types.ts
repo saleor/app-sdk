@@ -1,4 +1,4 @@
-export type AppExtensionTarget = "POPUP" | "APP_PAGE";
+export type AppExtensionTarget = "POPUP" | "APP_PAGE" | "NEW_TAB";
 
 export type AppExtensionMount =
   | "PRODUCT_DETAILS_MORE_ACTIONS"
