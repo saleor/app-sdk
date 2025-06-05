@@ -1,4 +1,4 @@
-export type AppExtensionTarget = "POPUP" | "APP_PAGE";
+export type AppExtensionTarget = "POPUP" | "APP_PAGE" | "NEW_TAB";
 
 // Available mounts in Saleor 3.22 and newer
 type AppExtensionMount3_22 =
