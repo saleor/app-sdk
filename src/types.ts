@@ -247,6 +247,25 @@ export interface AppExtension {
     When target is set to `POPUP`, the url will be used to render an `<iframe>`.
    */
   url: string;
+  /**
+   * Additional parameters for extensions
+   */
+  options?: {
+    /**
+     * Only when target is NEW_TAB.
+     */
+    newTabTarget?: {
+      /**
+       * Controls how dashboard will open the new tab
+       * - GET -> open URL in the new window
+       * - POST -> submit internal <form> using POST method. Passes token and additional parameters into body
+       * Default is GET
+       *
+       * TODO docs
+       */
+      method?: "GET" | "POST";
+    };
+  };
 }
 
 export interface WebhookManifest {
