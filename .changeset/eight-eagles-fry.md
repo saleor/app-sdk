@@ -2,4 +2,6 @@
 "@saleor/app-sdk": minor
 ---
 
-Added NEW_TAB target for AppExtension. It matches new way to trigger AppExtension action (except POPUP and APP_AGE). When implemented in the Dashboard, this will open a desired URL in the new blank browser tab
+Added NEW_TAB target and WIDGET target for AppExtension.
+
+[todo see docs](todo)
