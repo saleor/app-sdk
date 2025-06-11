@@ -1,4 +1,4 @@
-export type AppExtensionTarget = "POPUP" | "APP_PAGE" | "NEW_TAB";
+export type AppExtensionTarget = "POPUP" | "APP_PAGE" | "NEW_TAB" | "WIDGET";
 
 // Available mounts in Saleor 3.22 and newer
 type AppExtensionMount3_22 =
@@ -28,7 +28,14 @@ type AppExtensionMount3_22 =
   | "PAGE_TYPE_DETAILS_MORE_ACTIONS"
   | "MENU_OVERVIEW_CREATE"
   | "MENU_OVERVIEW_MORE_ACTIONS"
-  | "MENU_DETAILS_MORE_ACTIONS";
+  | "MENU_DETAILS_MORE_ACTIONS"
+  | "COLLECTION_DETAILS_WIDGETS"
+  | "CUSTOMER_DETAILS_WIDGETS"
+  | "PRODUCT_DETAILS_WIDGETS"
+  | "ORDER_DETAILS_WIDGETS"
+  | "DRAFT_ORDER_DETAILS_WIDGETS"
+  | "VOUCHER_DETAILS_WIDGETS"
+  | "GIFT_CARD_DETAILS_WIDGETS";
 
 export type AppExtensionMount =
   | AppExtensionMount3_22
@@ -249,6 +256,10 @@ export interface AppExtension {
   url: string;
   /**
    * Additional parameters for extensions
+   *
+   * Only specific target options should be used
+   *
+   * TODO: Make it discriminated union
    */
   options?: {
     /**
@@ -261,7 +272,16 @@ export interface AppExtension {
        * - POST -> submit internal <form> using POST method. Passes token and additional parameters into body
        * Default is GET
        *
-       * TODO docs
+       */
+      method?: "GET" | "POST";
+    };
+    widgetTarget?: {
+      /**
+       * Controls how dashboard will open the new tab
+       * - GET -> open URL in the new window
+       * - POST -> submit internal <form> using POST method. Passes token and additional parameters into body
+       * Default is GET
+       *
        */
       method?: "GET" | "POST";
     };
