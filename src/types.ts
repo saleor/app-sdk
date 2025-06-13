@@ -263,8 +263,14 @@ type AppPageExtensionWidget = BaseAppExtension & {
   target: "APP_PAGE";
 };
 
+/**
+ * Added in 3.22
+ */
 type AppExtensionWidget = BaseAppExtension & {
   target: "WIDGET";
+  /**
+   * Added in 3.22
+   */
   options?: {
     widgetTarget?: {
       /**
@@ -277,8 +283,14 @@ type AppExtensionWidget = BaseAppExtension & {
   };
 };
 
+/**
+ * Added in 3.22
+ */
 type AppExtensionNewTab = BaseAppExtension & {
   target: "NEW_TAB";
+  /**
+   * Added in 3.22
+   */
   options?: {
     /**
      * Only when target is NEW_TAB.
