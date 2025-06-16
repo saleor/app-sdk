@@ -1,5 +1,57 @@
 # @saleor/app-sdk
 
+## 1.1.0
+
+This release is preparing compatibility with upcoming Saleor 3.22
+It's not a breaking change but it will expose APIs that may not be working if you try to use it on 3.21 and below
+
+### Minor Changes
+
+- cfca2c3: Added "options" field to AppExtension types within manifest (available from Saleor 3.22)
+- cfca2c3: Added NEW_TAB target and WIDGET target for AppExtension. (available from Saleor 3.22)
+
+[See docs](https://github.com/saleor/saleor-docs/pull/1607)
+
+### Patch Changes
+
+- a61f1cf: Added custom warning for not available Crypto in non-secure environments (it can be used in localhost or https only)
+- 3bf4089: Add additional `AppExtensionMount` available in Saleor 3.22:
+
+  - "CATEGORY_OVERVIEW_CREATE"
+  - "CATEGORY_OVERVIEW_MORE_ACTIONS"
+  - "CATEGORY_DETAILS_MORE_ACTIONS"
+  - "COLLECTION_OVERVIEW_CREATE"
+  - "COLLECTION_OVERVIEW_MORE_ACTIONS"
+  - "COLLECTION_DETAILS_MORE_ACTIONS"
+  - "GIFT_CARD_OVERVIEW_CREATE"
+  - "GIFT_CARD_OVERVIEW_MORE_ACTIONS"
+  - "GIFT_CARD_DETAILS_MORE_ACTIONS"
+  - "DRAFT_ORDER_DETAILS_MORE_ACTIONS"
+  - "DRAFT_ORDER_OVERVIEW_CREATE"
+  - "DRAFT_ORDER_OVERVIEW_MORE_ACTIONS"
+  - "DISCOUNT_DETAILS_MORE_ACTIONS"
+  - "DISCOUNT_OVERVIEW_CREATE"
+  - "DISCOUNT_OVERVIEW_MORE_ACTIONS"
+  - "VOUCHER_DETAILS_MORE_ACTIONS"
+  - "VOUCHER_OVERVIEW_CREATE"
+  - "VOUCHER_OVERVIEW_MORE_ACTIONS"
+  - "PAGE_DETAILS_MORE_ACTIONS"
+  - "PAGE_OVERVIEW_CREATE"
+  - "PAGE_OVERVIEW_MORE_ACTIONS"
+  - "PAGE_TYPE_OVERVIEW_CREATE"
+  - "PAGE_TYPE_OVERVIEW_MORE_ACTIONS"
+  - "PAGE_TYPE_DETAILS_MORE_ACTIONS"
+  - "MENU_OVERVIEW_CREATE"
+  - "MENU_OVERVIEW_MORE_ACTIONS"
+  - "MENU_DETAILS_MORE_ACTIONS"
+  - "ORDER_DETAILS_WIDGETS"
+  - "DRAFT_ORDER_DETAILS_WIDGETS"
+  - "VOUCHER_DETAILS_WIDGETS"
+  - "PRODUCT_DETAILS_WIDGETS"
+  - "CUSTOMER_DETAILS_WIDGETS"
+  - "GIFT_CARD_DETAILS_WIDGETS"
+  - "COLLECTION_DETAILS_WIDGETS"
+
 ## 1.0.5
 
 ### Patch Changes
