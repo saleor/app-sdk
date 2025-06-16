@@ -2,12 +2,15 @@
 
 ## 1.1.0
 
+This release is preparing compatibility with upcoming Saleor 3.22
+It's not a breaking change but it will expose APIs that may not be working if you try to use it on 3.21 and below
+
 ### Minor Changes
 
-- cfca2c3: Added "options" field to AppExtension types within manifest
-- cfca2c3: Added NEW_TAB target and WIDGET target for AppExtension.
+- cfca2c3: Added "options" field to AppExtension types within manifest (available from Saleor 3.22)
+- cfca2c3: Added NEW_TAB target and WIDGET target for AppExtension. (available from Saleor 3.22)
 
-  [todo see docs](todo)
+[See docs](https://github.com/saleor/saleor-docs/pull/1607)
 
 ### Patch Changes
 
