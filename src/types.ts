@@ -1,3 +1,10 @@
+/** Method of presenting the interface
+ `POPUP` will present the interface in a modal overlay
+ `APP_PAGE` will navigate to the application page
+ `NEW_TAB` will open the application in a new tab
+ `WIDGET` will render the interface as a widget in the dashboard
+ @default `POPUP`
+ */
 export type AppExtensionTarget = "POPUP" | "APP_PAGE" | "NEW_TAB" | "WIDGET";
 
 // Available mounts in Saleor 3.22 and newer
@@ -241,11 +248,6 @@ interface BaseAppExtension {
   label: string;
   /** the place where the extension will be mounted */
   mount: AppExtensionMount;
-  /** Method of presenting the interface
-   `POPUP` will present the interface in a modal overlay
-   `APP_PAGE` will navigate to the application page
-   @default `POPUP`
-   */
   permissions: AppPermission[];
   /** URL of the view to display;
    you can skip the domain and protocol when target is set to `APP_PAGE`, or when your manifest defines an `appUrl`.
@@ -256,10 +258,16 @@ interface BaseAppExtension {
 }
 
 type PopupExtensionWidget = BaseAppExtension & {
+  /**
+   * Dashboard will open the app in a modal overlay.
+   */
   target: "POPUP";
 };
 
 type AppPageExtensionWidget = BaseAppExtension & {
+  /**
+   * Dashboard will navigate to the app page.
+   */
   target: "APP_PAGE";
 };
 
@@ -267,10 +275,12 @@ type AppPageExtensionWidget = BaseAppExtension & {
  * Added in 3.22
  */
 type AppExtensionWidget = BaseAppExtension & {
-  target: "WIDGET";
   /**
-   * Added in 3.22
+   * Dashboard will render the iframe statically in the dashboard.
+   *
+   * Warning: Visit docs to check available mounts.
    */
+  target: "WIDGET";
   options?: {
     widgetTarget?: {
       /**
@@ -287,10 +297,10 @@ type AppExtensionWidget = BaseAppExtension & {
  * Added in 3.22
  */
 type AppExtensionNewTab = BaseAppExtension & {
-  target: "NEW_TAB";
   /**
-   * Added in 3.22
+   * Dashboard will open the URL in the new tab.
    */
+  target: "NEW_TAB";
   options?: {
     /**
      * Only when target is NEW_TAB.
@@ -311,6 +321,35 @@ export type AppExtension =
   | AppExtensionNewTab
   | AppExtensionWidget
   | PopupExtensionWidget;
+
+/**
+ * Attributes that will be provided to the POST request when NEW_TAB or WIDGET target is used nad POST method is selected.
+ *
+ * It will be provided as <form> body, so sometimes you may need to parse the body, depending on your backend.
+ */
+export type ExtensionPOSTAttributes = {
+  saleorApiUrl: string;
+  appId: string;
+  /**
+   * JWT Token which is an intersection of app's and staff user permissions.
+   * It can't be refreshed by app. It lasts shortly, depending on Saleor configuration.
+   * Use it to immediately access Saleor API and to verify app's permissions.
+   *
+   * To use long-living token, you need to access your app token, received during installation.
+   */
+  accessToken: string;
+  /**
+   * Contextual fields that will be provided to the app, depending on the mount.
+   */
+  productId?: string;
+  productIds?: string[];
+  orderId?: string;
+  customerId?: string;
+  customerIds?: string[];
+  collectionId?: string;
+  giftCardId?: string;
+  voucherId?: string;
+};
 
 export interface WebhookManifest {
   name: string;
