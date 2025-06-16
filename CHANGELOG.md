@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 1.1.1
+
+### Patch Changes
+
+- 6f61823: Added new types for attributes that Dashboard will provide to Extension URL request when using POST method
+
 ## 1.1.0
 
 This release is preparing compatibility with upcoming Saleor 3.22
