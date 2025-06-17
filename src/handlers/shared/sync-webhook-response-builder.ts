@@ -258,6 +258,8 @@ export type SyncWebhookResponsesMap<V extends SaleorVersion = "3.20"> = CoreSync
 } & TransactionWebhookResponses<V>;
 
 /**
+ * @deprecated Saleor now exposes JSON schema for webhook response payloads that can be used to generate TypeScript types. See https://docs.saleor.io/developer/extending/apps/developing-apps/generating-types-for-sync-webhooks for more details.
+ *
  * Identity function, but it works on Typescript level to pick right payload based on first param
  */
 export const buildSyncWebhookResponsePayload = <
