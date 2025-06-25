@@ -343,6 +343,7 @@ export type ExtensionPOSTAttributes = {
    */
   productId?: string;
   productIds?: string[];
+  productSlug?: string;
   orderId?: string;
   customerId?: string;
   customerIds?: string[];
