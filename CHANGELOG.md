@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 1.1.2
+
+### Patch Changes
+
+- 1cf9750: Added productSlug param to ExtensionPOSTAttributes, which means types body from the Dashboard when calling extension (in product details context)
+
 ## 1.1.1
 
 ### Patch Changes
