@@ -1,9 +1,3 @@
-<div align="center">
-  
-[![Discord Badge](https://dcbadge.vercel.app/api/server/unUfh24R6d)](https://discord.gg/unUfh24R6d)
-
-</div>
-
 # SDK for Saleor Apps
 
 SDK for building [Saleor Apps](https://github.com/saleor/apps).
@@ -11,9 +5,16 @@ SDK for building [Saleor Apps](https://github.com/saleor/apps).
 Supports Saleor version 3.20+
 
 <div>
-
-[![npm version badge](https://img.shields.io/npm/v/@saleor/app-sdk)](https://www.npmjs.com/package/@saleor/app-sdk)
-[![npm downloads count](https://img.shields.io/npm/dt/@saleor/app-sdk)](https://www.npmjs.com/package/@saleor/app-sdk)
+  
+<a href="https://www.npmjs.com/package/@saleor/app-sdk">
+  <img src="https://img.shields.io/npm/v/@saleor/app-sdk" alt="NPM version badge">
+</a>
+<a href="https://www.npmjs.com/package/@saleor/app-sdk">
+  <img src="https://img.shields.io/npm/dt/@saleor/app-sdk" alt="NPM downloads count">
+</a>
+ <a href="https://saleor.io/discord">
+   <img src="https://img.shields.io/discord/864066819866624010" alt="Discord" >
+ </a>
 
 </div>
 
