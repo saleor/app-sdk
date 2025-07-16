@@ -1,5 +1,12 @@
 # @saleor/app-sdk
 
+## 1.1.2
+
+### Patch Changes
+
+- 1cf9750: Added productSlug param to ExtensionPOSTAttributes, which means types body from the Dashboard when calling extension (in product details context)
+- cdcbe09: Add missing Saleor async event: `FULFILLMENT_TRACKING_NUMBER_UPDATED`.
+
 ## 1.1.1
 
 ### Patch Changes
