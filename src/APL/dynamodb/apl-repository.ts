@@ -1,4 +1,4 @@
-import { AuthData } from "@saleor/app-sdk/APL";
+import { AuthData } from "@/APL";
 
 export interface APLRepository {
   getEntry(args: { saleorApiUrl: string }): Promise<AuthData | null>;
