@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 1.2.0
+
+### Minor Changes
+
+- 2fc132c: Added DynamoAPL. It received existing Table and automatically managest APL CRUD operations. Requires DynamoDB Toolbox
+
 ## 1.1.2
 
 ### Patch Changes
