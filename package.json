@@ -33,7 +33,11 @@
     "next": ">=12",
     "react": ">=17",
     "react-dom": ">=17",
-    "redis": ">=4"
+    "redis": ">=4",
+    "dynamodb-toolbox": ">2",
+    "@aws-sdk/client-dynamodb": "^3.848.0",
+    "@aws-sdk/lib-dynamodb": "^3.850.0",
+    "@aws-sdk/util-dynamodb": "^3.848.0"
   },
   "dependencies": {
     "@opentelemetry/api": "1.9.0",
@@ -82,13 +86,30 @@
     "typescript": "5.7.3",
     "vite": "6.2.0",
     "vite-tsconfig-paths": "5.1.4",
-    "vitest": "3.0.7"
+    "vitest": "3.0.7",
+    "dynamodb-toolbox": "2.7.1",
+    "@aws-sdk/client-dynamodb": "3.848.0",
+    "@aws-sdk/lib-dynamodb": "3.850.0",
+    "@aws-sdk/util-dynamodb": "3.848.0",
+    "aws-sdk-client-mock": "4.0.1"
   },
   "peerDependenciesMeta": {
     "@vercel/kv": {
       "optional": true
     },
     "redis": {
+      "optional": true
+    },
+    "dynamodb-toolbox": {
+      "optional": true
+    },
+    "@aws-sdk/client-dynamodb": {
+      "optional": true
+    },
+    "@aws-sdk/lib-dynamodb": {
+      "optional": true
+    },
+    "@aws-sdk/util-dynamodb": {
       "optional": true
     }
   },
@@ -116,6 +137,16 @@
       "require": {
         "types": "./APL/redis/index.d.ts",
         "default": "./APL/redis/index.js"
+      }
+    },
+    "./APL/dynamodb": {
+      "import": {
+        "types": "./APL/dynamodb/index.d.mts",
+        "default": "./APL/dynamodb/index.mjs"
+      },
+      "require": {
+        "types": "./APL/dynamodb/index.d.ts",
+        "default": "./APL/dynamodb/index.js"
       }
     },
     "./APL/env": {

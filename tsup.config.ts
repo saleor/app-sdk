@@ -18,6 +18,7 @@ export default defineConfig({
     "APL/env/index": "src/APL/env/index.ts",
     "APL/file/index": "src/APL/file/index.ts",
     "APL/saleor-cloud/index": "src/APL/saleor-cloud/index.ts",
+    "APL/dynamodb/index": "src/APL/dynamodb/index.ts",
 
     "app-bridge/index": "src/app-bridge/index.ts",
     "app-bridge/next/index": "src/app-bridge/next/index.ts",
