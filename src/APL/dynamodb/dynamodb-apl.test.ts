@@ -14,12 +14,6 @@ describe("DynamoAPL", () => {
     const repository = new MemoryAPLRepository();
     const apl = new DynamoAPL({
       repository,
-      env: {
-        AWS_ACCESS_KEY_ID: "",
-        AWS_REGION: "",
-        AWS_SECRET_ACCESS_KEY: "",
-        APL_TABLE_NAME: "",
-      },
     });
 
     await repository.setEntry({
@@ -35,12 +29,6 @@ describe("DynamoAPL", () => {
     const repository = new MemoryAPLRepository();
     const apl = new DynamoAPL({
       repository,
-      env: {
-        AWS_ACCESS_KEY_ID: "",
-        AWS_REGION: "",
-        AWS_SECRET_ACCESS_KEY: "",
-        APL_TABLE_NAME: "",
-      },
     });
 
     const result = await apl.get(mockedAuthData.saleorApiUrl);
@@ -52,12 +40,6 @@ describe("DynamoAPL", () => {
     const repository = new MemoryAPLRepository();
     const apl = new DynamoAPL({
       repository,
-      env: {
-        AWS_ACCESS_KEY_ID: "",
-        AWS_REGION: "",
-        AWS_SECRET_ACCESS_KEY: "",
-        APL_TABLE_NAME: "",
-      },
     });
 
     vi.spyOn(repository, "getEntry").mockReturnValue(
@@ -73,12 +55,6 @@ describe("DynamoAPL", () => {
     const repository = new MemoryAPLRepository();
     const apl = new DynamoAPL({
       repository,
-      env: {
-        AWS_ACCESS_KEY_ID: "",
-        AWS_REGION: "",
-        AWS_SECRET_ACCESS_KEY: "",
-        APL_TABLE_NAME: "",
-      },
     });
 
     const result = await apl.set(mockedAuthData);
@@ -99,12 +75,6 @@ describe("DynamoAPL", () => {
 
     const apl = new DynamoAPL({
       repository,
-      env: {
-        AWS_ACCESS_KEY_ID: "",
-        AWS_REGION: "",
-        AWS_SECRET_ACCESS_KEY: "",
-        APL_TABLE_NAME: "",
-      },
     });
 
     await expect(apl.set(mockedAuthData)).rejects.toThrowErrorMatchingInlineSnapshot(
@@ -116,12 +86,6 @@ describe("DynamoAPL", () => {
     const repository = new MemoryAPLRepository();
     const apl = new DynamoAPL({
       repository,
-      env: {
-        AWS_ACCESS_KEY_ID: "",
-        AWS_REGION: "",
-        AWS_SECRET_ACCESS_KEY: "",
-        APL_TABLE_NAME: "",
-      },
     });
 
     await repository.setEntry({
@@ -147,12 +111,6 @@ describe("DynamoAPL", () => {
     const repository = new MemoryAPLRepository();
     const apl = new DynamoAPL({
       repository,
-      env: {
-        AWS_ACCESS_KEY_ID: "",
-        AWS_REGION: "",
-        AWS_SECRET_ACCESS_KEY: "",
-        APL_TABLE_NAME: "",
-      },
     });
 
     await repository.setEntry({
@@ -170,12 +128,6 @@ describe("DynamoAPL", () => {
     const repository = new MemoryAPLRepository();
     const apl = new DynamoAPL({
       repository,
-      env: {
-        AWS_ACCESS_KEY_ID: "",
-        AWS_REGION: "",
-        AWS_SECRET_ACCESS_KEY: "",
-        APL_TABLE_NAME: "",
-      },
     });
 
     await expect(
@@ -194,12 +146,6 @@ describe("DynamoAPL", () => {
     };
     const apl = new DynamoAPL({
       repository,
-      env: {
-        AWS_ACCESS_KEY_ID: "",
-        AWS_REGION: "",
-        AWS_SECRET_ACCESS_KEY: "",
-        APL_TABLE_NAME: "",
-      },
     });
 
     await repository.setEntry({
@@ -219,12 +165,6 @@ describe("DynamoAPL", () => {
     const repository = new MemoryAPLRepository();
     const apl = new DynamoAPL({
       repository,
-      env: {
-        AWS_ACCESS_KEY_ID: "",
-        AWS_REGION: "",
-        AWS_SECRET_ACCESS_KEY: "",
-        APL_TABLE_NAME: "",
-      },
     });
 
     vi.spyOn(repository, "getAllEntries").mockRejectedValueOnce(new Error("Error getting data"));
