@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 1.3.0
+
+### Minor Changes
+
+- ac803ff: Fixed interface for creating DynamoAPL - env variables are no longer passed to constructor. Added debug logs
+
 ## 1.2.0
 
 ### Minor Changes
