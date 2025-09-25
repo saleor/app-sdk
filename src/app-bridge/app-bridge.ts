@@ -61,6 +61,12 @@ function eventStateReducer(state: AppBridgeState, event: Events) {
         token: event.payload.token,
       };
     }
+    case EventType.formData: {
+      return {
+        ...state,
+        formContext: event.payload,
+      };
+    }
     case EventType.response: {
       return state;
     }
@@ -82,6 +88,7 @@ const createEmptySubscribeMap = (): SubscribeMap => ({
   theme: {},
   localeChanged: {},
   tokenRefresh: {},
+  formData: {},
 });
 
 export type AppBridgeOptions = {

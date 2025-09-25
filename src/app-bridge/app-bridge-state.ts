@@ -2,6 +2,23 @@ import { LocaleCode } from "../locales";
 import { AppPermission, Permission } from "../types";
 import { ThemeType } from "./events";
 
+export type FormContextTranslateProduct = {
+  formId: "translate-product";
+  translationLanguage: string;
+  productId: string;
+  fields: Array<{
+    fieldName: string;
+    originalValue: string;
+    translatedValue: string;
+    type: "short" | "rich";
+  }>;
+};
+
+/**
+ * Strong-type all forms as union
+ */
+export type FormContextPayload = FormContextTranslateProduct;
+
 export type AppBridgeState = {
   token?: string;
   id: string;
@@ -24,6 +41,7 @@ export type AppBridgeState = {
     email: string;
   };
   appPermissions?: AppPermission[];
+  formContext?: FormContextPayload;
 };
 
 type Options = {
