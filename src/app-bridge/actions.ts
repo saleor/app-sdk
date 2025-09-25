@@ -25,6 +25,7 @@ export const ActionType = {
    * Available from 3.15
    */
   requestPermission: "requestPermissions",
+  applyFormFields: "applyFormFields",
 } as const;
 
 export type ActionType = Values<typeof ActionType>;
@@ -127,6 +128,19 @@ export type RequestPermissions = ActionWithId<
   }
 >;
 
+export type ApplyFormFields = ActionWithId<
+  "applyFormFields",
+  {
+    formId: string;
+    fields: Record<
+      string,
+      {
+        newValue: string;
+      }
+    >;
+  }
+>;
+
 function createRequestPermissionsAction(
   permissions: AppPermission[],
   redirectPath: string,
@@ -140,11 +154,27 @@ function createRequestPermissionsAction(
   });
 }
 
+function createApplyFormFieldsAction(payload: {
+  formId: string;
+  fields: Record<
+    string,
+    {
+      newValue: string;
+    }
+  >;
+}): RequestPermissions {
+  return withActionId({
+    type: "requestPermissions",
+    payload,
+  });
+}
+
 export type Actions =
   | RedirectAction
   | NotificationAction
   | UpdateRouting
   | NotifyReady
+  | ApplyFormFields
   | RequestPermissions;
 
 export const actions = {
@@ -153,4 +183,5 @@ export const actions = {
   UpdateRouting: createUpdateRoutingAction,
   NotifyReady: createNotifyReadyAction,
   RequestPermissions: createRequestPermissionsAction,
+  ApplyFormFields: createApplyFormFieldsAction,
 };
