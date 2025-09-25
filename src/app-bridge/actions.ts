@@ -164,7 +164,7 @@ function createApplyFormFieldsAction(payload: {
   >;
 }): ApplyFormFields {
   return withActionId({
-    type: "requestPermissions",
+    type: "applyFormFields",
     payload,
   });
 }
