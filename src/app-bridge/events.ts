@@ -147,7 +147,7 @@ export const DashboardEventFactory = {
       },
     };
   },
-  createFormDataEvent(formId: string, formPayload: FormContextPayload): FormDataEvent {
+  createFormDataEvent(formPayload: FormContextPayload): FormDataEvent {
     return {
       type: "formData",
       payload: formPayload,
