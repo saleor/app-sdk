@@ -1,5 +1,53 @@
 # @saleor/app-sdk
 
+## 1.3.1
+
+### Patch Changes
+
+- 6eb106f: Add missing AsyncWebhookEventType values to match Saleor API schema
+
+  Added 23 missing webhook event types to `AsyncWebhookEventType`:
+
+  **Account events:**
+
+  - `ACCOUNT_CHANGE_EMAIL_REQUESTED`
+  - `ACCOUNT_EMAIL_CHANGED`
+  - `ACCOUNT_SET_PASSWORD_REQUESTED`
+  - `ACCOUNT_CONFIRMED`
+  - `ACCOUNT_DELETED`
+
+  **Channel events:**
+
+  - `CHANNEL_METADATA_UPDATED`
+
+  **Gift card events:**
+
+  - `GIFT_CARD_EXPORT_COMPLETED`
+
+  **Promotion events:**
+
+  - `PROMOTION_CREATED`
+  - `PROMOTION_UPDATED`
+  - `PROMOTION_DELETED`
+  - `PROMOTION_STARTED`
+  - `PROMOTION_ENDED`
+  - `PROMOTION_RULE_CREATED`
+  - `PROMOTION_RULE_UPDATED`
+  - `PROMOTION_RULE_DELETED`
+
+  **Product & Checkout events:**
+
+  - `PRODUCT_EXPORT_COMPLETED`
+  - `CHECKOUT_FULLY_AUTHORIZED`
+
+  **Staff, Voucher & Shop events:**
+
+  - `STAFF_SET_PASSWORD_REQUESTED`
+  - `VOUCHER_CODES_CREATED`
+  - `VOUCHER_CODES_DELETED`
+  - `VOUCHER_CODE_EXPORT_COMPLETED`
+  - `SHOP_METADATA_UPDATED`
+
 ## 1.3.0
 
 ### Minor Changes
