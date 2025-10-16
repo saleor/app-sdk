@@ -17,8 +17,8 @@ Added 23 missing webhook event types to `AsyncWebhookEventType`:
 **Channel events:**
 
 - `CHANNEL_METADATA_UPDATED`
-  11
-  **Gift card events:**
+
+**Gift card events:**
 
 - `GIFT_CARD_EXPORT_COMPLETED`
 
