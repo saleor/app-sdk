@@ -28,7 +28,7 @@ export const useRoutePropagator = () => {
         ?.dispatch(
           actions.UpdateRouting({
             newRoute: url,
-          })
+          }),
         )
         .catch(() => {
           console.error("Error dispatching action");

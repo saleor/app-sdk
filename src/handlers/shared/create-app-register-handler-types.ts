@@ -26,7 +26,7 @@ export type GenericCreateAppRegisterHandlerOptions<RequestType> = HasAPL & {
       authToken?: string;
       saleorApiUrl?: string;
       respondWithError: CallbackErrorHandler;
-    }
+    },
   ): Promise<void>;
   /**
    * Run after all security checks
@@ -36,7 +36,7 @@ export type GenericCreateAppRegisterHandlerOptions<RequestType> = HasAPL & {
     context: {
       authData: AuthData;
       respondWithError: CallbackErrorHandler;
-    }
+    },
   ): Promise<void>;
   /**
    * Run after APL successfully AuthData, assuming that APL.set will reject a Promise in case of error
@@ -46,7 +46,7 @@ export type GenericCreateAppRegisterHandlerOptions<RequestType> = HasAPL & {
     context: {
       authData: AuthData;
       respondWithError: CallbackErrorHandler;
-    }
+    },
   ): Promise<void>;
   /**
    * Run after APL fails to set AuthData
@@ -57,6 +57,6 @@ export type GenericCreateAppRegisterHandlerOptions<RequestType> = HasAPL & {
       authData: AuthData;
       error: unknown;
       respondWithError: CallbackErrorHandler;
-    }
+    },
   ): Promise<void>;
 };

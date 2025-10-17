@@ -42,7 +42,7 @@ export function AppBridgeProvider({ appBridgeInstance, ...props }: React.PropsWi
       appBridge,
       mounted: true,
     }),
-    [appBridge]
+    [appBridge],
   );
 
   return <AppContext.Provider value={contextValue} {...props} />;
@@ -51,7 +51,7 @@ export function AppBridgeProvider({ appBridgeInstance, ...props }: React.PropsWi
 export const useAppBridge = () => {
   const { appBridge, mounted } = useContext(AppContext);
   const [appBridgeState, setAppBridgeState] = useState<AppBridgeState | null>(() =>
-    appBridge ? appBridge.getState() : null
+    appBridge ? appBridge.getState() : null,
   );
 
   if (typeof window !== "undefined" && !mounted) {

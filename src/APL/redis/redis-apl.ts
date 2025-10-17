@@ -112,7 +112,7 @@ export class RedisAPL implements APL {
 
           throw e;
         }
-      }
+      },
     );
   }
 
@@ -136,7 +136,7 @@ export class RedisAPL implements APL {
           await this.client.hSet(
             this.hashCollectionKey,
             authData.saleorApiUrl,
-            JSON.stringify(authData)
+            JSON.stringify(authData),
           );
 
           this.debug("Successfully set auth data in Redis");
@@ -155,7 +155,7 @@ export class RedisAPL implements APL {
 
           throw e;
         }
-      }
+      },
     );
   }
 
@@ -193,7 +193,7 @@ export class RedisAPL implements APL {
 
           throw e;
         }
-      }
+      },
     );
   }
 
@@ -232,7 +232,7 @@ export class RedisAPL implements APL {
 
           throw e;
         }
-      }
+      },
     );
   }
 

@@ -12,7 +12,7 @@ import { AwsLambdaAdapter, AWSLambdaHandler } from "./platform-adapter";
 export type AwsLambdaProtectedHandler = (
   event: APIGatewayProxyEventV2,
   context: Context,
-  saleorContext: ProtectedHandlerContext
+  saleorContext: ProtectedHandlerContext,
 ) => Promise<APIGatewayProxyStructuredResultV2> | APIGatewayProxyStructuredResultV2;
 
 /**
@@ -23,7 +23,7 @@ export const createProtectedHandler =
   (
     handlerFn: AwsLambdaProtectedHandler,
     apl: APL,
-    requiredPermissions?: Permission[]
+    requiredPermissions?: Permission[],
   ): AWSLambdaHandler =>
   async (event, context) => {
     const adapter = new AwsLambdaAdapter(event, context);

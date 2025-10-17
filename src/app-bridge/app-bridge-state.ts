@@ -1,3 +1,5 @@
+import { AllFormPayloads } from "@/app-bridge/form-payload";
+
 import { LocaleCode } from "../locales";
 import { AppPermission, Permission } from "../types";
 import { ThemeType } from "./events";
@@ -24,6 +26,7 @@ export type AppBridgeState = {
     email: string;
   };
   appPermissions?: AppPermission[];
+  formContext?: AllFormPayloads;
 };
 
 type Options = {
