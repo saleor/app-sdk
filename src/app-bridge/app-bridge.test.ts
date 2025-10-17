@@ -325,4 +325,162 @@ describe("AppBridge", () => {
     expect(appBridge.getState().saleorVersion).toEqual("3.15.0");
     expect(appBridge.getState().dashboardVersion).toEqual("3.15.1");
   });
+
+  describe("Form payload handling", () => {
+    it("Updates state with form context when form payload event is received", () => {
+      expect(appBridge.getState().formContext).toBeUndefined();
+
+      const formPayload = {
+        form: "translate-product" as const,
+        productId: "product-123",
+        translationLanguage: "es",
+        currentLanguage: "en",
+        fields: {
+          productName: {
+            fieldName: "productName",
+            originalValue: "Original Product",
+            translatedValue: "Producto Original",
+            currentValue: "Original Product",
+            type: "short-text" as const,
+          },
+        },
+      };
+
+      const formEvent = DashboardEventFactory.createFormEvent(formPayload);
+
+      fireEvent(
+        window,
+        new MessageEvent("message", {
+          data: formEvent,
+          origin,
+        }),
+      );
+
+      expect(appBridge.getState().formContext).toEqual(formPayload);
+      expect(appBridge.getState().formContext?.form).toBe("translate-product");
+      expect(appBridge.getState().formContext?.productId).toBe("product-123");
+    });
+
+    it("Subscribes to form payload event and executes callback", () => {
+      const callback = vi.fn();
+      const unsubscribe = appBridge.subscribe("formPayload", callback);
+
+      expect(callback).not.toHaveBeenCalled();
+
+      const formPayload = {
+        form: "translate-product" as const,
+        productId: "product-456",
+        translationLanguage: "fr",
+        currentLanguage: "en",
+        fields: {
+          productDescription: {
+            fieldName: "productDescription",
+            originalValue: "Description",
+            translatedValue: "Description en français",
+            currentValue: "Description",
+            type: "editorjs" as const,
+          },
+        },
+      };
+
+      const formEvent = DashboardEventFactory.createFormEvent(formPayload);
+
+      fireEvent(
+        window,
+        new MessageEvent("message", {
+          data: formEvent,
+          origin,
+        }),
+      );
+
+      expect(callback).toHaveBeenCalledOnce();
+      expect(callback).toHaveBeenCalledWith(formPayload);
+
+      unsubscribe();
+
+      // After unsubscribe, callback should not be called again
+      fireEvent(
+        window,
+        new MessageEvent("message", {
+          data: formEvent,
+          origin,
+        }),
+      );
+
+      expect(callback).toHaveBeenCalledOnce();
+    });
+
+    it("Dispatches form payload update action", () => {
+      const payload = {
+        form: "product-translate" as const,
+        fields: {
+          productName: { value: "Updated Product Name" },
+          productDescription: { value: "Updated Description" },
+          seoName: { value: "Updated SEO Name" },
+          seoDescription: { errors: [{ message: "SEO description too long" }] },
+        },
+      };
+
+      const action = actions.FormPayloadUpdate(payload);
+
+      mockDashboardActionResponse(action.type, action.payload.actionId);
+
+      return expect(appBridge.dispatch(action)).resolves.toBeUndefined();
+    });
+
+    it("Updates form context with new fields when multiple form events are received", () => {
+      const firstFormPayload = {
+        form: "translate-product" as const,
+        productId: "product-1",
+        translationLanguage: "es",
+        currentLanguage: "en",
+        fields: {
+          productName: {
+            fieldName: "productName",
+            originalValue: "Product 1",
+            translatedValue: "Producto 1",
+            currentValue: "Product 1",
+            type: "short-text" as const,
+          },
+        },
+      };
+
+      fireEvent(
+        window,
+        new MessageEvent("message", {
+          data: DashboardEventFactory.createFormEvent(firstFormPayload),
+          origin,
+        }),
+      );
+
+      expect(appBridge.getState().formContext?.productId).toBe("product-1");
+
+      const secondFormPayload = {
+        form: "translate-product" as const,
+        productId: "product-2",
+        translationLanguage: "fr",
+        currentLanguage: "en",
+        fields: {
+          productName: {
+            fieldName: "productName",
+            originalValue: "Product 2",
+            translatedValue: "Produit 2",
+            currentValue: "Product 2",
+            type: "short-text" as const,
+          },
+        },
+      };
+
+      fireEvent(
+        window,
+        new MessageEvent("message", {
+          data: DashboardEventFactory.createFormEvent(secondFormPayload),
+          origin,
+        }),
+      );
+
+      expect(appBridge.getState().formContext?.productId).toBe("product-2");
+      expect(appBridge.getState().formContext?.translationLanguage).toBe("fr");
+    });
+  });
 });

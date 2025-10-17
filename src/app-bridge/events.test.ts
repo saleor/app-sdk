@@ -65,4 +65,65 @@ describe("DashboardEventFactory", () => {
       type: "tokenRefresh",
     });
   });
+
+  it("Creates form payload event for product translation", () => {
+    const formPayload = {
+      form: "translate-product" as const,
+      productId: "product-123",
+      translationLanguage: "es",
+      currentLanguage: "en",
+      fields: {
+        productName: {
+          fieldName: "productName",
+          originalValue: "Original Product",
+          translatedValue: "Producto Original",
+          currentValue: "Original Product",
+          type: "short-text" as const,
+        },
+        productDescription: {
+          fieldName: "productDescription",
+          originalValue: "Original description",
+          translatedValue: "Descripción original",
+          currentValue: "Original description",
+          type: "editorjs" as const,
+        },
+      },
+    };
+
+    expect(DashboardEventFactory.createFormEvent(formPayload)).toEqual({
+      type: "formPayload",
+      payload: formPayload,
+    });
+  });
+
+  it("Creates form payload event with all translation field types", () => {
+    const formPayload = {
+      form: "translate-product" as const,
+      productId: "product-456",
+      translationLanguage: "fr",
+      currentLanguage: "en",
+      fields: {
+        shortTextField: {
+          fieldName: "shortTextField",
+          originalValue: "Short text",
+          translatedValue: "Texte court",
+          currentValue: "Short text",
+          type: "short-text" as const,
+        },
+        editorField: {
+          fieldName: "editorField",
+          originalValue: "{\"blocks\": []}",
+          translatedValue: "{\"blocks\": []}",
+          currentValue: "{\"blocks\": []}",
+          type: "editorjs" as const,
+        },
+      },
+    };
+
+    const event = DashboardEventFactory.createFormEvent(formPayload);
+
+    expect(event.type).toBe("formPayload");
+    expect(event.payload.fields.shortTextField.type).toBe("short-text");
+    expect(event.payload.fields.editorField.type).toBe("editorjs");
+  });
 });
