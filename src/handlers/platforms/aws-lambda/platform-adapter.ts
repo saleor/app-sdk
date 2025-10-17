@@ -13,7 +13,7 @@ import {
 export type AwsLambdaHandlerInput = APIGatewayProxyEventV2;
 export type AWSLambdaHandler = (
   event: APIGatewayProxyEventV2,
-  context: Context
+  context: Context,
 ) => Promise<APIGatewayProxyStructuredResultV2>;
 
 /** PlatformAdapter for AWS Lambda HTTP events
@@ -28,7 +28,10 @@ export type AWSLambdaHandler = (
 export class AwsLambdaAdapter implements PlatformAdapterInterface<AwsLambdaHandlerInput> {
   public request: AwsLambdaHandlerInput;
 
-  constructor(private event: APIGatewayProxyEventV2, private context: Context) {
+  constructor(
+    private event: APIGatewayProxyEventV2,
+    private context: Context,
+  ) {
     this.request = event;
   }
 

@@ -3,9 +3,7 @@ import { SyncWebhookEventType } from "@/types";
 import { AWSLambdaHandler } from "../platform-adapter";
 import { AwsLambdaWebhookHandler, SaleorWebApiWebhook, WebhookConfig } from "./saleor-webhook";
 
-export type AwsLambdaSyncWebhookHandler<
-  TPayload,
-> = AwsLambdaWebhookHandler<TPayload>;
+export type AwsLambdaSyncWebhookHandler<TPayload> = AwsLambdaWebhookHandler<TPayload>;
 
 export class SaleorSyncWebhook<
   TPayload = unknown,
@@ -14,7 +12,6 @@ export class SaleorSyncWebhook<
   readonly event: TEvent;
 
   protected readonly eventType = "sync" as const;
-
 
   constructor(configuration: WebhookConfig<TEvent>) {
     super(configuration);

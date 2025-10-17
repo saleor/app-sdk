@@ -1,4 +1,7 @@
-import { AllFormUpdatePayloads, formUpdateActionName } from "@/app-bridge/form-fields";
+import {
+  AllFormPayloadUpdatePayloads,
+  formPayloadUpdateActionName,
+} from "@/app-bridge/form-payload";
 
 import { AppPermission } from "../types";
 import { Values } from "./helpers";
@@ -32,7 +35,7 @@ export const ActionType = {
    *
    * Available from 3.23
    */
-  formUpdate: formUpdateActionName,
+  formPayloadUpdate: formPayloadUpdateActionName,
 } as const;
 
 export type ActionType = Values<typeof ActionType>;
@@ -135,7 +138,10 @@ export type RequestPermissions = ActionWithId<
   }
 >;
 
-export type FormFieldsUpdate = ActionWithId<"formUpdate", AllFormUpdatePayloads>;
+export type FormPayloadUpdate = ActionWithId<
+  typeof formPayloadUpdateActionName,
+  AllFormPayloadUpdatePayloads
+>;
 
 function createRequestPermissionsAction(
   permissions: AppPermission[],
@@ -150,9 +156,9 @@ function createRequestPermissionsAction(
   });
 }
 
-function createFormUpdateAction(payload: AllFormUpdatePayloads): FormFieldsUpdate {
+function createFormPayloadUpdateAction(payload: AllFormPayloadUpdatePayloads): FormPayloadUpdate {
   return withActionId({
-    type: "formUpdate",
+    type: formPayloadUpdateActionName,
     payload,
   });
 }
@@ -162,7 +168,7 @@ export type Actions =
   | NotificationAction
   | UpdateRouting
   | NotifyReady
-  | FormFieldsUpdate
+  | FormPayloadUpdate
   | RequestPermissions;
 
 export const actions = {
@@ -171,5 +177,5 @@ export const actions = {
   UpdateRouting: createUpdateRoutingAction,
   NotifyReady: createNotifyReadyAction,
   RequestPermissions: createRequestPermissionsAction,
-  FormUpdate: createFormUpdateAction,
+  FormPayloadUpdate: createFormPayloadUpdateAction,
 };

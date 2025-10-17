@@ -76,7 +76,7 @@ export class VercelKvApl implements APL {
 
           throw e;
         }
-      }
+      },
     );
   }
 
@@ -118,7 +118,7 @@ export class VercelKvApl implements APL {
 
           throw e;
         }
-      }
+      },
     );
   }
 
@@ -157,7 +157,7 @@ export class VercelKvApl implements APL {
 
           throw e;
         }
-      }
+      },
     );
   }
 

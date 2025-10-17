@@ -21,7 +21,7 @@ export function createLambdaEvent(
     requestContext?: Partial<APIGatewayProxyEventV2["requestContext"]>;
     path?: string;
     method?: "POST" | "GET";
-  } = {}
+  } = {},
 ): APIGatewayProxyEventV2 {
   const {
     path = "/some-path",

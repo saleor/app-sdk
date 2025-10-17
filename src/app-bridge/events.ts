@@ -1,4 +1,4 @@
-import { FormContextPayload } from "@/app-bridge/app-bridge-state";
+import { AllFormPayloads, formPayloadEventName } from "@/app-bridge/form-payload";
 
 import { LocaleCode } from "../locales";
 import { Values } from "./helpers";
@@ -12,7 +12,7 @@ export const EventType = {
   theme: "theme",
   localeChanged: "localeChanged",
   tokenRefresh: "tokenRefresh",
-  formData: "formData",
+  formPayload: formPayloadEventName,
 } as const;
 
 export type EventType = Values<typeof EventType>;
@@ -69,7 +69,7 @@ export type TokenRefreshEvent = Event<
   }
 >;
 
-export type FormDataEvent = Event<"formData", FormContextPayload>;
+export type FormDataEvent = Event<typeof formPayloadEventName, AllFormPayloads>;
 
 export type Events =
   | HandshakeEvent
@@ -147,9 +147,9 @@ export const DashboardEventFactory = {
       },
     };
   },
-  createFormDataEvent(formPayload: FormContextPayload): FormDataEvent {
+  createFormEvent(formPayload: AllFormPayloads): FormDataEvent {
     return {
-      type: "formData",
+      type: formPayloadEventName,
       payload: formPayload,
     };
   },

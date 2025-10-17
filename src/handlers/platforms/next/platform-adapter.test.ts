@@ -11,8 +11,8 @@ describe("NextJsAdapter", () => {
     it("should return single header value", () => {
       const { req, res } = createMocks({
         headers: {
-          "content-type": "application/json"
-        }
+          "content-type": "application/json",
+        },
       });
       const adapter = new NextJsAdapter(req, res);
       expect(adapter.getHeader("content-type")).toBe("application/json");
@@ -22,8 +22,8 @@ describe("NextJsAdapter", () => {
       const { req, res } = createMocks({
         headers: {
           // @ts-expect-error node-mocks-http types != real NextJsRequest
-          "accept": ["text/html", "application/json"]
-        }
+          accept: ["text/html", "application/json"],
+        },
       });
       const adapter = new NextJsAdapter(req, res);
       expect(adapter.getHeader("accept")).toBe("text/html, application/json");
@@ -40,7 +40,7 @@ describe("NextJsAdapter", () => {
     it("should return request body", async () => {
       const { req, res } = createMocks({
         method: "POST",
-        body: { data: "test" }
+        body: { data: "test" },
       });
       const adapter = new NextJsAdapter(req, res);
       const body = await adapter.getBody();
@@ -52,8 +52,8 @@ describe("NextJsAdapter", () => {
     it("should return raw body string", async () => {
       const { req, res } = createMocks({
         headers: {
-          "content-length": "10"
-        }
+          "content-length": "10",
+        },
       });
       const adapter = new NextJsAdapter(req, res);
 
@@ -70,8 +70,8 @@ describe("NextJsAdapter", () => {
       const { req, res } = createMocks({
         headers: {
           host: "example.com",
-          "x-forwarded-proto": "https"
-        }
+          "x-forwarded-proto": "https",
+        },
       });
       const adapter = new NextJsAdapter(req, res);
       expect(adapter.getBaseUrl()).toBe("https://example.com");
@@ -81,8 +81,8 @@ describe("NextJsAdapter", () => {
       const { req, res } = createMocks({
         headers: {
           host: "example.com",
-          "x-forwarded-proto": "http,https,wss"
-        }
+          "x-forwarded-proto": "http,https,wss",
+        },
       });
       const adapter = new NextJsAdapter(req, res);
       expect(adapter.getBaseUrl()).toBe("https://example.com");
@@ -92,8 +92,8 @@ describe("NextJsAdapter", () => {
       const { req, res } = createMocks({
         headers: {
           host: "example.com",
-          "x-forwarded-proto": "wss,http"
-        }
+          "x-forwarded-proto": "wss,http",
+        },
       });
       const adapter = new NextJsAdapter(req, res);
       expect(adapter.getBaseUrl()).toBe("http://example.com");
@@ -103,8 +103,8 @@ describe("NextJsAdapter", () => {
       const { req, res } = createMocks({
         headers: {
           host: "example.com",
-          "x-forwarded-proto": "wss,ftp"
-        }
+          "x-forwarded-proto": "wss,ftp",
+        },
       });
       const adapter = new NextJsAdapter(req, res);
       expect(adapter.getBaseUrl()).toBe("wss://example.com");
@@ -114,7 +114,7 @@ describe("NextJsAdapter", () => {
   describe("method", () => {
     it("should return POST method when used in request", () => {
       const { req, res } = createMocks({
-        method: "POST"
+        method: "POST",
       });
       const adapter = new NextJsAdapter(req, res);
       expect(adapter.method).toBe("POST");
@@ -122,11 +122,10 @@ describe("NextJsAdapter", () => {
 
     it("should return GET method when used in request", () => {
       const { req, res } = createMocks({
-        method: "GET"
+        method: "GET",
       });
       const adapter = new NextJsAdapter(req, res);
       expect(adapter.method).toBe("GET");
     });
   });
 });
-

@@ -28,7 +28,7 @@ Supports Saleor version 3.20+
   - Create a legacy release branch (e.g. `v1.x` branch)
   - Mark changeset to `main` with `major` change, which will start counting next `main` releases as `2.x.x`
   - Do not merge release PR until it's ready to be merged
- 
+
 ### Deploying test snapshots
 
 PRs can be pushed to NPM by adding label to PR `release dev tag`. Workflow will run and print version that has been released.

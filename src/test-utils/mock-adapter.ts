@@ -1,8 +1,10 @@
-import { HTTPMethod, PlatformAdapterInterface } from "@/handlers/shared/generic-adapter-use-case-types";
+import {
+  HTTPMethod,
+  PlatformAdapterInterface,
+} from "@/handlers/shared/generic-adapter-use-case-types";
 
 export class MockAdapter implements PlatformAdapterInterface<unknown> {
-  constructor(public config: { mockHeaders?: Record<string, string>; baseUrl?: string }) {
-  }
+  constructor(public config: { mockHeaders?: Record<string, string>; baseUrl?: string }) {}
 
   send() {
     throw new Error("Method not implemented.");

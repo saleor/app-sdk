@@ -8,7 +8,7 @@ describe("DashboardEventFactory", () => {
       DashboardEventFactory.createHandshakeEvent("mock-token", 1, {
         dashboard: "3.15.3",
         core: "3.15.1",
-      })
+      }),
     ).toEqual({
       payload: {
         token: "mock-token",
