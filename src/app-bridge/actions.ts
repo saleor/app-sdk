@@ -1,3 +1,5 @@
+import { AllFormUpdatePayloads, formUpdateActionName } from "@/app-bridge/form-fields";
+
 import { AppPermission } from "../types";
 import { Values } from "./helpers";
 
@@ -25,7 +27,12 @@ export const ActionType = {
    * Available from 3.15
    */
   requestPermission: "requestPermissions",
-  applyFormFields: "applyFormFields",
+  /**
+   * Apply form fields in active context.
+   *
+   * Available from 3.23
+   */
+  formUpdate: formUpdateActionName,
 } as const;
 
 export type ActionType = Values<typeof ActionType>;
@@ -128,18 +135,7 @@ export type RequestPermissions = ActionWithId<
   }
 >;
 
-export type ApplyFormFields = ActionWithId<
-  "applyFormFields",
-  {
-    formId: string;
-    fields: Record<
-      string,
-      {
-        newValue: string;
-      }
-    >;
-  }
->;
+export type FormFieldsUpdate = ActionWithId<"formUpdate", AllFormUpdatePayloads>;
 
 function createRequestPermissionsAction(
   permissions: AppPermission[],
@@ -154,17 +150,9 @@ function createRequestPermissionsAction(
   });
 }
 
-function createApplyFormFieldsAction(payload: {
-  formId: string;
-  fields: Record<
-    string,
-    {
-      newValue: string;
-    }
-  >;
-}): ApplyFormFields {
+function createFormUpdateAction(payload: AllFormUpdatePayloads): FormFieldsUpdate {
   return withActionId({
-    type: "applyFormFields",
+    type: "formUpdate",
     payload,
   });
 }
@@ -174,7 +162,7 @@ export type Actions =
   | NotificationAction
   | UpdateRouting
   | NotifyReady
-  | ApplyFormFields
+  | FormFieldsUpdate
   | RequestPermissions;
 
 export const actions = {
@@ -183,5 +171,5 @@ export const actions = {
   UpdateRouting: createUpdateRoutingAction,
   NotifyReady: createNotifyReadyAction,
   RequestPermissions: createRequestPermissionsAction,
-  ApplyFormFields: createApplyFormFieldsAction,
+  FormUpdate: createFormUpdateAction,
 };

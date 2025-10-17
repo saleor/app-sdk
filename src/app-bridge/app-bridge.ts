@@ -325,6 +325,7 @@ export class AppBridge {
       ({ origin, data }: Omit<MessageEvent, "data"> & { data: Events }) => {
         debug("Received message from origin: %s and data: %j", origin, data);
 
+        // todo: we dont need this if and referer at all
         if (origin !== this.refererOrigin) {
           debug("Origin from message doesn't match refererOrigin. Function will return now");
           // TODO what should happen here - be explicit
@@ -342,7 +343,7 @@ export class AppBridge {
 
         if (EventType[type]) {
           Object.getOwnPropertySymbols(this.subscribeMap[type]).forEach((key) => {
-            debug("Executing listener for event: %s and payload %j", type, payload);
+            debug("Executing listener for event: '%s' and payload %j", type, payload);
             // @ts-ignore fixme
             this.subscribeMap[type][key](payload);
           });
