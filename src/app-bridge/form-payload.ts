@@ -10,10 +10,43 @@ export type FormPayloadUpdateSingleFieldResult =
     };
 
 // todo maybe redundant? or internface + class
-export type BaseFormPayloadUpdatePayload = {
+export type BaseFormPayloadUpdatePayload<FieldName extends string = string> = {
   form: string;
-  fields: Record<string, FormPayloadUpdateSingleFieldResult>;
+  fields: Record<FieldName, FormPayloadUpdateSingleFieldResult>;
 };
+
+// todo maybe redundant? or internface + class
+export type BaseFormPayloadPayload = {
+  form: string;
+};
+
+type ProductPayloadBase = {
+  productId: string;
+};
+
+/**
+ * TRANSLATIONS
+ */
+
+type TranslationField = {
+  fieldName: string;
+  originalValue: string;
+  translatedValue: string;
+  currentValue: string;
+  type: "short-text" | "editorjs";
+};
+type TranslationPayloadBase = {
+  translationLanguage: string;
+  currentLanguage: string;
+  fields: Record<string, TranslationField>;
+};
+
+// todo maybe class
+export type FormPayloadProductTranslate = BaseFormPayloadPayload &
+  TranslationPayloadBase &
+  ProductPayloadBase & {
+    form: "translate-product";
+  };
 
 // todo maybe class
 export type FormPayloadUpdatePayloadProductTranslate = BaseFormPayloadUpdatePayload & {
@@ -26,39 +59,32 @@ export type FormPayloadUpdatePayloadProductTranslate = BaseFormPayloadUpdatePayl
   };
 };
 
-export type AllFormPayloadUpdatePayloads = FormPayloadUpdatePayloadProductTranslate;
-
-// todo maybe redundant? or internface + class
-export type BaseFormPayloadPayload = {
-  form: string;
-};
-
-type TranslationPayloadBase = {
-  translationLanguage: string;
-  currentLanguage: string;
-  fields: Record<string, TranslationField>;
-};
-
-type ProductPayloadBase = {
-  productId: string;
-};
-
-type TranslationField = {
-  fieldName: string;
-  originalValue: string;
-  translatedValue: string;
-  currentValue: string;
-  type: "short-text" | "editorjs";
-};
-
-// todo maybe class
-export type FormPayloadProductTranslate = BaseFormPayloadPayload &
-  TranslationPayloadBase &
+/**
+ * PRODUCT
+ */
+export type FormPayloadProductEdit = BaseFormPayloadPayload &
   ProductPayloadBase & {
-    form: "translate-product";
+    form: "product-edit";
+    fields: Record<
+      "productName",
+      {
+        fieldName: string;
+        originalValue: string;
+        currentValue: string;
+        type: "short-text" | "editorjs";
+      }
+    >;
   };
 
-/**
- * Strong-type all forms as union
- */
-export type AllFormPayloads = FormPayloadProductTranslate;
+export type FormPayloadUpdatePayloadProductEdit = BaseFormPayloadUpdatePayload & {
+  form: "product-edit";
+  fields: {
+    productName: FormPayloadUpdateSingleFieldResult;
+  };
+};
+
+export type AllFormPayloads = FormPayloadProductTranslate | FormPayloadProductEdit;
+
+export type AllFormPayloadUpdatePayloads =
+  | FormPayloadUpdatePayloadProductTranslate
+  | FormPayloadUpdatePayloadProductEdit;

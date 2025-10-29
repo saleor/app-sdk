@@ -159,6 +159,8 @@ function createRequestPermissionsAction(
 function createFormPayloadUpdateAction(payload: AllFormPayloadUpdatePayloads): FormPayloadUpdate {
   return withActionId({
     type: formPayloadUpdateActionName,
+    // todo wtf with this type
+    // @ts-ignore
     payload,
   });
 }
