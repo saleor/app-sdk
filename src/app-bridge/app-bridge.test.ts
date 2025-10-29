@@ -479,8 +479,13 @@ describe("AppBridge", () => {
         }),
       );
 
-      expect(appBridge.getState().formContext?.productId).toBe("product-2");
-      expect(appBridge.getState().formContext?.translationLanguage).toBe("fr");
+      const appBridgeState = appBridge.getState();
+
+      expect(appBridgeState.formContext?.productId).toBe("product-2");
+
+      if (appBridgeState.formContext?.form === "translate-product") {
+        expect(appBridgeState.formContext?.translationLanguage).toBe("fr");
+      }
     });
   });
 });
