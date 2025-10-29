@@ -123,7 +123,9 @@ describe("DashboardEventFactory", () => {
     const event = DashboardEventFactory.createFormEvent(formPayload);
 
     expect(event.type).toBe("formPayload");
-    expect(event.payload.fields.shortTextField.type).toBe("short-text");
-    expect(event.payload.fields.editorField.type).toBe("editorjs");
+    if (event.payload.form === "translate-product") {
+      expect(event.payload.fields.shortTextField.type).toBe("short-text");
+      expect(event.payload.fields.editorField.type).toBe("editorjs");
+    }
   });
 });
