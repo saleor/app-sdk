@@ -12,6 +12,10 @@ export type FormPayloadUpdateSingleFieldResult =
 // todo maybe redundant? or internface + class
 export type BaseFormPayloadUpdatePayload<FieldName extends string = string> = {
   form: string;
+  /**
+   * Whether POPUP should be closed after this event is emitted. Default true. For non-popup extensions will be ignored.
+   */
+  closePopup?: boolean;
   fields: Record<FieldName, FormPayloadUpdateSingleFieldResult>;
 };
 
