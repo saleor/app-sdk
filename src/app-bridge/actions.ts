@@ -33,7 +33,7 @@ export const ActionType = {
   /**
    * Apply form fields in active context.
    *
-   * Available from 3.23
+   * EXPERIMENTAL
    */
   formPayloadUpdate: formPayloadUpdateActionName,
 } as const;
