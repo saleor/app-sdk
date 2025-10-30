@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 1.3.2
+
+### Patch Changes
+
+- 0dad90f: Added new, experimental API for communication around forms. Visit docs.saleor.io for the official documentation
+
 ## 1.3.1
 
 ### Patch Changes
