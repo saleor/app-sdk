@@ -40,7 +40,7 @@ type TranslationPayloadBase = {
 
 export type FormPayloadProductTranslate = TranslationPayloadBase &
   ProductPayloadBase & {
-    form: "translate-product";
+    form: "product-translate";
   };
 
 export type FormPayloadUpdatePayloadProductTranslate = BaseFormPayloadUpdatePayload & {

@@ -68,7 +68,7 @@ describe("DashboardEventFactory", () => {
 
   it("Creates form payload event for product translation", () => {
     const formPayload = {
-      form: "translate-product" as const,
+      form: "product-translate" as const,
       productId: "product-123",
       translationLanguage: "es",
       currentLanguage: "en",
@@ -98,7 +98,7 @@ describe("DashboardEventFactory", () => {
 
   it("Creates form payload event with all translation field types", () => {
     const formPayload = {
-      form: "translate-product" as const,
+      form: "product-translate" as const,
       productId: "product-456",
       translationLanguage: "fr",
       currentLanguage: "en",
@@ -123,7 +123,7 @@ describe("DashboardEventFactory", () => {
     const event = DashboardEventFactory.createFormEvent(formPayload);
 
     expect(event.type).toBe("formPayload");
-    if (event.payload.form === "translate-product") {
+    if (event.payload.form === "product-translate") {
       expect(event.payload.fields.shortTextField.type).toBe("short-text");
       expect(event.payload.fields.editorField.type).toBe("editorjs");
     }
