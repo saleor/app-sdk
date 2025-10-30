@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 1.3.2
+
+### Patch Changes
+
+- 0dad90f: Added new API for communication around forms (TODO)
+
 ## 1.3.1
 
 ### Patch Changes
