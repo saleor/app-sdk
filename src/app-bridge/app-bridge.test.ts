@@ -417,7 +417,7 @@ describe("AppBridge", () => {
           productName: { value: "Updated Product Name" },
           productDescription: { value: "Updated Description" },
           seoName: { value: "Updated SEO Name" },
-          seoDescription: { errors: [{ message: "SEO description too long" }] },
+          seoDescription: { value: "Updated SEO Name" },
         },
       };
 

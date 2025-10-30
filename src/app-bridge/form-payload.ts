@@ -1,13 +1,9 @@
 export const formPayloadUpdateActionName = "formPayloadUpdate";
 export const formPayloadEventName = "formPayload";
 
-export type FormPayloadUpdateSingleFieldResult =
-  | {
-      value: string;
-    }
-  | {
-      errors: Array<{ message: string }>;
-    };
+export type FormPayloadUpdateSingleFieldResult = {
+  value: string;
+};
 
 export type BaseFormPayloadUpdatePayload<FieldName extends string = string> = {
   /**

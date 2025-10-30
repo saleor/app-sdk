@@ -47,7 +47,6 @@ describe("actions.ts", () => {
           productName: { value: "Updated Product Name" },
           productDescription: { value: "Updated Description" },
           seoName: { value: "Updated SEO Name" },
-          seoDescription: { errors: [{ message: "SEO description too long" }] },
         },
       };
 
@@ -73,29 +72,6 @@ describe("actions.ts", () => {
 
       expect(action.payload.fields.productName).toEqual({ value: "New Name" });
       expect(action.payload.fields.productDescription).toEqual({ value: "New Description" });
-    });
-
-    it("Constructs action with field error results", () => {
-      const payload = {
-        form: "product-translate" as const,
-        fields: {
-          productName: { errors: [{ message: "Name is required" }] },
-          productDescription: {
-            errors: [{ message: "Description too short" }, { message: "Invalid format" }],
-          },
-          seoName: { value: "Valid SEO" },
-          seoDescription: { value: "Valid Description" },
-        },
-      };
-
-      const action = actions.FormPayloadUpdate(payload);
-
-      expect(action.payload.fields.productName).toEqual({
-        errors: [{ message: "Name is required" }],
-      });
-      expect(action.payload.fields.productDescription).toEqual({
-        errors: [{ message: "Description too short" }, { message: "Invalid format" }],
-      });
     });
   });
 
