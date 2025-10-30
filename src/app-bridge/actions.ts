@@ -159,6 +159,7 @@ function createRequestPermissionsAction(
 function createFormPayloadUpdateAction(payload: AllFormPayloadUpdatePayloads): FormPayloadUpdate {
   return withActionId({
     type: formPayloadUpdateActionName,
+    // @ts-ignore - TODO: For some reason TS is failing here, but this is internal implementation so it doesn't change the public API
     payload,
   });
 }

@@ -331,7 +331,7 @@ describe("AppBridge", () => {
       expect(appBridge.getState().formContext).toBeUndefined();
 
       const formPayload = {
-        form: "translate-product" as const,
+        form: "product-translate" as const,
         productId: "product-123",
         translationLanguage: "es",
         currentLanguage: "en",
@@ -357,7 +357,7 @@ describe("AppBridge", () => {
       );
 
       expect(appBridge.getState().formContext).toEqual(formPayload);
-      expect(appBridge.getState().formContext?.form).toBe("translate-product");
+      expect(appBridge.getState().formContext?.form).toBe("product-translate");
       expect(appBridge.getState().formContext?.productId).toBe("product-123");
     });
 
@@ -368,7 +368,7 @@ describe("AppBridge", () => {
       expect(callback).not.toHaveBeenCalled();
 
       const formPayload = {
-        form: "translate-product" as const,
+        form: "product-translate" as const,
         productId: "product-456",
         translationLanguage: "fr",
         currentLanguage: "en",
@@ -430,7 +430,7 @@ describe("AppBridge", () => {
 
     it("Updates form context with new fields when multiple form events are received", () => {
       const firstFormPayload = {
-        form: "translate-product" as const,
+        form: "product-translate" as const,
         productId: "product-1",
         translationLanguage: "es",
         currentLanguage: "en",
@@ -456,7 +456,7 @@ describe("AppBridge", () => {
       expect(appBridge.getState().formContext?.productId).toBe("product-1");
 
       const secondFormPayload = {
-        form: "translate-product" as const,
+        form: "product-translate" as const,
         productId: "product-2",
         translationLanguage: "fr",
         currentLanguage: "en",
@@ -483,7 +483,7 @@ describe("AppBridge", () => {
 
       expect(appBridgeState.formContext?.productId).toBe("product-2");
 
-      if (appBridgeState.formContext?.form === "translate-product") {
+      if (appBridgeState.formContext?.form === "product-translate") {
         expect(appBridgeState.formContext?.translationLanguage).toBe("fr");
       }
     });
