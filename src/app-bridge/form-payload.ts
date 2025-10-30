@@ -11,7 +11,6 @@ export type FormPayloadUpdateSingleFieldResult =
 
 // todo maybe redundant? or internface + class
 export type BaseFormPayloadUpdatePayload<FieldName extends string = string> = {
-  form: string;
   /**
    * Whether POPUP should be closed after this event is emitted. Default true. For non-popup extensions will be ignored.
    */
@@ -70,7 +69,7 @@ export type FormPayloadProductEdit = BaseFormPayloadPayload &
   ProductPayloadBase & {
     form: "product-edit";
     fields: Record<
-      "productName",
+      "productName" | "productDescription",
       {
         fieldName: string;
         originalValue: string;
@@ -84,6 +83,7 @@ export type FormPayloadUpdatePayloadProductEdit = BaseFormPayloadUpdatePayload &
   form: "product-edit";
   fields: {
     productName: FormPayloadUpdateSingleFieldResult;
+    productDescription: FormPayloadUpdateSingleFieldResult;
   };
 };
 
