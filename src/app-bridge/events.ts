@@ -1,3 +1,5 @@
+import { AllFormPayloads, formPayloadEventName } from "@/app-bridge/form-payload";
+
 import { LocaleCode } from "../locales";
 import { Values } from "./helpers";
 
@@ -10,6 +12,7 @@ export const EventType = {
   theme: "theme",
   localeChanged: "localeChanged",
   tokenRefresh: "tokenRefresh",
+  formPayload: formPayloadEventName,
 } as const;
 
 export type EventType = Values<typeof EventType>;
@@ -66,17 +69,20 @@ export type TokenRefreshEvent = Event<
   }
 >;
 
+export type FormDataEvent = Event<typeof formPayloadEventName, AllFormPayloads>;
+
 export type Events =
   | HandshakeEvent
   | DispatchResponseEvent
   | RedirectEvent
   | ThemeEvent
   | LocaleChangedEvent
-  | TokenRefreshEvent;
+  | TokenRefreshEvent
+  | FormDataEvent;
 
 export type PayloadOfEvent<
   TEventType extends EventType,
-  TEvent extends Events = Events
+  TEvent extends Events = Events,
   // @ts-ignore TODO - why this is not working with this tsconfig? Fixme
 > = TEvent extends Event<TEventType, unknown> ? TEvent["payload"] : never;
 
@@ -113,7 +119,7 @@ export const DashboardEventFactory = {
     saleorVersions?: {
       dashboard: string;
       core: string;
-    }
+    },
   ): HandshakeEvent {
     return {
       type: "handshake",
@@ -139,6 +145,13 @@ export const DashboardEventFactory = {
       payload: {
         token: newToken,
       },
+    };
+  },
+  // EXPERIMENTAL
+  createFormEvent(formPayload: AllFormPayloads): FormDataEvent {
+    return {
+      type: formPayloadEventName,
+      payload: formPayload,
     };
   },
 };

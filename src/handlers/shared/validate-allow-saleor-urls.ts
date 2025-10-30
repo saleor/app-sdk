@@ -2,7 +2,7 @@ import { CreateAppRegisterHandlerOptions } from "../platforms/next/create-app-re
 
 export const validateAllowSaleorUrls = (
   saleorApiUrl: string,
-  allowedUrls: CreateAppRegisterHandlerOptions["allowedSaleorUrls"]
+  allowedUrls: CreateAppRegisterHandlerOptions["allowedSaleorUrls"],
 ) => {
   if (!allowedUrls || allowedUrls.length === 0) {
     return true;

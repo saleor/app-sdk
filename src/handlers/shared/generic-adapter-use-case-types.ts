@@ -7,7 +7,7 @@ export const HTTPMethod = {
   OPTIONS: "OPTIONS",
   DELETE: "DELETE",
 } as const;
-export type HTTPMethod = typeof HTTPMethod[keyof typeof HTTPMethod];
+export type HTTPMethod = (typeof HTTPMethod)[keyof typeof HTTPMethod];
 
 /** Status code of the result, for most platforms it's mapped to HTTP status code
  * however when request is not HTTP it can be mapped to something else */
@@ -17,15 +17,15 @@ export type ResultStatusCodes = number;
  * that is then translated by adapter to a valid platform response */
 export type ActionHandlerResult<Body = unknown> =
   | {
-    status: ResultStatusCodes;
-    body: Body;
-    bodyType: "json";
-  }
+      status: ResultStatusCodes;
+      body: Body;
+      bodyType: "json";
+    }
   | {
-    status: ResultStatusCodes;
-    body: string;
-    bodyType: "string";
-  };
+      status: ResultStatusCodes;
+      body: string;
+      bodyType: "string";
+    };
 
 /**
  * Interface for adapters that translate specific platform objects (e.g. Web API, Next.js)

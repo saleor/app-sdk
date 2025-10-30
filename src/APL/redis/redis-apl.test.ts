@@ -84,7 +84,7 @@ describe("RedisAPL", () => {
       await defaultApl.get(mockAuthData.saleorApiUrl);
       expect(mockRedisClient.hGet).toHaveBeenCalledWith(
         "saleor_app_auth",
-        mockAuthData.saleorApiUrl
+        mockAuthData.saleorApiUrl,
       );
     });
   });
@@ -117,7 +117,7 @@ describe("RedisAPL", () => {
       expect(mockHSet).toHaveBeenCalledWith(
         mockHashKey,
         mockAuthData.saleorApiUrl,
-        JSON.stringify(mockAuthData)
+        JSON.stringify(mockAuthData),
       );
     });
 

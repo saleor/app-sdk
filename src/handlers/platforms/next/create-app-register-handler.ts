@@ -1,6 +1,4 @@
-import {
-  RegisterActionHandler,
-} from "@/handlers/actions/register-action-handler";
+import { RegisterActionHandler } from "@/handlers/actions/register-action-handler";
 import { GenericCreateAppRegisterHandlerOptions } from "@/handlers/shared/create-app-register-handler-types";
 
 import { NextJsAdapter, NextJsHandler, NextJsHandlerInput } from "./platform-adapter";
@@ -23,9 +21,9 @@ export type CreateAppRegisterHandlerOptions =
  * */
 export const createAppRegisterHandler =
   (config: CreateAppRegisterHandlerOptions): NextJsHandler =>
-    async (req, res) => {
-      const adapter = new NextJsAdapter(req, res);
-      const actionHandler = new RegisterActionHandler(adapter);
-      const result = await actionHandler.handleAction(config);
-      return adapter.send(result);
-    };
+  async (req, res) => {
+    const adapter = new NextJsAdapter(req, res);
+    const actionHandler = new RegisterActionHandler(adapter);
+    const result = await actionHandler.handleAction(config);
+    return adapter.send(result);
+  };

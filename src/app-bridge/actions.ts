@@ -1,3 +1,8 @@
+import {
+  AllFormPayloadUpdatePayloads,
+  formPayloadUpdateActionName,
+} from "@/app-bridge/form-payload";
+
 import { AppPermission } from "../types";
 import { Values } from "./helpers";
 
@@ -25,6 +30,12 @@ export const ActionType = {
    * Available from 3.15
    */
   requestPermission: "requestPermissions",
+  /**
+   * Apply form fields in active context.
+   *
+   * EXPERIMENTAL
+   */
+  formPayloadUpdate: formPayloadUpdateActionName,
 } as const;
 
 export type ActionType = Values<typeof ActionType>;
@@ -127,6 +138,11 @@ export type RequestPermissions = ActionWithId<
   }
 >;
 
+export type FormPayloadUpdate = ActionWithId<
+  typeof formPayloadUpdateActionName,
+  AllFormPayloadUpdatePayloads
+>;
+
 function createRequestPermissionsAction(
   permissions: AppPermission[],
   redirectPath: string,
@@ -140,11 +156,20 @@ function createRequestPermissionsAction(
   });
 }
 
+function createFormPayloadUpdateAction(payload: AllFormPayloadUpdatePayloads): FormPayloadUpdate {
+  return withActionId({
+    type: formPayloadUpdateActionName,
+    // @ts-ignore - TODO: For some reason TS is failing here, but this is internal implementation so it doesn't change the public API
+    payload,
+  });
+}
+
 export type Actions =
   | RedirectAction
   | NotificationAction
   | UpdateRouting
   | NotifyReady
+  | FormPayloadUpdate
   | RequestPermissions;
 
 export const actions = {
@@ -153,4 +178,5 @@ export const actions = {
   UpdateRouting: createUpdateRoutingAction,
   NotifyReady: createNotifyReadyAction,
   RequestPermissions: createRequestPermissionsAction,
+  FormPayloadUpdate: createFormPayloadUpdateAction,
 };

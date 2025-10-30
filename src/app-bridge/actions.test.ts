@@ -39,6 +39,42 @@ describe("actions.ts", () => {
     });
   });
 
+  describe("actions.FormPayloadUpdate", () => {
+    it("Constructs action with \"formPayloadUpdate\" type, random id and payload for product translation", () => {
+      const payload = {
+        form: "product-translate" as const,
+        fields: {
+          productName: { value: "Updated Product Name" },
+          productDescription: { value: "Updated Description" },
+          seoName: { value: "Updated SEO Name" },
+        },
+      };
+
+      const action = actions.FormPayloadUpdate(payload);
+
+      expect(action.type).toBe("formPayloadUpdate");
+      expect(action.payload.actionId).toEqual(expect.any(String));
+      expect(action.payload).toEqual(expect.objectContaining(payload));
+    });
+
+    it("Constructs action with field value results", () => {
+      const payload = {
+        form: "product-translate" as const,
+        fields: {
+          productName: { value: "New Name" },
+          productDescription: { value: "New Description" },
+          seoName: { value: "New SEO" },
+          seoDescription: { value: "New SEO Description" },
+        },
+      };
+
+      const action = actions.FormPayloadUpdate(payload);
+
+      expect(action.payload.fields.productName).toEqual({ value: "New Name" });
+      expect(action.payload.fields.productDescription).toEqual({ value: "New Description" });
+    });
+  });
+
   it("Throws custom error if crypto is not available", () => {
     vi.stubGlobal("crypto", {
       ...globalThis.crypto,

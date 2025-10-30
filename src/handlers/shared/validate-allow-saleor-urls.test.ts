@@ -21,7 +21,7 @@ describe("validateAllowSaleorUrls", () => {
   it("Validates against custom function provided to allow list", () => {
     expect(validateAllowSaleorUrls(saleorCloudUrlMock, [saleorCloudRegexValidator])).toBe(true);
     expect(validateAllowSaleorUrls(onPremiseSaleorUrlMock, [saleorCloudRegexValidator])).toBe(
-      false
+      false,
     );
   });
 
@@ -30,13 +30,13 @@ describe("validateAllowSaleorUrls", () => {
       validateAllowSaleorUrls(saleorCloudUrlMock, [
         saleorCloudRegexValidator,
         onPremiseSaleorUrlMock,
-      ])
+      ]),
     ).toBe(true);
     expect(
       validateAllowSaleorUrls(onPremiseSaleorUrlMock, [
         saleorCloudRegexValidator,
         onPremiseSaleorUrlMock,
-      ])
+      ]),
     ).toBe(true);
   });
 });

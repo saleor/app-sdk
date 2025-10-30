@@ -12,7 +12,7 @@ export class Paginator<ResultType> {
   constructor(
     private readonly url: string,
     private readonly fetchOptions: RequestInit,
-    private readonly fetchFn = fetch
+    private readonly fetchFn = fetch,
   ) {}
 
   public async fetchAll() {
