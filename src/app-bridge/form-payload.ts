@@ -55,10 +55,10 @@ export type FormPayloadProductTranslate = BaseFormPayloadPayload &
 export type FormPayloadUpdatePayloadProductTranslate = BaseFormPayloadUpdatePayload & {
   form: "product-translate";
   fields: {
-    productName: FormPayloadUpdateSingleFieldResult;
-    productDescription: FormPayloadUpdateSingleFieldResult;
-    seoName: FormPayloadUpdateSingleFieldResult;
-    seoDescription: FormPayloadUpdateSingleFieldResult;
+    productName?: FormPayloadUpdateSingleFieldResult;
+    productDescription?: FormPayloadUpdateSingleFieldResult;
+    seoName?: FormPayloadUpdateSingleFieldResult;
+    seoDescription?: FormPayloadUpdateSingleFieldResult;
   };
 };
 
@@ -82,8 +82,8 @@ export type FormPayloadProductEdit = BaseFormPayloadPayload &
 export type FormPayloadUpdatePayloadProductEdit = BaseFormPayloadUpdatePayload & {
   form: "product-edit";
   fields: {
-    productName: FormPayloadUpdateSingleFieldResult;
-    productDescription: FormPayloadUpdateSingleFieldResult;
+    productName?: FormPayloadUpdateSingleFieldResult;
+    productDescription?: FormPayloadUpdateSingleFieldResult;
   };
 };
 
