@@ -489,7 +489,7 @@ describe("AppBridge", () => {
 
       expect(appBridgeState.formContext?.["product-translate"]?.productId).toBe("product-2");
 
-      if (appBridgeState.formContext?.form === "product-translate") {
+      if (appBridgeState.formContext?.["product-translate"]?.form === "product-translate") {
         expect(appBridgeState.formContext?.["product-translate"]?.translationLanguage).toBe("fr");
       }
     });

@@ -17,6 +17,7 @@ describe("createAuthenticatedFetch", () => {
         theme: "light",
         saleorApiUrl: "https://master.staging.saleor.cloud/graphql/",
         id: "xyz1234",
+        formContext: {},
       };
     },
   };
