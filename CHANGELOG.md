@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 1.3.3
+
+### Patch Changes
+
+- 2eb3827: [Experimental] FormPayload events now can store multiple payloads
+
 ## 1.3.2
 
 ### Patch Changes
