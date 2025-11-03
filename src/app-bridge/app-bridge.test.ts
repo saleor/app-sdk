@@ -328,7 +328,7 @@ describe("AppBridge", () => {
 
   describe("Form payload handling", () => {
     it("Updates state with form context when form payload event is received", () => {
-      expect(appBridge.getState().formContext).toBeUndefined();
+      expect(appBridge.getState().formContext).toEqual({});
 
       const formPayload = {
         form: "product-translate" as const,
@@ -356,9 +356,15 @@ describe("AppBridge", () => {
         }),
       );
 
-      expect(appBridge.getState().formContext).toEqual(formPayload);
-      expect(appBridge.getState().formContext?.form).toBe("product-translate");
-      expect(appBridge.getState().formContext?.productId).toBe("product-123");
+      expect(appBridge.getState().formContext).toEqual({
+        "product-translate": formPayload,
+      });
+      expect(appBridge.getState().formContext?.["product-translate"]?.form).toBe(
+        "product-translate",
+      );
+      expect(appBridge.getState().formContext?.["product-translate"]?.productId).toBe(
+        "product-123",
+      );
     });
 
     it("Subscribes to form payload event and executes callback", () => {
@@ -453,7 +459,7 @@ describe("AppBridge", () => {
         }),
       );
 
-      expect(appBridge.getState().formContext?.productId).toBe("product-1");
+      expect(appBridge.getState().formContext?.["product-translate"]?.productId).toBe("product-1");
 
       const secondFormPayload = {
         form: "product-translate" as const,
@@ -481,11 +487,81 @@ describe("AppBridge", () => {
 
       const appBridgeState = appBridge.getState();
 
-      expect(appBridgeState.formContext?.productId).toBe("product-2");
+      expect(appBridgeState.formContext?.["product-translate"]?.productId).toBe("product-2");
 
       if (appBridgeState.formContext?.form === "product-translate") {
-        expect(appBridgeState.formContext?.translationLanguage).toBe("fr");
+        expect(appBridgeState.formContext?.["product-translate"]?.translationLanguage).toBe("fr");
       }
+    });
+
+    it("Stores multiple form contexts for different form types simultaneously", () => {
+      expect(appBridge.getState().formContext).toEqual({});
+
+      const productTranslatePayload = {
+        form: "product-translate" as const,
+        productId: "product-123",
+        translationLanguage: "es",
+        currentLanguage: "en",
+        fields: {
+          productName: {
+            fieldName: "productName",
+            originalValue: "Original Product",
+            translatedValue: "Producto Original",
+            currentValue: "Original Product",
+            type: "short-text" as const,
+          },
+        },
+      };
+
+      const productEditPayload = {
+        form: "product-edit" as const,
+        productId: "product-456",
+        fields: {
+          productName: {
+            fieldName: "productName",
+            originalValue: "Original Product Name",
+            currentValue: "My Product",
+            type: "short-text" as const,
+          },
+          productDescription: {
+            fieldName: "productDescription",
+            originalValue: "Original description",
+            currentValue: "Product description",
+            type: "editorjs" as const,
+          },
+        },
+      };
+
+      // Fire product-translate event
+      fireEvent(
+        window,
+        new MessageEvent("message", {
+          data: DashboardEventFactory.createFormEvent(productTranslatePayload),
+          origin,
+        }),
+      );
+
+      expect(appBridge.getState().formContext?.["product-translate"]).toEqual(
+        productTranslatePayload,
+      );
+      expect(appBridge.getState().formContext?.["product-edit"]).toBeUndefined();
+
+      // Fire product-edit event
+      fireEvent(
+        window,
+        new MessageEvent("message", {
+          data: DashboardEventFactory.createFormEvent(productEditPayload),
+          origin,
+        }),
+      );
+
+      const appBridgeState = appBridge.getState();
+
+      // Both form contexts should be stored
+      expect(appBridgeState.formContext?.["product-translate"]).toEqual(productTranslatePayload);
+      expect(appBridgeState.formContext?.["product-edit"]).toEqual(productEditPayload);
+      expect(appBridgeState.formContext?.["product-translate"]?.productId).toBe("product-123");
+      expect(appBridgeState.formContext?.["product-edit"]?.productId).toBe("product-456");
     });
   });
 });

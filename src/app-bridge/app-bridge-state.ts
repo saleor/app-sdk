@@ -1,4 +1,4 @@
-import { AllFormPayloads } from "@/app-bridge/form-payload";
+import { FormPayloadProductEdit, FormPayloadProductTranslate } from "@/app-bridge/form-payload";
 
 import { LocaleCode } from "../locales";
 import { AppPermission, Permission } from "../types";
@@ -26,7 +26,10 @@ export type AppBridgeState = {
     email: string;
   };
   appPermissions?: AppPermission[];
-  formContext?: AllFormPayloads;
+  formContext: {
+    "product-translate"?: FormPayloadProductTranslate;
+    "product-edit"?: FormPayloadProductEdit;
+  };
 };
 
 type Options = {
@@ -42,6 +45,7 @@ export class AppBridgeStateContainer {
     path: "/",
     theme: "light",
     locale: "en",
+    formContext: {},
   };
 
   constructor(options: Options = {}) {
