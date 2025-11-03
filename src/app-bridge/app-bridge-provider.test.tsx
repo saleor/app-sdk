@@ -124,6 +124,7 @@ describe("useAppBridge hook", () => {
         theme: "light",
         locale: "en",
         saleorApiUrl,
+        formContext: {},
       });
     });
   });

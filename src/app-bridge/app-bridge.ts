@@ -64,7 +64,10 @@ function eventStateReducer(state: AppBridgeState, event: Events) {
     case EventType.formPayload: {
       return {
         ...state,
-        formContext: event.payload,
+        formContext: {
+          ...state.formContext,
+          [event.payload.form]: event.payload,
+        },
       };
     }
     case EventType.response: {

@@ -13,6 +13,7 @@ describe("app-bridge-state.ts", () => {
       theme: "light",
       locale: "en",
       saleorApiUrl: "",
+      formContext: {},
     });
   });
 

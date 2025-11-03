@@ -76,6 +76,7 @@ export const useAppBridge = () => {
         appBridge.subscribe("theme", updateState),
         appBridge.subscribe("response", updateState),
         appBridge.subscribe("redirect", updateState),
+        appBridge.subscribe("formPayload", updateState),
       ];
     }
 
