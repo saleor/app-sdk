@@ -7,8 +7,6 @@
  */
 export type AppExtensionTarget = "POPUP" | "APP_PAGE" | "NEW_TAB" | "WIDGET";
 
-type AppExtensionMount3_23 = "TRANSLATION_DETAILS";
-
 // Available mounts in Saleor 3.22 and newer
 type AppExtensionMount3_22 =
   | "CATEGORY_OVERVIEW_CREATE"
@@ -44,11 +42,11 @@ type AppExtensionMount3_22 =
   | "ORDER_DETAILS_WIDGETS"
   | "DRAFT_ORDER_DETAILS_WIDGETS"
   | "VOUCHER_DETAILS_WIDGETS"
-  | "GIFT_CARD_DETAILS_WIDGETS";
+  | "GIFT_CARD_DETAILS_WIDGETS"
+  | "TRANSLATIONS_MORE_ACTIONS";
 
 export type AppExtensionMount =
   | AppExtensionMount3_22
-  | AppExtensionMount3_23
   | "CUSTOMER_OVERVIEW_CREATE"
   | "CUSTOMER_OVERVIEW_MORE_ACTIONS"
   | "CUSTOMER_DETAILS_MORE_ACTIONS"
