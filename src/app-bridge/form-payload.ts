@@ -30,7 +30,6 @@ type TranslationField = {
 };
 type TranslationPayloadBase = {
   translationLanguage: string;
-  currentLanguage: string;
   fields: Record<string, TranslationField>;
 };
 
