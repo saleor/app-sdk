@@ -55,7 +55,7 @@ export type FormPayloadUpdatePayloadProductTranslate = BaseFormPayloadUpdatePayl
 export type FormPayloadProductEdit = ProductPayloadBase & {
   form: "product-edit";
   fields: Record<
-    "productName" | "productDescription",
+    "productName" | "productDescription" | "seoName" | "seoDescription",
     {
       fieldName: string;
       originalValue: string;
