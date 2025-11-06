@@ -31,12 +31,15 @@ type TranslationField = {
 type TranslationPayloadBase = {
   translationLanguage: string;
   currentLanguage: string;
-  fields: Record<string, TranslationField>;
 };
 
 export type FormPayloadProductTranslate = TranslationPayloadBase &
   ProductPayloadBase & {
     form: "product-translate";
+    fields: Record<
+      "productName" | "productDescription" | "seoName" | "seoDescription",
+      TranslationField
+    >;
   };
 
 export type FormPayloadUpdatePayloadProductTranslate = BaseFormPayloadUpdatePayload & {
