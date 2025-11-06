@@ -73,7 +73,6 @@ describe("DashboardEventFactory", () => {
       form: "product-translate" as const,
       productId: "product-123",
       translationLanguage: "es",
-      currentLanguage: "en",
       fields: {
         productName: {
           fieldName: "productName",

@@ -336,7 +336,6 @@ describe("AppBridge", () => {
         form: "product-translate" as const,
         productId: "product-123",
         translationLanguage: "es",
-        currentLanguage: "en",
         fields: {
           productName: {
             fieldName: "productName",
@@ -400,7 +399,6 @@ describe("AppBridge", () => {
         form: "product-translate" as const,
         productId: "product-456",
         translationLanguage: "fr",
-        currentLanguage: "en",
         fields: {
           productDescription: {
             fieldName: "productDescription",
@@ -483,7 +481,6 @@ describe("AppBridge", () => {
         form: "product-translate" as const,
         productId: "product-1",
         translationLanguage: "es",
-        currentLanguage: "en",
         fields: {
           productName: {
             fieldName: "productName",
@@ -530,7 +527,6 @@ describe("AppBridge", () => {
         form: "product-translate" as const,
         productId: "product-2",
         translationLanguage: "fr",
-        currentLanguage: "en",
         fields: {
           productName: {
             fieldName: "productName",
@@ -587,7 +583,6 @@ describe("AppBridge", () => {
         form: "product-translate" as const,
         productId: "product-123",
         translationLanguage: "es",
-        currentLanguage: "en",
         fields: {
           productName: {
             fieldName: "productName",
