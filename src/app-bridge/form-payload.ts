@@ -26,7 +26,7 @@ type TranslationField = {
   originalValue: string;
   translatedValue: string;
   currentValue: string;
-  type: "short-text" | "editorjs";
+  type: "short-text" | "editorjs" | "long-text";
 };
 
 export type FormPayloadProductTranslate = ProductPayloadBase & {
@@ -59,7 +59,7 @@ export type FormPayloadProductEdit = ProductPayloadBase & {
       fieldName: string;
       originalValue: string;
       currentValue: string;
-      type: "short-text" | "editorjs";
+      type: "short-text" | "editorjs" | "long-text";
     }
   >;
 };
