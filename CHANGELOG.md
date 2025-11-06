@@ -1,5 +1,13 @@
 # @saleor/app-sdk
 
+## 1.3.4
+
+### Patch Changes
+
+- 92dc152: Add `TRANSLATIONS_MORE_ACTIONS` mount point to typescript definitions of available App Extension mounts
+- affb8ee: Remove action field - `product-translate` -> `currentLanguage`.
+- 825b49a: Added missing seoName and seoDescriptiont to formPayload action
+
 ## 1.3.3
 
 ### Patch Changes
