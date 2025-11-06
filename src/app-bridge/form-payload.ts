@@ -28,15 +28,15 @@ type TranslationField = {
   currentValue: string;
   type: "short-text" | "editorjs";
 };
-type TranslationPayloadBase = {
-  translationLanguage: string;
-  fields: Record<string, TranslationField>;
-};
 
-export type FormPayloadProductTranslate = TranslationPayloadBase &
-  ProductPayloadBase & {
-    form: "product-translate";
-  };
+export type FormPayloadProductTranslate = ProductPayloadBase & {
+  translationLanguage: string;
+  form: "product-translate";
+  fields: Record<
+    "productName" | "productDescription" | "seoName" | "seoDescription",
+    TranslationField
+  >;
+};
 
 export type FormPayloadUpdatePayloadProductTranslate = BaseFormPayloadUpdatePayload & {
   form: "product-translate";

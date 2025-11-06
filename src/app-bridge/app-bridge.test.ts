@@ -9,6 +9,8 @@ import {
   AppBridge,
   DashboardEventFactory,
   DispatchResponseEvent,
+  FormPayloadProductEdit,
+  FormPayloadProductTranslate,
   HandshakeEvent,
   ThemeEvent,
 } from ".";
@@ -330,7 +332,7 @@ describe("AppBridge", () => {
     it("Updates state with form context when form payload event is received", () => {
       expect(appBridge.getState().formContext).toEqual({});
 
-      const formPayload = {
+      const formPayload: FormPayloadProductTranslate = {
         form: "product-translate" as const,
         productId: "product-123",
         translationLanguage: "es",
@@ -341,6 +343,27 @@ describe("AppBridge", () => {
             translatedValue: "Producto Original",
             currentValue: "Original Product",
             type: "short-text" as const,
+          },
+          productDescription: {
+            fieldName: "",
+            originalValue: "",
+            translatedValue: "",
+            currentValue: "",
+            type: "short-text",
+          },
+          seoName: {
+            fieldName: "",
+            originalValue: "",
+            translatedValue: "",
+            currentValue: "",
+            type: "short-text",
+          },
+          seoDescription: {
+            fieldName: "",
+            originalValue: "",
+            translatedValue: "",
+            currentValue: "",
+            type: "short-text",
           },
         },
       };
@@ -372,7 +395,7 @@ describe("AppBridge", () => {
 
       expect(callback).not.toHaveBeenCalled();
 
-      const formPayload = {
+      const formPayload: FormPayloadProductTranslate = {
         form: "product-translate" as const,
         productId: "product-456",
         translationLanguage: "fr",
@@ -383,6 +406,27 @@ describe("AppBridge", () => {
             translatedValue: "Description en français",
             currentValue: "Description",
             type: "editorjs" as const,
+          },
+          productName: {
+            fieldName: "",
+            originalValue: "",
+            translatedValue: "",
+            currentValue: "",
+            type: "short-text",
+          },
+          seoName: {
+            fieldName: "",
+            originalValue: "",
+            translatedValue: "",
+            currentValue: "",
+            type: "short-text",
+          },
+          seoDescription: {
+            fieldName: "",
+            originalValue: "",
+            translatedValue: "",
+            currentValue: "",
+            type: "short-text",
           },
         },
       };
@@ -433,7 +477,7 @@ describe("AppBridge", () => {
     });
 
     it("Updates form context with new fields when multiple form events are received", () => {
-      const firstFormPayload = {
+      const firstFormPayload: FormPayloadProductTranslate = {
         form: "product-translate" as const,
         productId: "product-1",
         translationLanguage: "es",
@@ -444,6 +488,27 @@ describe("AppBridge", () => {
             translatedValue: "Producto 1",
             currentValue: "Product 1",
             type: "short-text" as const,
+          },
+          productDescription: {
+            fieldName: "",
+            originalValue: "",
+            translatedValue: "",
+            currentValue: "",
+            type: "short-text",
+          },
+          seoName: {
+            fieldName: "",
+            originalValue: "",
+            translatedValue: "",
+            currentValue: "",
+            type: "short-text",
+          },
+          seoDescription: {
+            fieldName: "",
+            originalValue: "",
+            translatedValue: "",
+            currentValue: "",
+            type: "short-text",
           },
         },
       };
@@ -458,7 +523,7 @@ describe("AppBridge", () => {
 
       expect(appBridge.getState().formContext?.["product-translate"]?.productId).toBe("product-1");
 
-      const secondFormPayload = {
+      const secondFormPayload: FormPayloadProductTranslate = {
         form: "product-translate" as const,
         productId: "product-2",
         translationLanguage: "fr",
@@ -469,6 +534,27 @@ describe("AppBridge", () => {
             translatedValue: "Produit 2",
             currentValue: "Product 2",
             type: "short-text" as const,
+          },
+          productDescription: {
+            fieldName: "",
+            originalValue: "",
+            translatedValue: "",
+            currentValue: "",
+            type: "short-text",
+          },
+          seoName: {
+            fieldName: "",
+            originalValue: "",
+            translatedValue: "",
+            currentValue: "",
+            type: "short-text",
+          },
+          seoDescription: {
+            fieldName: "",
+            originalValue: "",
+            translatedValue: "",
+            currentValue: "",
+            type: "short-text",
           },
         },
       };
@@ -493,7 +579,7 @@ describe("AppBridge", () => {
     it("Stores multiple form contexts for different form types simultaneously", () => {
       expect(appBridge.getState().formContext).toEqual({});
 
-      const productTranslatePayload = {
+      const productTranslatePayload: FormPayloadProductTranslate = {
         form: "product-translate" as const,
         productId: "product-123",
         translationLanguage: "es",
@@ -505,10 +591,31 @@ describe("AppBridge", () => {
             currentValue: "Original Product",
             type: "short-text" as const,
           },
+          productDescription: {
+            fieldName: "",
+            originalValue: "",
+            translatedValue: "",
+            currentValue: "",
+            type: "editorjs",
+          },
+          seoName: {
+            fieldName: "",
+            originalValue: "",
+            translatedValue: "",
+            currentValue: "",
+            type: "short-text",
+          },
+          seoDescription: {
+            fieldName: "",
+            originalValue: "",
+            translatedValue: "",
+            currentValue: "",
+            type: "editorjs",
+          },
         },
       };
 
-      const productEditPayload = {
+      const productEditPayload: FormPayloadProductEdit = {
         form: "product-edit" as const,
         productId: "product-456",
         fields: {

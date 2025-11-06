@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { FormPayloadProductTranslate } from "@/app-bridge/form-payload";
+
 import { DashboardEventFactory } from "./events";
 
 describe("DashboardEventFactory", () => {
@@ -67,7 +69,7 @@ describe("DashboardEventFactory", () => {
   });
 
   it("Creates form payload event for product translation", () => {
-    const formPayload = {
+    const formPayload: FormPayloadProductTranslate = {
       form: "product-translate" as const,
       productId: "product-123",
       translationLanguage: "es",
@@ -86,6 +88,20 @@ describe("DashboardEventFactory", () => {
           currentValue: "Original description",
           type: "editorjs" as const,
         },
+        seoName: {
+          fieldName: "",
+          originalValue: "",
+          translatedValue: "",
+          currentValue: "",
+          type: "short-text",
+        },
+        seoDescription: {
+          fieldName: "",
+          originalValue: "",
+          translatedValue: "",
+          currentValue: "",
+          type: "short-text",
+        },
       },
     };
 
@@ -93,37 +109,5 @@ describe("DashboardEventFactory", () => {
       type: "formPayload",
       payload: formPayload,
     });
-  });
-
-  it("Creates form payload event with all translation field types", () => {
-    const formPayload = {
-      form: "product-translate" as const,
-      productId: "product-456",
-      translationLanguage: "fr",
-      fields: {
-        shortTextField: {
-          fieldName: "shortTextField",
-          originalValue: "Short text",
-          translatedValue: "Texte court",
-          currentValue: "Short text",
-          type: "short-text" as const,
-        },
-        editorField: {
-          fieldName: "editorField",
-          originalValue: "{\"blocks\": []}",
-          translatedValue: "{\"blocks\": []}",
-          currentValue: "{\"blocks\": []}",
-          type: "editorjs" as const,
-        },
-      },
-    };
-
-    const event = DashboardEventFactory.createFormEvent(formPayload);
-
-    expect(event.type).toBe("formPayload");
-    if (event.payload.form === "product-translate") {
-      expect(event.payload.fields.shortTextField.type).toBe("short-text");
-      expect(event.payload.fields.editorField.type).toBe("editorjs");
-    }
   });
 });
