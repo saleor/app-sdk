@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 1.3.5
+
+### Patch Changes
+
+- 2dca07e: Add "long-text" attribute for available field type in FormUpdate events
+
 ## 1.3.4
 
 ### Patch Changes
