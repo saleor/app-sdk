@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 1.3.6
+
+### Patch Changes
+
+- 18242f7: This is a test changeset that is supposed to trigger release PR
+
 ## 1.3.5
 
 ### Patch Changes
