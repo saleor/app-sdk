@@ -32,7 +32,7 @@ jobs:
             curl --request GET --url "$VAULT_URL" --header "Authorization: JWT $VAULT_JWT" | jq -r .token \
           )
           
-          echo "::add-mask::$GITHUB_TOKEN"
+          echo "GITHUB_TOKEN=${token}" >> $GITHUB_ENV
       - name: Create Release Pull Request
         uses: changesets/action@e2f8e964d080ae97c874b19e27b12e0a8620fb6c # v1.4.6
         with:
@@ -40,4 +40,5 @@ jobs:
           commit: Release to npm
           publish: "pnpm publish:ci-prod"
         env:
+          GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
