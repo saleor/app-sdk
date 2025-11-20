@@ -28,7 +28,7 @@ jobs:
         run: |
           set -x
 
-          export GITHUB_TOKEN=$( \
+          token=$( \
             curl --request GET --url "$VAULT_URL" --header "Authorization: JWT $VAULT_JWT" | jq -r .token \
           )
           
