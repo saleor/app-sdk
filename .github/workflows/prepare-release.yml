@@ -15,7 +15,6 @@ jobs:
     env:
       HUSKY: 0
     steps:
-      -
       - uses: actions/checkout@v4
       - name: Setup PNPM
         uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
