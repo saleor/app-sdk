@@ -9,7 +9,7 @@ import { AppIframeParams } from "./app-iframe-params";
 import { SSR } from "./constants";
 import { Events, EventType, PayloadOfEvent, ThemeType } from "./events";
 
-const DISPATCH_RESPONSE_TIMEOUT = 1000;
+const DISPATCH_RESPONSE_TIMEOUT = 10000;
 
 type EventCallback<TPayload extends {} = {}> = (data: TPayload) => void;
 type SubscribeMap = {
