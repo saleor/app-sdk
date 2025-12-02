@@ -24,6 +24,7 @@ describe("APL", () => {
   afterEach(() => {
     vi.resetModules();
     vi.restoreAllMocks();
+    fetchMock.mockClear();
   });
 
   describe("SaleorCloudAPL", () => {

@@ -18,6 +18,9 @@ describe("settings-manager", () => {
 
     beforeEach(() => {
       vi.restoreAllMocks();
+      fetchMock.mockClear();
+      mutateMock.mockClear();
+      deleteMetadataMock.mockClear();
     });
 
     it("Get method - using cached values", async () => {
