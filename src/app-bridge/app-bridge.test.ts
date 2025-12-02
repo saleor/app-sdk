@@ -204,8 +204,12 @@ describe("AppBridge", () => {
     return expect(appBridge.dispatch(action)).resolves.toBeUndefined();
   });
 
-  it("times out after action response has not been registered", () =>
-    expect(appBridge.dispatch(actions.Redirect({ to: "/test" }))).rejects.toBeInstanceOf(Error));
+  it(
+    "times out after action response has not been registered",
+    () =>
+      expect(appBridge.dispatch(actions.Redirect({ to: "/test" }))).rejects.toBeInstanceOf(Error),
+    { timeout: 6_000 },
+  );
 
   it("unsubscribes from all listeners", () => {
     const cb1 = vi.fn();
