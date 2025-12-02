@@ -7,6 +7,7 @@ const fetchMock = vi.fn();
 describe("Paginator", () => {
   afterEach(() => {
     vi.restoreAllMocks();
+    fetchMock.mockClear();
   });
 
   it("Returns single page when there is no `next` property", async () => {
