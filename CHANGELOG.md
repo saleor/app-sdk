@@ -1,5 +1,16 @@
 # @saleor/app-sdk
 
+## 1.4.0
+
+### Minor Changes
+
+- 48bbde2: Increased action timeout to be 10s instead of 1s. In this window some actions can still be handled gracefully, e.g. Redirect action can wait for user to confirm page exit
+
+### Patch Changes
+
+- c2b3fd1: Updated dev dependencies
+- dc76025: Updated Next.js version used internally to 15.4.8, which mitigates CVE-2025-66478
+
 ## 1.3.5
 
 ### Patch Changes
