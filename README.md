@@ -43,6 +43,30 @@ npm i @saleor/app-sdk
 
 You can find the documentation [here](https://docs.saleor.io/docs/3.x/developer/extending/apps/developing-apps/app-sdk/overview).
 
+## Peer Dependencies
+
+The SDK has several optional peer dependencies. Install only what you need based on which entry points you use:
+
+| Entry Point                                | Required Peer Dependencies                                              |
+| ------------------------------------------ | ----------------------------------------------------------------------- |
+| `@saleor/app-sdk/app-bridge`               | `react`, `react-dom`                                                    |
+| `@saleor/app-sdk/app-bridge/next`          | `react`, `react-dom`, `next`                                            |
+| `@saleor/app-sdk/handlers/next`            | `next`, `graphql`                                                       |
+| `@saleor/app-sdk/handlers/next-app-router` | `next`, `graphql`                                                       |
+| `@saleor/app-sdk/handlers/fetch-api`       | `graphql`                                                               |
+| `@saleor/app-sdk/handlers/aws-lambda`      | `graphql`                                                               |
+| `@saleor/app-sdk/settings-manager`         | -                                                                       |
+| `@saleor/app-sdk/APL`                      | -                                                                       |
+| `@saleor/app-sdk/APL/env`                  | -                                                                       |
+| `@saleor/app-sdk/APL/file`                 | -                                                                       |
+| `@saleor/app-sdk/APL/upstash`              | -                                                                       |
+| `@saleor/app-sdk/APL/saleor-cloud`         | -                                                                       |
+| `@saleor/app-sdk/APL/redis`                | `redis`                                                                 |
+| `@saleor/app-sdk/APL/vercel-kv`            | `@vercel/kv`                                                            |
+| `@saleor/app-sdk/APL/dynamodb`             | `@aws-sdk/client-dynamodb`, `@aws-sdk/lib-dynamodb`, `dynamodb-toolbox` |
+
+\* `EncryptedMetadataManager` uses Node.js `crypto` by default. For browser usage, provide custom `encryptionMethod` and `decryptionMethod`, or use `MetadataManager` without encryption.
+
 ## Development
 
 ### How to link development version to your project
