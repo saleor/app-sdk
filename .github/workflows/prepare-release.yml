@@ -15,18 +15,20 @@ jobs:
     env:
       HUSKY: 0
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup PNPM
-        uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
-        with:
-          run_install: |
-            - args: [--frozen-lockfile]
       - name: Get Token
         id: get-token
         uses: saleor/saleor-internal-actions/request-vault-token@v1.4.0
         with:
           vault-url: ${{ secrets.VAULT_URL }}
           vault-jwt: ${{ secrets.VAULT_JWT }}
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ steps.get-token.outputs.token }}
+      - name: Setup PNPM
+        uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
+        with:
+          run_install: |
+            - args: [--frozen-lockfile]
       - name: Create Release Pull Request
         uses: changesets/action@e2f8e964d080ae97c874b19e27b12e0a8620fb6c # v1.4.6
         with:
@@ -36,3 +38,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ steps.get-token.outputs.token }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
