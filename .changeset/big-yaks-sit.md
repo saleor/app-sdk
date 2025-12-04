@@ -13,8 +13,8 @@ Make sure that when updating app-sdk, you also install required peer dependencie
 | `@saleor/app-sdk/handlers/next-app-router` | `next`, `graphql`                                                       |
 | `@saleor/app-sdk/handlers/fetch-api`       | `graphql`                                                               |
 | `@saleor/app-sdk/handlers/aws-lambda`      | `graphql`                                                               |
-| `@saleor/app-sdk/settings-manager`         | -                                                                       |
-| `@saleor/app-sdk/APL`                      | -                                                                       |
 | `@saleor/app-sdk/APL/redis`                | `redis`                                                                 |
 | `@saleor/app-sdk/APL/vercel-kv`            | `@vercel/kv`                                                            |
 | `@saleor/app-sdk/APL/dynamodb`             | `@aws-sdk/client-dynamodb`, `@aws-sdk/lib-dynamodb`, `dynamodb-toolbox` |
+
+Other entry points don't require any additional peer dependencies.

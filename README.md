@@ -47,23 +47,25 @@ You can find the documentation [here](https://docs.saleor.io/docs/3.x/developer/
 
 The SDK has several optional peer dependencies. Install only what you need based on which entry points you use:
 
-| Entry Point                                | Required Peer Dependencies                                              | Environment |
-| ------------------------------------------ | ----------------------------------------------------------------------- | ----------- |
-| `@saleor/app-sdk/app-bridge`               | `react`, `react-dom`                                                    | Browser     |
-| `@saleor/app-sdk/app-bridge/next`          | `react`, `react-dom`, `next`                                            | Browser     |
-| `@saleor/app-sdk/handlers/next`            | `next`, `graphql`                                                       | Node.js     |
-| `@saleor/app-sdk/handlers/next-app-router` | `next`, `graphql`                                                       | Node.js     |
-| `@saleor/app-sdk/handlers/fetch-api`       | `graphql`                                                               | Fetch API\* |
-| `@saleor/app-sdk/handlers/aws-lambda`      | `graphql`                                                               | AWS Lambda  |
-| `@saleor/app-sdk/settings-manager`         | -                                                                       | Node.js\*\* |
-| `@saleor/app-sdk/APL`                      | -                                                                       | Node.js     |
-| `@saleor/app-sdk/APL/redis`                | `redis`                                                                 | Node.js     |
-| `@saleor/app-sdk/APL/vercel-kv`            | `@vercel/kv`                                                            | Node.js     |
-| `@saleor/app-sdk/APL/dynamodb`             | `@aws-sdk/client-dynamodb`, `@aws-sdk/lib-dynamodb`, `dynamodb-toolbox` | Node.js     |
+| Entry Point                                | Required Peer Dependencies                                              |
+| ------------------------------------------ | ----------------------------------------------------------------------- |
+| `@saleor/app-sdk/app-bridge`               | `react`, `react-dom`                                                    |
+| `@saleor/app-sdk/app-bridge/next`          | `react`, `react-dom`, `next`                                            |
+| `@saleor/app-sdk/handlers/next`            | `next`, `graphql`                                                       |
+| `@saleor/app-sdk/handlers/next-app-router` | `next`, `graphql`                                                       |
+| `@saleor/app-sdk/handlers/fetch-api`       | `graphql`                                                               |
+| `@saleor/app-sdk/handlers/aws-lambda`      | `graphql`                                                               |
+| `@saleor/app-sdk/settings-manager`         | -                                                                       |
+| `@saleor/app-sdk/APL`                      | -                                                                       |
+| `@saleor/app-sdk/APL/env`                  | -                                                                       |
+| `@saleor/app-sdk/APL/file`                 | -                                                                       |
+| `@saleor/app-sdk/APL/upstash`              | -                                                                       |
+| `@saleor/app-sdk/APL/saleor-cloud`         | -                                                                       |
+| `@saleor/app-sdk/APL/redis`                | `redis`                                                                 |
+| `@saleor/app-sdk/APL/vercel-kv`            | `@vercel/kv`                                                            |
+| `@saleor/app-sdk/APL/dynamodb`             | `@aws-sdk/client-dynamodb`, `@aws-sdk/lib-dynamodb`, `dynamodb-toolbox` |
 
-\* Works in any runtime with Fetch API support (Node.js, Cloudflare Workers, Deno, Bun, etc.)
-
-\*\* `EncryptedMetadataManager` uses Node.js `crypto` by default. For browser usage, provide custom `encryptionMethod` and `decryptionMethod`, or use `MetadataManager` without encryption.
+\* `EncryptedMetadataManager` uses Node.js `crypto` by default. For browser usage, provide custom `encryptionMethod` and `decryptionMethod`, or use `MetadataManager` without encryption.
 
 ## Development
 
