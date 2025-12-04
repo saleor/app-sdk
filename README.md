@@ -43,6 +43,24 @@ npm i @saleor/app-sdk
 
 You can find the documentation [here](https://docs.saleor.io/docs/3.x/developer/extending/apps/developing-apps/app-sdk/overview).
 
+## Peer Dependencies
+
+The SDK has several optional peer dependencies. Install only what you need based on which entry points you use:
+
+| Entry Point                                | Required Peer Dependencies                                              |
+| ------------------------------------------ | ----------------------------------------------------------------------- |
+| `@saleor/app-sdk/app-bridge`               | `react`, `react-dom`                                                    |
+| `@saleor/app-sdk/app-bridge/next`          | `react`, `react-dom`, `next`                                            |
+| `@saleor/app-sdk/handlers/next`            | `next`                                                                  |
+| `@saleor/app-sdk/handlers/next-app-router` | `next`                                                                  |
+| `@saleor/app-sdk/handlers/fetch-api`       | -                                                                       |
+| `@saleor/app-sdk/handlers/aws-lambda`      | -                                                                       |
+| `@saleor/app-sdk/settings-manager`         | `graphql`                                                               |
+| `@saleor/app-sdk/APL`                      | -                                                                       |
+| `@saleor/app-sdk/APL/redis`                | `redis`                                                                 |
+| `@saleor/app-sdk/APL/vercel-kv`            | `@vercel/kv`                                                            |
+| `@saleor/app-sdk/APL/dynamodb`             | `@aws-sdk/client-dynamodb`, `@aws-sdk/lib-dynamodb`, `dynamodb-toolbox` |
+
 ## Development
 
 ### How to link development version to your project

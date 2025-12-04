@@ -111,6 +111,15 @@
     },
     "@aws-sdk/util-dynamodb": {
       "optional": true
+    },
+    "next": {
+      "optional": true
+    },
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
     }
   },
   "lint-staged": {
