@@ -51,11 +51,11 @@ The SDK has several optional peer dependencies. Install only what you need based
 | ------------------------------------------ | ----------------------------------------------------------------------- |
 | `@saleor/app-sdk/app-bridge`               | `react`, `react-dom`                                                    |
 | `@saleor/app-sdk/app-bridge/next`          | `react`, `react-dom`, `next`                                            |
-| `@saleor/app-sdk/handlers/next`            | `next`                                                                  |
-| `@saleor/app-sdk/handlers/next-app-router` | `next`                                                                  |
-| `@saleor/app-sdk/handlers/fetch-api`       | -                                                                       |
-| `@saleor/app-sdk/handlers/aws-lambda`      | -                                                                       |
-| `@saleor/app-sdk/settings-manager`         | `graphql`                                                               |
+| `@saleor/app-sdk/handlers/next`            | `next`, `graphql`                                                       |
+| `@saleor/app-sdk/handlers/next-app-router` | `next`, `graphql`                                                       |
+| `@saleor/app-sdk/handlers/fetch-api`       | `graphql`                                                               |
+| `@saleor/app-sdk/handlers/aws-lambda`      | `graphql`                                                               |
+| `@saleor/app-sdk/settings-manager`         | -                                                                       |
 | `@saleor/app-sdk/APL`                      | -                                                                       |
 | `@saleor/app-sdk/APL/redis`                | `redis`                                                                 |
 | `@saleor/app-sdk/APL/vercel-kv`            | `@vercel/kv`                                                            |

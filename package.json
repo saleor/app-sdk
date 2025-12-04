@@ -120,6 +120,9 @@
     },
     "react-dom": {
       "optional": true
+    },
+    "graphql": {
+      "optional": true
     }
   },
   "lint-staged": {
