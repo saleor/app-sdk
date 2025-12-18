@@ -4,22 +4,17 @@ import {
   TranslationField,
 } from "@/app-bridge/form-payload-events/common";
 
+type FormId = "product-translate";
+type FieldName = "productName" | "productDescription" | "seoName" | "seoDescription";
+
 export type FormPayloadProductTranslate = ProductPayloadBase & {
   translationLanguage: string;
-  form: "product-translate";
-  fields: Record<
-    "productName" | "productDescription" | "seoName" | "seoDescription",
-    TranslationField
-  >;
+  form: FormId;
+  fields: Record<FieldName, TranslationField>;
 };
 
-export type FormPayloadUpdatePayloadProductTranslate = {
-  form: "product-translate";
+export type FormPayloadUpdateProductTranslate = {
+  form: FormId;
   closePopup?: boolean;
-  fields: {
-    productName?: FormPayloadUpdateSingleFieldResult;
-    productDescription?: FormPayloadUpdateSingleFieldResult;
-    seoName?: FormPayloadUpdateSingleFieldResult;
-    seoDescription?: FormPayloadUpdateSingleFieldResult;
-  };
+  fields: Record<FieldName, FormPayloadUpdateSingleFieldResult>;
 };

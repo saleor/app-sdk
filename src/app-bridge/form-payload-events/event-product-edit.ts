@@ -1,13 +1,15 @@
 import {
-  BaseFormPayloadUpdatePayload,
   FormPayloadUpdateSingleFieldResult,
   ProductPayloadBase,
 } from "@/app-bridge/form-payload-events/common";
 
+type FormId = "product-edit";
+type Fields = "productName" | "productDescription";
+
 export type FormPayloadProductEdit = ProductPayloadBase & {
-  form: "product-edit";
+  form: FormId;
   fields: Record<
-    "productName" | "productDescription",
+    Fields,
     {
       fieldName: string;
       originalValue: string;
@@ -17,10 +19,8 @@ export type FormPayloadProductEdit = ProductPayloadBase & {
   >;
 };
 
-export type FormPayloadUpdatePayloadProductEdit = BaseFormPayloadUpdatePayload & {
-  form: "product-edit";
-  fields: {
-    productName?: FormPayloadUpdateSingleFieldResult;
-    productDescription?: FormPayloadUpdateSingleFieldResult;
-  };
+export type FormPayloadUpdateProductEdit = {
+  form: FormId;
+  closePopup?: boolean;
+  fields: Record<Fields, FormPayloadUpdateSingleFieldResult>;
 };

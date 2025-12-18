@@ -1,14 +1,22 @@
 import {
+  FormPayloadCategoryTranslate,
+  FormPayloadUpdateCategoryTranslate,
+} from "@/app-bridge/form-payload-events/event-category-translate";
+import {
   FormPayloadProductEdit,
-  FormPayloadUpdatePayloadProductEdit,
+  FormPayloadUpdateProductEdit,
 } from "@/app-bridge/form-payload-events/event-product-edit";
 import {
   FormPayloadProductTranslate,
-  FormPayloadUpdatePayloadProductTranslate,
+  FormPayloadUpdateProductTranslate,
 } from "@/app-bridge/form-payload-events/event-product-translate";
 
-export type AllFormPayloads = FormPayloadProductTranslate | FormPayloadProductEdit;
+export type AllFormPayloads =
+  | FormPayloadProductTranslate
+  | FormPayloadProductEdit
+  | FormPayloadCategoryTranslate;
 
 export type AllFormPayloadUpdatePayloads =
-  | FormPayloadUpdatePayloadProductTranslate
-  | FormPayloadUpdatePayloadProductEdit;
+  | FormPayloadUpdateProductTranslate
+  | FormPayloadUpdateProductEdit
+  | FormPayloadUpdateCategoryTranslate;
