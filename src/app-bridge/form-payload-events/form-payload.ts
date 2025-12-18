@@ -32,3 +32,8 @@ export type AllFormPayloadUpdatePayloads =
   | FormPayloadUpdateCategoryTranslate
   | FormPayloadUpdateCollectionTranslate
   | FormPayloadUpdateShippingMethodTranslate;
+
+export * from "./event-category-translate";
+export * from "./event-collection-translate";
+export * from "./event-product-edit";
+export * from "./event-shipping-method-translate";

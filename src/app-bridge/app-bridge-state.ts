@@ -1,5 +1,8 @@
+import { FormPayloadCategoryTranslate } from "@/app-bridge/form-payload-events/event-category-translate";
+import { FormPayloadCollectionTranslate } from "@/app-bridge/form-payload-events/event-collection-translate";
 import { FormPayloadProductEdit } from "@/app-bridge/form-payload-events/event-product-edit";
 import { FormPayloadProductTranslate } from "@/app-bridge/form-payload-events/event-product-translate";
+import { FormPayloadShippingMethodTranslate } from "@/app-bridge/form-payload-events/event-shipping-method-translate";
 
 import { LocaleCode } from "../locales";
 import { AppPermission, Permission } from "../types";
@@ -28,8 +31,11 @@ export type AppBridgeState = {
   };
   appPermissions?: AppPermission[];
   formContext: {
-    "product-translate"?: FormPayloadProductTranslate;
     "product-edit"?: FormPayloadProductEdit;
+    "product-translate"?: FormPayloadProductTranslate;
+    "category-translate"?: FormPayloadCategoryTranslate;
+    "collection-translate"?: FormPayloadCollectionTranslate;
+    "shipping-method-translate"?: FormPayloadShippingMethodTranslate;
   };
 };
 
