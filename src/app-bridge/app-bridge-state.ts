@@ -1,4 +1,7 @@
-import { FormPayloadProductEdit, FormPayloadProductTranslate } from "@/app-bridge/form-payload";
+import {
+  FormPayloadProductEdit,
+  FormPayloadProductTranslate,
+} from "@/app-bridge/form-payload-events/form-payload";
 
 import { LocaleCode } from "../locales";
 import { AppPermission, Permission } from "../types";

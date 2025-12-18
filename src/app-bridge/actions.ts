@@ -1,7 +1,7 @@
 import {
   AllFormPayloadUpdatePayloads,
   formPayloadUpdateActionName,
-} from "@/app-bridge/form-payload";
+} from "@/app-bridge/form-payload-events/form-payload";
 
 import { AppPermission } from "../types";
 import { Values } from "./helpers";

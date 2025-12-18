@@ -7,7 +7,7 @@ export * from "./app-bridge-provider";
 export * from "./app-iframe-params";
 export * from "./events";
 export * from "./fetch";
-export * from "./form-payload";
+export * from "./form-payload-events/form-payload";
 export * from "./types";
 export * from "./use-dashboard-token";
 export * from "./with-authorization";
