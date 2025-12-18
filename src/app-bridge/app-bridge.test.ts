@@ -1,6 +1,9 @@
 import { fireEvent } from "@testing-library/dom";
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { FormPayloadProductEdit } from "@/app-bridge/form-payload-events/event-product-edit";
+import { FormPayloadProductTranslate } from "@/app-bridge/form-payload-events/event-product-translate";
+
 import { LocaleCode } from "../locales";
 // eslint-disable-next-line
 import {
@@ -9,8 +12,6 @@ import {
   AppBridge,
   DashboardEventFactory,
   DispatchResponseEvent,
-  FormPayloadProductEdit,
-  FormPayloadProductTranslate,
   HandshakeEvent,
   ThemeEvent,
 } from ".";
