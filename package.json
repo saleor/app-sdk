@@ -55,7 +55,7 @@
     "@testing-library/react": "16.2.0",
     "@types/aws-lambda": "^8.10.147",
     "@types/debug": "^4.1.12",
-    "@types/node": "^18.7.15",
+    "@types/node": "^22.19.6",
     "@types/react": "19.0.10",
     "@types/react-dom": "19.0.4",
     "@typescript-eslint/eslint-plugin": "^5.36.1",

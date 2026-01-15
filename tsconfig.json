@@ -1,8 +1,8 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    "target": "ES2021",
-    "lib": ["dom", "ES2021"],
+    "target": "ES2022",
+    "lib": ["dom", "ES2022"],
     "jsx": "react",
     "useDefineForClassFields": false,
     "module": "commonjs",

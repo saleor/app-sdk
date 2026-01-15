@@ -62,7 +62,9 @@ export class DynamoAPL implements APL {
           "error",
         );
 
-        throw new Error("GetAuthDataError: Failed to get APL entry");
+        throw new Error("GetAuthDataError: Failed to get APL entry", {
+          cause: e,
+        });
       }
     });
   }
@@ -90,7 +92,9 @@ export class DynamoAPL implements APL {
           "error",
         );
 
-        throw new Error("SetAuthDataError: Failed to set APL entry");
+        throw new Error("SetAuthDataError: Failed to set APL entry", {
+          cause: e,
+        });
       }
     });
   }
@@ -118,7 +122,9 @@ export class DynamoAPL implements APL {
           "error",
         );
 
-        throw new Error("DeleteAuthDataError: Failed to set APL entry");
+        throw new Error("DeleteAuthDataError: Failed to set APL entry", {
+          cause: e,
+        });
       }
     });
   }
@@ -142,7 +148,9 @@ export class DynamoAPL implements APL {
         span.setStatus({ code: SpanStatusCode.ERROR }).end();
         this.log(`getAll error: ${JSON.stringify(e)}`, "error");
 
-        throw new Error("GetAllAuthDataError: Failed to set APL entry");
+        throw new Error("GetAllAuthDataError: Failed to set APL entry", {
+          cause: e,
+        });
       }
     });
   }
