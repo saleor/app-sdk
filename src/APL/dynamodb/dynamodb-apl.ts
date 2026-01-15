@@ -8,6 +8,7 @@ import { createAplEntity, UsedTable } from "./apl-db-model";
 import { APLRepository } from "./apl-repository";
 import { DynamoAPLRepository } from "./dynamo-apl-repository";
 
+type ExternalLogger = (message: string, level: "debug" | "error") => void;
 export class DynamoAPL implements APL {
   private repository: APLRepository;
 
@@ -15,7 +16,14 @@ export class DynamoAPL implements APL {
 
   private debug = createDebug("DynamoAPL");
 
-  static create(deps: { table: UsedTable }) {
+  private externalLogger: ExternalLogger = () => {};
+
+  private log = (message: string, level: "debug" | "error") => {
+    this.debug(message);
+    this.externalLogger(message, level);
+  };
+
+  static create(deps: { table: UsedTable; externalLogger?: ExternalLogger }) {
     return new DynamoAPL({
       repository: new DynamoAPLRepository({
         entity: createAplEntity(deps.table),
@@ -23,12 +31,16 @@ export class DynamoAPL implements APL {
     });
   }
 
-  constructor(deps: { repository: APLRepository }) {
+  constructor(deps: { repository: APLRepository; externalLogger?: ExternalLogger }) {
     this.repository = deps.repository;
+    if (deps.externalLogger) {
+      this.externalLogger = deps.externalLogger;
+    }
   }
 
   async get(saleorApiUrl: string): Promise<AuthData | undefined> {
-    this.debug("get called with saleorApiUrl: %s", saleorApiUrl);
+    this.log(`get called with saleorApiUrl: ${saleorApiUrl}`, "debug");
+
     return this.tracer.startActiveSpan("DynamoAPL.get", async (span) => {
       try {
         const getEntryResult = await this.repository.getEntry({
@@ -41,11 +53,14 @@ export class DynamoAPL implements APL {
           })
           .end();
 
-        this.debug("get successful for saleorApiUrl: %s", saleorApiUrl);
+        this.log(`get successful for saleorApiUrl: ${saleorApiUrl}`, "debug");
         return getEntryResult ?? undefined;
       } catch (e) {
         span.setStatus({ code: SpanStatusCode.ERROR }).end();
-        this.debug("get error for saleorApiUrl: %s, error: %O", saleorApiUrl, e);
+        this.log(
+          `get error for saleorApiUrl: ${saleorApiUrl}, error: ${JSON.stringify(e)}`,
+          "error",
+        );
 
         throw new Error("GetAuthDataError: Failed to get APL entry");
       }
@@ -53,7 +68,8 @@ export class DynamoAPL implements APL {
   }
 
   async set(authData: AuthData): Promise<void> {
-    this.debug("set called with authData for saleorApiUrl: %s", authData.saleorApiUrl);
+    this.log(`set called with authData for saleorApiUrl: ${authData.saleorApiUrl}`, "debug");
+
     return this.tracer.startActiveSpan("DynamoAPL.set", async (span) => {
       try {
         await this.repository.setEntry({
@@ -66,10 +82,13 @@ export class DynamoAPL implements APL {
           })
           .end();
 
-        this.debug("set successful for saleorApiUrl: %s", authData.saleorApiUrl);
+        this.log(`set successful for saleorApiUrl: ${authData.saleorApiUrl}`, "debug");
       } catch (e) {
         span.setStatus({ code: SpanStatusCode.ERROR }).end();
-        this.debug("set error for saleorApiUrl: %s, error: %O", authData.saleorApiUrl, e);
+        this.log(
+          `set error for saleorApiUrl: ${authData.saleorApiUrl}, error: ${JSON.stringify(e)}`,
+          "error",
+        );
 
         throw new Error("SetAuthDataError: Failed to set APL entry");
       }
@@ -77,7 +96,8 @@ export class DynamoAPL implements APL {
   }
 
   async delete(saleorApiUrl: string): Promise<void> {
-    this.debug("delete called with saleorApiUrl: %s", saleorApiUrl);
+    this.log(`delete called with saleorApiUrl: ${saleorApiUrl}`, "debug");
+
     return this.tracer.startActiveSpan("DynamoAPL.delete", async (span) => {
       try {
         await this.repository.deleteEntry({
@@ -90,10 +110,13 @@ export class DynamoAPL implements APL {
           })
           .end();
 
-        this.debug("delete successful for saleorApiUrl: %s", saleorApiUrl);
+        this.log(`delete successful for saleorApiUrl: ${saleorApiUrl}`, "debug");
       } catch (e) {
         span.setStatus({ code: SpanStatusCode.ERROR }).end();
-        this.debug("delete error for saleorApiUrl: %s, error: %O", saleorApiUrl, e);
+        this.log(
+          `delete error for saleorApiUrl: ${saleorApiUrl}, error: ${JSON.stringify(e)}`,
+          "error",
+        );
 
         throw new Error("DeleteAuthDataError: Failed to set APL entry");
       }
@@ -101,7 +124,8 @@ export class DynamoAPL implements APL {
   }
 
   async getAll(): Promise<AuthData[]> {
-    this.debug("getAll called");
+    this.log("getAll called", "debug");
+
     return this.tracer.startActiveSpan("DynamoAPL.getAll", async (span) => {
       try {
         const getAllEntriesResult = await this.repository.getAllEntries();
@@ -112,11 +136,11 @@ export class DynamoAPL implements APL {
           })
           .end();
 
-        this.debug("getAll successful, found %d entries", getAllEntriesResult?.length ?? 0);
+        this.log(`getAll successful, found ${getAllEntriesResult?.length ?? 0} entries`, "debug");
         return getAllEntriesResult ?? [];
       } catch (e) {
         span.setStatus({ code: SpanStatusCode.ERROR }).end();
-        this.debug("getAll error: %O", e);
+        this.log(`getAll error: ${JSON.stringify(e)}`, "error");
 
         throw new Error("GetAllAuthDataError: Failed to set APL entry");
       }
