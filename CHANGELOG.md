@@ -1,5 +1,21 @@
 # @saleor/app-sdk
 
+## 1.6.0
+
+### Minor Changes
+
+- 1f35379: DynamoAPL: Now you can inject external logger into constructor to receive and possibly forward inner APL logs
+
+  ```typescript
+    const apl = new DynamoAPL({
+          repository: ...,
+          externalLogger(message: string, level: "debug"|"error") {
+            // E.g. send to Sentry
+            captureMessage(message)
+          },
+        });
+  ```
+
 ## 1.5.0
 
 ### Minor Changes
