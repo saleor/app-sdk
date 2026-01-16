@@ -36,4 +36,5 @@ export type AllFormPayloadUpdatePayloads =
 export * from "./event-category-translate";
 export * from "./event-collection-translate";
 export * from "./event-product-edit";
+export * from "./event-product-translate";
 export * from "./event-shipping-method-translate";
