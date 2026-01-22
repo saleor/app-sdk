@@ -362,5 +362,5 @@
     "url": "https://github.com/saleor/saleor-app-sdk/issues"
   },
   "homepage": "https://github.com/saleor/saleor-app-sdk#readme",
-  "packageManager": "pnpm@9.12.3"
+  "packageManager": "pnpm@10.28.1"
 }
