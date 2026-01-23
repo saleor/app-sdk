@@ -17,7 +17,6 @@ export default defineConfig({
     "APL/vercel-kv/index": "src/APL/vercel-kv/index.ts",
     "APL/env/index": "src/APL/env/index.ts",
     "APL/file/index": "src/APL/file/index.ts",
-    "APL/saleor-cloud/index": "src/APL/saleor-cloud/index.ts",
     "APL/dynamodb/index": "src/APL/dynamodb/index.ts",
 
     "app-bridge/index": "src/app-bridge/index.ts",

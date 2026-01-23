@@ -191,16 +191,6 @@
         "default": "./APL/upstash/index.js"
       }
     },
-    "./APL/saleor-cloud": {
-      "import": {
-        "types": "./APL/saleor-cloud/index.d.mts",
-        "default": "./APL/saleor-cloud/index.mjs"
-      },
-      "require": {
-        "types": "./APL/saleor-cloud/index.d.ts",
-        "default": "./APL/saleor-cloud/index.js"
-      }
-    },
     "./APL/vercel-kv": {
       "import": {
         "types": "./APL/vercel-kv/index.d.mts",
