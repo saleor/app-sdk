@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 1.6.1
+
+### Patch Changes
+
+- 563251f: Removed SaleorCloudAPL. This is not marked as breaking changed, because it was private and not documented API for internal Saleor usage.
+
 ## 1.6.0
 
 ### Minor Changes
