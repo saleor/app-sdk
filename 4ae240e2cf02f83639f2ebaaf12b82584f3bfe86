@@ -1,0 +1,25 @@
+src/app-bridge/actions.test.ts
+  3a040dc79e8aabed 78-86
+src/app-bridge/actions.ts
+  3a040dc79e8aabed 39-43,164-172,188,197
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.42",
+  "base_commit_sha": "4ae240e2cf02f83639f2ebaaf12b82584f3bfe86",
+  "prompts": {
+    "3a040dc79e8aabed": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d6454134-02f1-4b9d-8087-960dadba0eed",
+        "model": "claude-opus-4-5-20251101"
+      },
+      "human_author": "Lukasz Ostrowski <lukasz.ostrowski@saleor.io>",
+      "messages": [],
+      "total_additions": 26,
+      "total_deletions": 1,
+      "accepted_lines": 25,
+      "overriden_lines": 0
+    }
+  }
+}
