@@ -75,6 +75,15 @@ describe("actions.ts", () => {
     });
   });
 
+  describe("actions.PopupClose", () => {
+    it("Constructs action with \"popupClose\" type and random actionId", () => {
+      const action = actions.PopupClose();
+
+      expect(action.type).toBe("popupClose");
+      expect(action.payload.actionId).toEqual(expect.any(String));
+    });
+  });
+
   it("Throws custom error if crypto is not available", () => {
     vi.stubGlobal("crypto", {
       ...globalThis.crypto,

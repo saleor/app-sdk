@@ -119,3 +119,5 @@ dist
 .vscode/
 
 coverage.json
+
+.DS_Store
