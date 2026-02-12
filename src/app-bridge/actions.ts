@@ -69,7 +69,9 @@ function withActionId<Name extends ActionType, Payload extends {}, T extends Act
       },
     };
   } catch (e) {
-    throw new Error("Failed to generate action ID. Please ensure you are using https or localhost");
+    throw new Error(
+      "Failed to generate action ID, likely as your browser doesn't consider current session as Secure Context. Please ensure you are using https or localhost, or current IP/domain is in 'dom.securecontext.allowlist'/'#unsafely-treat-insecure-origin-as-secure' if you trust it.",
+    );
   }
 }
 
