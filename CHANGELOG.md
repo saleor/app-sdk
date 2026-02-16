@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 1.7.1
+
+### Patch Changes
+
+- 9440baf: more verbose "Failed to generate action ID" error
+
 ## 1.7.0
 
 ### Minor Changes
