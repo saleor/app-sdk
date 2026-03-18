@@ -47,8 +47,11 @@ describe("actions.ts", () => {
           productName: { value: "Updated Product Name" },
           productDescription: { value: "Updated Description" },
           seoName: { value: "Updated SEO Name" },
+          seoDescription: {
+            value: "Updated seo description",
+          },
         },
-      };
+      } as const;
 
       const action = actions.FormPayloadUpdate(payload);
 
@@ -70,8 +73,12 @@ describe("actions.ts", () => {
 
       const action = actions.FormPayloadUpdate(payload);
 
-      expect(action.payload.fields.productName).toEqual({ value: "New Name" });
-      expect(action.payload.fields.productDescription).toEqual({ value: "New Description" });
+      expect(action.payload.form).toBe("product-translate");
+
+      if (action.payload.form === "product-translate") {
+        expect(action.payload.fields.productName).toEqual({ value: "New Name" });
+        expect(action.payload.fields.productDescription).toEqual({ value: "New Description" });
+      }
     });
   });
 
