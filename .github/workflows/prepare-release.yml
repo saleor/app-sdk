@@ -35,6 +35,10 @@ jobs:
         with:
           run_install: |
             - args: [--frozen-lockfile]
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
       - name: Upgrade npm for OIDC trusted publishing
         run: npm install -g npm@11.11.0
       - name: Create Release Pull Request
