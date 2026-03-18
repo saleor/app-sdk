@@ -1,0 +1,23 @@
+.github/workflows/prepare-release.yml
+  d3103c4db56ed2a8 38-41
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.15",
+  "base_commit_sha": "f6be358fe6a9f3f83271be462010fbaaa7a3b46a",
+  "prompts": {
+    "d3103c4db56ed2a8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "718eed48-8dae-484d-b88e-2d8fbe76ba35",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Lukasz Ostrowski <lukasz.ostrowski@saleor.io>",
+      "messages": [],
+      "total_additions": 4,
+      "total_deletions": 0,
+      "accepted_lines": 4,
+      "overriden_lines": 0
+    }
+  }
+}
