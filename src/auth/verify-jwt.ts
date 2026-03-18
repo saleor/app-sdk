@@ -35,13 +35,17 @@ export const verifyJWT = async ({
     debug("Token Claims decoded from jwt");
   } catch (e) {
     debug("Token Claims could not be decoded from JWT, will respond with Bad Request");
-    throw new Error(`${ERROR_MESSAGE} Could not decode authorization token.`);
+    throw new Error(`${ERROR_MESSAGE} Could not decode authorization token.`, {
+      cause: e,
+    });
   }
 
   try {
     verifyTokenExpiration(tokenClaims);
   } catch (e) {
-    throw new Error(`${ERROR_MESSAGE} ${(e as Error).message}`);
+    throw new Error(`${ERROR_MESSAGE} ${(e as Error).message}`, {
+      cause: e,
+    });
   }
 
   if (tokenClaims.app !== appId) {
@@ -69,6 +73,8 @@ export const verifyJWT = async ({
 
     console.error(e);
 
-    throw new Error(`${ERROR_MESSAGE} JWT signature verification failed.`);
+    throw new Error(`${ERROR_MESSAGE} JWT signature verification failed.`, {
+      cause: e,
+    });
   }
 };
