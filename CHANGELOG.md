@@ -1,5 +1,13 @@
 # @saleor/app-sdk
 
+## 1.7.1
+
+### Patch Changes
+
+- 0c189dd: Expose inner JWT verification error causes for better debugging.
+- 4fb8990: From this release package in npm should be using provenance signing
+- 9440baf: more verbose "Failed to generate action ID" error
+
 ## 1.7.0
 
 ### Minor Changes
