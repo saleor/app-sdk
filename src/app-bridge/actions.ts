@@ -36,6 +36,11 @@ export const ActionType = {
    * EXPERIMENTAL
    */
   formPayloadUpdate: formPayloadUpdateActionName,
+  /**
+   * Ask Dashboard to close the popup (if the app is running in a popup).
+   * If not in a popup, it does nothing and responds ok: true.
+   */
+  popupClose: "popupClose",
 } as const;
 
 export type ActionType = Values<typeof ActionType>;
@@ -64,7 +69,9 @@ function withActionId<Name extends ActionType, Payload extends {}, T extends Act
       },
     };
   } catch (e) {
-    throw new Error("Failed to generate action ID. Please ensure you are using https or localhost");
+    throw new Error(
+      "Failed to generate action ID, likely as your browser doesn't consider current session as Secure Context. Please ensure you are using https or localhost, or current IP/domain is in 'dom.securecontext.allowlist'/'#unsafely-treat-insecure-origin-as-secure' if you trust it.",
+    );
   }
 }
 
@@ -156,6 +163,15 @@ function createRequestPermissionsAction(
   });
 }
 
+export type PopupClose = ActionWithId<"popupClose", {}>;
+
+function createPopupCloseAction(): PopupClose {
+  return withActionId({
+    type: "popupClose",
+    payload: {},
+  });
+}
+
 function createFormPayloadUpdateAction(payload: AllFormPayloadUpdatePayloads): FormPayloadUpdate {
   return withActionId({
     type: formPayloadUpdateActionName,
@@ -170,7 +186,8 @@ export type Actions =
   | UpdateRouting
   | NotifyReady
   | FormPayloadUpdate
-  | RequestPermissions;
+  | RequestPermissions
+  | PopupClose;
 
 export const actions = {
   Redirect: createRedirectAction,
@@ -179,4 +196,5 @@ export const actions = {
   NotifyReady: createNotifyReadyAction,
   RequestPermissions: createRequestPermissionsAction,
   FormPayloadUpdate: createFormPayloadUpdateAction,
+  PopupClose: createPopupCloseAction,
 };

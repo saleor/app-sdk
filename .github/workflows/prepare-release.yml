@@ -8,6 +8,12 @@ on:
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
+permissions:
+  # https://docs.npmjs.com/trusted-publishers
+  id-token: write  # Required for OIDC
+  # To create a pull request
+  contents: write
+
 jobs:
   release:
     name: Prepare release with Changesets
@@ -29,6 +35,12 @@ jobs:
         with:
           run_install: |
             - args: [--frozen-lockfile]
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+      - name: Upgrade npm for OIDC trusted publishing
+        run: npm install -g npm@11.11.0
       - name: Create Release Pull Request
         uses: changesets/action@e2f8e964d080ae97c874b19e27b12e0a8620fb6c # v1.4.6
         with:
@@ -37,5 +49,4 @@ jobs:
           publish: "pnpm publish:ci-prod"
         env:
           GITHUB_TOKEN: ${{ steps.get-token.outputs.token }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true

@@ -75,6 +75,15 @@ describe("actions.ts", () => {
     });
   });
 
+  describe("actions.PopupClose", () => {
+    it("Constructs action with \"popupClose\" type and random actionId", () => {
+      const action = actions.PopupClose();
+
+      expect(action.type).toBe("popupClose");
+      expect(action.payload.actionId).toEqual(expect.any(String));
+    });
+  });
+
   it("Throws custom error if crypto is not available", () => {
     vi.stubGlobal("crypto", {
       ...globalThis.crypto,
@@ -85,6 +94,8 @@ describe("actions.ts", () => {
       actions.Notification({
         title: "Test",
       }),
-    ).throws("Failed to generate action ID. Please ensure you are using https or localhost");
+    ).throws(
+      "Failed to generate action ID, likely as your browser doesn't consider current session as Secure Context. Please ensure you are using https or localhost, or current IP/domain is in 'dom.securecontext.allowlist'/'#unsafely-treat-insecure-origin-as-secure' if you trust it.",
+    );
   });
 });

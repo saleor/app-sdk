@@ -1,5 +1,23 @@
 # @saleor/app-sdk
 
+## 1.7.1
+
+### Patch Changes
+
+- 0c189dd: Expose inner JWT verification error causes for better debugging.
+- 4fb8990: From this release package in npm should be using provenance signing
+- 9440baf: more verbose "Failed to generate action ID" error
+
+## 1.7.0
+
+### Minor Changes
+
+- 7d22dea: Added new action `popupClose` to AppBridge. Now app can request Dashboard to close the popup. If app was not mounted in popup, event will be ignored.
+
+### Patch Changes
+
+- 563251f: Removed SaleorCloudAPL. This is not marked as breaking changed, because it was private and not documented API for internal Saleor usage.
+
 ## 1.6.0
 
 ### Minor Changes

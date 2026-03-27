@@ -1,6 +1,6 @@
 {
   "name": "@saleor/app-sdk",
-  "version": "1.6.0",
+  "version": "1.7.1",
   "description": "SDK for building great Saleor Apps",
   "scripts": {
     "prepublishOnly": "pnpm build",
@@ -342,11 +342,12 @@
   },
   "publishConfig": {
     "access": "public",
-    "directory": "dist"
+    "directory": "dist",
+    "provenance": true
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/saleor/saleor-app-sdk.git"
+    "url": "git+https://github.com/saleor/app-sdk.git"
   },
   "bugs": {
     "url": "https://github.com/saleor/saleor-app-sdk/issues"
