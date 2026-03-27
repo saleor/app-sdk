@@ -306,10 +306,10 @@ describe("RegisterActionHandler", () => {
         expect(mockApl.set).toHaveBeenCalledWith(mockAuthData);
       });
 
-      it("should pass rawBody with additionalData to onRequestVerified", async () => {
+      it("should pass rawBody with additional_data to onRequestVerified", async () => {
         const bodyWithAdditionalData = {
           auth_token: mockAuthData.token,
-          additionalData: { env: "production", region: "us-east-1" },
+          additional_data: { env: "production", region: "us-east-1" },
         };
         vi.spyOn(adapter, "getBody").mockResolvedValue(bodyWithAdditionalData);
         const onRequestVerified = vi.fn();
@@ -390,10 +390,10 @@ describe("RegisterActionHandler", () => {
         );
       });
 
-      it("should pass rawBody with additionalData to onAuthAplSaved", async () => {
+      it("should pass rawBody with additional_data to onAuthAplSaved", async () => {
         const bodyWithAdditionalData = {
           auth_token: mockAuthData.token,
-          additionalData: { customField: "value" },
+          additional_data: { customField: "value" },
         };
         vi.spyOn(adapter, "getBody").mockResolvedValue(bodyWithAdditionalData);
         const onAuthAplSaved = vi.fn();
@@ -477,10 +477,10 @@ describe("RegisterActionHandler", () => {
         expect(body.success).toBe(false);
       });
 
-      it("should pass rawBody with additionalData to onAplSetFailed", async () => {
+      it("should pass rawBody with additional_data to onAplSetFailed", async () => {
         const bodyWithAdditionalData = {
           auth_token: mockAuthData.token,
-          additionalData: { debug: true },
+          additional_data: { debug: true },
         };
         vi.spyOn(adapter, "getBody").mockResolvedValue(bodyWithAdditionalData);
         const onAplSetFailed = vi.fn();

@@ -10,7 +10,7 @@ export type CallbackErrorHandler = (params: HookCallbackErrorParams) => never;
 
 export type ValidRegisterRequestBody = {
   auth_token: string;
-  additionalData?: Record<string, unknown>;
+  additional_data?: Record<string, unknown>;
 };
 
 export type GenericCreateAppRegisterHandlerOptions<RequestType> = HasAPL & {
