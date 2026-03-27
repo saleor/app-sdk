@@ -61,6 +61,7 @@ describe("RegisterActionHandler", () => {
       const result = await handler.handleAction({ apl: mockApl });
 
       expect(result.status).toBe(400);
+      expect(result.body).toBe("Missing auth token.");
     });
 
     it("should return 400 when request body is not an object", async () => {
