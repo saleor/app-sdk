@@ -61,7 +61,36 @@ describe("RegisterActionHandler", () => {
       const result = await handler.handleAction({ apl: mockApl });
 
       expect(result.status).toBe(400);
-      expect(result.body).toBe("Missing auth token.");
+    });
+
+    it("should return 400 when request body is not an object", async () => {
+      vi.spyOn(adapter, "getBody").mockResolvedValue("not-an-object" as unknown as object);
+
+      const handler = new RegisterActionHandler(adapter);
+      const result = await handler.handleAction({ apl: mockApl });
+
+      expect(result.status).toBe(400);
+      expect(result.body).toBe("Invalid request json.");
+    });
+
+    it("should return 400 when request body is null", async () => {
+      vi.spyOn(adapter, "getBody").mockResolvedValue(null);
+
+      const handler = new RegisterActionHandler(adapter);
+      const result = await handler.handleAction({ apl: mockApl });
+
+      expect(result.status).toBe(400);
+      expect(result.body).toBe("Invalid request json.");
+    });
+
+    it("should return 400 when auth_token is not a string", async () => {
+      vi.spyOn(adapter, "getBody").mockResolvedValue({ auth_token: 123 });
+
+      const handler = new RegisterActionHandler(adapter);
+      const result = await handler.handleAction({ apl: mockApl });
+
+      expect(result.status).toBe(400);
+      expect(result.body).toBe("Invalid request json.");
     });
 
     it("should validate allowed Saleor URLs", async () => {
@@ -269,10 +298,30 @@ describe("RegisterActionHandler", () => {
           adapter.request,
           expect.objectContaining({
             authData: mockAuthData,
+            rawBody: { auth_token: mockAuthData.token },
             respondWithError: expect.any(Function),
           }),
         );
         expect(mockApl.set).toHaveBeenCalledWith(mockAuthData);
+      });
+
+      it("should pass rawBody with additionalData to onRequestVerified", async () => {
+        const bodyWithAdditionalData = {
+          auth_token: mockAuthData.token,
+          additionalData: { env: "production", region: "us-east-1" },
+        };
+        vi.spyOn(adapter, "getBody").mockResolvedValue(bodyWithAdditionalData);
+        const onRequestVerified = vi.fn();
+
+        const handler = new RegisterActionHandler(adapter);
+        await handler.handleAction({ apl: mockApl, onRequestVerified });
+
+        expect(onRequestVerified).toHaveBeenCalledWith(
+          adapter.request,
+          expect.objectContaining({
+            rawBody: bodyWithAdditionalData,
+          }),
+        );
       });
 
       it("should map and return error when onRequestVerified calls respondWithError", async () => {
@@ -334,7 +383,27 @@ describe("RegisterActionHandler", () => {
           adapter.request,
           expect.objectContaining({
             authData: mockAuthData,
+            rawBody: { auth_token: mockAuthData.token },
             respondWithError: expect.any(Function),
+          }),
+        );
+      });
+
+      it("should pass rawBody with additionalData to onAuthAplSaved", async () => {
+        const bodyWithAdditionalData = {
+          auth_token: mockAuthData.token,
+          additionalData: { customField: "value" },
+        };
+        vi.spyOn(adapter, "getBody").mockResolvedValue(bodyWithAdditionalData);
+        const onAuthAplSaved = vi.fn();
+
+        const handler = new RegisterActionHandler(adapter);
+        await handler.handleAction({ apl: mockApl, onAuthAplSaved });
+
+        expect(onAuthAplSaved).toHaveBeenCalledWith(
+          adapter.request,
+          expect.objectContaining({
+            rawBody: bodyWithAdditionalData,
           }),
         );
       });
@@ -399,11 +468,32 @@ describe("RegisterActionHandler", () => {
           expect.objectContaining({
             authData: mockAuthData,
             error: aplError,
+            rawBody: { auth_token: mockAuthData.token },
             respondWithError: expect.any(Function),
           }),
         );
         const body = result.body as RegisterHandlerResponseBody;
         expect(body.success).toBe(false);
+      });
+
+      it("should pass rawBody with additionalData to onAplSetFailed", async () => {
+        const bodyWithAdditionalData = {
+          auth_token: mockAuthData.token,
+          additionalData: { debug: true },
+        };
+        vi.spyOn(adapter, "getBody").mockResolvedValue(bodyWithAdditionalData);
+        const onAplSetFailed = vi.fn();
+        mockApl.set.mockRejectedValue(new Error("APL save error"));
+
+        const handler = new RegisterActionHandler(adapter);
+        await handler.handleAction({ apl: mockApl, onAplSetFailed });
+
+        expect(onAplSetFailed).toHaveBeenCalledWith(
+          adapter.request,
+          expect.objectContaining({
+            rawBody: bodyWithAdditionalData,
+          }),
+        );
       });
 
       it("should map and return error when onAplSetFailed calls respondWithError", async () => {
