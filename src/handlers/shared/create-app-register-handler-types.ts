@@ -8,6 +8,11 @@ export type HookCallbackErrorParams = {
 
 export type CallbackErrorHandler = (params: HookCallbackErrorParams) => never;
 
+export type ValidRegisterRequestBody = {
+  auth_token: string;
+  additionalData?: Record<string, unknown>;
+};
+
 export type GenericCreateAppRegisterHandlerOptions<RequestType> = HasAPL & {
   /**
    * Protect app from being registered in Saleor other than specific.
@@ -36,6 +41,7 @@ export type GenericCreateAppRegisterHandlerOptions<RequestType> = HasAPL & {
     context: {
       authData: AuthData;
       respondWithError: CallbackErrorHandler;
+      rawBody: ValidRegisterRequestBody;
     },
   ): Promise<void>;
   /**
@@ -46,6 +52,7 @@ export type GenericCreateAppRegisterHandlerOptions<RequestType> = HasAPL & {
     context: {
       authData: AuthData;
       respondWithError: CallbackErrorHandler;
+      rawBody: ValidRegisterRequestBody;
     },
   ): Promise<void>;
   /**
@@ -57,6 +64,7 @@ export type GenericCreateAppRegisterHandlerOptions<RequestType> = HasAPL & {
       authData: AuthData;
       error: unknown;
       respondWithError: CallbackErrorHandler;
+      rawBody: ValidRegisterRequestBody;
     },
   ): Promise<void>;
 };

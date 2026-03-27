@@ -5,7 +5,7 @@ import { createDebug } from "@/debug";
 import { getAppId } from "@/get-app-id";
 import { SALEOR_API_URL_HEADER } from "@/headers";
 
-import { GenericCreateAppRegisterHandlerOptions } from "../shared";
+import { GenericCreateAppRegisterHandlerOptions, ValidRegisterRequestBody } from "../shared";
 import {
   ActionHandlerInterface,
   ActionHandlerResult,
@@ -66,6 +66,10 @@ export type HookCallbackErrorParams = {
 
 export type CallbackErrorHandler = (params: HookCallbackErrorParams) => never;
 
+function isRegisterRequestBodyValid(body: unknown): body is ValidRegisterRequestBody {
+  return typeof body === "object" && body !== null && typeof (body as any).auth_token === "string";
+}
+
 export class RegisterActionHandler<I>
   implements ActionHandlerInterface<RegisterHandlerResponseBody>
 {
@@ -106,7 +110,7 @@ export class RegisterActionHandler<I>
       return authTokenResult.response;
     }
 
-    const { authToken } = authTokenResult;
+    const { authToken, rawBody } = authTokenResult;
 
     const handleOnRequestResult = await this.handleOnRequestStartCallback(config.onRequestStart, {
       authToken,
@@ -158,10 +162,11 @@ export class RegisterActionHandler<I>
       jwks,
     };
 
-    const onRequestVerifiedErrorResponse = await this.handleOnRequestVerifiedCallback(
-      config.onRequestVerified,
+    const onRequestVerifiedErrorResponse = await this.handleOnRequestVerifiedCallback({
+      onRequestVerified: config.onRequestVerified,
       authData,
-    );
+      rawBody,
+    });
 
     if (onRequestVerifiedErrorResponse) {
       return onRequestVerifiedErrorResponse;
@@ -172,6 +177,7 @@ export class RegisterActionHandler<I>
       authData,
       onAplSetFailed: config.onAplSetFailed,
       onAuthAplSaved: config.onAuthAplSaved,
+      rawBody,
     });
 
     return aplSaveResponse;
@@ -182,16 +188,25 @@ export class RegisterActionHandler<I>
         success: false;
         response: ActionHandlerResult<RegisterHandlerResponseBody>;
         authToken?: never;
+        rawBody?: never;
       }
     | {
         success: true;
         authToken: string;
+        rawBody: ValidRegisterRequestBody;
         response?: never;
       }
   > {
-    let body: { auth_token: string };
+    let validBody: ValidRegisterRequestBody;
     try {
-      body = (await this.adapter.getBody()) as { auth_token: string };
+      const rawBody = await this.adapter.getBody();
+
+      if (!isRegisterRequestBodyValid(rawBody)) {
+        debug("Request body is not valid, missing required auth_token property");
+        throw new Error("Invalid request body");
+      }
+
+      validBody = rawBody;
     } catch (err) {
       return {
         success: false,
@@ -203,7 +218,7 @@ export class RegisterActionHandler<I>
       };
     }
 
-    const authToken = body?.auth_token;
+    const authToken = validBody?.auth_token;
 
     if (!authToken) {
       debug("Found missing authToken param");
@@ -221,6 +236,7 @@ export class RegisterActionHandler<I>
     return {
       success: true,
       authToken,
+      rawBody: validBody,
     };
   }
 
@@ -361,16 +377,22 @@ export class RegisterActionHandler<I>
     return { success: false, responseBody };
   }
 
-  private async handleOnRequestVerifiedCallback(
-    onRequestVerified: GenericCreateAppRegisterHandlerOptions<I>["onRequestVerified"],
-    authData: AuthData,
-  ) {
+  private async handleOnRequestVerifiedCallback({
+    onRequestVerified,
+    authData,
+    rawBody,
+  }: {
+    onRequestVerified: GenericCreateAppRegisterHandlerOptions<I>["onRequestVerified"];
+    authData: AuthData;
+    rawBody: ValidRegisterRequestBody;
+  }) {
     if (onRequestVerified) {
       debug("Calling \"onRequestVerified\" hook");
 
       try {
         await onRequestVerified(this.adapter.request, {
           authData,
+          rawBody,
           respondWithError: this.createCallbackError,
         });
       } catch (e: RegisterCallbackError | unknown) {
@@ -388,11 +410,13 @@ export class RegisterActionHandler<I>
     onAplSetFailed,
     onAuthAplSaved,
     authData,
+    rawBody,
   }: {
     apl: APL;
     onAplSetFailed: GenericCreateAppRegisterHandlerOptions<I>["onAplSetFailed"];
     onAuthAplSaved: GenericCreateAppRegisterHandlerOptions<I>["onAuthAplSaved"];
     authData: AuthData;
+    rawBody: ValidRegisterRequestBody;
   }) {
     try {
       await apl.set(authData);
@@ -403,6 +427,7 @@ export class RegisterActionHandler<I>
         try {
           await onAuthAplSaved(this.adapter.request, {
             authData,
+            rawBody,
             respondWithError: this.createCallbackError,
           });
         } catch (e: RegisterCallbackError | unknown) {
@@ -421,6 +446,7 @@ export class RegisterActionHandler<I>
           await onAplSetFailed(this.adapter.request, {
             authData,
             error: aplError,
+            rawBody,
             respondWithError: this.createCallbackError,
           });
         } catch (hookError: RegisterCallbackError | unknown) {
