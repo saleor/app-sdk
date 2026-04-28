@@ -1,22 +1,30 @@
 import { APL, AuthData } from "../apl";
 import { createAPLDebug } from "../apl-debug";
+import { jwksCache } from "./jwks-cache";
 
 const debug = createAPLDebug("EnvAPL");
+
+const DEFAULT_CACHE_TTL_MS = 5 * 60 * 1000;
 
 type AuthDataRequired = Omit<AuthData, "jwks" | "domain">;
 
 type Options = {
   env: Record<keyof AuthDataRequired, string>;
   /**
-   * Enable to log auth data to stdout.
-   * Do it once to save data in ENV and disable it later.
+   * @deprecated instead, use GraphQL to generate token after installation
    */
   printAuthDataOnRegister?: boolean;
+  /**
+   * TTL for the in-memory jwks cache, in milliseconds.
+   * Defaults to 5 minutes.
+   */
+  cacheTtlMs?: number;
 };
 
 export class EnvAPL implements APL {
   private defaultOptions: Partial<Options> = {
     printAuthDataOnRegister: false,
+    cacheTtlMs: DEFAULT_CACHE_TTL_MS,
   };
 
   options: Options;
@@ -41,6 +49,16 @@ export class EnvAPL implements APL {
     return keysToValidateAgainst.every(
       (key) => authData[key] && typeof authData[key] === "string" && authData[key]!.length > 0,
     );
+  }
+
+  private buildAuthData(): AuthData {
+    const cachedJwks = jwksCache.get();
+
+    if (cachedJwks !== undefined) {
+      return { ...this.options.env, jwks: cachedJwks };
+    }
+
+    return { ...this.options.env };
   }
 
   async isReady() {
@@ -74,6 +92,12 @@ export class EnvAPL implements APL {
         "🛑'printAuthDataOnRegister' option should be turned off once APL is configured, to avoid possible leaks",
       );
     }
+
+    if (typeof authData.jwks === "string" && authData.jwks.length > 0) {
+      const ttlMs = this.options.cacheTtlMs ?? DEFAULT_CACHE_TTL_MS;
+      jwksCache.set(authData.jwks, ttlMs);
+    }
+
     debug("Called set method");
   }
 
@@ -89,7 +113,7 @@ export class EnvAPL implements APL {
       );
     }
 
-    return this.options.env;
+    return this.buildAuthData();
   }
 
   async getAll() {
@@ -97,12 +121,11 @@ export class EnvAPL implements APL {
       return [];
     }
 
-    const authData = await this.get(this.options.env.saleorApiUrl);
-
-    return authData ? [authData] : [];
+    return [this.buildAuthData()];
   }
 
-  async delete() {
-    debug("Called delete method");
+  async delete(saleorApiUrl: string) {
+    jwksCache.clear();
+    debug("Called delete method for %s", saleorApiUrl);
   }
 }
