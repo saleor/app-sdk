@@ -125,6 +125,62 @@ describe("APL", () => {
       });
     });
 
+    describe("updatedAt handling", () => {
+      const updatedAt = new Date("2024-06-15T10:20:30.456Z");
+
+      it("set serializes updatedAt as ISO string", async () => {
+        fetchMock.mockClear();
+        // @ts-ignore Ignore type of mocked response
+        fetchMock.mockResolvedValue({
+          status: 200,
+          ok: true,
+          json: async () => ({ result: "ok" }),
+        });
+        const apl = new UpstashAPL(aplConfig);
+
+        await apl.set({ ...stubAuthData, updatedAt });
+
+        const [, init] = fetchMock.mock.calls.at(-1)!;
+        const body = JSON.parse((init as RequestInit).body as string) as string[];
+        expect(body[0]).toBe("SET");
+        const stored = JSON.parse(body[2]!);
+        expect(stored.updatedAt).toBe(updatedAt.toISOString());
+      });
+
+      it("get restores updatedAt as Date with the same UTC instant", async () => {
+        // @ts-ignore Ignore type of mocked response
+        fetchMock.mockResolvedValue({
+          status: 200,
+          ok: true,
+          json: async () => ({
+            result: JSON.stringify({ ...stubAuthData, updatedAt: updatedAt.toISOString() }),
+          }),
+        });
+        const apl = new UpstashAPL(aplConfig);
+
+        const result = await apl.get(stubAuthData.saleorApiUrl);
+
+        expect(result?.updatedAt).toBeInstanceOf(Date);
+        expect(result?.updatedAt?.toISOString()).toBe(updatedAt.toISOString());
+        expect(result?.updatedAt?.getTime()).toBe(updatedAt.getTime());
+      });
+
+      it("get does not throw and returns no updatedAt when missing in persistence", async () => {
+        // @ts-ignore Ignore type of mocked response
+        fetchMock.mockResolvedValue({
+          status: 200,
+          ok: true,
+          json: async () => ({ result: JSON.stringify(stubAuthData) }),
+        });
+        const apl = new UpstashAPL(aplConfig);
+
+        const result = await apl.get(stubAuthData.saleorApiUrl);
+
+        expect(result).toBeDefined();
+        expect(result?.updatedAt).toBeUndefined();
+      });
+    });
+
     describe("isReady", () => {
       it("Returns error with message mentioning missing configuration variables", async () => {
         // Delete upstash variables if are already present in the env

@@ -48,7 +48,7 @@ export class FileAPL implements APL {
       return undefined;
     }
 
-    const { token, saleorApiUrl, appId, jwks } = parsedData;
+    const { token, saleorApiUrl, appId, jwks, updatedAt } = parsedData;
 
     if (token && saleorApiUrl && appId) {
       debug("Token found, returning values: %s", `${token[0]}***`);
@@ -57,6 +57,10 @@ export class FileAPL implements APL {
 
       if (jwks) {
         authData.jwks = jwks;
+      }
+
+      if (updatedAt) {
+        authData.updatedAt = new Date(updatedAt);
       }
 
       return authData;

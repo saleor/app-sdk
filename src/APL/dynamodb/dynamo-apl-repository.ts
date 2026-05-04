@@ -36,13 +36,18 @@ export class DynamoAPLRepository implements APLRepository {
     }
     const { saleorApiUrl, jwks, token, appId } = AplEntrySchema.build(Parser).parse(result.Item);
 
-    return {
+    const authData: AuthData = {
       saleorApiUrl,
       appId,
       jwks,
       token,
-      updatedAt: new Date(result.Item.modifiedAt),
     };
+
+    if (result.Item.modifiedAt) {
+      authData.updatedAt = new Date(result.Item.modifiedAt);
+    }
+
+    return authData;
   }
 
   async setEntry({ authData }: { authData: AuthData }) {
@@ -91,13 +96,18 @@ export class DynamoAPLRepository implements APLRepository {
       return possibleItems.map((item): AuthData => {
         const { appId, jwks, token, saleorApiUrl, modifiedAt } = item;
 
-        return {
+        const authData: AuthData = {
           saleorApiUrl,
           appId,
           jwks,
           token,
-          updatedAt: new Date(modifiedAt),
         };
+
+        if (modifiedAt) {
+          authData.updatedAt = new Date(modifiedAt);
+        }
+
+        return authData;
       });
     }
 
