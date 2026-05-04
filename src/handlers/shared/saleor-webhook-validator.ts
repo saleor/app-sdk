@@ -189,7 +189,7 @@ export class SaleorWebhookValidator {
 
               this.debug("Verification successful - update JWKS in the AuthData");
 
-              await apl.set({ ...authData, jwks: newJwks });
+              await apl.set({ ...authData, jwks: newJwks, updatedAt: new Date() });
             } catch {
               this.debug("Second attempt also ended with validation error. Reject the webhook");
 

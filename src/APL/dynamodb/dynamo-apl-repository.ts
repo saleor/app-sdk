@@ -41,6 +41,7 @@ export class DynamoAPLRepository implements APLRepository {
       appId,
       jwks,
       token,
+      updatedAt: new Date(result.Item.modifiedAt),
     };
   }
 
@@ -87,14 +88,15 @@ export class DynamoAPLRepository implements APLRepository {
     const possibleItems = scanEntriesResult.Items ?? [];
 
     if (possibleItems.length > 0) {
-      return possibleItems.map((item) => {
-        const { appId, jwks, token, saleorApiUrl } = item;
+      return possibleItems.map((item): AuthData => {
+        const { appId, jwks, token, saleorApiUrl, modifiedAt } = item;
 
         return {
           saleorApiUrl,
           appId,
           jwks,
           token,
+          updatedAt: new Date(modifiedAt),
         };
       });
     }
