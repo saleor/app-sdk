@@ -1,0 +1,43 @@
+src/APL/redis/redis-apl.ts
+  21276ecb064dd376 14-23,108,230
+src/APL/file/file-apl.ts
+  21276ecb064dd376 51,62-63
+src/APL/upstash/upstash-apl.ts
+  21276ecb064dd376 110-114
+src/APL/vercel-kv/vercel-kv-apl.test.ts
+  21276ecb064dd376 72-144
+src/APL/env/env-apl.ts
+  21276ecb064dd376 9
+src/APL/dynamodb/dynamo-apl-repository.test.ts
+  21276ecb064dd376 84,176,183,205-263
+src/APL/upstash/upstash-apl.test.ts
+  21276ecb064dd376 128-183
+src/APL/vercel-kv/vercel-kv-apl.ts
+  21276ecb064dd376 13-19,55-58,73,175-177,183
+src/APL/dynamodb/dynamo-apl-repository.ts
+  21276ecb064dd376 39,45-50,99,105-110
+src/APL/redis/redis-apl.test.ts
+  21276ecb064dd376 187-246
+src/APL/file/file-apl.test.ts
+  21276ecb064dd376 130-190
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "1a5badf69e801fa4bc4df7c0c1175a57ca0ee596",
+  "prompts": {
+    "21276ecb064dd376": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "cfcba382-216b-486c-b189-2f3372e4b7da",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Lukasz Ostrowski",
+      "messages": [],
+      "total_additions": 409,
+      "total_deletions": 58,
+      "accepted_lines": 365,
+      "overriden_lines": 0
+    }
+  }
+}
