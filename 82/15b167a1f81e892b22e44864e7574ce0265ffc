@@ -1,0 +1,14 @@
+src/types.ts
+  h_463c3d2f499c35 410
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "8215b167a1f81e892b22e44864e7574ce0265ffc",
+  "prompts": {},
+  "humans": {
+    "h_463c3d2f499c35": {
+      "author": "Lukasz Ostrowski"
+    }
+  }
+}
