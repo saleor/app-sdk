@@ -81,6 +81,7 @@ describe("DynamoAPLRepository", () => {
       token: mockedAuthData.token,
       saleorApiUrl: mockedAuthData.saleorApiUrl,
       appId: mockedAuthData.appId,
+      updatedAt: new Date("2023-01-01T00:00:00.000Z"),
     });
   });
 
@@ -172,12 +173,14 @@ describe("DynamoAPLRepository", () => {
         jwks: undefined,
         saleorApiUrl: "saleorApiUrl",
         token: "appToken",
+        updatedAt: new Date("2023-01-01T00:00:00.000Z"),
       },
       {
         appId: "newAppId",
         jwks: undefined,
         saleorApiUrl: "additionalSaleorApiUrl",
         token: "newAppToken",
+        updatedAt: new Date("2024-01-01T00:00:00.000Z"),
       },
     ]);
   });
@@ -198,5 +201,64 @@ describe("DynamoAPLRepository", () => {
     return expect(() => repository.getAllEntries()).rejects.toThrowErrorMatchingInlineSnapshot(
       "[Error: Exception]",
     );
+  });
+
+  describe("updatedAt handling", () => {
+    const isoString = "2024-06-15T10:20:30.456Z";
+
+    it("setEntry persists modifiedAt as ISO string in DynamoDB (via timestamps)", async () => {
+      mockDocumentClient.on(PutCommand, {}).resolvesOnce({});
+
+      await repository.setEntry({ authData: mockedAuthData });
+
+      const calls = mockDocumentClient.commandCalls(PutCommand);
+      const item = calls[0]!.args[0].input.Item as Record<string, unknown>;
+      expect(typeof item.modifiedAt).toBe("string");
+      // ISO 8601 with Z suffix
+      expect(item.modifiedAt).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+    });
+
+    it("getEntry restores updatedAt as Date instance with the same UTC instant", async () => {
+      mockDocumentClient.on(GetCommand, {}).resolvesOnce({
+        Item: {
+          SK: "APL",
+          PK: mockedAuthData.saleorApiUrl,
+          token: mockedAuthData.token,
+          saleorApiUrl: mockedAuthData.saleorApiUrl,
+          appId: mockedAuthData.appId,
+          _et: "APL",
+          createdAt: isoString,
+          modifiedAt: isoString,
+        },
+      });
+
+      const result = await repository.getEntry({ saleorApiUrl: mockedAuthData.saleorApiUrl });
+
+      expect(result?.updatedAt).toBeInstanceOf(Date);
+      expect(result?.updatedAt?.toISOString()).toBe(isoString);
+      expect(result?.updatedAt?.getTime()).toBe(new Date(isoString).getTime());
+    });
+
+    it("getAllEntries restores updatedAt as Date for stored entries", async () => {
+      mockDocumentClient.on(ScanCommand, {}).resolvesOnce({
+        Items: [
+          {
+            PK: "saleorApiUrl",
+            SK: "APL",
+            token: "appToken",
+            saleorApiUrl: "saleorApiUrl",
+            appId: "appId",
+            _et: "APL",
+            createdAt: isoString,
+            modifiedAt: isoString,
+          },
+        ],
+      });
+
+      const result = await repository.getAllEntries();
+
+      expect(result?.[0]?.updatedAt).toBeInstanceOf(Date);
+      expect(result?.[0]?.updatedAt?.toISOString()).toBe(isoString);
+    });
   });
 });

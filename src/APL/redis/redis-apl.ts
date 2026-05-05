@@ -11,6 +11,16 @@ type RedisClient = Pick<
   "connect" | "isOpen" | "hGet" | "hSet" | "hDel" | "hGetAll" | "ping"
 >;
 
+const parseAuthData = (raw: string): AuthData => {
+  const parsed = JSON.parse(raw) as AuthData & { updatedAt?: string | Date };
+
+  if (parsed.updatedAt) {
+    parsed.updatedAt = new Date(parsed.updatedAt);
+  }
+
+  return parsed;
+};
+
 /**
  * Configuration options for RedisAPL
  */
@@ -95,7 +105,7 @@ export class RedisAPL implements APL {
             return undefined;
           }
 
-          const parsedAuthData = JSON.parse(authData) as AuthData;
+          const parsedAuthData = parseAuthData(authData);
           span.setStatus({ code: SpanStatusCode.OK }).end();
           return parsedAuthData;
         } catch (e) {
@@ -217,7 +227,7 @@ export class RedisAPL implements APL {
           this.debug("Successfully retrieved all auth data from Redis");
           span.setStatus({ code: SpanStatusCode.OK }).end();
 
-          return Object.values(allData || {}).map((data) => JSON.parse(data) as AuthData);
+          return Object.values(allData || {}).map((data) => parseAuthData(data));
         } catch (e) {
           this.debug("Failed to get all auth data from Redis");
           this.debug(e);

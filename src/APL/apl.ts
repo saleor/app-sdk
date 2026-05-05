@@ -3,6 +3,7 @@ export interface AuthData {
   saleorApiUrl: string;
   appId: string;
   jwks?: string;
+  updatedAt?: Date;
 }
 
 export type AplReadyResult =
