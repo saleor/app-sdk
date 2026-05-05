@@ -407,21 +407,12 @@ export interface AppManifest {
   /** Array of permissions requested by the app */
   permissions: AppPermission[];
   /** App website rendered in the dashboard */
-  appUrl: string;
-  /** Address to the app configuration page, which is rendered in the dashboard
-   @deprecated in Saleor 3.5, use appUrl instead
-   */
-  configurationUrl?: string;
+  appUrl?: string;
   /** Endpoint used during process of app installation
 
    @see [Installing an app](https://docs.saleor.io/docs/3.x/developer/extending/apps/installing-apps#installing-an-app)
    */
   tokenTargetUrl: string;
-  /** Short description of privacy policy displayed in the dashboard
-
-   @deprecated in Saleor 3.5, use dataPrivacyUrl instead
-   */
-  dataPrivacy?: string;
   /** URL to the full privacy policy */
   dataPrivacyUrl?: string;
   /**  External URL to the app homepage */
