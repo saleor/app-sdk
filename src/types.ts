@@ -310,7 +310,7 @@ type AppExtensionWidget = BaseAppExtension & {
    */
   target: "WIDGET";
   options?: {
-    widgetTarget?: {
+    homeWidget?: {
       /**
        * Controls how dashboard will open the new tab
        * - GET -> open URL in the new window
