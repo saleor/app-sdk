@@ -441,7 +441,7 @@ export interface AppManifest {
 
    @see [Installing an app](https://docs.saleor.io/docs/3.x/developer/extending/apps/installing-apps#installing-an-app)
    */
-  tokenTargetUrl: string;
+  tokenTargetUrl?: string;
   /** URL to the full privacy policy */
   dataPrivacyUrl?: string;
   /**  External URL to the app homepage */
