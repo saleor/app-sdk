@@ -16,23 +16,20 @@ export interface WidgetResizeMessage {
 const isPositiveFiniteHeight = (height: number): boolean => Number.isFinite(height) && height > 0;
 
 /**
- * Measure the content height of a widget page.
+ * Measure a widget root element's content height.
  *
- * @param root Element whose scroll height should be included. Defaults to
- * `document.body`.
+ * Prefer this over `document.body` / `document.documentElement` — in an iframe
+ * those nodes stretch with the iframe, which causes incorrect feedback loops.
  */
-export const measureWidgetHeight = (root?: HTMLElement | null): number => {
+export const measureWidgetHeight = (root: HTMLElement): number => {
   if (SSR) {
     return 0;
   }
 
-  const element = root ?? document.body;
+  const layoutHeight = root.getBoundingClientRect().height;
 
-  return Math.max(
-    document.documentElement.scrollHeight,
-    document.body.scrollHeight,
-    element.scrollHeight,
-  );
+  // scrollHeight catches overflowing children without using the document viewport.
+  return Math.ceil(Math.max(layoutHeight, root.scrollHeight));
 };
 
 /**
@@ -56,4 +53,23 @@ export const reportWidgetHeight = (height: number): void => {
   };
 
   window.parent.postMessage(message, "*");
+};
+
+/**
+ * Measure a widget root and report its height to the Dashboard.
+ *
+ * No-op when not embedded in an iframe or when the root is missing.
+ */
+export const postWidgetHeight = (root?: HTMLElement | null): void => {
+  if (SSR || !window.parent || window.parent === window || !root) {
+    return;
+  }
+
+  const height = measureWidgetHeight(root);
+
+  if (!isPositiveFiniteHeight(height)) {
+    return;
+  }
+
+  reportWidgetHeight(height);
 };

@@ -1,8 +1,16 @@
 import { renderHook } from "@testing-library/react";
+import { createRef } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { useWidgetAutoResize } from "./use-widget-auto-resize";
 import { WIDGET_RESIZE_MESSAGE } from "./widget-resize";
+
+vi.mock("./app-bridge-provider", () => ({
+  useAppBridge: () => ({
+    appBridge: undefined,
+    appBridgeState: { ready: true },
+  }),
+}));
 
 class ResizeObserverMock {
   static instances: ResizeObserverMock[] = [];
@@ -27,6 +35,12 @@ class ResizeObserverMock {
   }
 }
 
+const flushAnimationFrame = async () => {
+  await new Promise<void>((resolve) => {
+    requestAnimationFrame(() => resolve());
+  });
+};
+
 describe("useWidgetAutoResize", () => {
   let postMessageSpy: ReturnType<typeof vi.fn>;
 
@@ -40,15 +54,6 @@ describe("useWidgetAutoResize", () => {
     });
 
     vi.stubGlobal("ResizeObserver", ResizeObserverMock);
-
-    Object.defineProperty(document.documentElement, "scrollHeight", {
-      configurable: true,
-      value: 180,
-    });
-    Object.defineProperty(document.body, "scrollHeight", {
-      configurable: true,
-      value: 180,
-    });
   });
 
   afterEach(() => {
@@ -59,54 +64,104 @@ describe("useWidgetAutoResize", () => {
     vi.unstubAllGlobals();
   });
 
-  it("reports height on mount", () => {
-    // Arrange & Act
-    renderHook(() => useWidgetAutoResize());
+  it("reports the root height on mount", async () => {
+    // Arrange
+    const root = document.createElement("div");
+    root.getBoundingClientRect = () =>
+      ({
+        height: 180,
+      }) as DOMRect;
+    Object.defineProperty(root, "scrollHeight", {
+      configurable: true,
+      value: 180,
+    });
+    document.body.appendChild(root);
+
+    const rootRef = createRef<HTMLDivElement>();
+    rootRef.current = root;
+
+    // Act
+    renderHook(() => useWidgetAutoResize(rootRef));
+    await flushAnimationFrame();
 
     // Assert
     expect(postMessageSpy).toHaveBeenCalledWith({ type: WIDGET_RESIZE_MESSAGE, height: 180 }, "*");
+
+    root.remove();
   });
 
-  it("observes documentElement and the target element", () => {
+  it("observes only the widget root element", () => {
     // Arrange
-    const target = document.createElement("div");
-    document.body.appendChild(target);
+    const root = document.createElement("div");
+    document.body.appendChild(root);
+
+    const rootRef = createRef<HTMLDivElement>();
+    rootRef.current = root;
 
     // Act
-    renderHook(() => useWidgetAutoResize({ target }));
+    renderHook(() => useWidgetAutoResize(rootRef));
 
     // Assert
     expect(ResizeObserverMock.instances).toHaveLength(1);
-    expect(ResizeObserverMock.instances[0]?.observe).toHaveBeenCalledWith(document.documentElement);
-    expect(ResizeObserverMock.instances[0]?.observe).toHaveBeenCalledWith(target);
+    expect(ResizeObserverMock.instances[0]?.observe).toHaveBeenCalledWith(root);
+    expect(ResizeObserverMock.instances[0]?.observe).not.toHaveBeenCalledWith(
+      document.documentElement,
+    );
 
-    target.remove();
+    root.remove();
   });
 
-  it("reports height again when ResizeObserver fires", () => {
+  it("reports height again when ResizeObserver fires", async () => {
     // Arrange
-    renderHook(() => useWidgetAutoResize());
-    postMessageSpy.mockClear();
+    const root = document.createElement("div");
+    root.getBoundingClientRect = () =>
+      ({
+        height: 260,
+      }) as DOMRect;
+    Object.defineProperty(root, "scrollHeight", {
+      configurable: true,
+      value: 260,
+    });
+    document.body.appendChild(root);
 
-    Object.defineProperty(document.documentElement, "scrollHeight", {
-      configurable: true,
-      value: 260,
-    });
-    Object.defineProperty(document.body, "scrollHeight", {
-      configurable: true,
-      value: 260,
-    });
+    const rootRef = createRef<HTMLDivElement>();
+    rootRef.current = root;
+
+    renderHook(() => useWidgetAutoResize(rootRef));
+    await flushAnimationFrame();
+    postMessageSpy.mockClear();
 
     // Act
     ResizeObserverMock.instances[0]?.trigger();
+    await flushAnimationFrame();
 
     // Assert
     expect(postMessageSpy).toHaveBeenCalledWith({ type: WIDGET_RESIZE_MESSAGE, height: 260 }, "*");
+
+    root.remove();
+  });
+
+  it("does not observe when disabled", () => {
+    // Arrange
+    const root = document.createElement("div");
+    const rootRef = createRef<HTMLDivElement>();
+    rootRef.current = root;
+
+    // Act
+    renderHook(() => useWidgetAutoResize(rootRef, false));
+
+    // Assert
+    expect(ResizeObserverMock.instances).toHaveLength(0);
+    expect(postMessageSpy).not.toHaveBeenCalled();
   });
 
   it("disconnects the observer on unmount", () => {
     // Arrange
-    const { unmount } = renderHook(() => useWidgetAutoResize());
+    const root = document.createElement("div");
+    const rootRef = createRef<HTMLDivElement>();
+    rootRef.current = root;
+
+    const { unmount } = renderHook(() => useWidgetAutoResize(rootRef));
 
     // Act
     unmount();

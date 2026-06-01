@@ -1,6 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { measureWidgetHeight, reportWidgetHeight, WIDGET_RESIZE_MESSAGE } from "./widget-resize";
+import {
+  measureWidgetHeight,
+  postWidgetHeight,
+  reportWidgetHeight,
+  WIDGET_RESIZE_MESSAGE,
+} from "./widget-resize";
 
 describe("widget-resize", () => {
   let postMessageSpy: ReturnType<typeof vi.fn>;
@@ -55,27 +60,55 @@ describe("widget-resize", () => {
   });
 
   describe("measureWidgetHeight", () => {
-    it("returns the largest scroll height among root candidates", () => {
+    it("returns the larger of layout box height and scroll height, rounded up", () => {
       // Arrange
       const root = document.createElement("div");
-      Object.defineProperty(document.documentElement, "scrollHeight", {
-        configurable: true,
-        value: 100,
-      });
-      Object.defineProperty(document.body, "scrollHeight", {
-        configurable: true,
-        value: 150,
-      });
+      root.getBoundingClientRect = () =>
+        ({
+          height: 120,
+        }) as DOMRect;
       Object.defineProperty(root, "scrollHeight", {
         configurable: true,
-        value: 240,
+        value: 240.2,
       });
 
       // Act
       const height = measureWidgetHeight(root);
 
       // Assert
-      expect(height).toBe(240);
+      expect(height).toBe(241);
+    });
+  });
+
+  describe("postWidgetHeight", () => {
+    it("measures the root and posts the resize message", () => {
+      // Arrange
+      const root = document.createElement("div");
+      root.getBoundingClientRect = () =>
+        ({
+          height: 180,
+        }) as DOMRect;
+      Object.defineProperty(root, "scrollHeight", {
+        configurable: true,
+        value: 180,
+      });
+
+      // Act
+      postWidgetHeight(root);
+
+      // Assert
+      expect(postMessageSpy).toHaveBeenCalledWith(
+        { type: WIDGET_RESIZE_MESSAGE, height: 180 },
+        "*",
+      );
+    });
+
+    it("does nothing when root is missing", () => {
+      // Act
+      postWidgetHeight(null);
+
+      // Assert
+      expect(postMessageSpy).not.toHaveBeenCalled();
     });
   });
 });

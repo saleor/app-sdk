@@ -1,18 +1,12 @@
-import { useEffect } from "react";
+import { type RefObject, useEffect } from "react";
 
+import { useAppBridge } from "./app-bridge-provider";
 import { SSR } from "./constants";
-import { measureWidgetHeight, reportWidgetHeight } from "./widget-resize";
-
-export interface UseWidgetAutoResizeOptions {
-  /**
-   * Root element whose size drives the iframe height. Defaults to
-   * `document.body`.
-   */
-  target?: HTMLElement | null;
-}
+import { postWidgetHeight } from "./widget-resize";
 
 /**
- * Automatically report widget content height to the Saleor Dashboard.
+ * Size the Dashboard iframe to a widget root element — not `html`/`body`, which
+ * stretch with the iframe height and produce incorrect measurements.
  *
  * Use on routes mounted as `*_DETAILS_WIDGETS` extensions so the iframe grows
  * and shrinks with your content instead of staying in a fixed box.
@@ -23,32 +17,52 @@ export interface UseWidgetAutoResizeOptions {
  * @example
  * ```tsx
  * export default function ProductDetailsWidgetPage() {
- *   useWidgetAutoResize();
- *   return <MyWidgetContent />;
+ *   const rootRef = useRef<HTMLDivElement>(null);
+ *
+ *   useWidgetAutoResize(rootRef);
+ *
+ *   return (
+ *     <div ref={rootRef}>
+ *       <MyWidgetContent />
+ *     </div>
+ *   );
  * }
  * ```
  */
-export const useWidgetAutoResize = ({ target }: UseWidgetAutoResizeOptions = {}): void => {
+export const useWidgetAutoResize = (
+  rootRef: RefObject<HTMLElement | null>,
+  enabled = true,
+): void => {
+  const { appBridgeState } = useAppBridge();
+  const bridgeReady = Boolean(appBridgeState?.ready);
+
   useEffect(() => {
-    if (SSR) {
+    if (SSR || !enabled) {
       return undefined;
     }
 
-    const getRoot = () => target ?? document.body;
+    const root = rootRef.current;
 
-    const report = () => {
-      reportWidgetHeight(measureWidgetHeight(getRoot()));
+    if (!root) {
+      return undefined;
+    }
+
+    let raf = 0;
+
+    const schedulePost = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => postWidgetHeight(root));
     };
 
-    report();
+    schedulePost();
 
-    const resizeObserver = new ResizeObserver(report);
+    const observer = new ResizeObserver(schedulePost);
 
-    resizeObserver.observe(document.documentElement);
-    resizeObserver.observe(getRoot());
+    observer.observe(root);
 
     return () => {
-      resizeObserver.disconnect();
+      cancelAnimationFrame(raf);
+      observer.disconnect();
     };
-  }, [target]);
+  }, [enabled, bridgeReady, rootRef]);
 };
