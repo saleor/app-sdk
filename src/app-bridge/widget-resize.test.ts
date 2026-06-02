@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { AppBridge } from "./app-bridge";
-import { measureWidgetHeight, postWidgetHeight, reportWidgetHeight } from "./widget-resize";
+import { postWidgetHeight, reportWidgetHeight } from "./widget-resize";
 
 describe("widget-resize", () => {
   let dispatchSpy: ReturnType<typeof vi.fn>;
@@ -48,27 +48,6 @@ describe("widget-resize", () => {
     });
   });
 
-  describe("measureWidgetHeight", () => {
-    it("returns the larger of layout box height and scroll height, rounded up", () => {
-      // Arrange
-      const root = document.createElement("div");
-      root.getBoundingClientRect = () =>
-        ({
-          height: 120,
-        }) as DOMRect;
-      Object.defineProperty(root, "scrollHeight", {
-        configurable: true,
-        value: 240.2,
-      });
-
-      // Act
-      const height = measureWidgetHeight(root);
-
-      // Assert
-      expect(height).toBe(241);
-    });
-  });
-
   describe("postWidgetHeight", () => {
     it("measures the root and dispatches a WidgetResize action", () => {
       // Arrange
@@ -90,6 +69,30 @@ describe("widget-resize", () => {
         expect.objectContaining({
           type: "widgetResize",
           payload: expect.objectContaining({ height: 180 }),
+        }),
+      );
+    });
+
+    it("uses the larger of layout box height and scroll height, rounded up", () => {
+      // Arrange
+      const root = document.createElement("div");
+      root.getBoundingClientRect = () =>
+        ({
+          height: 120,
+        }) as DOMRect;
+      Object.defineProperty(root, "scrollHeight", {
+        configurable: true,
+        value: 240.2,
+      });
+
+      // Act
+      postWidgetHeight(appBridge, root);
+
+      // Assert
+      expect(dispatchSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "widgetResize",
+          payload: expect.objectContaining({ height: 241 }),
         }),
       );
     });

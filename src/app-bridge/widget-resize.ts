@@ -4,13 +4,8 @@ import { SSR } from "./constants";
 
 const isPositiveFiniteHeight = (height: number): boolean => Number.isFinite(height) && height > 0;
 
-/**
- * Measure a widget root element's content height.
- *
- * Prefer this over `document.body` / `document.documentElement` — in an iframe
- * those nodes stretch with the iframe, which causes incorrect feedback loops.
- */
-export const measureWidgetHeight = (root: HTMLElement): number => {
+/** Measure widget root content height (layout box vs scroll overflow, rounded up). */
+const measureWidgetHeight = (root: HTMLElement): number => {
   if (SSR) {
     return 0;
   }
@@ -41,6 +36,9 @@ export const reportWidgetHeight = (appBridge: AppBridge, height: number): void =
 
 /**
  * Measure a widget root and report its height to the Dashboard.
+ *
+ * Pass your widget content root — not `document.body` / `document.documentElement`.
+ * In an iframe those nodes stretch with the iframe and cause incorrect feedback loops.
  *
  * No-op during SSR or when the root is missing.
  */
