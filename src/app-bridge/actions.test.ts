@@ -84,6 +84,16 @@ describe("actions.ts", () => {
     });
   });
 
+  describe("actions.WidgetResize", () => {
+    it("Constructs action with \"widgetResize\" type, random actionId and height payload", () => {
+      const action = actions.WidgetResize({ height: 240 });
+
+      expect(action.type).toBe("widgetResize");
+      expect(action.payload.actionId).toEqual(expect.any(String));
+      expect(action.payload.height).toBe(240);
+    });
+  });
+
   it("Throws custom error if crypto is not available", () => {
     vi.stubGlobal("crypto", {
       ...globalThis.crypto,

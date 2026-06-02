@@ -41,6 +41,12 @@ export const ActionType = {
    * If not in a popup, it does nothing and responds ok: true.
    */
   popupClose: "popupClose",
+  /**
+   * Report the app's content height so the Dashboard can resize the widget iframe.
+   *
+   * Only affects `*_DETAILS_WIDGETS` extensions. Available from 3.23.7.
+   */
+  widgetResize: "widgetResize",
 } as const;
 
 export type ActionType = Values<typeof ActionType>;
@@ -172,6 +178,25 @@ function createPopupCloseAction(): PopupClose {
   });
 }
 
+export type WidgetResizePayload = {
+  /**
+   * Widget content height in pixels. Must be a positive, finite number.
+   */
+  height: number;
+};
+
+export type WidgetResize = ActionWithId<"widgetResize", WidgetResizePayload>;
+/**
+ * Reports the app's content height so the Dashboard can resize the widget iframe
+ * to match. Only affects `*_DETAILS_WIDGETS` extensions.
+ */
+function createWidgetResizeAction(payload: WidgetResizePayload): WidgetResize {
+  return withActionId({
+    type: "widgetResize",
+    payload,
+  });
+}
+
 function createFormPayloadUpdateAction(payload: AllFormPayloadUpdatePayloads): FormPayloadUpdate {
   return withActionId({
     type: formPayloadUpdateActionName,
@@ -187,7 +212,8 @@ export type Actions =
   | NotifyReady
   | FormPayloadUpdate
   | RequestPermissions
-  | PopupClose;
+  | PopupClose
+  | WidgetResize;
 
 export const actions = {
   Redirect: createRedirectAction,
@@ -197,4 +223,5 @@ export const actions = {
   RequestPermissions: createRequestPermissionsAction,
   FormPayloadUpdate: createFormPayloadUpdateAction,
   PopupClose: createPopupCloseAction,
+  WidgetResize: createWidgetResizeAction,
 };

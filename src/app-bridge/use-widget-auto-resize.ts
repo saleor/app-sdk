@@ -33,11 +33,11 @@ export const useWidgetAutoResize = (
   rootRef: RefObject<HTMLElement | null>,
   enabled = true,
 ): void => {
-  const { appBridgeState } = useAppBridge();
+  const { appBridge, appBridgeState } = useAppBridge();
   const bridgeReady = Boolean(appBridgeState?.ready);
 
   useEffect(() => {
-    if (SSR || !enabled) {
+    if (SSR || !enabled || !appBridge) {
       return undefined;
     }
 
@@ -51,7 +51,7 @@ export const useWidgetAutoResize = (
 
     const schedulePost = () => {
       cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => postWidgetHeight(root));
+      raf = requestAnimationFrame(() => postWidgetHeight(appBridge, root));
     };
 
     schedulePost();
@@ -64,5 +64,5 @@ export const useWidgetAutoResize = (
       cancelAnimationFrame(raf);
       observer.disconnect();
     };
-  }, [enabled, bridgeReady, rootRef]);
+  }, [enabled, bridgeReady, rootRef, appBridge]);
 };

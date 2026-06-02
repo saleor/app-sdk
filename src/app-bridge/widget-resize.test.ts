@@ -1,61 +1,50 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import {
-  measureWidgetHeight,
-  postWidgetHeight,
-  reportWidgetHeight,
-  WIDGET_RESIZE_MESSAGE,
-} from "./widget-resize";
+import type { AppBridge } from "./app-bridge";
+import { measureWidgetHeight, postWidgetHeight, reportWidgetHeight } from "./widget-resize";
 
 describe("widget-resize", () => {
-  let postMessageSpy: ReturnType<typeof vi.fn>;
-  let parentWindow: Window;
+  let dispatchSpy: ReturnType<typeof vi.fn>;
+  let appBridge: AppBridge;
 
   beforeEach(() => {
-    postMessageSpy = vi.fn();
-    parentWindow = { postMessage: postMessageSpy } as unknown as Window;
-
-    Object.defineProperty(window, "parent", {
-      configurable: true,
-      value: parentWindow,
-    });
-  });
-
-  afterEach(() => {
-    Object.defineProperty(window, "parent", {
-      configurable: true,
-      value: window,
-    });
+    dispatchSpy = vi.fn().mockResolvedValue(undefined);
+    appBridge = { dispatch: dispatchSpy } as unknown as AppBridge;
   });
 
   describe("reportWidgetHeight", () => {
-    it("posts the resize message to the parent window", () => {
+    it("dispatches a WidgetResize action with the height", () => {
       // Arrange
       const height = 320;
 
       // Act
-      reportWidgetHeight(height);
+      reportWidgetHeight(appBridge, height);
 
       // Assert
-      expect(postMessageSpy).toHaveBeenCalledWith({ type: WIDGET_RESIZE_MESSAGE, height }, "*");
+      expect(dispatchSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "widgetResize",
+          payload: expect.objectContaining({ height }),
+        }),
+      );
     });
 
     it("ignores non-finite heights", () => {
       // Act
-      reportWidgetHeight(Number.NaN);
-      reportWidgetHeight(Number.POSITIVE_INFINITY);
+      reportWidgetHeight(appBridge, Number.NaN);
+      reportWidgetHeight(appBridge, Number.POSITIVE_INFINITY);
 
       // Assert
-      expect(postMessageSpy).not.toHaveBeenCalled();
+      expect(dispatchSpy).not.toHaveBeenCalled();
     });
 
     it("ignores non-positive heights", () => {
       // Act
-      reportWidgetHeight(0);
-      reportWidgetHeight(-10);
+      reportWidgetHeight(appBridge, 0);
+      reportWidgetHeight(appBridge, -10);
 
       // Assert
-      expect(postMessageSpy).not.toHaveBeenCalled();
+      expect(dispatchSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -81,7 +70,7 @@ describe("widget-resize", () => {
   });
 
   describe("postWidgetHeight", () => {
-    it("measures the root and posts the resize message", () => {
+    it("measures the root and dispatches a WidgetResize action", () => {
       // Arrange
       const root = document.createElement("div");
       root.getBoundingClientRect = () =>
@@ -94,21 +83,23 @@ describe("widget-resize", () => {
       });
 
       // Act
-      postWidgetHeight(root);
+      postWidgetHeight(appBridge, root);
 
       // Assert
-      expect(postMessageSpy).toHaveBeenCalledWith(
-        { type: WIDGET_RESIZE_MESSAGE, height: 180 },
-        "*",
+      expect(dispatchSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "widgetResize",
+          payload: expect.objectContaining({ height: 180 }),
+        }),
       );
     });
 
     it("does nothing when root is missing", () => {
       // Act
-      postWidgetHeight(null);
+      postWidgetHeight(appBridge, null);
 
       // Assert
-      expect(postMessageSpy).not.toHaveBeenCalled();
+      expect(dispatchSpy).not.toHaveBeenCalled();
     });
   });
 });
