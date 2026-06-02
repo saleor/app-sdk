@@ -186,14 +186,25 @@ export type WidgetResizePayload = {
 };
 
 export type WidgetResize = ActionWithId<"widgetResize", WidgetResizePayload>;
+
+const WIDGET_RESIZE_HEIGHT_ERROR = "WidgetResize height must be a positive, finite number.";
+
+function assertValidWidgetResizeHeight(height: unknown): asserts height is number {
+  if (typeof height !== "number" || !Number.isFinite(height) || height <= 0) {
+    throw new Error(WIDGET_RESIZE_HEIGHT_ERROR);
+  }
+}
+
 /**
  * Reports the app's content height so the Dashboard can resize the widget iframe
  * to match. Only affects `*_DETAILS_WIDGETS` extensions.
  */
 function createWidgetResizeAction(payload: WidgetResizePayload): WidgetResize {
+  assertValidWidgetResizeHeight(payload.height);
+
   return withActionId({
     type: "widgetResize",
-    payload,
+    payload: { height: payload.height },
   });
 }
 

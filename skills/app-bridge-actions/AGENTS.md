@@ -81,8 +81,9 @@ constant.
 ```ts
 export const reportWidgetHeight = (appBridge: AppBridge, height: number): void => {
   if (SSR || !isPositiveFiniteHeight(height)) return;
-  // Best-effort: never let a failed/timed-out dispatch break the app.
-  appBridge.dispatch(actions.WidgetResize({ height })).catch(() => {});
+  appBridge.dispatch(actions.WidgetResize({ height })).catch((error: unknown) => {
+    console.warn("WidgetResize dispatch failed:", error);
+  });
 };
 ```
 
@@ -99,10 +100,8 @@ appBridge.dispatch(actions.UpdateRouting({ newRoute })).catch(() => {
 });
 ```
 
-For a **high-frequency** signal like resize, a silent `.catch(() => {})` is a deliberate exception:
-a Dashboard with no handler for the action sends no response, so every report rejects after the 10s
-timeout, and resize can fire repeatedly as content changes — logging each rejection would be noisy.
-Pick logging by default; choose silent only when failures are expected and frequent.
+For a **high-frequency** signal like resize, use `console.warn` in the catch (not rethrow): failures
+are expected on older Dashboards without a handler, but developers need a signal in the console.
 
 ## Anti-patterns
 

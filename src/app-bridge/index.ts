@@ -11,5 +11,9 @@ export * from "./form-payload";
 export * from "./types";
 export * from "./use-dashboard-token";
 export * from "./use-widget-auto-resize";
-export { postWidgetHeight, reportWidgetHeight } from "./widget-resize";
+export {
+  type WidgetResizeRootElement,
+  postWidgetHeight,
+  reportWidgetHeight,
+} from "./widget-resize";
 export * from "./with-authorization";

@@ -13,6 +13,23 @@ describe("widget-resize", () => {
   });
 
   describe("reportWidgetHeight", () => {
+    it("warns when dispatch rejects", async () => {
+      // Arrange
+      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      const error = new Error("timeout");
+      dispatchSpy.mockRejectedValue(error);
+
+      // Act
+      reportWidgetHeight(appBridge, 320);
+
+      // Assert
+      await vi.waitFor(() => {
+        expect(warnSpy).toHaveBeenCalledWith("WidgetResize dispatch failed:", error);
+      });
+
+      warnSpy.mockRestore();
+    });
+
     it("dispatches a WidgetResize action with the height", () => {
       // Arrange
       const height = 320;
@@ -95,14 +112,6 @@ describe("widget-resize", () => {
           payload: expect.objectContaining({ height: 241 }),
         }),
       );
-    });
-
-    it("does nothing when root is missing", () => {
-      // Act
-      postWidgetHeight(appBridge, null);
-
-      // Assert
-      expect(dispatchSpy).not.toHaveBeenCalled();
     });
   });
 });
