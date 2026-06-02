@@ -1,29 +1,24 @@
+import { actions } from "./actions";
+import type { AppBridge } from "./app-bridge";
 import { SSR } from "./constants";
 
 /**
- * Message type the Dashboard listens for to resize detail-page sidebar widget
- * iframes. Keep in sync with Saleor Dashboard's useWidgetIframeAutoHeight.
+ * Widget content root for height measurement.
  *
- * @see https://docs.saleor.io/developer/extending/apps/developing-apps/app-sdk/app-bridge
+ * Excludes `document.documentElement` (`HTMLHtmlElement`) and `document.body` (`HTMLBodyElement`) —
+ * in an iframe those nodes stretch with the iframe and cause incorrect feedback loops.
  */
-export const WIDGET_RESIZE_MESSAGE = "saleor:widget:resize";
-
-export interface WidgetResizeMessage {
-  type: typeof WIDGET_RESIZE_MESSAGE;
-  height: number;
-}
+export type WidgetResizeRootElement = Exclude<HTMLElement, HTMLBodyElement | HTMLHtmlElement>;
 
 const isPositiveFiniteHeight = (height: number): boolean => Number.isFinite(height) && height > 0;
 
 /**
- * Measure a widget root element's content height.
- *
- * Prefer this over `document.body` / `document.documentElement` — in an iframe
- * those nodes stretch with the iframe, which causes incorrect feedback loops.
+ * Measure widget root content height (layout box vs scroll overflow, rounded up).
+ * Returns `null` when the DOM is unavailable (SSR) — not `0`, which is a valid element height.
  */
-export const measureWidgetHeight = (root: HTMLElement): number => {
+const measureWidgetHeight = (root: WidgetResizeRootElement): number | null => {
   if (SSR) {
-    return 0;
+    return null;
   }
 
   const layoutHeight = root.getBoundingClientRect().height;
@@ -35,41 +30,34 @@ export const measureWidgetHeight = (root: HTMLElement): number => {
 /**
  * Report the widget iframe height to the Saleor Dashboard.
  *
- * Safe to call from non-browser contexts — it becomes a no-op during SSR.
- * Invalid heights (non-finite or non-positive) are ignored.
+ * Dispatches the `WidgetResize` App Bridge action — the same channel used for
+ * every other Dashboard command. No-op during SSR. Invalid heights (non-finite
+ * or non-positive) are ignored.
  */
-export const reportWidgetHeight = (height: number): void => {
-  if (SSR || !window.parent || window.parent === window) {
+export const reportWidgetHeight = (appBridge: AppBridge, height: number): void => {
+  if (SSR || !isPositiveFiniteHeight(height)) {
     return;
   }
 
-  if (!isPositiveFiniteHeight(height)) {
-    return;
-  }
-
-  const message: WidgetResizeMessage = {
-    type: WIDGET_RESIZE_MESSAGE,
-    height,
-  };
-
-  window.parent.postMessage(message, "*");
+  // Sizing is best-effort: a Dashboard without a widgetResize handler sends no response and dispatch
+  // rejects after timeout. Warn for debugging but do not throw — reports are frequent.
+  appBridge.dispatch(actions.WidgetResize({ height })).catch((error: unknown) => {
+    console.warn("WidgetResize dispatch failed:", error);
+  });
 };
 
 /**
  * Measure a widget root and report its height to the Dashboard.
  *
- * No-op when not embedded in an iframe or when the root is missing.
+ * Pass a {@link WidgetResizeRootElement} that wraps your widget UI (for example a `div` ref).
+ * No-op during SSR or when height cannot be measured.
  */
-export const postWidgetHeight = (root?: HTMLElement | null): void => {
-  if (SSR || !window.parent || window.parent === window || !root) {
-    return;
-  }
-
+export const postWidgetHeight = (appBridge: AppBridge, root: WidgetResizeRootElement): void => {
   const height = measureWidgetHeight(root);
 
-  if (!isPositiveFiniteHeight(height)) {
+  if (height === null) {
     return;
   }
 
-  reportWidgetHeight(height);
+  reportWidgetHeight(appBridge, height);
 };

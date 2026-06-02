@@ -3,11 +3,12 @@ import { createRef } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { useWidgetAutoResize } from "./use-widget-auto-resize";
-import { WIDGET_RESIZE_MESSAGE } from "./widget-resize";
+
+const { dispatchSpy } = vi.hoisted(() => ({ dispatchSpy: vi.fn() }));
 
 vi.mock("./app-bridge-provider", () => ({
   useAppBridge: () => ({
-    appBridge: undefined,
+    appBridge: { dispatch: dispatchSpy },
     appBridgeState: { ready: true },
   }),
 }));
@@ -42,25 +43,15 @@ const flushAnimationFrame = async () => {
 };
 
 describe("useWidgetAutoResize", () => {
-  let postMessageSpy: ReturnType<typeof vi.fn>;
-
   beforeEach(() => {
     ResizeObserverMock.reset();
-    postMessageSpy = vi.fn();
-
-    Object.defineProperty(window, "parent", {
-      configurable: true,
-      value: { postMessage: postMessageSpy },
-    });
+    dispatchSpy.mockReset();
+    dispatchSpy.mockResolvedValue(undefined);
 
     vi.stubGlobal("ResizeObserver", ResizeObserverMock);
   });
 
   afterEach(() => {
-    Object.defineProperty(window, "parent", {
-      configurable: true,
-      value: window,
-    });
     vi.unstubAllGlobals();
   });
 
@@ -85,7 +76,12 @@ describe("useWidgetAutoResize", () => {
     await flushAnimationFrame();
 
     // Assert
-    expect(postMessageSpy).toHaveBeenCalledWith({ type: WIDGET_RESIZE_MESSAGE, height: 180 }, "*");
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "widgetResize",
+        payload: expect.objectContaining({ height: 180 }),
+      }),
+    );
 
     root.remove();
   });
@@ -129,14 +125,19 @@ describe("useWidgetAutoResize", () => {
 
     renderHook(() => useWidgetAutoResize(rootRef));
     await flushAnimationFrame();
-    postMessageSpy.mockClear();
+    dispatchSpy.mockClear();
 
     // Act
     ResizeObserverMock.instances[0]?.trigger();
     await flushAnimationFrame();
 
     // Assert
-    expect(postMessageSpy).toHaveBeenCalledWith({ type: WIDGET_RESIZE_MESSAGE, height: 260 }, "*");
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "widgetResize",
+        payload: expect.objectContaining({ height: 260 }),
+      }),
+    );
 
     root.remove();
   });
@@ -152,7 +153,7 @@ describe("useWidgetAutoResize", () => {
 
     // Assert
     expect(ResizeObserverMock.instances).toHaveLength(0);
-    expect(postMessageSpy).not.toHaveBeenCalled();
+    expect(dispatchSpy).not.toHaveBeenCalled();
   });
 
   it("disconnects the observer on unmount", () => {

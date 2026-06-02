@@ -2,7 +2,7 @@ import { type RefObject, useEffect } from "react";
 
 import { useAppBridge } from "./app-bridge-provider";
 import { SSR } from "./constants";
-import { postWidgetHeight } from "./widget-resize";
+import { type WidgetResizeRootElement,postWidgetHeight } from "./widget-resize";
 
 /**
  * Size the Dashboard iframe to a widget root element — not `html`/`body`, which
@@ -30,14 +30,14 @@ import { postWidgetHeight } from "./widget-resize";
  * ```
  */
 export const useWidgetAutoResize = (
-  rootRef: RefObject<HTMLElement | null>,
+  rootRef: RefObject<WidgetResizeRootElement | null>,
   enabled = true,
 ): void => {
-  const { appBridgeState } = useAppBridge();
+  const { appBridge, appBridgeState } = useAppBridge();
   const bridgeReady = Boolean(appBridgeState?.ready);
 
   useEffect(() => {
-    if (SSR || !enabled) {
+    if (SSR || !enabled || !appBridge) {
       return undefined;
     }
 
@@ -51,7 +51,7 @@ export const useWidgetAutoResize = (
 
     const schedulePost = () => {
       cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => postWidgetHeight(root));
+      raf = requestAnimationFrame(() => postWidgetHeight(appBridge, root));
     };
 
     schedulePost();
@@ -64,5 +64,5 @@ export const useWidgetAutoResize = (
       cancelAnimationFrame(raf);
       observer.disconnect();
     };
-  }, [enabled, bridgeReady, rootRef]);
+  }, [enabled, bridgeReady, rootRef, appBridge]);
 };
