@@ -1,5 +1,15 @@
 # @saleor/app-sdk
 
+## 1.9.0
+
+### Minor Changes
+
+- c22d909: Add widget auto-resize for detail-page sidebar extensions (`*_DETAILS_WIDGETS`).
+
+  **Public API:** `useWidgetAutoResize(rootRef, enabled?)`, `actions.WidgetResize({ height })`, `reportWidgetHeight(appBridge, height)`, `reportWidgetHeightFromElement(appBridge, root)`.
+
+  Height is reported via the `widgetResize` App Bridge action. Existing apps that omit the hook keep the previous default iframe height.
+
 ## 1.8.0
 
 ### Minor Changes
