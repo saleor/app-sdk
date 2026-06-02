@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { AppBridge } from "./app-bridge";
-import { postWidgetHeight, reportWidgetHeight } from "./widget-resize";
+import { reportWidgetHeight, reportWidgetHeightFromElement } from "./widget-resize";
 
 describe("widget-resize", () => {
   let dispatchSpy: ReturnType<typeof vi.fn>;
@@ -65,7 +65,7 @@ describe("widget-resize", () => {
     });
   });
 
-  describe("postWidgetHeight", () => {
+  describe("reportWidgetHeightFromElement", () => {
     it("measures the root and dispatches a WidgetResize action", () => {
       // Arrange
       const root = document.createElement("div");
@@ -79,7 +79,7 @@ describe("widget-resize", () => {
       });
 
       // Act
-      postWidgetHeight(appBridge, root);
+      reportWidgetHeightFromElement(appBridge, root);
 
       // Assert
       expect(dispatchSpy).toHaveBeenCalledWith(
@@ -103,7 +103,7 @@ describe("widget-resize", () => {
       });
 
       // Act
-      postWidgetHeight(appBridge, root);
+      reportWidgetHeightFromElement(appBridge, root);
 
       // Assert
       expect(dispatchSpy).toHaveBeenCalledWith(
