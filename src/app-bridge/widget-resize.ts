@@ -7,6 +7,9 @@ import { SSR } from "./constants";
  *
  * Excludes `document.documentElement` (`HTMLHtmlElement`) and `document.body` (`HTMLBodyElement`) —
  * in an iframe those nodes stretch with the iframe and cause incorrect feedback loops.
+ *
+ * Exported from this module for in-package use (`useWidgetAutoResize`, tests). Public API is
+ * defined by `index.ts` only — this type is not re-exported there.
  */
 export type WidgetResizeRootElement = Exclude<HTMLElement, HTMLBodyElement | HTMLHtmlElement>;
 
@@ -28,11 +31,10 @@ const measureWidgetHeight = (root: WidgetResizeRootElement): number | null => {
 };
 
 /**
- * Report the widget iframe height to the Saleor Dashboard.
+ * Report a known widget height (in pixels) to the Saleor Dashboard.
  *
- * Dispatches the `WidgetResize` App Bridge action — the same channel used for
- * every other Dashboard command. No-op during SSR. Invalid heights (non-finite
- * or non-positive) are ignored.
+ * Escape hatch when you already have a height value. Dispatches the `WidgetResize`
+ * App Bridge action. No-op during SSR. Invalid heights (non-finite or non-positive) are ignored.
  */
 export const reportWidgetHeight = (appBridge: AppBridge, height: number): void => {
   if (SSR || !isPositiveFiniteHeight(height)) {
@@ -47,12 +49,16 @@ export const reportWidgetHeight = (appBridge: AppBridge, height: number): void =
 };
 
 /**
- * Measure a widget root and report its height to the Dashboard.
+ * Measure a widget root element and report its height to the Dashboard.
  *
- * Pass a {@link WidgetResizeRootElement} that wraps your widget UI (for example a `div` ref).
+ * Escape hatch when you are not using {@link useWidgetAutoResize}. Pass an element that wraps
+ * your widget UI (for example a `div` ref), not `document.body` or `document.documentElement`.
  * No-op during SSR or when height cannot be measured.
  */
-export const postWidgetHeight = (appBridge: AppBridge, root: WidgetResizeRootElement): void => {
+export const reportWidgetHeightFromElement = (
+  appBridge: AppBridge,
+  root: WidgetResizeRootElement,
+): void => {
   const height = measureWidgetHeight(root);
 
   if (height === null) {
