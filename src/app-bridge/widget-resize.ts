@@ -7,8 +7,11 @@ import { SSR } from "./constants";
  *
  * Excludes `document.documentElement` (`HTMLHtmlElement`) and `document.body` (`HTMLBodyElement`) —
  * in an iframe those nodes stretch with the iframe and cause incorrect feedback loops.
+ *
+ * Exported from this module for in-package use (`useWidgetAutoResize`, tests). Public API is
+ * defined by `index.ts` only — this type is not re-exported there.
  */
-type WidgetResizeRootElement = Exclude<HTMLElement, HTMLBodyElement | HTMLHtmlElement>;
+export type WidgetResizeRootElement = Exclude<HTMLElement, HTMLBodyElement | HTMLHtmlElement>;
 
 const isPositiveFiniteHeight = (height: number): boolean => Number.isFinite(height) && height > 0;
 

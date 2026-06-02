@@ -2,7 +2,7 @@ import { type RefObject, useEffect } from "react";
 
 import { useAppBridge } from "./app-bridge-provider";
 import { SSR } from "./constants";
-import { reportWidgetHeightFromElement } from "./widget-resize";
+import { type WidgetResizeRootElement, reportWidgetHeightFromElement } from "./widget-resize";
 
 /**
  * Size the Dashboard iframe to a widget root element — not `html`/`body`, which
@@ -30,7 +30,7 @@ import { reportWidgetHeightFromElement } from "./widget-resize";
  * ```
  */
 export const useWidgetAutoResize = (
-  rootRef: RefObject<HTMLElement | null>,
+  rootRef: RefObject<WidgetResizeRootElement | null>,
   enabled = true,
 ): void => {
   const { appBridge, appBridgeState } = useAppBridge();
