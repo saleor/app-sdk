@@ -2,7 +2,7 @@
 
 SDK for building [Saleor Apps](https://github.com/saleor/apps).
 
-Supports Saleor version 3.20+
+Supports Saleor version 3.21+
 
 <div>
   

@@ -84,6 +84,33 @@ describe("actions.ts", () => {
     });
   });
 
+  describe("actions.WidgetResize", () => {
+    it("Constructs action with \"widgetResize\" type, random actionId and height payload", () => {
+      const action = actions.WidgetResize({ height: 240 });
+
+      expect(action.type).toBe("widgetResize");
+      expect(action.payload.actionId).toEqual(expect.any(String));
+      expect(action.payload.height).toBe(240);
+    });
+
+    it.each([
+      { height: 0, label: "zero" },
+      { height: -10, label: "negative" },
+      { height: Number.NaN, label: "NaN" },
+      { height: Number.POSITIVE_INFINITY, label: "Infinity" },
+    ])("throws when height is $label", ({ height }) => {
+      expect(() => actions.WidgetResize({ height })).toThrow(
+        "WidgetResize height must be a positive, finite number.",
+      );
+    });
+
+    it("throws when height is not a number", () => {
+      expect(() => actions.WidgetResize({ height: "foo" as unknown as number })).toThrow(
+        "WidgetResize height must be a positive, finite number.",
+      );
+    });
+  });
+
   it("Throws custom error if crypto is not available", () => {
     vi.stubGlobal("crypto", {
       ...globalThis.crypto,

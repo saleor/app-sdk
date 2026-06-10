@@ -10,4 +10,6 @@ export * from "./fetch";
 export * from "./form-payload";
 export * from "./types";
 export * from "./use-dashboard-token";
+export * from "./use-widget-auto-resize";
+export { reportWidgetHeight, reportWidgetHeightFromElement } from "./widget-resize";
 export * from "./with-authorization";
