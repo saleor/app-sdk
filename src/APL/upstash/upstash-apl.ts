@@ -107,8 +107,11 @@ export class UpstashAPL implements APL {
   private async fetchDataFromUpstash(saleorApiUrl: string) {
     const result = await this.upstashRequest(["GET", saleorApiUrl]);
     if (result) {
-      const authData = JSON.parse(result) as AuthData;
-      return authData;
+      const authData = JSON.parse(result) as AuthData & { updatedAt?: string | Date };
+      if (authData.updatedAt) {
+        authData.updatedAt = new Date(authData.updatedAt);
+      }
+      return authData as AuthData;
     }
     return undefined;
   }

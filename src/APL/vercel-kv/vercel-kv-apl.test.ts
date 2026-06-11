@@ -69,4 +69,77 @@ describe("VercelKvApl", () => {
       });
     });
   });
+
+  describe("updatedAt handling", () => {
+    const updatedAt = new Date("2024-06-15T10:20:30.456Z");
+
+    it("set serializes updatedAt as ISO string when JSON-serialized", async () => {
+      (kv.hset as Mock).mockClear();
+      const apl = new VercelKvApl();
+
+      await apl.set({ ...getMockAuthData(), updatedAt });
+
+      // @vercel/kv stringifies values internally; verify the underlying serialization
+      // produces an ISO string for updatedAt.
+      const passedRecord = (kv.hset as Mock).mock.calls.at(-1)![1] as Record<string, unknown>;
+      const serialized = JSON.parse(JSON.stringify(passedRecord)) as Record<
+        string,
+        { updatedAt: string }
+      >;
+      expect(serialized["https://demo.saleor.io/graphql"]!.updatedAt).toBe(
+        updatedAt.toISOString(),
+      );
+    });
+
+    it("get restores updatedAt as Date with the same UTC instant", async () => {
+      (kv.hget as Mock).mockImplementationOnce(async () => ({
+        ...getMockAuthData(),
+        updatedAt: updatedAt.toISOString(),
+      }));
+
+      const apl = new VercelKvApl();
+      const result = await apl.get("https://demo.saleor.io/graphql");
+
+      expect(result?.updatedAt).toBeInstanceOf(Date);
+      expect(result?.updatedAt?.toISOString()).toBe(updatedAt.toISOString());
+      expect(result?.updatedAt?.getTime()).toBe(updatedAt.getTime());
+    });
+
+    it("get does not throw and returns no updatedAt when missing in persistence", async () => {
+      (kv.hget as Mock).mockImplementationOnce(async () => getMockAuthData());
+
+      const apl = new VercelKvApl();
+      const result = await apl.get("https://demo.saleor.io/graphql");
+
+      expect(result).toBeDefined();
+      expect(result?.updatedAt).toBeUndefined();
+    });
+
+    it("getAll restores updatedAt as Date for stored entries", async () => {
+      (kv.hgetall as Mock).mockResolvedValueOnce({
+        "https://demo.saleor.io/graphql": {
+          ...getMockAuthData(),
+          updatedAt: updatedAt.toISOString(),
+        },
+      });
+
+      const apl = new VercelKvApl();
+      const [result] = await apl.getAll();
+
+      expect(result?.updatedAt).toBeInstanceOf(Date);
+      expect(result?.updatedAt?.toISOString()).toBe(updatedAt.toISOString());
+    });
+
+    it("getAll does not throw when updatedAt is missing in persistence", async () => {
+      (kv.hgetall as Mock).mockResolvedValueOnce({
+        "https://demo.saleor.io/graphql": getMockAuthData(),
+      });
+
+      const apl = new VercelKvApl();
+      const result = await apl.getAll();
+
+      expect(result).toHaveLength(1);
+      expect(result[0]?.updatedAt).toBeUndefined();
+    });
+  });
 });

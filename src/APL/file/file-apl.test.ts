@@ -127,5 +127,66 @@ describe("APL", () => {
         expect(await apl.getAll()).toStrictEqual([]);
       });
     });
+
+    describe("updatedAt handling", () => {
+      const updatedAt = new Date("2024-06-15T10:20:30.456Z");
+
+      it("set serializes updatedAt as ISO string", async () => {
+        const spyWriteFile = vi.spyOn(fsPromises, "writeFile").mockResolvedValue();
+
+        const apl = new FileAPL();
+
+        await apl.set({ ...stubAuthData, updatedAt });
+
+        const [, written] = spyWriteFile.mock.calls[0]!;
+        const parsed = JSON.parse(written as string);
+        expect(parsed.updatedAt).toBe(updatedAt.toISOString());
+      });
+
+      it("get restores updatedAt as Date with the same UTC instant", async () => {
+        vi.spyOn(fsPromises, "readFile").mockResolvedValue(
+          JSON.stringify({ ...stubAuthData, updatedAt: updatedAt.toISOString() }),
+        );
+
+        const apl = new FileAPL();
+        const result = await apl.get(stubAuthData.saleorApiUrl);
+
+        expect(result?.updatedAt).toBeInstanceOf(Date);
+        expect(result?.updatedAt?.toISOString()).toBe(updatedAt.toISOString());
+        expect(result?.updatedAt?.getTime()).toBe(updatedAt.getTime());
+      });
+
+      it("get does not throw and returns no updatedAt when missing in persistence", async () => {
+        vi.spyOn(fsPromises, "readFile").mockResolvedValue(JSON.stringify(stubAuthData));
+
+        const apl = new FileAPL();
+        const result = await apl.get(stubAuthData.saleorApiUrl);
+
+        expect(result).toBeDefined();
+        expect(result?.updatedAt).toBeUndefined();
+      });
+
+      it("getAll restores updatedAt as Date with the same UTC instant", async () => {
+        vi.spyOn(fsPromises, "readFile").mockResolvedValue(
+          JSON.stringify({ ...stubAuthData, updatedAt: updatedAt.toISOString() }),
+        );
+
+        const apl = new FileAPL();
+        const [result] = await apl.getAll();
+
+        expect(result?.updatedAt).toBeInstanceOf(Date);
+        expect(result?.updatedAt?.toISOString()).toBe(updatedAt.toISOString());
+      });
+
+      it("getAll does not throw when updatedAt is missing in persistence", async () => {
+        vi.spyOn(fsPromises, "readFile").mockResolvedValue(JSON.stringify(stubAuthData));
+
+        const apl = new FileAPL();
+        const result = await apl.getAll();
+
+        expect(result).toHaveLength(1);
+        expect(result[0]?.updatedAt).toBeUndefined();
+      });
+    });
   });
 });
