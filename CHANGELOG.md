@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 1.10.0
+
+### Minor Changes
+
+- 1486ef4: Added "HOMEPAGE_WIDGETS" mount point for Extensions to Manifest types
+
 ## 1.9.0
 
 ### Minor Changes
