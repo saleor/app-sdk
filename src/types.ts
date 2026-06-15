@@ -45,7 +45,11 @@ type AppExtensionMount3_22 =
   | "GIFT_CARD_DETAILS_WIDGETS"
   | "TRANSLATIONS_MORE_ACTIONS";
 
+// Available mounts in Saleor 3.22 and newer
+type AppExtensionMount3_23 = "HOMEPAGE_WIDGETS";
+
 export type AppExtensionMount =
+  | AppExtensionMount3_23
   | AppExtensionMount3_22
   | "CUSTOMER_OVERVIEW_CREATE"
   | "CUSTOMER_OVERVIEW_MORE_ACTIONS"
@@ -340,10 +344,35 @@ type AppExtensionNewTab = BaseAppExtension & {
   };
 };
 
+/**
+ * Added in 3.23
+ */
+type AppExtensionHomeWidget = BaseAppExtension & {
+  /**
+   * Dashboard will render the iframe statically in the dashboard home page
+   */
+  target: "WIDGET";
+  options?: {
+    homeWidgetTarget?: {
+      /**
+       * Controls how dashboard will open the new tab
+       * - GET -> open URL in the new window
+       * - POST -> submit internal <form> using POST method. Passes token and additional parameters into body*
+       */
+      method?: "GET" | "POST";
+      /**
+       * Whether the widget should be rendered in fullscreen mode or in the grid.
+       */
+      fullscreen?: boolean;
+    };
+  };
+};
+
 export type AppExtension =
   | AppPageExtensionWidget
   | AppExtensionNewTab
   | AppExtensionWidget
+  | AppExtensionHomeWidget
   | PopupExtensionWidget;
 
 /**
@@ -412,7 +441,7 @@ export interface AppManifest {
 
    @see [Installing an app](https://docs.saleor.io/docs/3.x/developer/extending/apps/installing-apps#installing-an-app)
    */
-  tokenTargetUrl: string;
+  tokenTargetUrl?: string;
   /** URL to the full privacy policy */
   dataPrivacyUrl?: string;
   /**  External URL to the app homepage */

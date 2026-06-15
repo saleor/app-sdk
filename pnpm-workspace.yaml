@@ -1,3 +1,10 @@
 blockExoticSubdeps: true
-minimumReleaseAge: 1440 # 24h
+
+minimumReleaseAge: 1440
+
+onlyBuiltDependencies:
+  - core-js-pure
+  - esbuild
+  - sharp
+
 trustPolicy: no-downgrade

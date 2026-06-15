@@ -1,3 +1,4 @@
+import * as jose from "jose";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { verifyJWT } from "./verify-jwt";
@@ -73,5 +74,14 @@ describe("verifyJWT", () => {
         token: validToken,
       }),
     ).rejects.toThrow("JWT verification failed: Token is expired");
+  });
+
+  it("Throws when the JWKS signature verification fails", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.mocked(jose.jwtVerify).mockRejectedValueOnce(new Error("bad signature"));
+
+    await expect(
+      verifyJWT({ appId: validAppId, saleorApiUrl: validApiUrl, token: validToken }),
+    ).rejects.toThrow("JWT verification failed: JWT signature verification failed.");
   });
 });
