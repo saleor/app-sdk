@@ -1,4 +1,5 @@
-import { AllFormPayloads, formPayloadEventName } from "@/app-bridge/form-payload";
+import { formPayloadEventName } from "@/app-bridge/form-payload-events/event-names";
+import { AllFormPayloads } from "@/app-bridge/form-payload-events/form-payload";
 
 import { LocaleCode } from "../locales";
 import { Values } from "./helpers";

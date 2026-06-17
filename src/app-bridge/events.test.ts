@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { FormPayloadProductTranslate } from "@/app-bridge/form-payload";
+import { FormPayloadProductTranslate } from "@/app-bridge/form-payload-events/event-product-translate";
 
 import { DashboardEventFactory } from "./events";
 
