@@ -6,7 +6,7 @@ const debug = createAPLDebug("EnvAPL");
 
 const DEFAULT_CACHE_TTL_MS = 5 * 60 * 1000;
 
-type AuthDataRequired = Omit<AuthData, "jwks" | "domain">;
+type AuthDataRequired = Omit<AuthData, "jwks" | "domain" | "updatedAt">;
 
 type Options = {
   env: Record<keyof AuthDataRequired, string>;

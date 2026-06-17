@@ -10,6 +10,13 @@ type Params = {
   hashCollectionKey?: string;
 };
 
+const restoreUpdatedAt = (authData: AuthData & { updatedAt?: string | Date }): AuthData => {
+  if (authData.updatedAt) {
+    authData.updatedAt = new Date(authData.updatedAt);
+  }
+  return authData as AuthData;
+};
+
 export class VercelKvApl implements APL {
   private debug = createAPLDebug("VercelKvApl");
 
@@ -45,7 +52,10 @@ export class VercelKvApl implements APL {
       },
       async (span) => {
         try {
-          const authData = await kv.hget<AuthData>(this.hashCollectionKey, saleorApiUrl);
+          const authData = await kv.hget<AuthData & { updatedAt?: string | Date }>(
+            this.hashCollectionKey,
+            saleorApiUrl,
+          );
 
           this.debug("Received response from VercelKV");
 
@@ -60,7 +70,7 @@ export class VercelKvApl implements APL {
             })
             .end();
 
-          return authData ?? undefined;
+          return authData ? restoreUpdatedAt(authData) : undefined;
         } catch (e) {
           this.debug("Failed to get auth data from Vercel KV");
           this.debug(e);
@@ -162,13 +172,15 @@ export class VercelKvApl implements APL {
   }
 
   async getAll() {
-    const results = await kv.hgetall<Record<string, AuthData>>(this.hashCollectionKey);
+    const results = await kv.hgetall<Record<string, AuthData & { updatedAt?: string | Date }>>(
+      this.hashCollectionKey,
+    );
 
     if (results === null) {
       throw new Error("Missing KV collection, data was never written");
     }
 
-    return Object.values(results);
+    return Object.values(results).map(restoreUpdatedAt);
   }
 
   async isReady(): Promise<AplReadyResult> {

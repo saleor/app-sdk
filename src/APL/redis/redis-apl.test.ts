@@ -184,6 +184,66 @@ describe("RedisAPL", () => {
     });
   });
 
+  describe("updatedAt handling", () => {
+    const updatedAt = new Date("2024-06-15T10:20:30.456Z");
+
+    it("set serializes updatedAt as ISO string", async () => {
+      mockHSet.mockResolvedValueOnce(1);
+
+      await apl.set({ ...mockAuthData, updatedAt });
+
+      const [, , written] = mockHSet.mock.calls[0]!;
+      const parsed = JSON.parse(written as string);
+      expect(parsed.updatedAt).toBe(updatedAt.toISOString());
+    });
+
+    it("get restores updatedAt as Date with the same UTC instant", async () => {
+      mockHGet.mockResolvedValueOnce(
+        JSON.stringify({ ...mockAuthData, updatedAt: updatedAt.toISOString() }),
+      );
+
+      const result = await apl.get(mockAuthData.saleorApiUrl);
+
+      expect(result?.updatedAt).toBeInstanceOf(Date);
+      expect(result?.updatedAt?.toISOString()).toBe(updatedAt.toISOString());
+      expect(result?.updatedAt?.getTime()).toBe(updatedAt.getTime());
+    });
+
+    it("get does not throw and returns no updatedAt when missing in persistence", async () => {
+      mockHGet.mockResolvedValueOnce(JSON.stringify(mockAuthData));
+
+      const result = await apl.get(mockAuthData.saleorApiUrl);
+
+      expect(result).toBeDefined();
+      expect(result?.updatedAt).toBeUndefined();
+    });
+
+    it("getAll restores updatedAt as Date for stored entries", async () => {
+      mockHGetAll.mockResolvedValueOnce({
+        [mockAuthData.saleorApiUrl]: JSON.stringify({
+          ...mockAuthData,
+          updatedAt: updatedAt.toISOString(),
+        }),
+      });
+
+      const [result] = await apl.getAll();
+
+      expect(result?.updatedAt).toBeInstanceOf(Date);
+      expect(result?.updatedAt?.toISOString()).toBe(updatedAt.toISOString());
+    });
+
+    it("getAll does not throw when updatedAt is missing in persistence", async () => {
+      mockHGetAll.mockResolvedValueOnce({
+        [mockAuthData.saleorApiUrl]: JSON.stringify(mockAuthData),
+      });
+
+      const result = await apl.getAll();
+
+      expect(result).toHaveLength(1);
+      expect(result[0]?.updatedAt).toBeUndefined();
+    });
+  });
+
   /**
    * Type compatibility test with real Redis client
    */
