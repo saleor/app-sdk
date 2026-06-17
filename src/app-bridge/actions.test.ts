@@ -111,6 +111,15 @@ describe("actions.ts", () => {
     });
   });
 
+  describe("actions.RefreshEntity", () => {
+    it("Constructs action with \"refreshEntity\" type and random actionId", () => {
+      const action = actions.RefreshEntity();
+
+      expect(action.type).toBe("refreshEntity");
+      expect(action.payload.actionId).toEqual(expect.any(String));
+    });
+  });
+
   it("Throws custom error if crypto is not available", () => {
     vi.stubGlobal("crypto", {
       ...globalThis.crypto,
