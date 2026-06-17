@@ -47,6 +47,11 @@ export const ActionType = {
    * Only affects `*_DETAILS_WIDGETS` extensions. Available from 3.23.7.
    */
   widgetResize: "widgetResize",
+  /**
+   * Ask Dashboard to refresh the entity active in the current context,
+   * e.g. the currently open Order or Product.
+   */
+  refreshEntity: "refreshEntity",
 } as const;
 
 export type ActionType = Values<typeof ActionType>;
@@ -208,6 +213,19 @@ function createWidgetResizeAction(payload: WidgetResizePayload): WidgetResize {
   });
 }
 
+export type RefreshEntity = ActionWithId<"refreshEntity", {}>;
+
+/**
+ * Asks the Dashboard to refresh the entity active in the current context,
+ * e.g. the currently open Order or Product.
+ */
+function createRefreshEntityAction(): RefreshEntity {
+  return withActionId({
+    type: "refreshEntity",
+    payload: {},
+  });
+}
+
 function createFormPayloadUpdateAction(payload: AllFormPayloadUpdatePayloads): FormPayloadUpdate {
   return withActionId({
     type: formPayloadUpdateActionName,
@@ -224,7 +242,8 @@ export type Actions =
   | FormPayloadUpdate
   | RequestPermissions
   | PopupClose
-  | WidgetResize;
+  | WidgetResize
+  | RefreshEntity;
 
 export const actions = {
   Redirect: createRedirectAction,
@@ -235,4 +254,5 @@ export const actions = {
   FormPayloadUpdate: createFormPayloadUpdateAction,
   PopupClose: createPopupCloseAction,
   WidgetResize: createWidgetResizeAction,
+  RefreshEntity: createRefreshEntityAction,
 };
