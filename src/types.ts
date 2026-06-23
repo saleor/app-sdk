@@ -274,6 +274,12 @@ export type SyncWebhookEventType =
 interface BaseAppExtension {
   /** Name which will be displayed in the dashboard */
   label: string;
+  /**
+   * App-defined identifier of the extension, unique per app. Used to reference a
+   * specific extension - e.g. dispatching the `openPopup` App Bridge action from
+   * a WIDGET to open a co-located POPUP extension by its identifier.
+   */
+  identifier?: string;
   /** the place where the extension will be mounted */
   mount: AppExtensionMount;
   permissions: AppPermission[];

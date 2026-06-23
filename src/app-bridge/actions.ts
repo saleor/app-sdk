@@ -52,6 +52,12 @@ export const ActionType = {
    * e.g. the currently open Order or Product.
    */
   refreshEntity: "refreshEntity",
+  /**
+   * Ask Dashboard to open one of the same app's POPUP extensions ("full mode"),
+   * referenced by its app-defined `identifier`. Intended to be dispatched from a
+   * WIDGET extension to open a co-located POPUP extension of the same app.
+   */
+  openPopup: "openPopup",
 } as const;
 
 export type ActionType = Values<typeof ActionType>;
@@ -226,6 +232,44 @@ function createRefreshEntityAction(): RefreshEntity {
   });
 }
 
+export type OpenPopupPayload = {
+  /**
+   * App-defined identifier of the target POPUP extension, unique per app.
+   */
+  extensionIdentifier: string;
+  /**
+   * Arbitrary JSON payload forwarded to the opened popup. The Dashboard
+   * serializes it into the popup iframe URL, so it must be JSON-serializable.
+   */
+  params?: unknown;
+};
+
+export type OpenPopup = ActionWithId<"openPopup", OpenPopupPayload>;
+
+const OPEN_POPUP_IDENTIFIER_ERROR = "OpenPopup extensionIdentifier must be a non-empty string.";
+
+function assertValidExtensionIdentifier(
+  extensionIdentifier: unknown,
+): asserts extensionIdentifier is string {
+  if (typeof extensionIdentifier !== "string" || extensionIdentifier.trim() === "") {
+    throw new Error(OPEN_POPUP_IDENTIFIER_ERROR);
+  }
+}
+
+/**
+ * Asks the Dashboard to open one of the same app's POPUP extensions ("full
+ * mode"), referenced by its app-defined `identifier`. Only has an effect on
+ * Dashboard versions that handle the `openPopup` action type.
+ */
+function createOpenPopupAction(payload: OpenPopupPayload): OpenPopup {
+  assertValidExtensionIdentifier(payload.extensionIdentifier);
+
+  return withActionId({
+    type: "openPopup",
+    payload,
+  });
+}
+
 function createFormPayloadUpdateAction(payload: AllFormPayloadUpdatePayloads): FormPayloadUpdate {
   return withActionId({
     type: formPayloadUpdateActionName,
@@ -243,7 +287,8 @@ export type Actions =
   | RequestPermissions
   | PopupClose
   | WidgetResize
-  | RefreshEntity;
+  | RefreshEntity
+  | OpenPopup;
 
 export const actions = {
   Redirect: createRedirectAction,
@@ -255,4 +300,5 @@ export const actions = {
   PopupClose: createPopupCloseAction,
   WidgetResize: createWidgetResizeAction,
   RefreshEntity: createRefreshEntityAction,
+  OpenPopup: createOpenPopupAction,
 };

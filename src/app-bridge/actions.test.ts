@@ -120,6 +120,38 @@ describe("actions.ts", () => {
     });
   });
 
+  describe("actions.OpenPopup", () => {
+    it("Constructs action with \"openPopup\" type, random actionId and payload", () => {
+      const params = { mode: "full", nested: { id: 1 } };
+
+      const action = actions.OpenPopup({ extensionIdentifier: "main-popup", params });
+
+      expect(action.type).toBe("openPopup");
+      expect(action.payload.actionId).toEqual(expect.any(String));
+      expect(action.payload.extensionIdentifier).toBe("main-popup");
+      expect(action.payload.params).toEqual(params);
+    });
+
+    it("Constructs action without params", () => {
+      const action = actions.OpenPopup({ extensionIdentifier: "main-popup" });
+
+      expect(action.type).toBe("openPopup");
+      expect(action.payload.extensionIdentifier).toBe("main-popup");
+      expect(action.payload.params).toBeUndefined();
+    });
+
+    it.each([
+      { extensionIdentifier: "", label: "empty" },
+      { extensionIdentifier: "   ", label: "whitespace" },
+      { extensionIdentifier: undefined as unknown as string, label: "missing" },
+      { extensionIdentifier: 123 as unknown as string, label: "non-string" },
+    ])("throws when extensionIdentifier is $label", ({ extensionIdentifier }) => {
+      expect(() => actions.OpenPopup({ extensionIdentifier })).toThrow(
+        "OpenPopup extensionIdentifier must be a non-empty string.",
+      );
+    });
+  });
+
   it("Throws custom error if crypto is not available", () => {
     vi.stubGlobal("crypto", {
       ...globalThis.crypto,
