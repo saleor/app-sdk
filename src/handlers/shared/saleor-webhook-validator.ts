@@ -166,14 +166,22 @@ export class SaleorWebhookValidator {
             }
 
             await this.verifySignatureWithJwks(authData.jwks, signature, rawBody);
-          } catch {
-            this.debug("Request signature check failed. Refresh the JWKS cache and check again");
+          } catch (firstAttemptError) {
+            const firstAttemptReason =
+              firstAttemptError instanceof Error
+                ? firstAttemptError.message
+                : String(firstAttemptError);
+
+            this.debug(
+              "Request signature check failed (%s). Refresh the JWKS cache and check again",
+              firstAttemptReason,
+            );
 
             const newJwks = await fetchRemoteJwks(authData.saleorApiUrl).catch((e) => {
-              this.debug(e);
+              this.debug("Could not fetch remote JWKS: %s", e);
 
               throw new WebhookError(
-                "Fetching remote JWKS failed",
+                `Fetching remote JWKS failed: ${e instanceof Error ? e.message : String(e)}`,
                 "SIGNATURE_VERIFICATION_FAILED",
               );
             });
@@ -190,11 +198,19 @@ export class SaleorWebhookValidator {
               this.debug("Verification successful - update JWKS in the AuthData");
 
               await apl.set({ ...authData, jwks: newJwks });
-            } catch {
-              this.debug("Second attempt also ended with validation error. Reject the webhook");
+            } catch (secondAttemptError) {
+              const secondAttemptReason =
+                secondAttemptError instanceof Error
+                  ? secondAttemptError.message
+                  : String(secondAttemptError);
+
+              this.debug(
+                "Second attempt also ended with validation error (%s). Reject the webhook",
+                secondAttemptReason,
+              );
 
               throw new WebhookError(
-                "Request signature check failed",
+                `Request signature check failed. First attempt: ${firstAttemptReason}. Second attempt: ${secondAttemptReason}`,
                 "SIGNATURE_VERIFICATION_FAILED",
               );
             }

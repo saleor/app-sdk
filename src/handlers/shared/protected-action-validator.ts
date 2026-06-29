@@ -147,10 +147,22 @@ export class ProtectedActionValidator<I> {
             requiredPermissions: config.requiredPermissions,
           });
         } catch (e) {
+          // verifyJWT throws an Error whose message already carries the specific
+          // reason (token expired, app mismatch, missing permissions, signature
+          // failure with the jose error code, etc). Forward it instead of a
+          // generic message so the actual cause can be diagnosed.
+          const reason = e instanceof Error ? e.message : String(e);
+
+          this.debug("JWT verification failed: %s", reason);
+
+          if (e instanceof Error) {
+            span.recordException(e);
+          }
+
           span
             .setStatus({
               code: SpanStatusCode.ERROR,
-              message: "JWT verification failed",
+              message: reason,
             })
             .end();
 
@@ -159,7 +171,7 @@ export class ProtectedActionValidator<I> {
             value: {
               bodyType: "string",
               status: 401,
-              body: "Validation error: JWT verification failed",
+              body: `Validation error: ${reason}`,
             },
           };
         }
