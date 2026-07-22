@@ -52,4 +52,17 @@ describe("app-bridge-state.ts", () => {
       }).getState().theme,
     ).toBe("dark");
   });
+
+  it("Stores appParams passed via setState", () => {
+    const instance = new AppBridgeStateContainer();
+    const appParams = { mode: "full", productId: "prod-1" };
+
+    instance.setState({ appParams });
+
+    expect(instance.getState().appParams).toEqual(appParams);
+  });
+
+  it("Leaves appParams undefined by default", () => {
+    expect(new AppBridgeStateContainer().getState().appParams).toBeUndefined();
+  });
 });

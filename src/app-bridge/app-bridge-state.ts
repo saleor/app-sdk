@@ -30,6 +30,12 @@ export type AppBridgeState = {
     "product-translate"?: FormPayloadProductTranslate;
     "product-edit"?: FormPayloadProductEdit;
   };
+  /**
+   * Arbitrary payload passed by the `openPopup` App Bridge action when this app
+   * was opened as a POPUP from one of its own widgets. Decoded from the iframe
+   * URL on load; `undefined` when the app wasn't opened that way.
+   */
+  appParams?: unknown;
 };
 
 type Options = {

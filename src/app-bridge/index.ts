@@ -8,6 +8,7 @@ export * from "./app-iframe-params";
 export * from "./events";
 export * from "./fetch";
 export * from "./form-payload";
+export * from "./open-popup-params";
 export * from "./types";
 export * from "./use-dashboard-token";
 export * from "./use-widget-auto-resize";

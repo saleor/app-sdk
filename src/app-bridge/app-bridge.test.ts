@@ -12,6 +12,7 @@ import {
   FormPayloadProductEdit,
   FormPayloadProductTranslate,
   HandshakeEvent,
+  OpenPopupParams,
   ThemeEvent,
 } from ".";
 
@@ -271,6 +272,53 @@ describe("AppBridge", () => {
     window.location.href = `${origin}?domain=${domain}&id=appid&theme=${themeToOverwrite}`;
 
     expect(new AppBridge().getState().theme).toBe(themeToOverwrite);
+
+    window.location.href = currentLocationHref;
+  });
+
+  it("Parses appParams from URL and exposes it in state", () => {
+    const value = { mode: "full", productId: "prod-1" };
+
+    const currentLocationHref = window.location.href;
+
+    window.location.href = `${origin}?domain=${domain}&id=appid&${
+      OpenPopupParams.urlKey
+    }=${OpenPopupParams.serialize(value)}`;
+
+    expect(new AppBridge().getState().appParams).toEqual(value);
+
+    window.location.href = currentLocationHref;
+  });
+
+  it("Decodes a raw base64 appParams URL param into state", () => {
+    // base64 of JSON.stringify({ productId: "prod-42", mode: "full" })
+    const base64 = "eyJwcm9kdWN0SWQiOiJwcm9kLTQyIiwibW9kZSI6ImZ1bGwifQ==";
+
+    const currentLocationHref = window.location.href;
+
+    window.location.href = `${origin}?domain=${domain}&id=appid&appParams=${base64}`;
+
+    expect(new AppBridge().getState().appParams).toEqual({ productId: "prod-42", mode: "full" });
+
+    window.location.href = currentLocationHref;
+  });
+
+  it("Leaves appParams undefined when the URL param is missing", () => {
+    const currentLocationHref = window.location.href;
+
+    window.location.href = `${origin}?domain=${domain}&id=appid`;
+
+    expect(new AppBridge().getState().appParams).toBeUndefined();
+
+    window.location.href = currentLocationHref;
+  });
+
+  it("Leaves appParams undefined when the URL param is malformed", () => {
+    const currentLocationHref = window.location.href;
+
+    window.location.href = `${origin}?domain=${domain}&id=appid&appParams=not-valid-#@!`;
+
+    expect(new AppBridge().getState().appParams).toBeUndefined();
 
     window.location.href = currentLocationHref;
   });
