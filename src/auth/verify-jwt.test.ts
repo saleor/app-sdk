@@ -84,4 +84,13 @@ describe("verifyJWT", () => {
       verifyJWT({ appId: validAppId, saleorApiUrl: validApiUrl, token: validToken }),
     ).rejects.toThrow("JWT verification failed: JWT signature verification failed.");
   });
+
+  it("Forwards the specific jose error code and token expiry when signature verification fails", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.mocked(jose.jwtVerify).mockRejectedValueOnce(new jose.errors.JWKSNoMatchingKey());
+
+    await expect(
+      verifyJWT({ appId: validAppId, saleorApiUrl: validApiUrl, token: validToken }),
+    ).rejects.toThrow(/Reason: ERR_JWKS_NO_MATCHING_KEY.*Token exp: 2022-11-24/s);
+  });
 });

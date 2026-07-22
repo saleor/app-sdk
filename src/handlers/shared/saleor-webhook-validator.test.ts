@@ -416,7 +416,7 @@ describe("SaleorWebhookValidator", () => {
         result: "failure",
         error: {
           errorType: "SIGNATURE_VERIFICATION_FAILED",
-          message: "Fetching remote JWKS failed",
+          message: "Fetching remote JWKS failed: JWKS fetch failed",
         },
       });
       expect(fetchRemoteJwksModule.fetchRemoteJwks).toHaveBeenCalledTimes(1);
@@ -441,7 +441,8 @@ describe("SaleorWebhookValidator", () => {
         result: "failure",
         error: {
           errorType: "SIGNATURE_VERIFICATION_FAILED",
-          message: "Request signature check failed",
+          message:
+            "Request signature check failed. First attempt: Stale JWKS. Second attempt: Fresh JWKS mismatch",
         },
       });
 

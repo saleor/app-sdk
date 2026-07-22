@@ -161,6 +161,28 @@ describe("ProtectedActionValidator", () => {
       });
     });
 
+    it("should forward the specific JWT verification failure reason in the response body", async () => {
+      const validator = new ProtectedActionValidator(mockAdapter);
+
+      vi.spyOn(verifyJWTModule, "verifyJWT").mockRejectedValue(
+        new Error("JWT verification failed: Token is expired"),
+      );
+
+      const result = await validator.validateRequest({
+        apl: mockAPL,
+        requiredPermissions: ["MANAGE_APPS"],
+      });
+
+      expect(result).toEqual({
+        result: "failure",
+        value: {
+          bodyType: "string",
+          status: 401,
+          body: "Validation error: JWT verification failed: Token is expired",
+        },
+      });
+    });
+
     it("should fail validation when user extraction from JWT fails", async () => {
       const validator = new ProtectedActionValidator(mockAdapter);
 
