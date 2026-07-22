@@ -1,6 +1,7 @@
 import { SpanKind, SpanStatusCode } from "@opentelemetry/api";
 
 import { APL, AuthData } from "@/APL";
+import { getJoseErrorReason } from "@/auth/get-jose-error-reason";
 import { verifyJWT } from "@/auth/verify-jwt";
 import { createDebug } from "@/debug";
 import { getOtelTracer } from "@/open-telemetry";
@@ -151,7 +152,7 @@ export class ProtectedActionValidator<I> {
           // reason (token expired, app mismatch, missing permissions, signature
           // failure with the jose error code, etc). Forward it instead of a
           // generic message so the actual cause can be diagnosed.
-          const reason = e instanceof Error ? e.message : String(e);
+          const reason = getJoseErrorReason(e);
 
           this.debug("JWT verification failed: %s", reason);
 

@@ -10,6 +10,18 @@ import { verifyTokenExpiration } from "./verify-token-expiration";
 
 const debug = createDebug("verify-jwt");
 
+/**
+ * Format a unix-seconds timestamp (as found in JWT exp/iat claims) for logging.
+ * Returns the human-readable ISO date alongside the raw value so logs are unambiguous.
+ */
+const formatJwtTimestamp = (timestampInSeconds: number | undefined) => {
+  if (typeof timestampInSeconds !== "number") {
+    return "missing";
+  }
+
+  return `${new Date(timestampInSeconds * 1000).toISOString()} (${timestampInSeconds})`;
+};
+
 export interface DashboardTokenPayload extends jose.JWTPayload {
   app: string;
   user_permissions: Permission[];
@@ -30,18 +42,6 @@ export const verifyJWT = async ({
 }: verifyJWTArguments) => {
   let tokenClaims: DashboardTokenPayload;
   const ERROR_MESSAGE = "JWT verification failed:";
-
-  /**
-   * Format a unix-seconds timestamp (as found in JWT exp/iat claims) for logging.
-   * Returns the human-readable ISO date alongside the raw value so logs are unambiguous.
-   */
-  const formatJwtTimestamp = (timestampInSeconds: number | undefined) => {
-    if (typeof timestampInSeconds !== "number") {
-      return "missing";
-    }
-
-    return `${new Date(timestampInSeconds * 1000).toISOString()} (${timestampInSeconds})`;
-  };
 
   try {
     tokenClaims = jose.decodeJwt(token as string) as DashboardTokenPayload;
