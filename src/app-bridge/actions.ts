@@ -5,6 +5,7 @@ import {
 
 import { AppPermission } from "../types";
 import { Values } from "./helpers";
+import { OpenPopupParams } from "./open-popup-params";
 
 // Using constants over Enums, more info: https://fettblog.eu/tidy-typescript-avoid-enums/
 export const ActionType = {
@@ -238,13 +239,24 @@ export type OpenPopupPayload = {
    */
   extensionIdentifier: string;
   /**
-   * Arbitrary JSON payload forwarded to the opened popup. The Dashboard
-   * serializes it into the popup iframe URL, so it must be JSON-serializable.
+   * Arbitrary JSON payload forwarded to the opened popup. Must be
+   * JSON-serializable - it's base64-serialized here (see {@link OpenPopupParams})
+   * before it leaves the app, so the Dashboard forwards it verbatim.
    */
   params?: unknown;
 };
 
-export type OpenPopup = ActionWithId<"openPopup", OpenPopupPayload>;
+/**
+ * Wire payload of the dispatched `openPopup` action. `params` is already
+ * base64-serialized into `appParams`, so the Dashboard appends it to the popup
+ * iframe URL as-is and the receiving app decodes it back into `appBridgeState`.
+ */
+export type OpenPopupActionPayload = {
+  extensionIdentifier: string;
+  appParams?: string;
+};
+
+export type OpenPopup = ActionWithId<"openPopup", OpenPopupActionPayload>;
 
 const OPEN_POPUP_IDENTIFIER_ERROR = "OpenPopup extensionIdentifier must be a non-empty string.";
 
@@ -266,7 +278,13 @@ function createOpenPopupAction(payload: OpenPopupPayload): OpenPopup {
 
   return withActionId({
     type: "openPopup",
-    payload,
+    payload: {
+      extensionIdentifier: payload.extensionIdentifier,
+      appParams:
+        payload.params === undefined || payload.params === null
+          ? undefined
+          : OpenPopupParams.serialize(payload.params),
+    },
   });
 }
 

@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { actions, NotificationPayload, RedirectPayload } from "./actions";
+import { OpenPopupParams } from "./open-popup-params";
 
 describe("actions.ts", () => {
   afterEach(() => {
@@ -121,7 +122,7 @@ describe("actions.ts", () => {
   });
 
   describe("actions.OpenPopup", () => {
-    it("Constructs action with \"openPopup\" type, random actionId and payload", () => {
+    it("Constructs action with \"openPopup\" type, random actionId and base64 appParams", () => {
       const params = { mode: "full", nested: { id: 1 } };
 
       const action = actions.OpenPopup({ extensionIdentifier: "main-popup", params });
@@ -129,7 +130,9 @@ describe("actions.ts", () => {
       expect(action.type).toBe("openPopup");
       expect(action.payload.actionId).toEqual(expect.any(String));
       expect(action.payload.extensionIdentifier).toBe("main-popup");
-      expect(action.payload.params).toEqual(params);
+      // params are serialized here so the Dashboard forwards them verbatim
+      expect(action.payload.appParams).toBe(OpenPopupParams.serialize(params));
+      expect(OpenPopupParams.parse(action.payload.appParams!)).toEqual(params);
     });
 
     it("Constructs action without params", () => {
@@ -137,7 +140,7 @@ describe("actions.ts", () => {
 
       expect(action.type).toBe("openPopup");
       expect(action.payload.extensionIdentifier).toBe("main-popup");
-      expect(action.payload.params).toBeUndefined();
+      expect(action.payload.appParams).toBeUndefined();
     });
 
     it.each([
