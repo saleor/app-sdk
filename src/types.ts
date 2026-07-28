@@ -413,6 +413,12 @@ export type ExtensionPOSTAttributes = {
 
 export interface WebhookManifest {
   name: string;
+  /**
+   * App-defined identifier of the webhook, unique per app. Max 256 characters.
+   * Used to reference a specific webhook instead of relying on its Saleor ID.
+   * Available from Saleor 3.23.23
+   */
+  identifier?: string;
   asyncEvents?: AsyncWebhookEventType[];
   syncEvents?: SyncWebhookEventType[];
   /**
