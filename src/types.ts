@@ -46,7 +46,13 @@ type AppExtensionMount3_22 =
   | "TRANSLATIONS_MORE_ACTIONS";
 
 // Available mounts in Saleor 3.22 and newer
-type AppExtensionMount3_23 = "HOMEPAGE_WIDGETS";
+type AppExtensionMount3_23 =
+  | "HOMEPAGE_WIDGETS"
+  /**
+   * Global mount rendered in the dashboard command palette (Cmd+K).
+   * Unlike other mounts it is not bound to a single page.
+   */
+  | "SEARCH_ACTION";
 
 export type AppExtensionMount =
   | AppExtensionMount3_23
@@ -315,6 +321,8 @@ type AppExtensionWidget = BaseAppExtension & {
    * Warning: Visit docs to check available mounts.
    */
   target: "WIDGET";
+  /** The `SEARCH_ACTION` mount does not support the `WIDGET` target. */
+  mount: Exclude<AppExtensionMount, "SEARCH_ACTION">;
   options?: {
     widgetTarget?: {
       /**
@@ -358,6 +366,8 @@ type AppExtensionHomeWidget = BaseAppExtension & {
    * Dashboard will render the iframe statically in the dashboard home page
    */
   target: "WIDGET";
+  /** The `SEARCH_ACTION` mount does not support the `WIDGET` target. */
+  mount: Exclude<AppExtensionMount, "SEARCH_ACTION">;
   options?: {
     homeWidgetTarget?: {
       /**
@@ -374,11 +384,71 @@ type AppExtensionHomeWidget = BaseAppExtension & {
   };
 };
 
+/**
+ * Dashboard views a `SEARCH_ACTION` extension can be scoped to via `options.views`.
+ *
+ * These mirror the dashboard's page structure (list + detail pages per entity).
+ * Detail views resolve a single entity id as context; list views are surfaced
+ * without an id.
+ */
+export type AppExtensionView =
+  | "PRODUCT_LIST"
+  | "PRODUCT_DETAILS"
+  | "ORDER_LIST"
+  | "ORDER_DETAILS"
+  | "DRAFT_ORDER_LIST"
+  | "DRAFT_ORDER_DETAILS"
+  | "CUSTOMER_LIST"
+  | "CUSTOMER_DETAILS"
+  | "COLLECTION_LIST"
+  | "COLLECTION_DETAILS"
+  | "CATEGORY_LIST"
+  | "CATEGORY_DETAILS"
+  | "GIFT_CARD_LIST"
+  | "GIFT_CARD_DETAILS"
+  | "VOUCHER_LIST"
+  | "VOUCHER_DETAILS"
+  | "DISCOUNT_LIST"
+  | "DISCOUNT_DETAILS"
+  | "PAGE_LIST"
+  | "PAGE_DETAILS"
+  | "PAGE_TYPE_LIST"
+  | "PAGE_TYPE_DETAILS"
+  | "MENU_LIST"
+  | "MENU_DETAILS";
+
+/**
+ * Surfaces the app action in the dashboard command palette (Cmd+K).
+ *
+ * Only the `SEARCH_ACTION` mount is valid, and the `WIDGET` target is not
+ * supported. When opened from an entity page, the current entity's context
+ * (e.g. product id, order id) is passed to the app, just like the entity's
+ * "more actions" menu.
+ */
+type AppExtensionSearchAction = BaseAppExtension & {
+  mount: "SEARCH_ACTION";
+  /**
+   * `SEARCH_ACTION` supports opening the app in a modal (`POPUP`), navigating to
+   * the app page (`APP_PAGE`) or opening it in a new tab (`NEW_TAB`).
+   */
+  target: "POPUP" | "APP_PAGE" | "NEW_TAB";
+  options?: {
+    /**
+     * Scopes the action to specific dashboard views. When omitted, the action is
+     * available in every view.
+     *
+     * Only valid for the `SEARCH_ACTION` mount and must contain at least one view.
+     */
+    views?: AppExtensionView[];
+  };
+};
+
 export type AppExtension =
   | AppPageExtensionWidget
   | AppExtensionNewTab
   | AppExtensionWidget
   | AppExtensionHomeWidget
+  | AppExtensionSearchAction
   | PopupExtensionWidget;
 
 /**
