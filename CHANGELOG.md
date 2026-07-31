@@ -1,5 +1,12 @@
 # @saleor/app-sdk
 
+## 1.13.0
+
+### Minor Changes
+
+- 07c4b66: Added optional `identifier` field to `WebhookManifest`, matching the app manifest webhook identifier supported by Saleor.
+- 694e90a: Added "SEARCH_ACTION" mount point for Extensions to Manifest types. It surfaces app actions in the dashboard command palette (Cmd+K), supports `POPUP`, `APP_PAGE` and `NEW_TAB` targets (not `WIDGET`), and can be scoped to specific dashboard views via the new `options.views` field (typed by the new `AppExtensionView` union).
+
 ## 1.12.0
 
 ### Minor Changes
