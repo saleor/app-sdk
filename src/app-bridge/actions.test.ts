@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { actions, NotificationPayload, RedirectPayload } from "./actions";
+import { OpenPopupParams } from "./open-popup-params";
 
 describe("actions.ts", () => {
   afterEach(() => {
@@ -117,6 +118,40 @@ describe("actions.ts", () => {
 
       expect(action.type).toBe("refreshEntity");
       expect(action.payload.actionId).toEqual(expect.any(String));
+    });
+  });
+
+  describe("actions.OpenPopup", () => {
+    it("Constructs action with \"openPopup\" type, random actionId and base64 appParams", () => {
+      const params = { mode: "full", nested: { id: 1 } };
+
+      const action = actions.OpenPopup({ extensionIdentifier: "main-popup", params });
+
+      expect(action.type).toBe("openPopup");
+      expect(action.payload.actionId).toEqual(expect.any(String));
+      expect(action.payload.extensionIdentifier).toBe("main-popup");
+      // params are serialized here so the Dashboard forwards them verbatim
+      expect(action.payload.appParams).toBe(OpenPopupParams.serialize(params));
+      expect(OpenPopupParams.parse(action.payload.appParams!)).toEqual(params);
+    });
+
+    it("Constructs action without params", () => {
+      const action = actions.OpenPopup({ extensionIdentifier: "main-popup" });
+
+      expect(action.type).toBe("openPopup");
+      expect(action.payload.extensionIdentifier).toBe("main-popup");
+      expect(action.payload.appParams).toBeUndefined();
+    });
+
+    it.each([
+      { extensionIdentifier: "", label: "empty" },
+      { extensionIdentifier: "   ", label: "whitespace" },
+      { extensionIdentifier: undefined as unknown as string, label: "missing" },
+      { extensionIdentifier: 123 as unknown as string, label: "non-string" },
+    ])("throws when extensionIdentifier is $label", ({ extensionIdentifier }) => {
+      expect(() => actions.OpenPopup({ extensionIdentifier })).toThrow(
+        "OpenPopup extensionIdentifier must be a non-empty string.",
+      );
     });
   });
 

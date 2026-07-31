@@ -280,6 +280,12 @@ export type SyncWebhookEventType =
 interface BaseAppExtension {
   /** Name which will be displayed in the dashboard */
   label: string;
+  /**
+   * App-defined identifier of the extension, unique per app. Used to reference a
+   * specific extension - e.g. dispatching the `openPopup` App Bridge action from
+   * a WIDGET to open a co-located POPUP extension by its identifier.
+   */
+  identifier?: string;
   /** the place where the extension will be mounted */
   mount: AppExtensionMount;
   permissions: AppPermission[];
@@ -477,6 +483,12 @@ export type ExtensionPOSTAttributes = {
 
 export interface WebhookManifest {
   name: string;
+  /**
+   * App-defined identifier of the webhook, unique per app. Max 256 characters.
+   * Used to reference a specific webhook instead of relying on its Saleor ID.
+   * Available from Saleor 3.23.23
+   */
+  identifier?: string;
   asyncEvents?: AsyncWebhookEventType[];
   syncEvents?: SyncWebhookEventType[];
   /**

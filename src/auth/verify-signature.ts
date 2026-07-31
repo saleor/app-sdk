@@ -1,6 +1,7 @@
 import * as jose from "jose";
 
 import { createDebug } from "../debug";
+import { getJoseErrorReason } from "./get-jose-error-reason";
 
 const debug = createDebug("verify-signature");
 
@@ -22,18 +23,27 @@ export const verifySignatureWithJwks = async (jwks: string, signature: string, r
     const parsedJWKS = JSON.parse(jwks);
 
     localJwks = jose.createLocalJWKSet(parsedJWKS) as jose.FlattenedVerifyGetKey;
-  } catch {
-    debug("Could not create local JWKSSet from given data: %s", jwks);
+  } catch (e) {
+    const reason = getJoseErrorReason(e);
 
-    throw new Error("JWKS verification failed - could not parse given JWKS");
+    debug("Could not create local JWKSSet from given data: %s, reason: %s", jwks, reason);
+
+    throw new Error(`JWKS verification failed - could not parse given JWKS. Reason: ${reason}`, {
+      cause: e,
+    });
   }
 
   try {
     await jose.flattenedVerify(jws, localJwks);
     debug("JWKS verified");
-  } catch {
-    debug("JWKS verification failed");
-    throw new Error("JWKS verification failed");
+  } catch (e) {
+    const reason = getJoseErrorReason(e);
+
+    debug("JWKS verification failed, reason: %s", reason);
+
+    throw new Error(`JWKS verification failed. Reason: ${reason}`, {
+      cause: e,
+    });
   }
 };
 

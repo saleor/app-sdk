@@ -1,6 +1,7 @@
 import { SpanKind, SpanStatusCode } from "@opentelemetry/api";
 
 import { APL, AuthData } from "@/APL";
+import { getJoseErrorReason } from "@/auth/get-jose-error-reason";
 import { verifyJWT } from "@/auth/verify-jwt";
 import { createDebug } from "@/debug";
 import { getOtelTracer } from "@/open-telemetry";
@@ -147,10 +148,22 @@ export class ProtectedActionValidator<I> {
             requiredPermissions: config.requiredPermissions,
           });
         } catch (e) {
+          // verifyJWT throws an Error whose message already carries the specific
+          // reason (token expired, app mismatch, missing permissions, signature
+          // failure with the jose error code, etc). Forward it instead of a
+          // generic message so the actual cause can be diagnosed.
+          const reason = getJoseErrorReason(e);
+
+          this.debug("JWT verification failed: %s", reason);
+
+          if (e instanceof Error) {
+            span.recordException(e);
+          }
+
           span
             .setStatus({
               code: SpanStatusCode.ERROR,
-              message: "JWT verification failed",
+              message: reason,
             })
             .end();
 
@@ -159,7 +172,7 @@ export class ProtectedActionValidator<I> {
             value: {
               bodyType: "string",
               status: 401,
-              body: "Validation error: JWT verification failed",
+              body: `Validation error: ${reason}`,
             },
           };
         }

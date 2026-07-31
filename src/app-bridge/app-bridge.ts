@@ -8,6 +8,7 @@ import { AppBridgeState, AppBridgeStateContainer } from "./app-bridge-state";
 import { AppIframeParams } from "./app-iframe-params";
 import { SSR } from "./constants";
 import { Events, EventType, PayloadOfEvent, ThemeType } from "./events";
+import { OpenPopupParams } from "./open-popup-params";
 
 const DISPATCH_RESPONSE_TIMEOUT = 10000;
 
@@ -124,6 +125,22 @@ const getThemeFromUrl = () => {
       return value;
     default:
       return undefined;
+  }
+};
+
+const getAppParamsFromUrl = (): unknown => {
+  const value = new URL(window.location.href).searchParams.get(OpenPopupParams.urlKey);
+
+  if (!value) {
+    return undefined;
+  }
+
+  try {
+    return OpenPopupParams.parse(value);
+  } catch (e) {
+    console.warn(`Failed to parse "${OpenPopupParams.urlKey}" param from iframe url`, e);
+
+    return undefined;
   }
 };
 
@@ -313,6 +330,7 @@ export class AppBridge {
       theme: this.combinedOptions.initialTheme,
       saleorApiUrl: this.combinedOptions.saleorApiUrl,
       locale: this.combinedOptions.initialLocale,
+      appParams: getAppParamsFromUrl(),
     };
 
     debug("setInitialState() will setState with %j", state);
