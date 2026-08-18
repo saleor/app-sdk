@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 1.14.0
+
+### Minor Changes
+
+- c5366df: Added `options.aliases` to the `SEARCH_ACTION` extension manifest type. It lists extra terms the dashboard command palette matches the action against (e.g. `["taxes", "avatax"]`); they are searchable but never displayed.
+
 ## 1.13.0
 
 ### Minor Changes
