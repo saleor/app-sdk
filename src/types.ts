@@ -415,7 +415,8 @@ export type AppExtensionView =
   | "PAGE_TYPE_LIST"
   | "PAGE_TYPE_DETAILS"
   | "MENU_LIST"
-  | "MENU_DETAILS";
+  | "MENU_DETAILS"
+  | "CHANNEL_DETAILS";
 
 /**
  * Surfaces the app action in the dashboard command palette (Cmd+K).
