@@ -13,6 +13,11 @@ export const EventType = {
   localeChanged: "localeChanged",
   tokenRefresh: "tokenRefresh",
   formPayload: formPayloadEventName,
+  /**
+   * Dashboard advertises (or replaces) the keyboard shortcuts it owns.
+   * Full-replace semantics — send `[]` to revoke all.
+   */
+  shortcutsChanged: "shortcutsChanged",
 } as const;
 
 export type EventType = Values<typeof EventType>;
@@ -71,6 +76,35 @@ export type TokenRefreshEvent = Event<
 
 export type FormDataEvent = Event<typeof formPayloadEventName, AllFormPayloads>;
 
+/**
+ * A keyboard shortcut the Dashboard owns and wants forwarded out of the iframe.
+ *
+ * `key` is matched against `KeyboardEvent.key` case-insensitively. Modifier
+ * flags are exact: a registered Cmd+K does not match Cmd+Shift+K.
+ */
+export type DashboardShortcut = {
+  /**
+   * Stable Dashboard command id, echoed back in `actions.TriggerShortcut`.
+   * e.g. `"commandPalette.open"`.
+   */
+  id: string;
+  /**
+   * `KeyboardEvent.key`, matched case-insensitively.
+   */
+  key: string;
+  metaKey?: boolean;
+  ctrlKey?: boolean;
+  altKey?: boolean;
+  shiftKey?: boolean;
+};
+
+export type ShortcutsChangedEvent = Event<
+  "shortcutsChanged",
+  {
+    shortcuts: DashboardShortcut[];
+  }
+>;
+
 export type Events =
   | HandshakeEvent
   | DispatchResponseEvent
@@ -78,7 +112,8 @@ export type Events =
   | ThemeEvent
   | LocaleChangedEvent
   | TokenRefreshEvent
-  | FormDataEvent;
+  | FormDataEvent
+  | ShortcutsChangedEvent;
 
 export type PayloadOfEvent<
   TEventType extends EventType,
@@ -152,6 +187,19 @@ export const DashboardEventFactory = {
     return {
       type: formPayloadEventName,
       payload: formPayload,
+    };
+  },
+  /**
+   * Full-replace the shortcuts the Dashboard owns. Send immediately after
+   * `handshake`, and again whenever the owned set changes (including `[]`
+   * to revoke).
+   */
+  createShortcutsChangedEvent(shortcuts: DashboardShortcut[]): ShortcutsChangedEvent {
+    return {
+      type: "shortcutsChanged",
+      payload: {
+        shortcuts,
+      },
     };
   },
 };
