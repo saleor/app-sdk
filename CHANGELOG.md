@@ -1,5 +1,18 @@
 # @saleor/app-sdk
 
+## 1.15.0
+
+### Minor Changes
+
+- 38068d4: Added `actions.RedirectToApp({ appIdentifier, path })` App Bridge action. It asks the Dashboard to resolve the URL of another installed app (by its manifest identifier) and redirect to it, optionally appending `path`.
+- c794552: Added `CHANNEL_DETAILS` to `AppExtensionView`, so a `SEARCH_ACTION` extension can be scoped to the channel details page with `options.views: ["CHANNEL_DETAILS"]`. The extension is opened with `channelId` holding the channel's global id.
+
+## 1.14.0
+
+### Minor Changes
+
+- c5366df: Added `options.aliases` to the `SEARCH_ACTION` extension manifest type. It lists extra terms the dashboard command palette matches the action against (e.g. `["taxes", "avatax"]`); they are searchable but never displayed.
+
 ## 1.13.0
 
 ### Minor Changes

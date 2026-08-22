@@ -415,7 +415,8 @@ export type AppExtensionView =
   | "PAGE_TYPE_LIST"
   | "PAGE_TYPE_DETAILS"
   | "MENU_LIST"
-  | "MENU_DETAILS";
+  | "MENU_DETAILS"
+  | "CHANNEL_DETAILS";
 
 /**
  * Surfaces the app action in the dashboard command palette (Cmd+K).
@@ -440,6 +441,13 @@ type AppExtensionSearchAction = BaseAppExtension & {
      * Only valid for the `SEARCH_ACTION` mount and must contain at least one view.
      */
     views?: AppExtensionView[];
+    /**
+     * Extra terms the command palette matches the action against, e.g. ["taxes", "avatax"].
+     * Searchable, never displayed.
+     *
+     * Only valid for the `SEARCH_ACTION` mount.
+     */
+    aliases?: string[];
   };
 };
 

@@ -68,6 +68,11 @@ export const ActionType = {
    * action type and send `shortcutsChanged`.
    */
   triggerShortcut: "triggerShortcut",
+  /**
+   * Ask Dashboard to redirect to another app, referenced by its app identifier.
+   * Dashboard resolves the target app's URL and appends the optional path.
+   */
+  redirectToApp: "redirectToApp",
 } as const;
 
 export type ActionType = Values<typeof ActionType>;
@@ -350,6 +355,36 @@ function createTriggerShortcutAction(payload: TriggerShortcutPayload): TriggerSh
   });
 }
 
+export type RedirectToAppPayload = {
+  /**
+   * Identifier of the target app, as defined in its manifest.
+   */
+  appIdentifier: string;
+  /**
+   * Optional path inside the target app, appended to the URL resolved by the Dashboard.
+   */
+  path?: string;
+};
+
+export type RedirectToApp = ActionWithId<"redirectToApp", RedirectToAppPayload>;
+
+const REDIRECT_TO_APP_IDENTIFIER_ERROR = "RedirectToApp appIdentifier must be a non-empty string.";
+
+/**
+ * Asks the Dashboard to redirect to another app, referenced by its app
+ * identifier. The Dashboard resolves the target app's URL and appends `path`.
+ */
+function createRedirectToAppAction(payload: RedirectToAppPayload): RedirectToApp {
+  if (typeof payload.appIdentifier !== "string" || payload.appIdentifier.trim() === "") {
+    throw new Error(REDIRECT_TO_APP_IDENTIFIER_ERROR);
+  }
+
+  return withActionId({
+    type: "redirectToApp",
+    payload,
+  });
+}
+
 function createFormPayloadUpdateAction(payload: AllFormPayloadUpdatePayloads): FormPayloadUpdate {
   return withActionId({
     type: formPayloadUpdateActionName,
@@ -369,7 +404,8 @@ export type Actions =
   | WidgetResize
   | RefreshEntity
   | OpenPopup
-  | TriggerShortcut;
+  | TriggerShortcut
+  | RedirectToApp;
 
 export const actions = {
   Redirect: createRedirectAction,
@@ -383,4 +419,5 @@ export const actions = {
   RefreshEntity: createRefreshEntityAction,
   OpenPopup: createOpenPopupAction,
   TriggerShortcut: createTriggerShortcutAction,
+  RedirectToApp: createRedirectToAppAction,
 };

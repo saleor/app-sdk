@@ -207,6 +207,35 @@ describe("actions.ts", () => {
     });
   });
 
+  describe("actions.RedirectToApp", () => {
+    it("Constructs action with \"redirectToApp\" type, random actionId and payload", () => {
+      const action = actions.RedirectToApp({ appIdentifier: "other-app", path: "/orders/1" });
+
+      expect(action.type).toBe("redirectToApp");
+      expect(action.payload.actionId).toEqual(expect.any(String));
+      expect(action.payload.appIdentifier).toBe("other-app");
+      expect(action.payload.path).toBe("/orders/1");
+    });
+
+    it("Constructs action without path", () => {
+      const action = actions.RedirectToApp({ appIdentifier: "other-app" });
+
+      expect(action.payload.appIdentifier).toBe("other-app");
+      expect(action.payload.path).toBeUndefined();
+    });
+
+    it.each([
+      { appIdentifier: "", label: "empty" },
+      { appIdentifier: "   ", label: "whitespace" },
+      { appIdentifier: undefined as unknown as string, label: "missing" },
+      { appIdentifier: 123 as unknown as string, label: "non-string" },
+    ])("throws when appIdentifier is $label", ({ appIdentifier }) => {
+      expect(() => actions.RedirectToApp({ appIdentifier })).toThrow(
+        "RedirectToApp appIdentifier must be a non-empty string.",
+      );
+    });
+  });
+
   it("Throws custom error if crypto is not available", () => {
     vi.stubGlobal("crypto", {
       ...globalThis.crypto,
