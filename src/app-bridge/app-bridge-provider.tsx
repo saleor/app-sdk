@@ -29,12 +29,29 @@ export function AppBridgeProvider({ appBridgeInstance, ...props }: React.PropsWi
   const [appBridge, setAppBridge] = useState<AppBridge | undefined>(appBridgeInstance);
 
   useEffect(() => {
-    if (!appBridge) {
-      debug("AppBridge not defined, will create new instance");
-      setAppBridge(appBridgeInstance ?? new AppBridge());
-    } else {
+    if (appBridge) {
       debug("AppBridge provided in props, will use this one");
+
+      return undefined;
     }
+
+    debug("AppBridge not defined, will create new instance");
+
+    const instance = new AppBridge();
+
+    setAppBridge(instance);
+
+    /**
+     * Only instances created here are destroyed here — an instance passed via
+     * props is owned by the caller. Without this, StrictMode's double-mount
+     * leaves two live bridges attached to the same window, so every Dashboard
+     * shortcut and event gets handled twice.
+     */
+    return () => {
+      debug("Provider unmounted, will destroy the AppBridge it created");
+
+      instance.destroy();
+    };
   }, []);
 
   const contextValue = useMemo(
@@ -77,6 +94,7 @@ export const useAppBridge = () => {
         appBridge.subscribe("response", updateState),
         appBridge.subscribe("redirect", updateState),
         appBridge.subscribe("formPayload", updateState),
+        appBridge.subscribe("shortcutsChanged", updateState),
       ];
     }
 

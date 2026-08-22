@@ -8,6 +8,8 @@ export * from "./app-iframe-params";
 export * from "./events";
 export * from "./fetch";
 export * from "./form-payload";
+export type { ShortcutForwarderOptions } from "./keyboard-shortcuts";
+export { createShortcutForwarder, matchDashboardShortcut } from "./keyboard-shortcuts";
 export * from "./open-popup-params";
 export * from "./types";
 export * from "./use-dashboard-token";

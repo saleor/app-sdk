@@ -8,6 +8,11 @@ import { AppBridgeState, AppBridgeStateContainer } from "./app-bridge-state";
 import { AppIframeParams } from "./app-iframe-params";
 import { SSR } from "./constants";
 import { Events, EventType, PayloadOfEvent, ThemeType } from "./events";
+import {
+  createShortcutForwarder,
+  parseDashboardShortcuts,
+  ShortcutForwarderOptions,
+} from "./keyboard-shortcuts";
 import { OpenPopupParams } from "./open-popup-params";
 
 const DISPATCH_RESPONSE_TIMEOUT = 10000;
@@ -71,6 +76,12 @@ function eventStateReducer(state: AppBridgeState, event: Events) {
         },
       };
     }
+    case EventType.shortcutsChanged: {
+      return {
+        ...state,
+        dashboardShortcuts: parseDashboardShortcuts(event.payload.shortcuts),
+      };
+    }
     case EventType.response: {
       return state;
     }
@@ -93,6 +104,7 @@ const createEmptySubscribeMap = (): SubscribeMap => ({
   localeChanged: {},
   tokenRefresh: {},
   formPayload: {},
+  shortcutsChanged: {},
 });
 
 export type AppBridgeOptions = {
@@ -104,6 +116,17 @@ export type AppBridgeOptions = {
    */
   autoNotifyReady?: boolean;
   initialTheme?: ThemeType;
+  /**
+   * Forward Dashboard-registered keyboard shortcuts out of the iframe so
+   * global handlers (e.g. Cmd+K) keep working while the app has focus.
+   *
+   * Default `true`. Safe against older Dashboards: an empty registry matches
+   * nothing, so behavior is unchanged until `shortcutsChanged` arrives.
+   *
+   * Pass `false` to disable, or `{ shouldForward }` to claim a registered
+   * chord back for the app.
+   */
+  forwardKeyboardShortcuts?: boolean | ShortcutForwarderOptions;
 };
 
 /**
@@ -149,6 +172,7 @@ const getDefaultOptions = (): AppBridgeOptions => ({
   initialLocale: getLocaleFromUrl() ?? "en",
   autoNotifyReady: true,
   initialTheme: getThemeFromUrl() ?? undefined,
+  forwardKeyboardShortcuts: true,
 });
 
 export class AppBridge {
@@ -159,6 +183,10 @@ export class AppBridge {
   private subscribeMap = createEmptySubscribeMap();
 
   private combinedOptions = getDefaultOptions();
+
+  private stopForwardingShortcuts?: () => void;
+
+  private stopListeningOnMessages?: () => void;
 
   constructor(options: AppBridgeOptions = {}) {
     debug("Constructor called with options: %j", options);
@@ -195,6 +223,7 @@ export class AppBridge {
 
     this.setInitialState();
     this.listenOnMessages();
+    this.attachShortcutForwarder();
 
     if (this.combinedOptions.autoNotifyReady) {
       this.sendNotifyReadyAction();
@@ -317,6 +346,25 @@ export class AppBridge {
     });
   }
 
+  /**
+   * Detach this instance from the window: stop forwarding keyboard shortcuts,
+   * stop receiving Dashboard events, and drop all subscribers.
+   *
+   * Call when the app tears down a bridge it created, so a replacement instance
+   * doesn't double-handle events. Safe to call more than once.
+   */
+  destroy() {
+    debug("destroy() called");
+
+    this.stopForwardingShortcuts?.();
+    this.stopForwardingShortcuts = undefined;
+
+    this.stopListeningOnMessages?.();
+    this.stopListeningOnMessages = undefined;
+
+    this.unsubscribeAll();
+  }
+
   private setInitialState() {
     debug("setInitialState() called");
 
@@ -338,38 +386,54 @@ export class AppBridge {
     this.state.setState(state);
   }
 
+  private attachShortcutForwarder() {
+    const option = this.combinedOptions.forwardKeyboardShortcuts ?? true;
+
+    if (option === false) {
+      return;
+    }
+
+    this.stopForwardingShortcuts = createShortcutForwarder(
+      this,
+      typeof option === "object" ? option : {},
+    );
+  }
+
   private listenOnMessages() {
     debug("listenOnMessages() called");
 
-    window.addEventListener(
-      "message",
-      ({ origin, data }: Omit<MessageEvent, "data"> & { data: Events }) => {
-        debug("Received message from origin: %s and data: %j", origin, data);
+    const onMessage = ({ origin, data }: Omit<MessageEvent, "data"> & { data: Events }) => {
+      debug("Received message from origin: %s and data: %j", origin, data);
 
-        // todo: we dont need this if and referer at all
-        if (origin !== this.refererOrigin) {
-          debug("Origin from message doesn't match refererOrigin. Function will return now");
-          // TODO what should happen here - be explicit
-          return;
-        }
+      // todo: we dont need this if and referer at all
+      if (origin !== this.refererOrigin) {
+        debug("Origin from message doesn't match refererOrigin. Function will return now");
+        // TODO what should happen here - be explicit
+        return;
+      }
 
-        const newState = eventStateReducer(this.state.getState(), data);
-        debug("Computed new state: %j. Will be set with setState", newState);
-        this.state.setState(newState);
+      const newState = eventStateReducer(this.state.getState(), data);
+      debug("Computed new state: %j. Will be set with setState", newState);
+      this.state.setState(newState);
 
-        /**
-         * TODO Validate and warn/throw
-         */
-        const { type, payload } = data;
+      /**
+       * TODO Validate and warn/throw
+       */
+      const { type, payload } = data;
 
-        if (EventType[type]) {
-          Object.getOwnPropertySymbols(this.subscribeMap[type]).forEach((key) => {
-            debug("Executing listener for event: '%s' and payload %j", type, payload);
-            // @ts-ignore fixme
-            this.subscribeMap[type][key](payload);
-          });
-        }
-      },
-    );
+      if (EventType[type]) {
+        Object.getOwnPropertySymbols(this.subscribeMap[type]).forEach((key) => {
+          debug("Executing listener for event: '%s' and payload %j", type, payload);
+          // @ts-ignore fixme
+          this.subscribeMap[type][key](payload);
+        });
+      }
+    };
+
+    window.addEventListener("message", onMessage);
+
+    this.stopListeningOnMessages = () => {
+      window.removeEventListener("message", onMessage);
+    };
   }
 }

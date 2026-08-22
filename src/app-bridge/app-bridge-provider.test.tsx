@@ -24,6 +24,65 @@ Object.defineProperty(window, "location", {
 });
 
 describe("AppBridgeProvider", () => {
+  it("Destroys the AppBridge it created when unmounted", () => {
+    const { unmount } = render(
+      <AppBridgeProvider>
+        <div />
+      </AppBridgeProvider>,
+    );
+
+    const postMessage = vi.spyOn(window.parent, "postMessage");
+
+    unmount();
+
+    fireEvent(
+      window,
+      new MessageEvent("message", {
+        data: DashboardEventFactory.createShortcutsChangedEvent([
+          { id: "commandPalette.open", key: "k", metaKey: true },
+        ]),
+        origin,
+      }),
+    );
+
+    fireEvent.keyDown(window, { key: "k", metaKey: true });
+
+    expect(postMessage).not.toHaveBeenCalledWith(
+      expect.objectContaining({ type: "triggerShortcut" }),
+      "*",
+    );
+
+    postMessage.mockRestore();
+  });
+
+  it("Keeps an AppBridge passed via props alive after unmount", () => {
+    const appBridge = new AppBridge({
+      saleorApiUrl,
+      autoNotifyReady: false,
+      forwardKeyboardShortcuts: false,
+    });
+
+    const { unmount } = render(
+      <AppBridgeProvider appBridgeInstance={appBridge}>
+        <div />
+      </AppBridgeProvider>,
+    );
+
+    unmount();
+
+    fireEvent(
+      window,
+      new MessageEvent("message", {
+        data: DashboardEventFactory.createThemeChangeEvent("dark"),
+        origin,
+      }),
+    );
+
+    expect(appBridge.getState().theme).toBe("dark");
+
+    appBridge.destroy();
+  });
+
   it("Mounts provider in React DOM", () => {
     const { container } = render(
       <AppBridgeProvider>
@@ -125,7 +184,48 @@ describe("useAppBridge hook", () => {
         locale: "en",
         saleorApiUrl,
         formContext: {},
+        dashboardShortcuts: [],
       });
+    });
+  });
+
+  it("Updates React state when shortcutsChanged is received", () => {
+    const appBridge = new AppBridge({
+      saleorApiUrl,
+      forwardKeyboardShortcuts: false,
+    });
+    const renderCallback = vi.fn();
+
+    function TestComponent() {
+      const { appBridgeState } = useAppBridge();
+
+      renderCallback(appBridgeState);
+
+      return null;
+    }
+
+    render(
+      <AppBridgeProvider appBridgeInstance={appBridge}>
+        <TestComponent />
+      </AppBridgeProvider>,
+    );
+
+    const shortcuts = [{ id: "commandPalette.open", key: "k", metaKey: true }];
+
+    fireEvent(
+      window,
+      new MessageEvent("message", {
+        data: DashboardEventFactory.createShortcutsChangedEvent(shortcuts),
+        origin,
+      }),
+    );
+
+    return waitFor(() => {
+      expect(renderCallback).toHaveBeenCalledWith(
+        expect.objectContaining({
+          dashboardShortcuts: shortcuts,
+        }),
+      );
     });
   });
 });

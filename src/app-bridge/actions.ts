@@ -60,6 +60,15 @@ export const ActionType = {
    */
   openPopup: "openPopup",
   /**
+   * Ask Dashboard to run a shortcut it previously advertised via
+   * `shortcutsChanged`. AppBridge dispatches this automatically when the user
+   * presses a registered chord inside the iframe.
+   *
+   * Only has an effect on Dashboard versions that handle the `triggerShortcut`
+   * action type and send `shortcutsChanged`.
+   */
+  triggerShortcut: "triggerShortcut",
+  /**
    * Ask Dashboard to redirect to another app, referenced by its app identifier.
    * Dashboard resolves the target app's URL and appends the optional path.
    */
@@ -293,6 +302,59 @@ function createOpenPopupAction(payload: OpenPopupPayload): OpenPopup {
   });
 }
 
+export type TriggerShortcutPayload = {
+  /**
+   * Dashboard command id from the matching `DashboardShortcut`.
+   */
+  shortcutId: string;
+  /**
+   * `KeyboardEvent.key` of the keypress that matched.
+   */
+  key: string;
+  metaKey: boolean;
+  ctrlKey: boolean;
+  altKey: boolean;
+  shiftKey: boolean;
+};
+
+export type TriggerShortcut = ActionWithId<"triggerShortcut", TriggerShortcutPayload>;
+
+const TRIGGER_SHORTCUT_ID_ERROR = "TriggerShortcut shortcutId must be a non-empty string.";
+const TRIGGER_SHORTCUT_KEY_ERROR = "TriggerShortcut key must be a non-empty string.";
+
+function assertValidTriggerShortcutPayload(
+  payload: TriggerShortcutPayload,
+): asserts payload is TriggerShortcutPayload {
+  if (typeof payload.shortcutId !== "string" || payload.shortcutId.trim() === "") {
+    throw new Error(TRIGGER_SHORTCUT_ID_ERROR);
+  }
+
+  if (typeof payload.key !== "string" || payload.key.trim() === "") {
+    throw new Error(TRIGGER_SHORTCUT_KEY_ERROR);
+  }
+}
+
+/**
+ * Asks the Dashboard to run a shortcut it previously advertised via
+ * `shortcutsChanged`. Only has an effect on Dashboard versions that handle
+ * the `triggerShortcut` action type.
+ */
+function createTriggerShortcutAction(payload: TriggerShortcutPayload): TriggerShortcut {
+  assertValidTriggerShortcutPayload(payload);
+
+  return withActionId({
+    type: "triggerShortcut",
+    payload: {
+      shortcutId: payload.shortcutId,
+      key: payload.key,
+      metaKey: payload.metaKey,
+      ctrlKey: payload.ctrlKey,
+      altKey: payload.altKey,
+      shiftKey: payload.shiftKey,
+    },
+  });
+}
+
 export type RedirectToAppPayload = {
   /**
    * Identifier of the target app, as defined in its manifest.
@@ -342,6 +404,7 @@ export type Actions =
   | WidgetResize
   | RefreshEntity
   | OpenPopup
+  | TriggerShortcut
   | RedirectToApp;
 
 export const actions = {
@@ -355,5 +418,6 @@ export const actions = {
   WidgetResize: createWidgetResizeAction,
   RefreshEntity: createRefreshEntityAction,
   OpenPopup: createOpenPopupAction,
+  TriggerShortcut: createTriggerShortcutAction,
   RedirectToApp: createRedirectToAppAction,
 };

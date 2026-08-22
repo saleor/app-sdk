@@ -81,10 +81,11 @@ const mockDashboardActionResponse = (actionType: ActionType, actionID: string) =
 };
 
 describe("AppBridge", () => {
-  let appBridge = new AppBridge();
+  let appBridge = new AppBridge({ forwardKeyboardShortcuts: false });
 
   beforeEach(() => {
-    appBridge = new AppBridge();
+    appBridge.destroy();
+    appBridge = new AppBridge({ forwardKeyboardShortcuts: false });
 
     vi.spyOn(console, "warn").mockImplementation(() => {
       // noop
@@ -96,6 +97,7 @@ describe("AppBridge", () => {
   });
 
   afterAll(() => {
+    appBridge.destroy();
     vi.clearAllMocks();
   });
 
@@ -247,6 +249,7 @@ describe("AppBridge", () => {
   it.each<LocaleCode>(["pl", "en", "it"])("sets initial locale \"%s\" from constructor", (locale) => {
     const instance = new AppBridge({
       initialLocale: locale,
+      forwardKeyboardShortcuts: false,
     });
 
     expect(instance.getState().locale).toBe(locale);
@@ -259,7 +262,9 @@ describe("AppBridge", () => {
 
     window.location.href = `${origin}?domain=${domain}&id=appid&locale=${localeToOverwrite}`;
 
-    expect(new AppBridge().getState().locale).toBe(localeToOverwrite);
+    expect(new AppBridge({ forwardKeyboardShortcuts: false }).getState().locale).toBe(
+      localeToOverwrite,
+    );
 
     window.location.href = currentLocationHref;
   });
@@ -271,7 +276,9 @@ describe("AppBridge", () => {
 
     window.location.href = `${origin}?domain=${domain}&id=appid&theme=${themeToOverwrite}`;
 
-    expect(new AppBridge().getState().theme).toBe(themeToOverwrite);
+    expect(new AppBridge({ forwardKeyboardShortcuts: false }).getState().theme).toBe(
+      themeToOverwrite,
+    );
 
     window.location.href = currentLocationHref;
   });
@@ -285,7 +292,7 @@ describe("AppBridge", () => {
       OpenPopupParams.urlKey
     }=${OpenPopupParams.serialize(value)}`;
 
-    expect(new AppBridge().getState().appParams).toEqual(value);
+    expect(new AppBridge({ forwardKeyboardShortcuts: false }).getState().appParams).toEqual(value);
 
     window.location.href = currentLocationHref;
   });
@@ -298,7 +305,10 @@ describe("AppBridge", () => {
 
     window.location.href = `${origin}?domain=${domain}&id=appid&appParams=${base64}`;
 
-    expect(new AppBridge().getState().appParams).toEqual({ productId: "prod-42", mode: "full" });
+    expect(new AppBridge({ forwardKeyboardShortcuts: false }).getState().appParams).toEqual({
+      productId: "prod-42",
+      mode: "full",
+    });
 
     window.location.href = currentLocationHref;
   });
@@ -308,7 +318,7 @@ describe("AppBridge", () => {
 
     window.location.href = `${origin}?domain=${domain}&id=appid`;
 
-    expect(new AppBridge().getState().appParams).toBeUndefined();
+    expect(new AppBridge({ forwardKeyboardShortcuts: false }).getState().appParams).toBeUndefined();
 
     window.location.href = currentLocationHref;
   });
@@ -318,7 +328,7 @@ describe("AppBridge", () => {
 
     window.location.href = `${origin}?domain=${domain}&id=appid&appParams=not-valid-#@!`;
 
-    expect(new AppBridge().getState().appParams).toBeUndefined();
+    expect(new AppBridge({ forwardKeyboardShortcuts: false }).getState().appParams).toBeUndefined();
 
     window.location.href = currentLocationHref;
   });
@@ -331,7 +341,7 @@ describe("AppBridge", () => {
         }
       });
 
-      appBridge = new AppBridge({ autoNotifyReady: true });
+      appBridge = new AppBridge({ autoNotifyReady: true, forwardKeyboardShortcuts: false });
     }));
 
   it("Overwrites token after tokenRefresh action is triggered", () => {
@@ -716,6 +726,250 @@ describe("AppBridge", () => {
       expect(appBridgeState.formContext?.["product-edit"]).toEqual(productEditPayload);
       expect(appBridgeState.formContext?.["product-translate"]?.productId).toBe("product-123");
       expect(appBridgeState.formContext?.["product-edit"]?.productId).toBe("product-456");
+    });
+  });
+
+  describe("keyboard shortcut forwarding", () => {
+    const commandPalette = { id: "commandPalette.open", key: "k", metaKey: true };
+
+    it("stores dashboardShortcuts from shortcutsChanged (full replace)", () => {
+      expect(appBridge.getState().dashboardShortcuts).toEqual([]);
+
+      fireEvent(
+        window,
+        new MessageEvent("message", {
+          data: DashboardEventFactory.createShortcutsChangedEvent([commandPalette]),
+          origin,
+        }),
+      );
+
+      expect(appBridge.getState().dashboardShortcuts).toEqual([commandPalette]);
+
+      fireEvent(
+        window,
+        new MessageEvent("message", {
+          data: DashboardEventFactory.createShortcutsChangedEvent([]),
+          origin,
+        }),
+      );
+
+      expect(appBridge.getState().dashboardShortcuts).toEqual([]);
+    });
+
+    it("drops malformed shortcuts instead of storing them", () => {
+      fireEvent(
+        window,
+        new MessageEvent("message", {
+          data: {
+            type: "shortcutsChanged",
+            payload: { shortcuts: [commandPalette, { key: "j" }, null] },
+          },
+          origin,
+        }),
+      );
+
+      expect(appBridge.getState().dashboardShortcuts).toEqual([commandPalette]);
+    });
+
+    it("ignores a shortcutsChanged payload that is not an array", () => {
+      fireEvent(
+        window,
+        new MessageEvent("message", {
+          data: { type: "shortcutsChanged", payload: { shortcuts: "commandPalette.open" } },
+          origin,
+        }),
+      );
+
+      expect(appBridge.getState().dashboardShortcuts).toEqual([]);
+    });
+
+    it("subscribes to shortcutsChanged and runs the callback", () => {
+      const callback = vi.fn();
+      const unsubscribe = appBridge.subscribe("shortcutsChanged", callback);
+
+      fireEvent(
+        window,
+        new MessageEvent("message", {
+          data: DashboardEventFactory.createShortcutsChangedEvent([commandPalette]),
+          origin,
+        }),
+      );
+
+      expect(callback).toHaveBeenCalledOnce();
+      expect(callback).toHaveBeenCalledWith({ shortcuts: [commandPalette] });
+
+      unsubscribe();
+    });
+
+    it("does not post triggerShortcut when no registry was sent", () => {
+      fireEvent(
+        window,
+        new MessageEvent("message", {
+          data: DashboardEventFactory.createShortcutsChangedEvent([]),
+          origin,
+        }),
+      );
+
+      const instance = new AppBridge({
+        autoNotifyReady: false,
+        forwardKeyboardShortcuts: true,
+      });
+      const postMessage = vi.spyOn(window.parent, "postMessage");
+
+      fireEvent.keyDown(window, { key: "k", metaKey: true });
+
+      expect(postMessage).not.toHaveBeenCalledWith(
+        expect.objectContaining({ type: "triggerShortcut" }),
+        "*",
+      );
+
+      instance.destroy();
+      postMessage.mockRestore();
+    });
+
+    it("does not post triggerShortcut when forwarding is disabled", () => {
+      const instance = new AppBridge({
+        autoNotifyReady: false,
+        forwardKeyboardShortcuts: false,
+      });
+      const postMessage = vi.spyOn(window.parent, "postMessage");
+
+      fireEvent(
+        window,
+        new MessageEvent("message", {
+          data: DashboardEventFactory.createShortcutsChangedEvent([commandPalette]),
+          origin,
+        }),
+      );
+
+      fireEvent.keyDown(window, { key: "k", metaKey: true });
+
+      expect(postMessage).not.toHaveBeenCalledWith(
+        expect.objectContaining({ type: "triggerShortcut" }),
+        "*",
+      );
+
+      instance.destroy();
+      postMessage.mockRestore();
+    });
+
+    it("posts triggerShortcut for a registered chord", () => {
+      const instance = new AppBridge({
+        autoNotifyReady: false,
+        forwardKeyboardShortcuts: true,
+      });
+      const postMessage = vi.spyOn(window.parent, "postMessage");
+
+      fireEvent(
+        window,
+        new MessageEvent("message", {
+          data: DashboardEventFactory.createShortcutsChangedEvent([commandPalette]),
+          origin,
+        }),
+      );
+
+      fireEvent.keyDown(window, { key: "k", metaKey: true });
+
+      expect(postMessage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "triggerShortcut",
+          payload: expect.objectContaining({
+            shortcutId: "commandPalette.open",
+            key: "k",
+            metaKey: true,
+            ctrlKey: false,
+            altKey: false,
+            shiftKey: false,
+            actionId: expect.any(String),
+          }),
+        }),
+        "*",
+      );
+
+      instance.destroy();
+      postMessage.mockRestore();
+    });
+
+    it("stops forwarding after destroy()", () => {
+      const instance = new AppBridge({
+        autoNotifyReady: false,
+        forwardKeyboardShortcuts: true,
+      });
+
+      fireEvent(
+        window,
+        new MessageEvent("message", {
+          data: DashboardEventFactory.createShortcutsChangedEvent([commandPalette]),
+          origin,
+        }),
+      );
+
+      instance.destroy();
+
+      const postMessage = vi.spyOn(window.parent, "postMessage");
+
+      fireEvent.keyDown(window, { key: "k", metaKey: true });
+
+      expect(postMessage).not.toHaveBeenCalledWith(
+        expect.objectContaining({ type: "triggerShortcut" }),
+        "*",
+      );
+
+      postMessage.mockRestore();
+    });
+  });
+
+  describe("destroy", () => {
+    it("stops receiving Dashboard events", () => {
+      const instance = new AppBridge({
+        autoNotifyReady: false,
+        forwardKeyboardShortcuts: false,
+      });
+
+      instance.destroy();
+
+      fireEvent(
+        window,
+        new MessageEvent("message", {
+          data: handshakeEvent,
+          origin,
+        }),
+      );
+
+      expect(instance.getState().ready).toBe(false);
+      expect(instance.getState().token).toBeUndefined();
+    });
+
+    it("drops subscribers", () => {
+      const instance = new AppBridge({
+        autoNotifyReady: false,
+        forwardKeyboardShortcuts: false,
+      });
+      const callback = vi.fn();
+
+      instance.subscribe("handshake", callback);
+      instance.destroy();
+
+      fireEvent(
+        window,
+        new MessageEvent("message", {
+          data: handshakeEvent,
+          origin,
+        }),
+      );
+
+      expect(callback).not.toHaveBeenCalled();
+    });
+
+    it("is safe to call twice", () => {
+      const instance = new AppBridge({
+        autoNotifyReady: false,
+        forwardKeyboardShortcuts: true,
+      });
+
+      instance.destroy();
+
+      expect(() => instance.destroy()).not.toThrow();
     });
   });
 });
