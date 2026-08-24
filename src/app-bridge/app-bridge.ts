@@ -4,7 +4,7 @@ import { LocaleCode } from "../locales";
 import { extractAppPermissionsFromJwt } from "../util/extract-app-permissions-from-jwt";
 import { extractUserFromJwt } from "../util/extract-user-from-jwt";
 import { Actions, actions } from "./actions";
-import { AppBridgeState, AppBridgeStateContainer } from "./app-bridge-state";
+import { type AppBridgeState, AppBridgeStateContainer } from "./app-bridge-state";
 import { AppIframeParams } from "./app-iframe-params";
 import { SSR } from "./constants";
 import { Events, EventType, PayloadOfEvent, ThemeType } from "./events";

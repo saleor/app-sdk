@@ -4,6 +4,7 @@ import {
 } from "@/app-bridge/form-payload";
 
 import { AppPermission } from "../types";
+import { type ActionWithId, withActionId } from "./action-envelope";
 import { Values } from "./helpers";
 import { OpenPopupParams } from "./open-popup-params";
 
@@ -61,8 +62,12 @@ export const ActionType = {
   openPopup: "openPopup",
   /**
    * Ask Dashboard to run a shortcut it previously advertised via
-   * `shortcutsChanged`. AppBridge dispatches this automatically when the user
-   * presses a registered chord inside the iframe.
+   * `shortcutsChanged`.
+   *
+   * Internal: AppBridge dispatches this itself when the user presses a
+   * registered chord inside the iframe, and there is deliberately no helper on
+   * `actions`. Apps should not synthesize keypresses on the user's behalf; a
+   * capability an app wants to invoke directly belongs behind its own action.
    *
    * Only has an effect on Dashboard versions that handle the `triggerShortcut`
    * action type and send `shortcutsChanged`.
@@ -76,36 +81,6 @@ export const ActionType = {
 } as const;
 
 export type ActionType = Values<typeof ActionType>;
-
-type Action<Name extends ActionType, Payload extends {}> = {
-  payload: Payload;
-  type: Name;
-};
-
-type ActionWithId<Name extends ActionType, Payload extends {}> = {
-  payload: Payload & { actionId: string };
-  type: Name;
-};
-
-function withActionId<Name extends ActionType, Payload extends {}, T extends Action<Name, Payload>>(
-  action: T,
-): ActionWithId<Name, Payload> {
-  try {
-    const actionId = globalThis.crypto.randomUUID();
-
-    return {
-      ...action,
-      payload: {
-        ...action.payload,
-        actionId,
-      },
-    };
-  } catch (e) {
-    throw new Error(
-      "Failed to generate action ID, likely as your browser doesn't consider current session as Secure Context. Please ensure you are using https or localhost, or current IP/domain is in 'dom.securecontext.allowlist'/'#unsafely-treat-insecure-origin-as-secure' if you trust it.",
-    );
-  }
-}
 
 export type RedirectPayload = {
   /**
@@ -302,59 +277,6 @@ function createOpenPopupAction(payload: OpenPopupPayload): OpenPopup {
   });
 }
 
-export type TriggerShortcutPayload = {
-  /**
-   * Dashboard command id from the matching `DashboardShortcut`.
-   */
-  shortcutId: string;
-  /**
-   * `KeyboardEvent.key` of the keypress that matched.
-   */
-  key: string;
-  metaKey: boolean;
-  ctrlKey: boolean;
-  altKey: boolean;
-  shiftKey: boolean;
-};
-
-export type TriggerShortcut = ActionWithId<"triggerShortcut", TriggerShortcutPayload>;
-
-const TRIGGER_SHORTCUT_ID_ERROR = "TriggerShortcut shortcutId must be a non-empty string.";
-const TRIGGER_SHORTCUT_KEY_ERROR = "TriggerShortcut key must be a non-empty string.";
-
-function assertValidTriggerShortcutPayload(
-  payload: TriggerShortcutPayload,
-): asserts payload is TriggerShortcutPayload {
-  if (typeof payload.shortcutId !== "string" || payload.shortcutId.trim() === "") {
-    throw new Error(TRIGGER_SHORTCUT_ID_ERROR);
-  }
-
-  if (typeof payload.key !== "string" || payload.key.trim() === "") {
-    throw new Error(TRIGGER_SHORTCUT_KEY_ERROR);
-  }
-}
-
-/**
- * Asks the Dashboard to run a shortcut it previously advertised via
- * `shortcutsChanged`. Only has an effect on Dashboard versions that handle
- * the `triggerShortcut` action type.
- */
-function createTriggerShortcutAction(payload: TriggerShortcutPayload): TriggerShortcut {
-  assertValidTriggerShortcutPayload(payload);
-
-  return withActionId({
-    type: "triggerShortcut",
-    payload: {
-      shortcutId: payload.shortcutId,
-      key: payload.key,
-      metaKey: payload.metaKey,
-      ctrlKey: payload.ctrlKey,
-      altKey: payload.altKey,
-      shiftKey: payload.shiftKey,
-    },
-  });
-}
-
 export type RedirectToAppPayload = {
   /**
    * Identifier of the target app, as defined in its manifest.
@@ -393,6 +315,18 @@ function createFormPayloadUpdateAction(payload: AllFormPayloadUpdatePayloads): F
   });
 }
 
+type TriggerShortcut = ActionWithId<
+  "triggerShortcut",
+  {
+    shortcutId: string;
+    key: string;
+    metaKey: boolean;
+    ctrlKey: boolean;
+    altKey: boolean;
+    shiftKey: boolean;
+  }
+>;
+
 export type Actions =
   | RedirectAction
   | NotificationAction
@@ -418,6 +352,5 @@ export const actions = {
   WidgetResize: createWidgetResizeAction,
   RefreshEntity: createRefreshEntityAction,
   OpenPopup: createOpenPopupAction,
-  TriggerShortcut: createTriggerShortcutAction,
   RedirectToApp: createRedirectToAppAction,
 };

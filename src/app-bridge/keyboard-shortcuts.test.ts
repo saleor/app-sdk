@@ -5,6 +5,7 @@ import type { AppBridge } from "./app-bridge";
 import type { DashboardShortcut } from "./events";
 import {
   createShortcutForwarder,
+  createTriggerShortcutAction,
   matchDashboardShortcut,
   parseDashboardShortcuts,
 } from "./keyboard-shortcuts";
@@ -107,6 +108,58 @@ describe("parseDashboardShortcuts", () => {
     { label: "null entry", value: null },
   ])("drops an entry with $label", ({ value }) => {
     expect(parseDashboardShortcuts([commandPalette, value])).toEqual([commandPalette]);
+  });
+});
+
+describe("createTriggerShortcutAction", () => {
+  it("Constructs action with \"triggerShortcut\" type, random actionId and payload", () => {
+    const payload = {
+      shortcutId: "commandPalette.open",
+      key: "k",
+      metaKey: true,
+      ctrlKey: false,
+      altKey: false,
+      shiftKey: false,
+    };
+
+    const action = createTriggerShortcutAction(payload);
+
+    expect(action.type).toBe("triggerShortcut");
+    expect(action.payload.actionId).toEqual(expect.any(String));
+    expect(action.payload).toEqual(expect.objectContaining(payload));
+  });
+
+  it.each([
+    { shortcutId: "", label: "empty" },
+    { shortcutId: "   ", label: "whitespace" },
+    { shortcutId: undefined as unknown as string, label: "missing" },
+  ])("throws when shortcutId is $label", ({ shortcutId }) => {
+    expect(() =>
+      createTriggerShortcutAction({
+        shortcutId,
+        key: "k",
+        metaKey: true,
+        ctrlKey: false,
+        altKey: false,
+        shiftKey: false,
+      }),
+    ).toThrow("TriggerShortcut shortcutId must be a non-empty string.");
+  });
+
+  it.each([
+    { key: "", label: "empty" },
+    { key: "   ", label: "whitespace" },
+  ])("throws when key is $label", ({ key }) => {
+    expect(() =>
+      createTriggerShortcutAction({
+        shortcutId: "commandPalette.open",
+        key,
+        metaKey: true,
+        ctrlKey: false,
+        altKey: false,
+        shiftKey: false,
+      }),
+    ).toThrow("TriggerShortcut key must be a non-empty string.");
   });
 });
 

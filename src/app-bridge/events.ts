@@ -84,8 +84,8 @@ export type FormDataEvent = Event<typeof formPayloadEventName, AllFormPayloads>;
  */
 export type DashboardShortcut = {
   /**
-   * Stable Dashboard command id, echoed back in `actions.TriggerShortcut`.
-   * e.g. `"commandPalette.open"`.
+   * Stable Dashboard command id, echoed back as `shortcutId` in the
+   * `triggerShortcut` action. e.g. `"commandPalette.open"`.
    */
   id: string;
   /**

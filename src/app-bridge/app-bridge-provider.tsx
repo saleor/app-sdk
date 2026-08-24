@@ -3,7 +3,7 @@ import * as React from "react";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 import { AppBridge } from "./app-bridge";
-import { AppBridgeState } from "./app-bridge-state";
+import type { AppBridgeState } from "./app-bridge-state";
 
 const debug = debugPkg.debug("app-sdk:AppBridgeProvider");
 

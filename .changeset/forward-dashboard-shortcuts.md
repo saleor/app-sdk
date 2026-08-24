@@ -6,7 +6,6 @@ Forward Dashboard-owned keyboard shortcuts out of the app iframe so global handl
 
 **Public API**
 
-- `actions.TriggerShortcut({ shortcutId, key, metaKey, ctrlKey, altKey, shiftKey })` — app → Dashboard action. AppBridge dispatches this automatically when a registered chord is pressed inside the iframe.
 - `shortcutsChanged` event — Dashboard → app, full-replace list of `{ id, key, metaKey?, ctrlKey?, altKey?, shiftKey? }`. Stored as the optional `appBridgeState.dashboardShortcuts` (always set by AppBridge, defaults to `[]`). Entries without a non-empty `id` and `key` are dropped with a warning.
 - `new AppBridge({ forwardKeyboardShortcuts })` — default `true`. Pass `false` to disable, or `{ shouldForward(event) }` to claim a registered chord back for the app.
 - `matchDashboardShortcut`, `createShortcutForwarder` — matcher and listener used internally; exported for tests and non-React hosts.
@@ -15,6 +14,8 @@ Forward Dashboard-owned keyboard shortcuts out of the app iframe so global handl
 `AppBridgeProvider` now destroys the AppBridge it created when it unmounts (an instance passed via `appBridgeInstance` is left alone, since the caller owns it). Without this, React StrictMode's double-mount left two live bridges on the same window and every shortcut and event was handled twice.
 
 Forwarding is a no-op until the Dashboard advertises a registry, so older Dashboards are unchanged.
+
+There is deliberately no `actions.TriggerShortcut(...)` helper. The `triggerShortcut` action is dispatched by AppBridge itself in response to a real keypress that matched the advertised registry, and its payload only describes that keypress — apps should not synthesize input on the user's behalf. A capability an app wants to invoke directly (e.g. opening the command palette) belongs behind its own action instead.
 
 **Dashboard contract** (implement in the Dashboard repo alongside this release)
 
