@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import * as actionsModule from "./actions";
 import { actions, NotificationPayload, RedirectPayload } from "./actions";
 import { OpenPopupParams } from "./open-popup-params";
 
@@ -153,6 +154,11 @@ describe("actions.ts", () => {
         "OpenPopup extensionIdentifier must be a non-empty string.",
       );
     });
+  });
+
+  it("does not expose TriggerShortcut on `actions` or as a module export", () => {
+    expect(actions).not.toHaveProperty("TriggerShortcut");
+    expect(actionsModule).not.toHaveProperty("TriggerShortcut");
   });
 
   describe("actions.RedirectToApp", () => {

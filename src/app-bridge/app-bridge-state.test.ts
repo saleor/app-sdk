@@ -14,6 +14,7 @@ describe("app-bridge-state.ts", () => {
       locale: "en",
       saleorApiUrl: "",
       formContext: {},
+      dashboardShortcuts: [],
     });
   });
 
@@ -64,5 +65,9 @@ describe("app-bridge-state.ts", () => {
 
   it("Leaves appParams undefined by default", () => {
     expect(new AppBridgeStateContainer().getState().appParams).toBeUndefined();
+  });
+
+  it("Defaults dashboardShortcuts to an empty list", () => {
+    expect(new AppBridgeStateContainer().getState().dashboardShortcuts).toEqual([]);
   });
 });

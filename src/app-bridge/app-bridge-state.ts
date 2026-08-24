@@ -2,7 +2,7 @@ import { FormPayloadProductEdit, FormPayloadProductTranslate } from "@/app-bridg
 
 import { LocaleCode } from "../locales";
 import { AppPermission, Permission } from "../types";
-import { ThemeType } from "./events";
+import { DashboardShortcut, ThemeType } from "./events";
 
 export type AppBridgeState = {
   token?: string;
@@ -36,6 +36,15 @@ export type AppBridgeState = {
    * URL on load; `undefined` when the app wasn't opened that way.
    */
   appParams?: unknown;
+  /**
+   * Keyboard shortcuts the Dashboard currently owns. Replaced in full by each
+   * `shortcutsChanged` event. Empty until the Dashboard advertises any — older
+   * Dashboards never send the event, so forwarding stays a no-op.
+   *
+   * Optional so that adding it doesn't break consumers that build an
+   * `AppBridgeState` themselves (e.g. test doubles). AppBridge always sets it.
+   */
+  dashboardShortcuts?: DashboardShortcut[];
 };
 
 type Options = {
@@ -52,6 +61,7 @@ export class AppBridgeStateContainer {
     theme: "light",
     locale: "en",
     formContext: {},
+    dashboardShortcuts: [],
   };
 
   constructor(options: Options = {}) {

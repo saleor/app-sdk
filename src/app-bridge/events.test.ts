@@ -110,4 +110,18 @@ describe("DashboardEventFactory", () => {
       payload: formPayload,
     });
   });
+
+  it("Creates shortcutsChanged event", () => {
+    const shortcuts = [
+      { id: "commandPalette.open", key: "k", metaKey: true },
+      { id: "sidebar.toggle", key: "b", ctrlKey: true },
+    ];
+
+    expect(DashboardEventFactory.createShortcutsChangedEvent(shortcuts)).toEqual({
+      type: "shortcutsChanged",
+      payload: {
+        shortcuts,
+      },
+    });
+  });
 });
