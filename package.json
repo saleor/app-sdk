@@ -80,7 +80,7 @@
     "husky": "^8.0.1",
     "jsdom": "26.0.0",
     "lint-staged": "15.4.3",
-    "next": "15.5.24",
+    "next": "15.5.26",
     "node-mocks-http": "1.16.2",
     "prettier": "3.5.2",
     "react": "19.0.0",
