@@ -573,6 +573,14 @@ export interface AppManifest {
    */
   author?: string;
   /**
+   * Marks the app as deprecated and explains where users should migrate.
+   * Informational only - the app keeps working. Displayed in the dashboard.
+   * Blank value means not deprecated. Values longer than 2048 characters are truncated.
+   *
+   * Available from Saleor 3.23. In previous versions will be ignored
+   */
+  deprecationReason?: string;
+  /**
    * Add brand-specific metadata to the app
    *
    * Available from Saleor 3.15. In previous versions will be ignored
