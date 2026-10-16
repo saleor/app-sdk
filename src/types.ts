@@ -489,6 +489,8 @@ export type ExtensionPOSTAttributes = {
   voucherId?: string;
 };
 
+export type WebhookPayloadGeneration = "DEFERRED" | "IMMEDIATE";
+
 export interface WebhookManifest {
   name: string;
   /**
@@ -499,6 +501,16 @@ export interface WebhookManifest {
   identifier?: string;
   asyncEvents?: AsyncWebhookEventType[];
   syncEvents?: SyncWebhookEventType[];
+  /**
+   * Controls when Saleor builds the payload for asynchronous events that defer payload generation
+   * (orders, draft orders, fulfillments, checkouts, variant stock and discounted price events).
+   *
+   * `DEFERRED` (the default) builds the payload in a background task, so it reflects the state at
+   * generation time rather than the state at the moment the event was triggered. `IMMEDIATE` builds it
+   * in the request that triggered the event. Ignored for events that do not defer and for sync events.
+   * Available from Saleor 3.23.42
+   */
+  payloadGeneration?: WebhookPayloadGeneration;
   /**
    * Query is required for a subscription.
    * If you don't need a payload, you can provide empty query like this:

@@ -46,6 +46,23 @@ describe("Next.js SaleorAsyncWebhook", () => {
         query: "subscription { event { ... on ProductUpdated { product { id }}}}",
       });
     });
+
+    it("should include payloadGeneration in the manifest when configured", () => {
+      const webhook = new SaleorAsyncWebhook({
+        ...webhookConfig,
+        event: "ORDER_UPDATED",
+        payloadGeneration: "IMMEDIATE",
+      });
+
+      expect(webhook.getWebhookManifest(baseUrl)).toStrictEqual({
+        asyncEvents: ["ORDER_UPDATED"],
+        isActive: true,
+        name: "ORDER_UPDATED webhook",
+        targetUrl: "http://example.com/api/webhooks/product-updated",
+        query: "subscription { event { ... on ProductUpdated { product { id }}}}",
+        payloadGeneration: "IMMEDIATE",
+      });
+    });
   });
 
   describe("createHandler", () => {

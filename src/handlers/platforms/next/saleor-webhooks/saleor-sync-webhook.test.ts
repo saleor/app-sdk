@@ -45,6 +45,15 @@ describe("Next.js SaleorSyncWebhook", () => {
         query: validSyncWebhookConfiguration.query,
       });
     });
+
+    it("should not emit payloadGeneration for sync webhooks", () => {
+      const saleorSyncWebhook = new SaleorSyncWebhook({
+        ...validSyncWebhookConfiguration,
+        payloadGeneration: "IMMEDIATE",
+      });
+
+      expect(saleorSyncWebhook.getWebhookManifest(baseUrl)).not.toHaveProperty("payloadGeneration");
+    });
   });
 
   describe("createHandler", () => {
