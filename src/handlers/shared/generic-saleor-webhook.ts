@@ -11,7 +11,12 @@ import {
   WebhookErrorCodeMap,
 } from "@/handlers/shared/saleor-webhook";
 import { SaleorWebhookValidator } from "@/handlers/shared/saleor-webhook-validator";
-import { AsyncWebhookEventType, SyncWebhookEventType, WebhookManifest } from "@/types";
+import {
+  AsyncWebhookEventType,
+  SyncWebhookEventType,
+  WebhookManifest,
+  WebhookPayloadGeneration,
+} from "@/types";
 
 import { PlatformAdapterInterface } from "./generic-adapter-use-case-types";
 import { SaleorRequestProcessor } from "./saleor-request-processor";
@@ -26,6 +31,12 @@ export interface GenericWebhookConfig<
   webhookPath: string;
   event: Event;
   isActive?: boolean;
+  /**
+   * When Saleor builds the payload for async events that defer payload generation. Omit to keep
+   * Saleor's default (`DEFERRED`). Only emitted into the manifest for async webhooks.
+   * Available from Saleor 3.23.42
+   */
+  payloadGeneration?: WebhookPayloadGeneration;
   apl: APL;
   onError?(error: WebhookError | Error, request: RequestType): void;
   formatErrorResponse?(
@@ -54,6 +65,8 @@ export abstract class GenericSaleorWebhook<TRequestType, TPayload = unknown> {
 
   isActive?: boolean;
 
+  payloadGeneration?: WebhookPayloadGeneration;
+
   apl: APL;
 
   onError: GenericWebhookConfig<TRequestType>["onError"];
@@ -65,13 +78,22 @@ export abstract class GenericSaleorWebhook<TRequestType, TPayload = unknown> {
   private webhookValidator: SaleorWebhookValidator;
 
   protected constructor(configuration: GenericWebhookConfig<TRequestType>) {
-    const { name, webhookPath, event, query, apl, isActive = true } = configuration;
+    const {
+      name,
+      webhookPath,
+      event,
+      query,
+      apl,
+      isActive = true,
+      payloadGeneration,
+    } = configuration;
 
     this.name = name || `${event} webhook`;
     this.query = query;
     this.webhookPath = webhookPath;
     this.event = event;
     this.isActive = isActive;
+    this.payloadGeneration = payloadGeneration;
     this.apl = apl;
     this.onError = configuration.onError;
     this.formatErrorResponse = configuration.formatErrorResponse;
@@ -118,6 +140,7 @@ export abstract class GenericSaleorWebhook<TRequestType, TPayload = unknown> {
         return {
           ...manifestBase,
           asyncEvents: [this.event as AsyncWebhookEventType],
+          ...(this.payloadGeneration ? { payloadGeneration: this.payloadGeneration } : {}),
         };
       case "sync":
         return {
