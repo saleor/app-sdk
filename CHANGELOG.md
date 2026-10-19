@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 1.17.0
+
+### Minor Changes
+
+- 7786653: Added optional `payloadGeneration` field (`"DEFERRED" | "IMMEDIATE"`) to `WebhookManifest` and to the webhook handler config, so an app can opt a webhook out of deferred payload generation for events that defer it (orders, draft orders, fulfillments, checkouts, variant stock and discounted price events). `SaleorAsyncWebhook.getWebhookManifest()` emits the field when set. It is ignored for sync webhooks and omitted from the manifest when unset. Supported in Saleor 3.23.42+.
+
 ## 1.16.0
 
 ### Minor Changes
