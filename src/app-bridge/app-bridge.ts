@@ -178,7 +178,11 @@ const getDefaultOptions = (): AppBridgeOptions => ({
 export class AppBridge {
   private state: AppBridgeStateContainer;
 
-  private refererOrigin = document.referrer ? new URL(document.referrer).origin : undefined;
+  // A full-page navigation inside the iframe can make the referrer point at the app itself.
+  // Prefer the immediate parent's origin; fall back for browsers without ancestorOrigins.
+  private refererOrigin =
+    window.location.ancestorOrigins?.[0] ||
+    (document.referrer ? new URL(document.referrer).origin : undefined);
 
   private subscribeMap = createEmptySubscribeMap();
 
@@ -210,7 +214,7 @@ export class AppBridge {
 
     if (!this.refererOrigin) {
       // TODO probably throw
-      console.warn("document.referrer is empty");
+      console.warn("Dashboard origin could not be determined");
     }
 
     if (!this.combinedOptions.saleorApiUrl) {

@@ -1,5 +1,5 @@
 import { fireEvent } from "@testing-library/dom";
-import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { LocaleCode } from "../locales";
 // eslint-disable-next-line
@@ -99,6 +99,72 @@ describe("AppBridge", () => {
   afterAll(() => {
     appBridge.destroy();
     vi.clearAllMocks();
+  });
+
+  describe("Dashboard origin after iframe navigation", () => {
+    const appOrigin = "https://app.example.com";
+    const ancestorDescriptor = Object.getOwnPropertyDescriptor(window.location, "ancestorOrigins");
+
+    const initializeBridge = (referrer: string, ancestors?: string[]) => {
+      appBridge.destroy();
+      Object.defineProperty(document, "referrer", { value: referrer });
+      Object.defineProperty(window.location, "ancestorOrigins", {
+        configurable: true,
+        value: ancestors,
+      });
+      appBridge = new AppBridge({ autoNotifyReady: false, forwardKeyboardShortcuts: false });
+    };
+
+    const sendHandshake = (messageOrigin: string) => {
+      fireEvent(
+        window,
+        new MessageEvent("message", { data: handshakeEvent, origin: messageOrigin }),
+      );
+    };
+
+    afterEach(() => {
+      Object.defineProperty(document, "referrer", { value: origin });
+      if (ancestorDescriptor) {
+        Object.defineProperty(window.location, "ancestorOrigins", ancestorDescriptor);
+      } else {
+        Reflect.deleteProperty(window.location, "ancestorOrigins");
+      }
+    });
+
+    it("accepts the immediate parent when the referrer points at the app", () => {
+      initializeBridge(`${appOrigin}/previous-page`, [origin]);
+      sendHandshake(origin);
+      expect(appBridge.getState().ready).toBe(true);
+    });
+
+    it("accepts the immediate parent when the referrer is empty", () => {
+      initializeBridge("", [origin]);
+      sendHandshake(origin);
+      expect(appBridge.getState().ready).toBe(true);
+    });
+
+    it("rejects the stale referrer, unrelated origins, and more distant ancestors", () => {
+      const topOrigin = "https://outer.example.com";
+      initializeBridge(`${appOrigin}/previous-page`, [origin, topOrigin]);
+      [appOrigin, "https://unrelated.example.com", topOrigin].forEach(sendHandshake);
+      expect(appBridge.getState().ready).toBe(false);
+      sendHandshake(origin);
+      expect(appBridge.getState().ready).toBe(true);
+    });
+
+    it.each([undefined, []])("falls back to the referrer with ancestorOrigins %j", (ancestors) => {
+      initializeBridge(`${origin}/apps/1`, ancestors);
+      sendHandshake(appOrigin);
+      expect(appBridge.getState().ready).toBe(false);
+      sendHandshake(origin);
+      expect(appBridge.getState().ready).toBe(true);
+    });
+
+    it("rejects handshakes when neither a parent origin nor a referrer is available", () => {
+      initializeBridge("");
+      sendHandshake(origin);
+      expect(appBridge.getState().ready).toBe(false);
+    });
   });
 
   it("authenticates", () => {
