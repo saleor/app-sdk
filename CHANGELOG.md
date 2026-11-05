@@ -1,5 +1,16 @@
 # @saleor/app-sdk
 
+## 1.17.0
+
+### Minor Changes
+
+- 7786653: Added optional `payloadGeneration` field (`"DEFERRED" | "IMMEDIATE"`) to `WebhookManifest` and to the webhook handler config, so an app can opt a webhook out of deferred payload generation for events that defer it (orders, draft orders, fulfillments, checkouts, variant stock and discounted price events). `SaleorAsyncWebhook.getWebhookManifest()` emits the field when set. It is ignored for sync webhooks and omitted from the manifest when unset. Supported in Saleor 3.23.42+.
+
+### Patch Changes
+
+- 43b549d: Upgraded Next.js to v16.4.5
+- f4b7008: `appBridgeState.appPermissions` and `appBridgeState.user` now update when the Dashboard sends a new token with `tokenRefresh`, and `useAppBridge()` re-renders on every App Bridge event. Before, both kept the values from the handshake token, and `useAppBridge()` kept returning the old token until some other event arrived. For example, after a user approved new app permissions, the app could keep showing the old ones until a page reload.
+
 ## 1.16.0
 
 ### Minor Changes
