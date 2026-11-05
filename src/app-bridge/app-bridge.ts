@@ -24,23 +24,31 @@ type SubscribeMap = {
 
 const debug = debugPkg.debug("app-sdk:AppBridge");
 
+/**
+ * `user` and `appPermissions` are decoded from the token, so they must change whenever the token does.
+ */
+function stateFromToken(token: string): Pick<AppBridgeState, "token" | "user" | "appPermissions"> {
+  const userJwtPayload = extractUserFromJwt(token);
+
+  return {
+    token,
+    user: {
+      email: userJwtPayload.email,
+      permissions: userJwtPayload.userPermissions,
+    },
+    appPermissions: extractAppPermissionsFromJwt(token),
+  };
+}
+
 function eventStateReducer(state: AppBridgeState, event: Events) {
   switch (event.type) {
     case EventType.handshake: {
-      const userJwtPayload = extractUserFromJwt(event.payload.token);
-      const appPermissions = extractAppPermissionsFromJwt(event.payload.token);
-
       return {
         ...state,
+        ...stateFromToken(event.payload.token),
         ready: true,
-        token: event.payload.token,
         saleorVersion: event.payload.saleorVersion,
         dashboardVersion: event.payload.dashboardVersion,
-        user: {
-          email: userJwtPayload.email,
-          permissions: userJwtPayload.userPermissions,
-        },
-        appPermissions,
       };
     }
     case EventType.redirect: {
@@ -62,9 +70,13 @@ function eventStateReducer(state: AppBridgeState, event: Events) {
       };
     }
     case EventType.tokenRefresh: {
+      /*
+       * The Dashboard sends a new token whenever its app token changes, e.g. after the app is granted
+       * new permissions, so its claims can differ from the previous token's.
+       */
       return {
         ...state,
-        token: event.payload.token,
+        ...stateFromToken(event.payload.token),
       };
     }
     case EventType.formPayload: {

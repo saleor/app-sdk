@@ -345,7 +345,9 @@ describe("AppBridge", () => {
     }));
 
   it("Overwrites token after tokenRefresh action is triggered", () => {
-    const tokenRefreshEvent = DashboardEventFactory.createTokenRefreshEvent("new-token");
+    const tokenRefreshEvent = DashboardEventFactory.createTokenRefreshEvent(
+      validTokenWithAppPermissions,
+    );
 
     expect(appBridge.getState().token).toBeUndefined();
 
@@ -368,6 +370,31 @@ describe("AppBridge", () => {
     );
 
     expect(appBridge.getState().token).toEqual(tokenRefreshEvent.payload.token);
+  });
+
+  it("Reads user and app permissions from the token sent with tokenRefresh", () => {
+    fireEvent(window, new MessageEvent("message", { data: handshakeEvent, origin }));
+
+    expect(appBridge.getState().appPermissions).toEqual([]);
+    expect(appBridge.getState().user?.email).toBe("admin@example.com");
+
+    fireEvent(
+      window,
+      new MessageEvent("message", {
+        data: DashboardEventFactory.createTokenRefreshEvent(validTokenWithAppPermissions),
+        origin,
+      }),
+    );
+
+    expect(appBridge.getState().appPermissions).toEqual([
+      "MANAGE_ORDERS",
+      "HANDLE_TAXES",
+      "MANAGE_CHANNELS",
+    ]);
+    expect(appBridge.getState().user).toEqual({
+      email: "lukasz.ostrowski@saleor.io",
+      permissions: expect.arrayContaining(["MANAGE_APPS", "MANAGE_ORDERS"]),
+    });
   });
 
   it("Saves saleorVersion field if provided in the Handshake event", () => {
