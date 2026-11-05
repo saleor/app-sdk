@@ -189,6 +189,58 @@ describe("useAppBridge hook", () => {
     });
   });
 
+  it("Updates React state when tokenRefresh is received", () => {
+    // Claims: { permissions: ["MANAGE_ORDERS"], user_permissions: ["MANAGE_APPS"], email: "staff@example.com" }
+    const refreshedToken = [
+      { alg: "none", typ: "JWT" },
+      {
+        permissions: ["MANAGE_ORDERS"],
+        user_permissions: ["MANAGE_APPS"],
+        email: "staff@example.com",
+      },
+    ]
+      .map((part) => btoa(JSON.stringify(part)).replace(/=+$/, ""))
+      .concat("signature")
+      .join(".");
+    const appBridge = new AppBridge({
+      saleorApiUrl,
+      forwardKeyboardShortcuts: false,
+    });
+    const renderCallback = vi.fn();
+
+    function TestComponent() {
+      const { appBridgeState } = useAppBridge();
+
+      renderCallback(appBridgeState);
+
+      return null;
+    }
+
+    render(
+      <AppBridgeProvider appBridgeInstance={appBridge}>
+        <TestComponent />
+      </AppBridgeProvider>,
+    );
+
+    fireEvent(
+      window,
+      new MessageEvent("message", {
+        data: DashboardEventFactory.createTokenRefreshEvent(refreshedToken),
+        origin,
+      }),
+    );
+
+    return waitFor(() => {
+      expect(renderCallback).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          token: refreshedToken,
+          appPermissions: ["MANAGE_ORDERS"],
+          user: { email: "staff@example.com", permissions: ["MANAGE_APPS"] },
+        }),
+      );
+    });
+  });
+
   it("Updates React state when shortcutsChanged is received", () => {
     const appBridge = new AppBridge({
       saleorApiUrl,

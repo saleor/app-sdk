@@ -4,6 +4,7 @@ import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 import { AppBridge } from "./app-bridge";
 import type { AppBridgeState } from "./app-bridge-state";
+import { EventType } from "./events";
 
 const debug = debugPkg.debug("app-sdk:AppBridgeProvider");
 
@@ -88,14 +89,10 @@ export const useAppBridge = () => {
     if (appBridge) {
       debug("Provider mounted, will set up listeners");
 
-      unsubscribes = [
-        appBridge.subscribe("handshake", updateState),
-        appBridge.subscribe("theme", updateState),
-        appBridge.subscribe("response", updateState),
-        appBridge.subscribe("redirect", updateState),
-        appBridge.subscribe("formPayload", updateState),
-        appBridge.subscribe("shortcutsChanged", updateState),
-      ];
+      // Every event can change the state, so React has to see all of them (tokenRefresh included).
+      unsubscribes = Object.values(EventType).map((eventType) =>
+        appBridge.subscribe(eventType, updateState),
+      );
     }
 
     return () => {
