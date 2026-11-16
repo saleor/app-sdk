@@ -26,7 +26,7 @@ describe("verifyJWT", () => {
       return {
         // @ts-ignore
         ...original,
-        createRemoteJWKSet: vi.fn().mockImplementation(() => ""),
+        createRemoteJWKSet: vi.fn().mockImplementation(() => () => undefined),
         jwtVerify: vi.fn().mockImplementation(() => ""),
       };
     });
@@ -92,5 +92,77 @@ describe("verifyJWT", () => {
     await expect(
       verifyJWT({ appId: validAppId, saleorApiUrl: validApiUrl, token: validToken }),
     ).rejects.toThrow(/Reason: ERR_JWKS_NO_MATCHING_KEY.*Token exp: 2022-11-24/s);
+  });
+
+  describe("JWKS source", () => {
+    const storedJwks = JSON.stringify({ keys: [] });
+
+    beforeEach(() => {
+      vi.mocked(jose.createRemoteJWKSet).mockClear();
+      vi.mocked(jose.jwtVerify).mockClear();
+    });
+
+    it("Verifies with the stored JWKS without creating a remote JWKS", async () => {
+      await verifyJWT({
+        appId: validAppId,
+        saleorApiUrl: validApiUrl,
+        token: validToken,
+        jwks: storedJwks,
+      });
+
+      expect(jose.jwtVerify).toHaveBeenCalledTimes(1);
+      expect(jose.createRemoteJWKSet).not.toHaveBeenCalled();
+    });
+
+    it("Falls back to the remote JWKS when the stored JWKS does not verify the token", async () => {
+      vi.mocked(jose.jwtVerify).mockRejectedValueOnce(new jose.errors.JWKSNoMatchingKey());
+
+      await verifyJWT({
+        appId: validAppId,
+        saleorApiUrl: "https://stored-jwks-rotated.saleor.cloud/graphql/",
+        token: validToken,
+        jwks: storedJwks,
+      });
+
+      expect(jose.jwtVerify).toHaveBeenCalledTimes(2);
+      expect(jose.createRemoteJWKSet).toHaveBeenCalledTimes(1);
+    });
+
+    it("Falls back to the remote JWKS when the stored JWKS is not valid JSON", async () => {
+      await verifyJWT({
+        appId: validAppId,
+        saleorApiUrl: validApiUrl,
+        token: validToken,
+        jwks: "not-json",
+      });
+
+      expect(jose.jwtVerify).toHaveBeenCalledTimes(1);
+    });
+
+    it("Throws with the remote reason when neither the stored nor the remote JWKS verify the token", async () => {
+      vi.spyOn(console, "error").mockImplementation(() => {});
+      vi.mocked(jose.jwtVerify)
+        .mockRejectedValueOnce(new jose.errors.JWKSNoMatchingKey())
+        .mockRejectedValueOnce(new jose.errors.JWSSignatureVerificationFailed());
+
+      await expect(
+        verifyJWT({
+          appId: validAppId,
+          saleorApiUrl: validApiUrl,
+          token: validToken,
+          jwks: storedJwks,
+        }),
+      ).rejects.toThrow(/Reason: ERR_JWS_SIGNATURE_VERIFICATION_FAILED/);
+    });
+
+    it("Reuses one remote JWKS per Saleor URL across calls", async () => {
+      const saleorApiUrl = "https://remote-jwks-reuse.saleor.cloud/graphql/";
+
+      await verifyJWT({ appId: validAppId, saleorApiUrl, token: validToken });
+      await verifyJWT({ appId: validAppId, saleorApiUrl, token: validToken });
+
+      expect(jose.createRemoteJWKSet).toHaveBeenCalledTimes(1);
+      expect(jose.jwtVerify).toHaveBeenCalledTimes(2);
+    });
   });
 });
