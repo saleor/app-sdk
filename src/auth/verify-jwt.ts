@@ -40,8 +40,9 @@ export interface verifyJWTArguments {
 }
 
 /**
- * One remote key set per JWKS URL, so jose's cache (10 min, refetch on an unknown key ID,
- * one fetch shared by concurrent calls) lives across requests instead of being rebuilt on every call.
+ * One remote key set per JWKS URL, so jose's cache lives across requests instead of being rebuilt on every call.
+ * jose defaults: `cacheMaxAge` 10 min, refetch on an unknown key ID throttled by `cooldownDuration` 30 s,
+ * one fetch shared by concurrent calls.
  */
 const remoteJwksByUrl = new Map<string, ReturnType<typeof jose.createRemoteJWKSet>>();
 
