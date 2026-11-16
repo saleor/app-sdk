@@ -32,13 +32,52 @@ export interface verifyJWTArguments {
   saleorApiUrl: string;
   token: string;
   requiredPermissions?: Permission[];
+  /**
+   * JWKS stored in the APL (`AuthData.jwks`). When given, the token is checked against it first,
+   * without a network call. Saleor's remote JWKS is used only if that check fails, e.g. after a key rotation.
+   */
+  jwks?: string;
 }
+
+/**
+ * One remote key set per JWKS URL, so jose's cache (10 min, refetch on an unknown key ID,
+ * one fetch shared by concurrent calls) lives across requests instead of being rebuilt on every call.
+ */
+const remoteJwksByUrl = new Map<string, ReturnType<typeof jose.createRemoteJWKSet>>();
+
+const getRemoteJwks = (saleorApiUrl: string) => {
+  const url = getJwksUrlFromSaleorApiUrl(saleorApiUrl);
+  let jwks = remoteJwksByUrl.get(url);
+
+  if (!jwks) {
+    jwks = jose.createRemoteJWKSet(new URL(url));
+    remoteJwksByUrl.set(url, jwks);
+  }
+
+  return jwks;
+};
+
+const verifyWithStoredJwks = async (token: string, jwks: string) => {
+  try {
+    await jose.jwtVerify(token, jose.createLocalJWKSet(JSON.parse(jwks)));
+
+    return true;
+  } catch (e) {
+    debug(
+      "Stored JWKS did not verify the token (%s), will use the remote JWKS",
+      getJoseErrorReason(e),
+    );
+
+    return false;
+  }
+};
 
 export const verifyJWT = async ({
   saleorApiUrl,
   token,
   appId,
   requiredPermissions,
+  jwks,
 }: verifyJWTArguments) => {
   let tokenClaims: DashboardTokenPayload;
   const ERROR_MESSAGE = "JWT verification failed:";
@@ -80,12 +119,15 @@ export const verifyJWT = async ({
     throw new Error(`${ERROR_MESSAGE} Token's permissions are not sufficient.`);
   }
 
-  try {
-    debug("Trying to create JWKS");
+  if (jwks && (await verifyWithStoredJwks(token, jwks))) {
+    debug("Token verified with the stored JWKS");
 
-    const JWKS = jose.createRemoteJWKSet(new URL(getJwksUrlFromSaleorApiUrl(saleorApiUrl)));
-    debug("Trying to compare JWKS with token");
-    await jose.jwtVerify(token, JWKS);
+    return;
+  }
+
+  try {
+    debug("Trying to compare remote JWKS with token");
+    await jose.jwtVerify(token, getRemoteJwks(saleorApiUrl));
   } catch (e) {
     const reason = getJoseErrorReason(e);
 
