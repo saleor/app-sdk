@@ -51,6 +51,16 @@ describe("ProtectedActionValidator", () => {
       });
     });
 
+    it("should verify the token against the JWKS stored in the APL", async () => {
+      const validator = new ProtectedActionValidator(mockAdapter);
+
+      await validator.validateRequest({ apl: mockAPL });
+
+      expect(verifyJWTModule.verifyJWT).toHaveBeenCalledWith(
+        expect.objectContaining({ jwks: mockAPL.mockJwks }),
+      );
+    });
+
     it("should fail validation when baseUrl is missing", async () => {
       mockAdapter.config.baseUrl = "";
       const validator = new ProtectedActionValidator(mockAdapter);
