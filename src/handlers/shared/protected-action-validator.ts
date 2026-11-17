@@ -146,6 +146,7 @@ export class ProtectedActionValidator<I> {
             token,
             saleorApiUrl,
             requiredPermissions: config.requiredPermissions,
+            jwks: authData.jwks,
           });
         } catch (e) {
           // verifyJWT throws an Error whose message already carries the specific
