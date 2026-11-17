@@ -34,9 +34,9 @@
     "@vercel/kv": "^1.0.0",
     "dynamodb-toolbox": ">2",
     "graphql": ">=16.6.0",
-    "next": ">=12",
-    "react": ">=17",
-    "react-dom": ">=17",
+    "next": "^15.0.0 || ^16.0.0",
+    "react": ">=18",
+    "react-dom": ">=18",
     "redis": ">=4"
   },
   "dependencies": {
