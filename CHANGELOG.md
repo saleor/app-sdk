@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 1.18.1
+
+### Patch Changes
+
+- 5bca3d5: Protected handlers (`createProtectedHandler` and platform equivalents) now pass `authData.jwks` from the APL to `verifyJWT`, so Dashboard tokens are verified against the stored JWKS without a network call. Saleor's remote JWKS is used only when the stored one does not verify the token, e.g. after a key rotation.
+
 ## 1.18.0
 
 ### Minor Changes
