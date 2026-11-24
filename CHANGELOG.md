@@ -1,5 +1,11 @@
 # @saleor/app-sdk
 
+## 1.19.0
+
+### Minor Changes
+
+- f6927fd: Added the optional `appIdentifier` setting to `createAppRegisterHandler`. Set it to the app manifest's `id` to validate the app identity Saleor returns during registration. A mismatch returns 403 `APP_IDENTIFIER_MISMATCH` before auth data is saved.
+
 ## 1.18.1
 
 ### Patch Changes
