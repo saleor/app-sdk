@@ -18,6 +18,13 @@ export type GenericCreateAppRegisterHandlerOptions<RequestType> = HasAPL & {
    */
   allowedSaleorUrls?: Array<string | ((saleorApiUrl: string) => boolean)>;
   /**
+   * The `id` from this app's manifest. When set, registration checks that the
+   * token belongs to an app with this identifier before saving auth data.
+   *
+   * Needs a Saleor version that exposes `App.identifier`.
+   */
+  appIdentifier?: string;
+  /**
    * Run right after Saleor calls this endpoint
    */
   onRequestStart?(
