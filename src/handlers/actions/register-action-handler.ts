@@ -2,7 +2,7 @@
 import { APL, AuthData } from "@/APL";
 import { fetchRemoteJwks } from "@/auth/fetch-remote-jwks";
 import { createDebug } from "@/debug";
-import { getAppId } from "@/get-app-id";
+import { getAppId, getAppIdentity } from "@/get-app-id";
 import { SALEOR_API_URL_HEADER } from "@/headers";
 
 import { GenericCreateAppRegisterHandlerOptions } from "../shared";
@@ -35,6 +35,7 @@ export type RegisterErrorCode =
   | "SALEOR_URL_PROHIBITED"
   | "APL_NOT_CONFIGURED"
   | "UNKNOWN_APP_ID"
+  | "APP_IDENTIFIER_MISMATCH"
   | "JWKS_NOT_AVAILABLE"
   | "REGISTER_HANDLER_HOOK_ERROR";
 
@@ -135,6 +136,7 @@ export class RegisterActionHandler<I>
     const getAppIdResult = await this.getAppIdAndHandleMissingAppId({
       saleorApiUrl,
       token: authToken,
+      appIdentifier: config.appIdentifier,
     });
 
     if (!getAppIdResult.success) {
@@ -302,9 +304,11 @@ export class RegisterActionHandler<I>
   private async getAppIdAndHandleMissingAppId({
     saleorApiUrl,
     token,
+    appIdentifier,
   }: {
     saleorApiUrl: string;
     token: string;
+    appIdentifier: string | undefined;
   }): Promise<
     | {
         success: false;
@@ -313,7 +317,10 @@ export class RegisterActionHandler<I>
     | { success: true; appId: string }
   > {
     // Try to get App ID from the API, to confirm that communication can be established
-    const appId = await getAppId({ saleorApiUrl, token });
+    const app = appIdentifier
+      ? await getAppIdentity({ saleorApiUrl, token })
+      : { id: await getAppId({ saleorApiUrl, token }), identifier: undefined };
+    const appId = app?.id;
 
     if (!appId) {
       const responseBody = createRegisterHandlerResponseBody(
@@ -324,6 +331,21 @@ export class RegisterActionHandler<I>
           This usually means that App could not connect to Saleor during installation. Saleor URL that App tried to connect: ${saleorApiUrl}`,
         },
         401,
+      );
+
+      return { success: false, responseBody };
+    }
+
+    if (appIdentifier && app?.identifier !== appIdentifier) {
+      debug("Token belongs to an app with identifier %s", app?.identifier);
+
+      const responseBody = createRegisterHandlerResponseBody(
+        false,
+        {
+          code: "APP_IDENTIFIER_MISMATCH",
+          message: `The auth token belongs to a different app than ${appIdentifier}.`,
+        },
+        403,
       );
 
       return { success: false, responseBody };

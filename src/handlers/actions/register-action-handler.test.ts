@@ -111,6 +111,64 @@ describe("RegisterActionHandler", () => {
       });
     });
 
+    describe("appIdentifier", () => {
+      it("registers a token of the app with the expected identifier", async () => {
+        const getAppIdentity = vi
+          .spyOn(getAppIdModule, "getAppIdentity")
+          .mockResolvedValue({ id: mockAuthData.appId, identifier: "app.example" });
+
+        const handler = new RegisterActionHandler(adapter);
+        const result = await handler.handleAction({ apl: mockApl, appIdentifier: "app.example" });
+
+        expect(result.status).toBe(200);
+        expect(getAppIdentity).toHaveBeenCalledWith({
+          saleorApiUrl: mockAuthData.saleorApiUrl,
+          token: mockAuthData.token,
+        });
+        expect(mockApl.set).toHaveBeenCalledWith(mockAuthData);
+      });
+
+      it.each([
+        ["another app", "com.example.other"],
+        ["an app without an identifier", null],
+      ])("rejects a token of %s and keeps the stored auth data", async (_, identifier) => {
+        vi.spyOn(getAppIdModule, "getAppIdentity").mockResolvedValue({
+          id: "other-app-id",
+          identifier,
+        });
+
+        const handler = new RegisterActionHandler(adapter);
+        const result = await handler.handleAction({ apl: mockApl, appIdentifier: "app.example" });
+
+        expect(result.status).toBe(403);
+        expect((result.body as RegisterHandlerResponseBody).error?.code).toBe(
+          "APP_IDENTIFIER_MISMATCH",
+        );
+        expect(mockApl.set).not.toHaveBeenCalled();
+      });
+
+      it("rejects a token Saleor doesn't recognise", async () => {
+        vi.spyOn(getAppIdModule, "getAppIdentity").mockResolvedValue(undefined);
+
+        const handler = new RegisterActionHandler(adapter);
+        const result = await handler.handleAction({ apl: mockApl, appIdentifier: "app.example" });
+
+        expect(result.status).toBe(401);
+        expect((result.body as RegisterHandlerResponseBody).error?.code).toBe("UNKNOWN_APP_ID");
+        expect(mockApl.set).not.toHaveBeenCalled();
+      });
+
+      it("only asks for the app ID when no identifier is configured", async () => {
+        const getAppIdentity = vi.spyOn(getAppIdModule, "getAppIdentity");
+
+        const handler = new RegisterActionHandler(adapter);
+        const result = await handler.handleAction({ apl: mockApl });
+
+        expect(result.status).toBe(200);
+        expect(getAppIdentity).not.toHaveBeenCalled();
+      });
+    });
+
     it("should return error when JWKS cannot be fetched", async () => {
       vi.spyOn(fetchRemoteJwksModule, "fetchRemoteJwks").mockRejectedValue(
         new Error("Network error"),
